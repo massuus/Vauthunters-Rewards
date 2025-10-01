@@ -1,4 +1,4 @@
-# Vault Hunters Rewards Lookup
+﻿# Vault Hunters Rewards Lookup
 
 A lightweight web application that lets you look up a Minecraft player and display their Vault Hunters rewards, sets, Patreon tiers, and head render in a single view. The backend proxies Mojang and Vault Hunters APIs so the client avoids CORS issues and receives a tidy payload.
 
@@ -6,10 +6,8 @@ A lightweight web application that lets you look up a Minecraft player and displ
 
 - Search by Minecraft username and resolve Mojang UUIDs automatically.
 - Aggregates data from Mojang, Vault Hunters rewards, and Patreon tier APIs.
-- Automatically formats UUIDs with dashes for Vault Hunters endpoints.
 - Displays special set art (Golden Creeper, Dylan VIP, Treasure Train, etc.) where available.
 - Toggleable "Extra Info" panel listing grouped item rewards.
-- Dark, Vault Hunters-inspired design built with vanilla HTML/CSS/JS.
 
 ## Prerequisites
 
@@ -29,7 +27,7 @@ The server starts on `http://localhost:3000` and serves both the API (`/api/prof
 ## Usage
 
 1. Open `http://localhost:3000` in your browser.
-2. Enter a Minecraft username (3�16 characters) and click **Search**.
+2. Enter a Minecraft username (3–16 characters) and click **Search**.
 3. If the player exists, you will see their head, set badges, Patreon tier list, and an expandable rewards panel.
 4. If the username is invalid or not found, the UI displays an appropriate message.
 
@@ -55,7 +53,7 @@ Errors:
 - `404` when Mojang cannot find the player.
 - `500` for unexpected upstream failures.
 
-## Customization
+## Customisation
 
 - Frontend files live in `public/`. Adjust `styles.css` or `app.js` to tweak the UX.
 - Expand the `SET_ART` map in `public/app.js` to add icons for additional set keys.
@@ -70,3 +68,7 @@ Errors:
 ## License
 
 ISC License. See `package.json` for details.
+
+## Discamer
+
+This tool is fan made and is just for fun. The tool uses the [vaulthunters.gg ](https://vaulthunters.gg/) API and images are from [wiki.vaulthunters.gg](https://wiki.vaulthunters.gg/). Don't expact this tool to be maintained in any way shap or form. 
