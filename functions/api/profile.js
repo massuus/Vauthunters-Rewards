@@ -30,7 +30,7 @@ export async function onRequest({ request }) {
     }
 
     if (!mojangResponse.ok) {
-      return json({ error: `Mojang API error: ${mojangResponse.status}` }, 502);
+      return json({ error: `Mojang API error: ${mojangResponse.status}` }, mojangResponse.status === 429 ? 429 : 502);
     }
 
     const mojangData = await mojangResponse.json();
@@ -55,7 +55,10 @@ export async function onRequest({ request }) {
     });
   } catch (error) {
     console.error("Profile lookup error:", error);
-    return json({ error: "Failed to retrieve player data." }, 500);
+    return json({
+      error: "Failed to retrieve player data.",
+      details: error instanceof Error ? error.message : String(error)
+    }, 500);
   }
 }
 
