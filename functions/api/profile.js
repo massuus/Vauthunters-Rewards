@@ -1,4 +1,4 @@
-const MOJANG_PROFILE_URL = "https://api.mojang.com/users/profiles/minecraft/";
+const PLAYERDB_PROFILE_URL = "https://playerdb.co/api/player/minecraft/";
 const REWARDS_URL = "https://rewards.vaulthunters.gg/rewards?minecraft=";
 const TIER_URL = "https://api.vaulthunters.gg/users/reward?uuid=";
 
@@ -17,38 +17,26 @@ export async function onRequest({ request }) {
   }
 
   try {
-    const mojangResponse = await fetch(`${MOJANG_PROFILE_URL}${encodeURIComponent(username)}`, {
-      headers: REQUEST_HEADERS
-    });
+    const profile = await fetchProfile(username);
 
-    if ([204, 404].includes(mojangResponse.status)) {
+    if (!profile) {
       return json({ error: "Player not found." }, 404);
     }
 
-    if (mojangResponse.status === 400) {
-      return json({ error: "Invalid Minecraft username." }, 400);
-    }
-
-    if (!mojangResponse.ok) {
-      return json({ error: `Mojang API error: ${mojangResponse.status}` }, mojangResponse.status === 429 ? 429 : 502);
-    }
-
-    const mojangData = await mojangResponse.json();
-    const rawId = mojangData?.id;
+    const { rawId, name, head } = profile;
     const formattedId = formatUuid(rawId);
 
     if (!rawId || !formattedId) {
-      return json({ error: "Invalid Mojang response: missing UUID." }, 502);
+      return json({ error: "Unable to resolve player UUID." }, 502);
     }
 
-    const headUrl = `https://mc-heads.net/avatar/${rawId}`;
     const { rewards, sets } = await fetchRewards(formattedId);
     const tier = await fetchTiers(formattedId);
 
     return json({
       id: rawId,
-      name: mojangData.name,
-      head: headUrl,
+      name,
+      head,
       rewards,
       sets,
       tier
@@ -60,6 +48,39 @@ export async function onRequest({ request }) {
       details: error instanceof Error ? error.message : String(error)
     }, 500);
   }
+}
+
+async function fetchProfile(username) {
+  const response = await fetch(`${PLAYERDB_PROFILE_URL}${encodeURIComponent(username)}`, {
+    headers: REQUEST_HEADERS
+  });
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(`Profile API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  if (!data?.success || !data?.data?.player?.raw_id) {
+    return null;
+  }
+
+  const player = data.data.player;
+  const rawId = player.raw_id;
+
+  if (typeof rawId !== "string" || rawId.length !== INVALID_UUID_LENGTH) {
+    return null;
+  }
+
+  return {
+    rawId,
+    name: player.username || username,
+    head: player.avatar || `https://mc-heads.net/avatar/${rawId}`
+  };
 }
 
 function formatUuid(hexId) {

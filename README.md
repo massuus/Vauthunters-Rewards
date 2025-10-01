@@ -71,4 +71,4 @@ ISC License. See `package.json` for details.
 
 ## Discamer
 
-This tool is fan made and is just for fun. The tool uses the [vaulthunters.gg ](https://vaulthunters.gg/) API and images are from [wiki.vaulthunters.gg](https://wiki.vaulthunters.gg/). Don't expact this tool to be maintained in any way shap or form. 
+This tool is fan made and is just for fun. The tool uses the [vaulthunters.gg ](https://vaulthunters.gg/) API and images are from [wiki.vaulthunters.gg](https://wiki.vaulthunters.gg/). Don't expact this tool to be maintained in any way shap or form.
