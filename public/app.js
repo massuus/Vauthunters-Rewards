@@ -1,4 +1,4 @@
-﻿const form = document.getElementById('search-form');
+const form = document.getElementById('search-form');
 const usernameInput = document.getElementById('username');
 const feedback = document.getElementById('feedback');
 const resultContainer = document.getElementById('result');
@@ -244,6 +244,50 @@ function renderRewardsList(rewards) {
     .join('');
 }
 
+function getUsernameFromQuery() {
+  const { search } = window.location;
+
+  if (!search || search.length <= 1) {
+    return '';
+  }
+
+  const rawQuery = search.slice(1);
+  if (!rawQuery) {
+    return '';
+  }
+
+  const params = new URLSearchParams(rawQuery);
+  const candidate =
+    params.get('username') ||
+    params.get('user') ||
+    params.get('name');
+
+  const decode = (value) => {
+    try {
+      return decodeURIComponent(value.replace(/\+/g, ' '));
+    } catch (error) {
+      return value;
+    }
+  };
+
+  if (candidate) {
+    return decode(candidate).trim();
+  }
+
+  const firstSegment = rawQuery.split('&')[0] || '';
+
+  if (!firstSegment) {
+    return '';
+  }
+
+  if (firstSegment.includes('=')) {
+    const [, value = ''] = firstSegment.split('=');
+    return decode(value).trim();
+  }
+
+  return decode(firstSegment).trim();
+}
+
 function formatLabel(value) {
   if (!value && value !== 0) {
     return '';
@@ -260,4 +304,11 @@ function formatLabel(value) {
     .filter(Boolean)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+}
+
+
+const presetUsername = getUsernameFromQuery();
+if (presetUsername) {
+  usernameInput.value = presetUsername;
+  form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 }
