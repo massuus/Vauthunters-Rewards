@@ -3,6 +3,10 @@ const REWARDS_URL = "https://rewards.vaulthunters.gg/rewards?minecraft=";
 const TIER_URL = "https://api.vaulthunters.gg/users/reward?uuid=";
 
 const INVALID_UUID_LENGTH = 32;
+const REQUEST_HEADERS = {
+  "user-agent": "Vauthunters Rewards/1.0 (+https://vh-rewards.massuus.com)",
+  accept: "application/json"
+};
 
 export async function onRequest({ request }) {
   const url = new URL(request.url);
@@ -13,7 +17,9 @@ export async function onRequest({ request }) {
   }
 
   try {
-    const mojangResponse = await fetch(`${MOJANG_PROFILE_URL}${encodeURIComponent(username)}`);
+    const mojangResponse = await fetch(`${MOJANG_PROFILE_URL}${encodeURIComponent(username)}`, {
+      headers: REQUEST_HEADERS
+    });
 
     if ([204, 404].includes(mojangResponse.status)) {
       return json({ error: "Player not found." }, 404);
@@ -24,7 +30,7 @@ export async function onRequest({ request }) {
     }
 
     if (!mojangResponse.ok) {
-      throw new Error(`Mojang API error: ${mojangResponse.status}`);
+      return json({ error: `Mojang API error: ${mojangResponse.status}` }, 502);
     }
 
     const mojangData = await mojangResponse.json();
@@ -32,7 +38,7 @@ export async function onRequest({ request }) {
     const formattedId = formatUuid(rawId);
 
     if (!rawId || !formattedId) {
-      throw new Error("Invalid Mojang response: missing UUID.");
+      return json({ error: "Invalid Mojang response: missing UUID." }, 502);
     }
 
     const headUrl = `https://mc-heads.net/avatar/${rawId}`;
@@ -63,14 +69,17 @@ function formatUuid(hexId) {
 
 async function fetchRewards(formattedId) {
   try {
-    const response = await fetch(`${REWARDS_URL}${encodeURIComponent(formattedId)}`);
+    const response = await fetch(`${REWARDS_URL}${encodeURIComponent(formattedId)}`, {
+      headers: REQUEST_HEADERS
+    });
 
     if (response.status === 404) {
       return { rewards: {}, sets: [] };
     }
 
     if (!response.ok) {
-      throw new Error(`Rewards API error: ${response.status}`);
+      console.error("Rewards API error status:", response.status);
+      return { rewards: {}, sets: [] };
     }
 
     const data = await response.json();
@@ -86,14 +95,17 @@ async function fetchRewards(formattedId) {
 
 async function fetchTiers(formattedId) {
   try {
-    const response = await fetch(`${TIER_URL}${encodeURIComponent(formattedId)}`);
+    const response = await fetch(`${TIER_URL}${encodeURIComponent(formattedId)}`, {
+      headers: REQUEST_HEADERS
+    });
 
     if (response.status === 404) {
       return [];
     }
 
     if (!response.ok) {
-      throw new Error(`Tier API error: ${response.status}`);
+      console.error("Tier API error status:", response.status);
+      return [];
     }
 
     const data = await response.json();
