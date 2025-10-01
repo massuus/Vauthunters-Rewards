@@ -1,0 +1,19 @@
+﻿{
+  "name": "vauthunters-rewards",
+  "version": "1.0.0",
+  "description": "Vault Hunters rewards lookup tool",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "vault-hunters",
+    "minecraft",
+    "rewards"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

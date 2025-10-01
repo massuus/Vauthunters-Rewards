@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vault Hunters Rewards Lookup</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="hero__content">
+        <h1>Vault Hunters Rewards</h1>
+        <p>Look up a Vault Hunter to see their sets, rewards, and Patreon unlocks.</p>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="search">
+        <form id="search-form" class="search__form">
+          <label for="username" class="sr-only">Minecraft Username</label>
+          <input type="text" id="username" name="username" placeholder="Enter Minecraft username" autocomplete="off" required>
+          <button type="submit">Search</button>
+        </form>
+        <p id="feedback" class="feedback" role="status"></p>
+      </section>
+
+      <section id="result" class="result hidden" aria-live="polite"></section>
+    </main>
+
+    <footer class="footer">
+      <p>Unofficial tool inspired by <a href="https://vaulthunters.gg/" target="_blank" rel="noopener">Vault Hunters</a>.</p>
+    </footer>
+  </div>
+  <script src="app.js" defer></script>
+</body>
+</html>
