@@ -1,50 +1,10 @@
-const form = document.getElementById('search-form');
+﻿const form = document.getElementById('search-form');
 const usernameInput = document.getElementById('username');
 const feedback = document.getElementById('feedback');
 const resultContainer = document.getElementById('result');
 
-const SET_ART = {
-  baby_creeper_gold: {
-    label: 'Golden Creeper',
-    image: 'https://wiki.vaulthunters.gg/images/c/c9/Invicon_Companion_Golden_Creeper.gif',
-    alt: 'Golden Creeper companion icon'
-  },
-  baby_creeper_pog: {
-    label: 'POG Creeper',
-    image: 'https://wiki.vaulthunters.gg/images/e/e4/Invicon_Companion_POG_Creeper.gif',
-    alt: 'POG Creeper companion icon'
-  },
-  golden_kappa: {
-    label: 'Golden Kappa',
-    image: 'https://wiki.vaulthunters.gg/images/8/8e/Invicon_Golden_Kappa_Shield.png.webp',
-    alt: 'Golden Kappa icon'
-  },
-  dylan_vip: {
-    label: 'Dylan VIP',
-    image: 'https://wiki.vaulthunters.gg/images/7/78/Invicon_Dylan_Armour.webp',
-    alt: 'Dylan armour icon'
-  },
-  companion_leader_s1: {
-    label: 'Companion Leader S1',
-    image: 'https://wiki.vaulthunters.gg/images/d/d5/Invicon_PartyLeader.gif',
-    alt: 'Companion party leader icon'
-  },
-  i85_royale_crown: {
-    label: 'Royale Crown',
-    image: 'https://wiki.vaulthunters.gg/images/9/9c/Invicon_Royale_Crown.png.webp',
-    alt: 'Royale Crown icon'
-  },
-  i85_spring_set: {
-    label: 'Spring Set',
-    image: 'https://wiki.vaulthunters.gg/images/f/f2/Spring_focus.png',
-    alt: 'Spring set icon'
-  },
-  i85_treasure_train: {
-    label: 'Treasure Train',
-    image: 'https://wiki.vaulthunters.gg/images/5/50/Invicon_Golden_Kappa_Train.webp',
-    alt: 'Golden Kappa Train icon'
-  }
-};
+let setArtStore = {};
+let setArtLoadPromise = null;
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -75,7 +35,7 @@ form.addEventListener('submit', async (event) => {
     }
 
     const data = await response.json();
-    renderProfile(data);
+    await renderProfile(data);
     showFeedback(`Profile loaded for ${data.name}.`, 'success');
   } catch (error) {
     clearResult();
@@ -108,9 +68,12 @@ function showFeedback(message, type) {
 function clearResult() {
   resultContainer.innerHTML = '';
   resultContainer.classList.add('hidden');
+  updateQueryString('');
 }
 
-function renderProfile(data) {
+async function renderProfile(data) {
+  await loadSetArt();
+
   const sets = Array.isArray(data.sets) ? data.sets : [];
   const tiers = Array.isArray(data.tier) ? data.tier : [];
   const rewards = data.rewards && typeof data.rewards === 'object' ? data.rewards : {};
@@ -118,6 +81,7 @@ function renderProfile(data) {
   const setsSection = renderSetsSection(sets);
   const tiersSection = renderTiersSection(tiers);
   const extraSection = renderExtraSection(rewards);
+  const shareUrl = getShareUrl(data.name);
 
   resultContainer.innerHTML = `
     <article class="player-card">
@@ -125,6 +89,10 @@ function renderProfile(data) {
       <div class="player-details">
         <h2>${data.name}</h2>
         <p class="player-subtitle">Latest Vault Hunters reward data.</p>
+        <div class="player-actions">
+          <button id="share-button" class="share-button" type="button" data-share="${shareUrl}">Copy Share Link</button>
+          <span id="share-feedback" class="share-feedback" role="status" aria-live="polite"></span>
+        </div>
       </div>
     </article>
     ${setsSection}
@@ -133,6 +101,9 @@ function renderProfile(data) {
   `;
 
   resultContainer.classList.remove('hidden');
+
+  updateQueryString(data.name);
+  bindShareButton();
 
   const toggle = document.getElementById('extra-toggle');
   const panel = document.getElementById('extra-panel');
@@ -143,6 +114,24 @@ function renderProfile(data) {
       panel.classList.toggle('hidden');
     });
   }
+}
+
+function bindShareButton() {
+  const shareButton = document.getElementById('share-button');
+  const shareFeedback = document.getElementById('share-feedback');
+
+  if (!shareButton || !shareFeedback) {
+    return;
+  }
+
+  shareFeedback.textContent = '';
+  shareFeedback.classList.remove('success', 'error');
+
+  shareButton.addEventListener('click', async () => {
+    const link = shareButton.dataset.share;
+    const success = await copyShareLink(link);
+    updateShareFeedback(shareFeedback, success);
+  });
 }
 
 function renderSetsSection(sets) {
@@ -166,7 +155,7 @@ function renderSetsSection(sets) {
 }
 
 function renderSetCard(setKey) {
-  const asset = SET_ART[setKey];
+  const asset = setArtStore?.[setKey];
   const label = asset?.label || formatLabel(setKey);
 
   if (asset?.image) {
@@ -244,6 +233,35 @@ function renderRewardsList(rewards) {
     .join('');
 }
 
+async function loadSetArt() {
+  if (setArtStore && Object.keys(setArtStore).length) {
+    return setArtStore;
+  }
+
+  if (setArtLoadPromise) {
+    return setArtLoadPromise;
+  }
+
+  setArtLoadPromise = fetch('set-art.json')
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to load set art: ${response.status}`);
+      }
+
+      return response.json();
+    })
+    .then((data) => {
+      setArtStore = data || {};
+      return setArtStore;
+    })
+    .catch((error) => {
+      console.error(error);
+      setArtStore = {};
+      return setArtStore;
+    });
+
+  return setArtLoadPromise;
+}
 function getUsernameFromQuery() {
   const { search } = window.location;
 
@@ -288,6 +306,73 @@ function getUsernameFromQuery() {
   return decode(firstSegment).trim();
 }
 
+function getShareUrl(username) {
+  const cleaned = (username || '').trim();
+
+  if (!cleaned) {
+    return `${window.location.origin}${window.location.pathname}`;
+  }
+
+  return `${window.location.origin}${window.location.pathname}?${encodeURIComponent(cleaned)}`;
+}
+
+function updateQueryString(username) {
+  const cleaned = (username || '').trim();
+  const next = cleaned ? `?${encodeURIComponent(cleaned)}` : '';
+
+  if (window.location.search === next) {
+    return;
+  }
+
+  history.replaceState(null, '', `${window.location.pathname}${next}`);
+}
+
+async function copyShareLink(link) {
+  if (!link) {
+    return false;
+  }
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(link);
+      return true;
+    }
+  } catch (error) {
+    // Ignore and fall back below
+  }
+
+  try {
+    const textArea = document.createElement('textarea');
+    textArea.value = link;
+    textArea.setAttribute('readonly', '');
+    textArea.style.position = 'absolute';
+    textArea.style.left = '-9999px';
+    document.body.appendChild(textArea);
+    textArea.select();
+    const result = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    return result;
+  } catch (error) {
+    return false;
+  }
+}
+
+function updateShareFeedback(target, success) {
+  if (!target) {
+    return;
+  }
+
+  target.classList.remove('success', 'error');
+
+  if (success) {
+    target.textContent = 'Share link copied!';
+    target.classList.add('success');
+  } else {
+    target.textContent = 'Copy failed. You can copy the link manually.';
+    target.classList.add('error');
+  }
+}
+
 function formatLabel(value) {
   if (!value && value !== 0) {
     return '';
@@ -306,9 +391,19 @@ function formatLabel(value) {
     .join(' ');
 }
 
-
 const presetUsername = getUsernameFromQuery();
 if (presetUsername) {
   usernameInput.value = presetUsername;
   form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 }
+
+
+
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --bg: #0d1117;
   --panel: rgba(21, 26, 36, 0.85);
   --accent: #f4a941;
@@ -181,6 +181,57 @@ body {
   text-transform: uppercase;
 }
 
+.player-actions {
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.share-button {
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(244, 169, 65, 0.9), rgba(243, 195, 107, 0.9));
+  color: #141821;
+  font-family: 'Rajdhani', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.6rem 1.2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.share-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(244, 169, 65, 0.3);
+}
+
+.share-button:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.share-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.share-feedback {
+  min-height: 1.2rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.share-feedback.success {
+  color: var(--success);
+}
+
+.share-feedback.error {
+  color: var(--error);
+}
+
 .section-title {
   font-family: 'Rajdhani', sans-serif;
   font-size: 1.5rem;
@@ -190,7 +241,9 @@ body {
   color: var(--accent);
 }
 
-.sets-grid, .tiers-list, .rewards-list {
+.sets-grid,
+.tiers-list,
+.rewards-list {
   display: grid;
   gap: 1rem;
 }
@@ -214,6 +267,12 @@ body {
 .set-card span {
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.tiers-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .tiers-list li {
@@ -264,6 +323,17 @@ body {
   color: var(--text-secondary);
 }
 
+.player-subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.muted {
+  color: var(--text-secondary);
+  opacity: 0.85;
+}
+
 .footer {
   margin-top: 3rem;
   text-align: center;
@@ -307,6 +377,10 @@ body {
     height: 82px;
   }
 
+  .player-actions {
+    justify-content: center;
+  }
+
   .section-title {
     text-align: center;
   }
@@ -314,14 +388,4 @@ body {
   .extra-toggle {
     width: 100%;
   }
-}
-.player-subtitle {
-  margin: 0.25rem 0 0;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-}
-
-.muted {
-  color: var(--text-secondary);
-  opacity: 0.85;
 }
