@@ -1,4 +1,4 @@
-const PLAYERDB_PROFILE_URL = "https://playerdb.co/api/player/minecraft/";
+﻿const PLAYERDB_PROFILE_URL = "https://playerdb.co/api/player/minecraft/";
 const REWARDS_URL = "https://rewards.vaulthunters.gg/rewards?minecraft=";
 const TIER_URL = "https://api.vaulthunters.gg/users/reward?uuid=";
 
@@ -79,7 +79,7 @@ async function fetchProfile(username) {
   return {
     rawId,
     name: player.username || username,
-    head: player.avatar || `https://mc-heads.net/avatar/${rawId}`
+    head: `https://mc-heads.net/avatar/${rawId}`
   };
 }
 
@@ -148,3 +148,4 @@ function json(body, status = 200) {
     }
   });
 }
+
