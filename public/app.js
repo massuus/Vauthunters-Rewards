@@ -5,6 +5,9 @@ const resultContainer = document.getElementById('result');
 
 let setArtStore = {};
 let setArtLoadPromise = null;
+let setModalElements = null;
+let lastFocusedElement = null;
+let modalKeydownHandler = null;
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -69,10 +72,12 @@ function clearResult() {
   resultContainer.innerHTML = '';
   resultContainer.classList.add('hidden');
   updateQueryString('');
+  closeSetDetailModal();
 }
 
 async function renderProfile(data) {
   await loadSetArt();
+  closeSetDetailModal();
 
   const sets = Array.isArray(data.sets) ? data.sets : [];
   const tiers = Array.isArray(data.tier) ? data.tier : [];
@@ -104,6 +109,7 @@ async function renderProfile(data) {
 
   updateQueryString(data.name);
   bindShareButton();
+  bindSetCardHandlers();
 
   const toggle = document.getElementById('extra-toggle');
   const panel = document.getElementById('extra-panel');
@@ -134,6 +140,18 @@ function bindShareButton() {
   });
 }
 
+function bindSetCardHandlers() {
+  const cards = resultContainer.querySelectorAll('.set-card[data-set-key]');
+
+  if (!cards.length) {
+    return;
+  }
+
+  cards.forEach((card) => {
+    card.addEventListener('click', () => openSetDetailModal(card.dataset.setKey));
+  });
+}
+
 function renderSetsSection(sets) {
   if (!sets.length) {
     return `
@@ -158,19 +176,15 @@ function renderSetCard(setKey) {
   const asset = setArtStore?.[setKey];
   const label = asset?.label || formatLabel(setKey);
 
-  if (asset?.image) {
-    return `
-      <div class="set-card">
-        <img src="${asset.image}" alt="${asset.alt || label}" loading="lazy">
-        <span>${label}</span>
-      </div>
-    `;
-  }
+  const imageMarkup = asset?.image
+    ? `<img src="${asset.image}" alt="${asset.alt || label}" loading="lazy">`
+    : '';
 
   return `
-    <div class="set-card">
+    <button class="set-card" type="button" data-set-key="${setKey}">
+      ${imageMarkup}
       <span>${label}</span>
-    </div>
+    </button>
   `;
 }
 
@@ -234,7 +248,7 @@ function renderRewardsList(rewards) {
 }
 
 async function loadSetArt() {
-  if (setArtStore && Object.keys(setArtStore).length) {
+  if (Object.keys(setArtStore).length) {
     return setArtStore;
   }
 
@@ -262,6 +276,104 @@ async function loadSetArt() {
 
   return setArtLoadPromise;
 }
+
+function ensureSetDetailModal() {
+  if (setModalElements) {
+    return setModalElements;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'set-modal';
+  overlay.className = 'set-modal hidden';
+  overlay.innerHTML = `
+    <div class="set-modal__backdrop" data-close="true"></div>
+    <div class="set-modal__content" role="dialog" aria-modal="true" aria-labelledby="set-modal-title" tabindex="-1">
+      <button type="button" class="set-modal__close" aria-label="Close set details">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <div class="set-modal__body">
+        <img class="set-modal__image set-modal__image--hidden" alt="">
+        <h3 id="set-modal-title" class="set-modal__title"></h3>
+        <p class="set-modal__description"></p>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  const elements = {
+    overlay,
+    backdrop: overlay.querySelector('.set-modal__backdrop'),
+    content: overlay.querySelector('.set-modal__content'),
+    close: overlay.querySelector('.set-modal__close'),
+    image: overlay.querySelector('.set-modal__image'),
+    title: overlay.querySelector('.set-modal__title'),
+    description: overlay.querySelector('.set-modal__description')
+  };
+
+  elements.backdrop.addEventListener('click', closeSetDetailModal);
+  elements.close.addEventListener('click', closeSetDetailModal);
+
+  setModalElements = elements;
+  return elements;
+}
+
+function openSetDetailModal(setKey) {
+  const modal = ensureSetDetailModal();
+  const asset = setArtStore?.[setKey] || {};
+  const label = asset.label || formatLabel(setKey);
+  const description = asset.description || `You obtained this by unlocking the ${label}.`;
+
+  if (asset.image) {
+    modal.image.src = asset.image;
+    modal.image.alt = asset.alt || label;
+    modal.image.classList.remove('set-modal__image--hidden');
+  } else {
+    modal.image.src = '';
+    modal.image.alt = '';
+    modal.image.classList.add('set-modal__image--hidden');
+  }
+
+  modal.title.textContent = label;
+  modal.description.textContent = description;
+
+  modal.overlay.classList.remove('hidden');
+
+  lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  modal.content.focus();
+
+  if (modalKeydownHandler) {
+    window.removeEventListener('keydown', modalKeydownHandler);
+  }
+
+  modalKeydownHandler = (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeSetDetailModal();
+    }
+  };
+
+  window.addEventListener('keydown', modalKeydownHandler);
+}
+
+function closeSetDetailModal() {
+  if (!setModalElements || setModalElements.overlay.classList.contains('hidden')) {
+    return;
+  }
+
+  setModalElements.overlay.classList.add('hidden');
+
+  if (modalKeydownHandler) {
+    window.removeEventListener('keydown', modalKeydownHandler);
+    modalKeydownHandler = null;
+  }
+
+  if (lastFocusedElement) {
+    lastFocusedElement.focus();
+    lastFocusedElement = null;
+  }
+}
+
 function getUsernameFromQuery() {
   const { search } = window.location;
 
@@ -396,14 +508,3 @@ if (presetUsername) {
   usernameInput.value = presetUsername;
   form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 }
-
-
-
-
-
-
-
-
-
-
-

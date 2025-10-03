@@ -2,41 +2,53 @@
   "baby_creeper_gold": {
     "label": "Golden Creeper",
     "image": "https://wiki.vaulthunters.gg/images/c/c9/Invicon_Companion_Golden_Creeper.gif",
-    "alt": "Golden Creeper companion icon"
+    "alt": "Golden Creeper companion icon",
+    "description": "You unlocked this companion by joining Iskall85's Gemstone event streams and collecting 50 gemstones with your companion."
   },
   "baby_creeper_pog": {
     "label": "POG Creeper",
     "image": "https://wiki.vaulthunters.gg/images/e/e4/Invicon_Companion_POG_Creeper.gif",
-    "alt": "POG Creeper companion icon"
+    "alt": "POG Creeper companion icon",
+    "description": "You unlocked this companion by being present for Iskall85's Gemstone event and placing within the top 123 players."
   },
   "golden_kappa": {
     "label": "Golden Kappa",
     "image": "https://wiki.vaulthunters.gg/images/8/8e/Invicon_Golden_Kappa_Shield.png.webp",
-    "alt": "Golden Kappa icon"
+    "alt": "Golden Kappa icon",
+    "description": "You obtained this set by having an awake companion during a Golden Kappa Hype Train on Twitch."
   },
   "dylan_vip": {
     "label": "Dylan VIP",
     "image": "https://wiki.vaulthunters.gg/images/7/78/Invicon_Dylan_Armour.webp",
-    "alt": "Dylan armour icon"
+    "alt": "Dylan armour icon",
+    "description": "You obtained this armour when Iskall85 personally gifted it to you live on Twitch."
   },
   "companion_leader_s1": {
     "label": "Companion Leader S1",
     "image": "https://wiki.vaulthunters.gg/images/d/d5/Invicon_PartyLeader.gif",
-    "alt": "Companion party leader icon"
+    "alt": "Companion party leader icon",
+    "description": "You earned this set by getting your companion to level 12 during an Iskall85 stream."
   },
   "i85_royale_crown": {
     "label": "Royale Crown",
     "image": "https://wiki.vaulthunters.gg/images/9/9c/Invicon_Royale_Crown.png.webp",
-    "alt": "Royale Crown icon"
+    "alt": "Royale Crown icon",
+    "description": "You unlocked this crown by being present when Iskall completed the very first Vault Royale."
   },
   "i85_spring_set": {
     "label": "Spring Set",
     "image": "https://wiki.vaulthunters.gg/images/f/f2/Spring_focus.png",
-    "alt": "Spring set icon"
+    "alt": "Spring set icon",
+    "description": "You secured this set by tuning into Iskall85's special Twitch event on 18 June 2025."
   },
   "i85_treasure_train": {
     "label": "Treasure Train",
     "image": "https://wiki.vaulthunters.gg/images/5/50/Invicon_Golden_Kappa_Train.webp",
-    "alt": "Golden Kappa Train icon"
+    "alt": "Golden Kappa Train icon",
+    "description": "You picked this up by having an awake companion during a Treasure Hype Train on Twitch."
+  },
+  "i85_server_bingos": {
+    "label": "Bingo Chestplate",
+    "description": "You claimed this prize by winning a Bingo Bust event on the official Vault Hunters servers."
   }
 }
