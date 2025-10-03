@@ -153,11 +153,14 @@ function bindSetCardHandlers() {
 }
 
 function renderSetsSection(sets) {
+  const note = "<p class='sets-note muted'>This list only shows sets you have already unlocked in-game. Upcoming or unreleased sets will appear here after they are added to the game.</p>";
+
   if (!sets.length) {
     return `
       <section>
-        <h3 class="section-title">Vault Sets</h3>
-        <p class="muted">No sets recorded yet.</p>
+        <h3 class='section-title'>Vault Sets</h3>
+        <p class='muted'>No sets recorded yet.</p>
+        ${note}
       </section>
     `;
   }
@@ -166,8 +169,9 @@ function renderSetsSection(sets) {
 
   return `
     <section>
-      <h3 class="section-title">Vault Sets</h3>
-      <div class="sets-grid">${items}</div>
+      <h3 class='section-title'>Vault Sets</h3>
+      <div class='sets-grid'>${items}</div>
+      ${note}
     </section>
   `;
 }
@@ -508,3 +512,4 @@ if (presetUsername) {
   usernameInput.value = presetUsername;
   form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 }
+
