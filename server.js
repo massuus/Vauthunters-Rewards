@@ -1,16 +1,22 @@
-﻿const express = require('express');
+const express = require('express');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MOJANG_PROFILE_URL = 'https://api.mojang.com/users/profiles/minecraft/';
+
+const PLAYERDB_PROFILE_URL = 'https://playerdb.co/api/player/minecraft/';
 const REWARDS_URL = 'https://rewards.vaulthunters.gg/rewards?minecraft=';
 const TIER_URL = 'https://api.vaulthunters.gg/users/reward?uuid=';
 
+const INVALID_UUID_LENGTH = 32;
+const REQUEST_HEADERS = {
+  'user-agent': 'Vauthunters Rewards/1.0 (+https://vh-rewards.massuus.com)',
+  accept: 'application/json'
+};
+
 app.use(express.static('public'));
 
-// Convert Mojang UUID without dashes into canonical dashed format
 function formatUuid(hexId) {
-  if (!hexId || hexId.length !== 32) {
+  if (!hexId || hexId.length !== INVALID_UUID_LENGTH) {
     return null;
   }
 
@@ -25,56 +31,85 @@ app.get('/api/profile', async (req, res) => {
   }
 
   try {
-    const mojangResponse = await fetch(`${MOJANG_PROFILE_URL}${encodeURIComponent(username)}`);
+    const profile = await fetchProfile(username);
 
-    if ([204, 404].includes(mojangResponse.status)) {
+    if (!profile) {
       return res.status(404).json({ error: 'Player not found.' });
     }
 
-    if (mojangResponse.status === 400) {
-      return res.status(400).json({ error: 'Invalid Minecraft username.' });
-    }
-
-    if (!mojangResponse.ok) {
-      throw new Error(`Mojang API error: ${mojangResponse.status}`);
-    }
-
-    const mojangData = await mojangResponse.json();
-    const rawId = mojangData.id;
+    const { rawId, name, head } = profile;
     const formattedId = formatUuid(rawId);
 
     if (!rawId || !formattedId) {
-      throw new Error('Invalid Mojang response: missing UUID.');
+      return res.status(502).json({ error: 'Unable to resolve player UUID.' });
     }
 
-    const headUrl = `https://mc-heads.net/avatar/${rawId}`;
     const { rewards, sets } = await fetchRewards(formattedId);
     const tier = await fetchTiers(formattedId);
 
     res.json({
       id: rawId,
-      name: mojangData.name,
-      head: headUrl,
+      name,
+      head,
       rewards,
       sets,
       tier
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve player data.' });
+    console.error('Profile lookup error:', error);
+    res.status(500).json({
+      error: 'Failed to retrieve player data.',
+      details: error instanceof Error ? error.message : String(error)
+    });
   }
 });
 
+async function fetchProfile(username) {
+  const response = await fetch(`${PLAYERDB_PROFILE_URL}${encodeURIComponent(username)}`, {
+    headers: REQUEST_HEADERS
+  });
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(`Profile API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  if (!data?.success || !data?.data?.player?.raw_id) {
+    return null;
+  }
+
+  const player = data.data.player;
+  const rawId = player.raw_id;
+
+  if (typeof rawId !== 'string' || rawId.length !== INVALID_UUID_LENGTH) {
+    return null;
+  }
+
+  return {
+    rawId,
+    name: player.username || username,
+    head: `https://mc-heads.net/avatar/${rawId}`
+  };
+}
+
 async function fetchRewards(formattedId) {
   try {
-    const response = await fetch(`${REWARDS_URL}${encodeURIComponent(formattedId)}`);
+    const response = await fetch(`${REWARDS_URL}${encodeURIComponent(formattedId)}`, {
+      headers: REQUEST_HEADERS
+    });
 
     if (response.status === 404) {
       return { rewards: {}, sets: [] };
     }
 
     if (!response.ok) {
-      throw new Error(`Rewards API error: ${response.status}`);
+      console.error('Rewards API error status:', response.status);
+      return { rewards: {}, sets: [] };
     }
 
     const data = await response.json();
@@ -83,27 +118,30 @@ async function fetchRewards(formattedId) {
 
     return { rewards, sets };
   } catch (error) {
-    console.error(error);
+    console.error('Rewards fetch error:', error);
     return { rewards: {}, sets: [] };
   }
 }
 
 async function fetchTiers(formattedId) {
   try {
-    const response = await fetch(`${TIER_URL}${encodeURIComponent(formattedId)}`);
+    const response = await fetch(`${TIER_URL}${encodeURIComponent(formattedId)}`, {
+      headers: REQUEST_HEADERS
+    });
 
     if (response.status === 404) {
       return [];
     }
 
     if (!response.ok) {
-      throw new Error(`Tier API error: ${response.status}`);
+      console.error('Tier API error status:', response.status);
+      return [];
     }
 
     const data = await response.json();
     return Array.isArray(data.tier) ? data.tier : [];
   } catch (error) {
-    console.error(error);
+    console.error('Tier fetch error:', error);
     return [];
   }
 }

@@ -50,5 +50,41 @@
   "i85_server_bingos": {
     "label": "Bingo Chestplate",
     "description": "You claimed this prize by winning a Bingo Bust event on the official Vault Hunters servers."
+  },
+  "iskall85_falcon_helmet": {
+    "label": "Falcon Helmet",
+    "description": "You unlocked this armor piece by participating in Iskall85's Horde Rush event."
+  },
+  "iskall85_falcon_chestplate": {
+    "label": "Falcon Chestplate",
+    "description": "You unlocked this armor piece by participating in Iskall85's Horde Rush event."
+  },
+  "iskall85_reddragon_axe": {
+    "label": "Red Dragon Axe",
+    "description": "You claimed this weapon by joining Iskall85's Horde Rush community event."
+  },
+  "iskall85_ancient_scroll": {
+    "label": "Ancient Scroll",
+    "description": "You uncovered this scroll as part of Iskall85's Horde Rush event rewards."
+  },
+  "i85_companion_dino": {
+    "label": "Dino Companion",
+    "description": "You earned this companion by participating in Iskall85's Horde Rush event."
+  },
+  "i85_dylan_penguin": {
+    "label": "Dylan Penguin",
+    "description": "You received this companion by participating in Iskall85's Horde Rush event."
+  },
+  "i85_mattress": {
+    "label": "Mattress",
+    "description": "You obtained this reward during Iskall85's Horde Rush event."
+  },
+  "i85_petal_splitter": {
+    "label": "Petal Splitter",
+    "description": "You picked up this dual blade by taking part in Iskall85's Horde Rush event."
+  },
+  "i85_twin_blade": {
+    "label": "Twin Blade",
+    "description": "You secured this weapon through Iskall85's Horde Rush event."
   }
 }
