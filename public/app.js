@@ -9,6 +9,18 @@ let setModalElements = null;
 let lastFocusedElement = null;
 let modalKeydownHandler = null;
 
+function proxiedImageUrl(url) {
+  try {
+    const u = new URL(url);
+    if (u.hostname === 'wiki.vaulthunters.gg') {
+      return `/img?url=${encodeURIComponent(url)}`;
+    }
+  } catch (e) {
+    // ignore invalid URLs
+  }
+  return url;
+}
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   const username = usernameInput.value.trim();
@@ -23,6 +35,9 @@ form.addEventListener('submit', async (event) => {
   setLoadingState(true);
 
   try {
+    // Reserve space to reduce CLS during loading
+    resultContainer.innerHTML = '<div class="skeleton skeleton--result" aria-hidden="true"></div>';
+    resultContainer.classList.remove('hidden');
     const response = await fetch(`/api/profile?username=${encodeURIComponent(username)}`);
 
     if (!response.ok) {
@@ -90,7 +105,7 @@ async function renderProfile(data) {
 
   resultContainer.innerHTML = `
     <article class="player-card">
-      <img src="${data.head}" alt="${data.name}'s Minecraft head" loading="lazy">
+      <img src="${data.head}" alt="${data.name}'s Minecraft head" loading="lazy" decoding="async" width="96" height="96" referrerpolicy="no-referrer">
       <div class="player-details">
         <h2>${data.name}</h2>
         <p class="player-subtitle">Latest Vault Hunters reward data.</p>
@@ -180,8 +195,9 @@ function renderSetCard(setKey) {
   const asset = setArtStore?.[setKey];
   const label = asset?.label || formatLabel(setKey);
 
+  const proxied = asset?.image ? proxiedImageUrl(asset.image) : '';
   const imageMarkup = asset?.image
-    ? `<img src="${asset.image}" alt="${asset.alt || label}" loading="lazy">`
+    ? `<img src="${proxied}" alt="${asset.alt || label}" loading="lazy" decoding="async" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${asset?.image || ''}'">`
     : '';
 
   return `
@@ -296,7 +312,7 @@ function ensureSetDetailModal() {
         <span aria-hidden="true">&times;</span>
       </button>
       <div class="set-modal__body">
-        <img class="set-modal__image set-modal__image--hidden" alt="">
+        <img class="set-modal__image set-modal__image--hidden" alt="" decoding="async" width="96" height="96">
         <h3 id="set-modal-title" class="set-modal__title"></h3>
         <p class="set-modal__description"></p>
       </div>
@@ -329,8 +345,15 @@ function openSetDetailModal(setKey) {
   const description = asset.description || `You obtained this by unlocking the ${label}.`;
 
   if (asset.image) {
-    modal.image.src = asset.image;
+    const proxied = proxiedImageUrl(asset.image);
+    modal.image.src = proxied;
     modal.image.alt = asset.alt || label;
+    modal.image.setAttribute('referrerpolicy', 'no-referrer');
+    modal.image.onerror = () => {
+      modal.image.onerror = null;
+      modal.image.src = asset.image;
+      modal.image.setAttribute('referrerpolicy', 'no-referrer');
+    };
     modal.image.classList.remove('set-modal__image--hidden');
   } else {
     modal.image.src = '';

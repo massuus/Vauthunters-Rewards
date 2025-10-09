@@ -13,7 +13,71 @@ const REQUEST_HEADERS = {
   accept: 'application/json'
 };
 
-app.use(express.static('public'));
+app.use(express.static('public', {
+  setHeaders: (res, filePath) => {
+    if (/\.(?:css|js|json)$/.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else if (/\.(?:png|jpg|jpeg|gif|webp|svg|ico)$/.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else if (/\.(?:html)$/.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+    }
+  }
+}));
+
+// First-party image proxy to avoid third-party cookies from wiki.vaulthunters.gg
+const ALLOWED_IMAGE_HOSTS = new Set(['wiki.vaulthunters.gg']);
+
+app.get('/img', async (req, res) => {
+  const raw = (req.query.url || '').toString();
+
+  if (!raw) {
+    return res.status(400).send('Missing url parameter');
+  }
+
+  let target;
+  try {
+    target = new URL(raw);
+  } catch {
+    return res.status(400).send('Invalid URL');
+  }
+
+  if (target.protocol !== 'https:' || !ALLOWED_IMAGE_HOSTS.has(target.hostname)) {
+    return res.status(400).send('URL not allowed');
+  }
+
+  try {
+    const upstream = await fetch(target.href, {
+      redirect: 'follow',
+      // Do not send credentials/cookies to third-party
+      // Node fetch defaults are fine; include no credentials
+      headers: {
+        'user-agent': REQUEST_HEADERS['user-agent'],
+        accept: 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
+        referer: 'https://wiki.vaulthunters.gg/'
+      }
+    });
+
+    if (!upstream.ok) {
+      return res.status(upstream.status).send('Upstream error');
+    }
+
+    const contentType = upstream.headers.get('content-type') || '';
+    if (!/^image\//i.test(contentType)) {
+      return res.status(415).send('Unsupported content type');
+    }
+
+    const buf = Buffer.from(await upstream.arrayBuffer());
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.removeHeader('Set-Cookie');
+    res.status(200).send(buf);
+  } catch (err) {
+    console.error('Image proxy error:', err);
+    res.status(502).send('Image fetch failed');
+  }
+});
 
 function formatUuid(hexId) {
   if (!hexId || hexId.length !== INVALID_UUID_LENGTH) {

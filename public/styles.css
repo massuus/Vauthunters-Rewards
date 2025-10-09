@@ -369,6 +369,16 @@ body {
   text-decoration: underline;
 }
 
+/* Skeleton placeholder to reserve space and reduce CLS */
+.skeleton {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+}
+
+.skeleton--result {
+  min-height: clamp(420px, 70vh, 1000px);
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
