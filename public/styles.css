@@ -232,6 +232,28 @@ body {
   color: var(--error);
 }
 
+.chevron {
+  margin-left: 0.35rem;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.sets-help {
+  margin-top: 0.75rem;
+}
+
+/* Consistent typography for help text inside foldouts */
+.rewards-panel p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.rewards-panel p + p {
+  margin-top: 0.5rem;
+}
+
 .section-title {
   font-family: 'Rajdhani', sans-serif;
   font-size: 1.5rem;

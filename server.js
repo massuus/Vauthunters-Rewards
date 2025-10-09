@@ -1,6 +1,24 @@
 const express = require('express');
 
 const app = express();
+
+// Security headers including CSP with frame-ancestors (not supported in <meta>)
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "img-src 'self' data: https://mc-heads.net https://wiki.vaulthunters.gg",
+  "connect-src 'self'",
+  "base-uri 'self'",
+  "frame-ancestors 'none'"
+].join('; ');
+
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy', CSP);
+  res.setHeader('X-Frame-Options', 'DENY');
+  next();
+});
 const PORT = process.env.PORT || 3000;
 
 const PLAYERDB_PROFILE_URL = 'https://playerdb.co/api/player/minecraft/';
@@ -24,6 +42,11 @@ app.use(express.static('public', {
     }
   }
 }));
+
+// Avoid 404 noise for default favicon requests during local dev
+app.get('/favicon.ico', (_req, res) => {
+  res.status(204).end();
+});
 
 // First-party image proxy to avoid third-party cookies from wiki.vaulthunters.gg
 const ALLOWED_IMAGE_HOSTS = new Set(['wiki.vaulthunters.gg']);

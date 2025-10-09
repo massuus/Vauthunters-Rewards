@@ -2,12 +2,32 @@
 const usernameInput = document.getElementById('username');
 const feedback = document.getElementById('feedback');
 const resultContainer = document.getElementById('result');
+const DEFAULT_FAVICON = 'https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf';
 
 let setArtStore = {};
 let setArtLoadPromise = null;
 let setModalElements = null;
 let lastFocusedElement = null;
 let modalKeydownHandler = null;
+
+function setFavicon(url) {
+  try {
+    const link = document.querySelector('link#favicon[rel~="icon"]') || document.querySelector('link[rel~="icon"]');
+    if (!link) return;
+    // Prefer a small square avatar for favicon
+    let href = url || DEFAULT_FAVICON;
+    if (href && href.startsWith('https://mc-heads.net/avatar/')) {
+      if (!/\/\d+(?:$|\?)/.test(href)) {
+        href = href.replace(/\/?$/, '/64');
+      }
+    }
+    link.href = href;
+    link.type = href.endsWith('.svg') ? 'image/svg+xml' : 'image/png';
+    link.sizes = 'any';
+  } catch (_) {
+    // ignore
+  }
+}
 
 function proxiedImageUrl(url) {
   try {
@@ -38,6 +58,7 @@ form.addEventListener('submit', async (event) => {
     // Reserve space to reduce CLS during loading
     resultContainer.innerHTML = '<div class="skeleton skeleton--result" aria-hidden="true"></div>';
     resultContainer.classList.remove('hidden');
+    setFavicon(DEFAULT_FAVICON);
     const response = await fetch(`/api/profile?username=${encodeURIComponent(username)}`);
 
     if (!response.ok) {
@@ -88,6 +109,7 @@ function clearResult() {
   resultContainer.classList.add('hidden');
   updateQueryString('');
   closeSetDetailModal();
+  setFavicon(DEFAULT_FAVICON);
 }
 
 async function renderProfile(data) {
@@ -125,16 +147,11 @@ async function renderProfile(data) {
   updateQueryString(data.name);
   bindShareButton();
   bindSetCardHandlers();
+  // Update favicon to player's head
+  setFavicon(data.head);
 
-  const toggle = document.getElementById('extra-toggle');
-  const panel = document.getElementById('extra-panel');
-  if (toggle && panel) {
-    toggle.addEventListener('click', () => {
-      const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-      toggle.setAttribute('aria-expanded', String(!isExpanded));
-      panel.classList.toggle('hidden');
-    });
-  }
+  bindDisclosureToggle('extra-toggle', 'extra-panel');
+  bindDisclosureToggle('unlocks-toggle', 'unlocks-panel');
 }
 
 function bindShareButton() {
@@ -167,8 +184,33 @@ function bindSetCardHandlers() {
   });
 }
 
+function bindDisclosureToggle(toggleId, panelId) {
+  const toggle = document.getElementById(toggleId);
+  const panel = document.getElementById(panelId);
+  if (!toggle || !panel) return;
+  toggle.addEventListener('click', () => {
+    const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!isExpanded));
+    panel.classList.toggle('hidden');
+    const chev = toggle.querySelector('.chevron');
+    if (chev) {
+      chev.textContent = isExpanded ? '▾' : '▴';
+    }
+  });
+}
+
 function renderSetsSection(sets) {
-  const note = "<p class='sets-note muted'>This list only shows sets you have already unlocked in-game. Upcoming or unreleased sets will appear here after they are added to the game.</p>";
+  const note = `
+    <div class="sets-help">
+      <button id="unlocks-toggle" class="extra-toggle" type="button" aria-expanded="false" aria-controls="unlocks-panel">
+        Not seeing all your unlocks? <span class="chevron" aria-hidden="true">▾</span>
+      </button>
+      <div id="unlocks-panel" class="rewards-panel hidden" role="region" aria-labelledby="unlocks-toggle">
+        <p class='sets-note muted'>This list only shows sets you have already unlocked in-game. Upcoming or unreleased sets will appear here after they are added to the game.</p>
+        <p class="muted">New rewards showing for other people but not for you? Make sure to connect your Minecraft and Twitch account with the Vault Hunters rewards service. In the Twitch extension go to the info tab and click the connect accounts button!</p>
+      </div>
+    </div>
+  `;
 
   if (!sets.length) {
     return `
