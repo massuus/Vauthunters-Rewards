@@ -2,7 +2,8 @@
 const usernameInput = document.getElementById('username');
 const feedback = document.getElementById('feedback');
 const resultContainer = document.getElementById('result');
-const DEFAULT_FAVICON = 'https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf';
+const DEFAULT_FAVICON = 'https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/64';
+const defaultTitle = document.title;
 
 let setArtStore = {};
 let setArtLoadPromise = null;
@@ -41,8 +42,14 @@ function proxiedImageUrl(url) {
   return url;
 }
 
-form.addEventListener('submit', async (event) => {
+let submitTimer = null;
+form.addEventListener('submit', (event) => {
   event.preventDefault();
+  if (submitTimer) clearTimeout(submitTimer);
+  submitTimer = setTimeout(() => { submitSearch().catch(() => {}); }, 250);
+});
+
+async function submitSearch() {
   const username = usernameInput.value.trim();
 
   clearFeedback();
@@ -59,6 +66,7 @@ form.addEventListener('submit', async (event) => {
     resultContainer.innerHTML = '<div class="skeleton skeleton--result" aria-hidden="true"></div>';
     resultContainer.classList.remove('hidden');
     setFavicon(DEFAULT_FAVICON);
+    document.title = defaultTitle;
     const response = await fetch(`/api/profile?username=${encodeURIComponent(username)}`);
 
     if (!response.ok) {
@@ -82,7 +90,7 @@ form.addEventListener('submit', async (event) => {
   } finally {
     setLoadingState(false);
   }
-});
+}
 
 function setLoadingState(isLoading) {
   const button = form.querySelector('button');
@@ -110,6 +118,7 @@ function clearResult() {
   updateQueryString('');
   closeSetDetailModal();
   setFavicon(DEFAULT_FAVICON);
+  document.title = defaultTitle;
 }
 
 async function renderProfile(data) {
@@ -149,6 +158,10 @@ async function renderProfile(data) {
   bindSetCardHandlers();
   // Update favicon to player's head
   setFavicon(data.head);
+  // Update document title to include player name
+  if (data && data.name) {
+    document.title = `${data.name} — Vault Hunters Rewards`;
+  }
 
   bindDisclosureToggle('extra-toggle', 'extra-panel');
   bindDisclosureToggle('unlocks-toggle', 'unlocks-panel');
@@ -207,7 +220,7 @@ function renderSetsSection(sets) {
       </button>
       <div id="unlocks-panel" class="rewards-panel hidden" role="region" aria-labelledby="unlocks-toggle">
         <p class='sets-note muted'>This list only shows sets you have already unlocked in-game. Upcoming or unreleased sets will appear here after they are added to the game.</p>
-        <p class="muted">New rewards showing for other people but not for you? Make sure to connect your Minecraft and Twitch account with the Vault Hunters rewards service. In the Twitch extension go to the info tab and click the connect accounts button!</p>
+        <p class="muted">New rewards showing for other people but not for you? Make sure to connect your Minecraft and Twitch accounts with the Vault Hunters rewards service. In the Twitch extension go to the "info" tab and click the "Connect Accounts" button!</p>
       </div>
     </div>
   `;
@@ -239,7 +252,7 @@ function renderSetCard(setKey) {
 
   const proxied = asset?.image ? proxiedImageUrl(asset.image) : '';
   const imageMarkup = asset?.image
-    ? `<img src="${proxied}" alt="${asset.alt || label}" loading="lazy" decoding="async" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${asset?.image || ''}'">`
+    ? `<img src="${proxied}" alt="${asset.alt || label}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${asset?.image || ''}'">`
     : '';
 
   return `
@@ -354,7 +367,7 @@ function ensureSetDetailModal() {
         <span aria-hidden="true">&times;</span>
       </button>
       <div class="set-modal__body">
-        <img class="set-modal__image set-modal__image--hidden" alt="" decoding="async" width="96" height="96">
+        <img class="set-modal__image set-modal__image--hidden" alt="" decoding="async" fetchpriority="low" width="96" height="96">
         <h3 id="set-modal-title" class="set-modal__title"></h3>
         <p class="set-modal__description"></p>
       </div>

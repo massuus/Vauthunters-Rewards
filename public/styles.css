@@ -148,6 +148,8 @@ body {
   padding: 2rem;
   display: grid;
   gap: 1.5rem;
+  content-visibility: auto;
+  contain-intrinsic-size: 800px 1000px;
 }
 
 .hidden {
@@ -350,6 +352,8 @@ body {
   padding: 1.5rem;
   display: grid;
   gap: 1rem;
+  content-visibility: auto;
+  contain-intrinsic-size: 800px 1000px;
 }
 
 .reward-group h3 {
@@ -474,6 +478,8 @@ body {
   border-radius: 16px;
   border: 2px solid var(--accent);
   background: rgba(0, 0, 0, 0.4);
+  object-fit: contain;
+  object-position: center;
 }
 
 .set-modal__image--hidden {
