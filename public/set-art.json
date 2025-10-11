@@ -49,6 +49,8 @@
   },
   "i85_server_bingos": {
     "label": "Bingo Chestplate",
+    "image": "https://wiki.vaulthunters.gg/images/a/a2/Invicon_I85_Server_Bingos.gif",
+    "alt": "Bingo Chestplate icon",
     "description": "You claimed this prize by winning a Bingo Bust event on the official Vault Hunters servers."
   },
   "iskall85_falcon_helmet": {
