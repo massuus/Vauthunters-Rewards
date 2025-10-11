@@ -53,38 +53,62 @@
   },
   "iskall85_falcon_helmet": {
     "label": "Falcon Helmet",
+    "image": "https://wiki.vaulthunters.gg/images/1/1c/Invicon_Falcon_Set.gif",
+    "alt": "Falcon Helmet",
     "description": "You unlocked this armor piece by participating in Iskall85's Horde Rush event."
   },
   "iskall85_falcon_chestplate": {
     "label": "Falcon Chestplate",
+    "image": "https://wiki.vaulthunters.gg/images/1/1c/Invicon_Falcon_Set.gif",
+    "alt": "Falcon Chestplate",
     "description": "You unlocked this armor piece by participating in Iskall85's Horde Rush event."
+  },
+  "iskall85_falcon_set": {
+    "label": "Falcon Set",
+    "image": "https://wiki.vaulthunters.gg/images/1/1c/Invicon_Falcon_Set.gif",
+    "alt": "Falcon set icon",
+    "description": "You have both the Falcon Helmet and Chestplate from Iskall85's Horde Rush event."
   },
   "iskall85_reddragon_axe": {
     "label": "Red Dragon Axe",
+    "image": "https://wiki.vaulthunters.gg/images/b/b2/Invicon_Iskall85_Reddragon_Axe.gif",
+    "alt": "Red Dragon Axe icon",
     "description": "You claimed this weapon by joining Iskall85's Horde Rush community event."
   },
   "iskall85_ancient_scroll": {
     "label": "Ancient Scroll",
+    "image": "https://wiki.vaulthunters.gg/images/5/56/Invicon_Iskall85_Ancient_Scroll.gif",
+    "alt": "Ancient Scroll icon",
     "description": "You uncovered this scroll as part of Iskall85's Horde Rush event rewards."
   },
   "i85_companion_dino": {
     "label": "Dino Companion",
+    "image": "https://wiki.vaulthunters.gg/images/e/e4/Invicon_I85_Companion_Dino.gif",
+    "alt": "Dino Companion icon",
     "description": "You earned this companion by participating in Iskall85's Horde Rush event."
   },
   "i85_dylan_penguin": {
     "label": "Dylan Penguin",
+    "image": "https://wiki.vaulthunters.gg/images/c/c6/Invicon_I85_Dylan_Penguin.gif",
+    "alt": "Dylan Penguin icon",
     "description": "You received this companion by participating in Iskall85's Horde Rush event."
   },
   "i85_mattress": {
     "label": "Mattress",
+    "image": "https://wiki.vaulthunters.gg/images/0/0b/Invicon_I85_Mattress.gif",
+    "alt": "Mattress icon",
     "description": "You obtained this reward during Iskall85's Horde Rush event."
   },
   "i85_petal_splitter": {
     "label": "Petal Splitter",
+    "image": "https://wiki.vaulthunters.gg/images/b/b3/Invicon_I85_Petal_Splitter.gif",
+    "alt": "Petal Splitter icon",
     "description": "You picked up this dual blade by taking part in Iskall85's Horde Rush event."
   },
   "i85_twin_blade": {
     "label": "Twin Blade",
+    "image": "https://wiki.vaulthunters.gg/images/0/0f/Invicon_I85_Twin_Blade.gif",
+    "alt": "Twin Blade icon",
     "description": "You secured this weapon through Iskall85's Horde Rush event."
   }
 }
