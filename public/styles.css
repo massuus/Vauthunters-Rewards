@@ -383,12 +383,14 @@ body {
   border-collapse: collapse;
   margin: 0.25rem 0 1rem;
   font-size: 0.95rem;
+  table-layout: fixed; /* prevent overflow by fixing column widths */
 }
 .rewards-table th,
 .rewards-table td {
   padding: 0.35rem 0.5rem;
   border-top: 1px solid var(--border);
   vertical-align: top;
+  overflow-wrap: anywhere; /* allow long tokens to wrap */
 }
 .rewards-table thead th {
   color: var(--accent);
@@ -397,7 +399,30 @@ body {
 }
 .rewards-table code {
   color: var(--text-secondary);
+  white-space: normal; /* enable wrapping inside code blocks */
 }
+
+/* column sizing to keep name readable */
+.rewards-table th:first-child,
+.rewards-table td:first-child { width: 38%; }
+.rewards-table th:last-child,
+.rewards-table td:last-child { width: 62%; }
+
+/* Ensure very long paths wrap on small devices */
+.rewards-table td:last-child,
+.rewards-table td:last-child code {
+  word-break: break-all;
+}
+
+/* Mobile tweaks */
+@media (max-width: 640px) {
+  .rewards-table { font-size: 0.9rem; }
+  .rewards-table th,
+  .rewards-table td { padding: 0.3rem 0.45rem; }
+}
+
+/* As a safety net, allow horizontal scroll if needed */
+.rewards-panel { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 .player-subtitle {
   margin: 0.25rem 0 0;
