@@ -377,6 +377,28 @@ body {
   color: var(--text-secondary);
 }
 
+/* Rewards table for extra info */
+.rewards-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.25rem 0 1rem;
+  font-size: 0.95rem;
+}
+.rewards-table th,
+.rewards-table td {
+  padding: 0.35rem 0.5rem;
+  border-top: 1px solid var(--border);
+  vertical-align: top;
+}
+.rewards-table thead th {
+  color: var(--accent);
+  text-align: left;
+  border-top: none;
+}
+.rewards-table code {
+  color: var(--text-secondary);
+}
+
 .player-subtitle {
   margin: 0.25rem 0 0;
   color: var(--text-secondary);

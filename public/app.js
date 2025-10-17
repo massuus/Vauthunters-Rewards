@@ -321,18 +321,105 @@ function renderRewardsList(rewards) {
   return Object.entries(rewards)
     .map(([group, items]) => {
       const normalizedItems = Array.isArray(items) ? items : [];
-      const listItems = normalizedItems
-        .map((item) => `<li>${formatLabel(item)}</li>`)
+
+      const rows = normalizedItems
+        .map((item) => {
+          const path = deriveRewardPath(String(group), String(item));
+          const name = deriveRewardName(path, String(group), String(item));
+          const safeName = name ? escapeHtml(name) : '';
+          const safePath = path ? escapeHtml(path) : '';
+          return `<tr><td>${safeName}</td><td><code>${safePath}</code></td></tr>`;
+        })
         .join('');
 
       return `
         <div class="reward-group">
           <h3>${formatLabel(group)}</h3>
-          <ul>${listItems}</ul>
+          <table class="rewards-table">
+            <thead>
+              <tr><th>Name</th><th>Path</th></tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
         </div>
       `;
     })
     .join('');
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+}
+
+function toSnake(value) {
+  return String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\/]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '');
+}
+
+function deriveRewardPath(group, item) {
+  const raw = String(item).trim();
+  if (!raw) return '';
+
+  // Already a fully qualified namespaced id
+  if (raw.includes(':')) return raw;
+
+  // Looks like a registry path missing namespace
+  if (/^[a-z0-9_]+\//i.test(raw)) return `the_vault:${raw}`;
+
+  const g = String(group).toLowerCase();
+  const pieceMap = {
+    helmet: 'helmet',
+    chestplate: 'chestplate',
+    leggings: 'leggings',
+    boots: 'boots'
+  };
+
+  // Armor pieces: use set name + piece
+  if (g in pieceMap) {
+    const setId = toSnake(raw);
+    const piece = pieceMap[g];
+    if (setId) return `the_vault:gear/armor/${setId}/${piece}`;
+  }
+
+  // Gear single item types
+  const gearTypes = new Set(['shield', 'axe', 'wand', 'focus', 'sword', 'magnet', 'magnets']);
+  if (gearTypes.has(g)) {
+    const type = g === 'magnets' ? 'magnets' : g; // keep plural if present in data
+    const nameId = toSnake(raw);
+    if (nameId) return `the_vault:gear/${type}/${nameId}`;
+  }
+
+  // Unknown mapping: leave blank to avoid guessing wrong
+  return '';
+}
+
+function deriveRewardName(path, group, originalItem) {
+  // If we have a parseable path, derive a clean name
+  if (path && path.includes(':')) {
+    const afterNs = path.split(':', 2)[1] || path;
+    const parts = afterNs.split('/').filter(Boolean);
+    // gear/armor/<set>/<piece>
+    if (parts[0] === 'gear' && parts[1] === 'armor' && parts.length >= 3) {
+      return formatLabel(parts[2]);
+    }
+    // gear/<type>/<name>
+    if (parts[0] === 'gear' && parts.length >= 3) {
+      return formatLabel(parts[2]);
+    }
+  }
+
+  // Fallback: show formatted original item text
+  return formatLabel(originalItem || '');
 }
 
 function augmentSets(sets) {
