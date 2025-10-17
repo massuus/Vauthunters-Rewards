@@ -48,8 +48,8 @@ app.get('/favicon.ico', (_req, res) => {
   res.status(204).end();
 });
 
-// First-party image proxy to avoid third-party cookies from wiki.vaulthunters.gg
-const ALLOWED_IMAGE_HOSTS = new Set(['wiki.vaulthunters.gg']);
+// First-party image proxy to avoid third-party cookies from external hosts
+const ALLOWED_IMAGE_HOSTS = new Set(['wiki.vaulthunters.gg', 'mc-heads.net']);
 
 app.get('/img', async (req, res) => {
   const raw = (req.query.url || '').toString();
@@ -70,16 +70,30 @@ app.get('/img', async (req, res) => {
   }
 
   try {
+    // Forward basic conditional headers for better caching
+    const forwardHeaders = {
+      'user-agent': REQUEST_HEADERS['user-agent'],
+      accept: 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
+      referer: target.origin + '/',
+    };
+    if (req.headers['if-none-match']) forwardHeaders['if-none-match'] = req.headers['if-none-match'];
+    if (req.headers['if-modified-since']) forwardHeaders['if-modified-since'] = req.headers['if-modified-since'];
+
     const upstream = await fetch(target.href, {
       redirect: 'follow',
-      // Do not send credentials/cookies to third-party
-      // Node fetch defaults are fine; include no credentials
-      headers: {
-        'user-agent': REQUEST_HEADERS['user-agent'],
-        accept: 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
-        referer: 'https://wiki.vaulthunters.gg/'
-      }
+      headers: forwardHeaders
     });
+
+    // Handle 304 Not Modified pass-through
+    if (upstream.status === 304) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      const etag = upstream.headers.get('etag');
+      const lastMod = upstream.headers.get('last-modified');
+      if (etag) res.setHeader('ETag', etag);
+      if (lastMod) res.setHeader('Last-Modified', lastMod);
+      res.setHeader('Vary', 'Accept');
+      return res.status(304).end();
+    }
 
     if (!upstream.ok) {
       return res.status(upstream.status).send('Upstream error');
@@ -90,12 +104,24 @@ app.get('/img', async (req, res) => {
       return res.status(415).send('Unsupported content type');
     }
 
-    const buf = Buffer.from(await upstream.arrayBuffer());
-
+    // Stream the response body to the client
+    const { Readable } = require('stream');
     res.setHeader('Content-Type', contentType);
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.setHeader('Vary', 'Accept');
     res.removeHeader('Set-Cookie');
-    res.status(200).send(buf);
+
+    const etag = upstream.headers.get('etag');
+    const lastMod = upstream.headers.get('last-modified');
+    if (etag) res.setHeader('ETag', etag);
+    if (lastMod) res.setHeader('Last-Modified', lastMod);
+
+    const nodeStream = Readable.fromWeb(upstream.body);
+    nodeStream.on('error', () => {
+      if (!res.headersSent) res.status(502);
+      res.end();
+    });
+    nodeStream.pipe(res);
   } catch (err) {
     console.error('Image proxy error:', err);
     res.status(502).send('Image fetch failed');
@@ -131,8 +157,12 @@ app.get('/api/profile', async (req, res) => {
       return res.status(502).json({ error: 'Unable to resolve player UUID.' });
     }
 
-    const { rewards, sets } = await fetchRewards(formattedId);
-    const tier = await fetchTiers(formattedId);
+    const [rewardsData, tier] = await Promise.all([
+      fetchRewards(formattedId),
+      fetchTiers(formattedId)
+    ]);
+
+    const { rewards, sets } = rewardsData;
 
     res.json({
       id: rawId,

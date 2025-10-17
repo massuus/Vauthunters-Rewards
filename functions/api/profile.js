@@ -30,8 +30,12 @@ export async function onRequest({ request }) {
       return json({ error: "Unable to resolve player UUID." }, 502);
     }
 
-    const { rewards, sets } = await fetchRewards(formattedId);
-    const tier = await fetchTiers(formattedId);
+    const [rewardsData, tier] = await Promise.all([
+      fetchRewards(formattedId),
+      fetchTiers(formattedId)
+    ]);
+
+    const { rewards, sets } = rewardsData;
 
     return json({
       id: rawId,
@@ -148,4 +152,3 @@ function json(body, status = 200) {
     }
   });
 }
-

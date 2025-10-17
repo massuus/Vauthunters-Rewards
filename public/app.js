@@ -4,6 +4,15 @@ const feedback = document.getElementById('feedback');
 const resultContainer = document.getElementById('result');
 const DEFAULT_FAVICON = 'https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/64';
 const defaultTitle = document.title;
+const metaDescriptionEl = document.querySelector('meta[name="description"]');
+const defaultDescription = metaDescriptionEl ? (metaDescriptionEl.getAttribute('content') || '') : '';
+
+function setMetaDescription(text) {
+  try {
+    if (!metaDescriptionEl) return;
+    metaDescriptionEl.setAttribute('content', text || '');
+  } catch (_) {}
+}
 
 let setArtStore = {};
 let setArtLoadPromise = null;
@@ -22,7 +31,8 @@ function setFavicon(url) {
         href = href.replace(/\/?$/, '/64');
       }
     }
-    link.href = href;
+    // Route through our proxy for consistent caching and SW control
+    link.href = proxiedImageUrl(href);
     link.type = href.endsWith('.svg') ? 'image/svg+xml' : 'image/png';
     link.sizes = 'any';
   } catch (_) {
@@ -33,7 +43,7 @@ function setFavicon(url) {
 function proxiedImageUrl(url) {
   try {
     const u = new URL(url);
-    if (u.hostname === 'wiki.vaulthunters.gg') {
+    if (u.hostname === 'wiki.vaulthunters.gg' || u.hostname === 'mc-heads.net') {
       return `/img?url=${encodeURIComponent(url)}`;
     }
   } catch (e) {
@@ -119,6 +129,7 @@ function clearResult() {
   closeSetDetailModal();
   setFavicon(DEFAULT_FAVICON);
   document.title = defaultTitle;
+  setMetaDescription(defaultDescription);
 }
 
 async function renderProfile(data) {
@@ -137,7 +148,7 @@ async function renderProfile(data) {
 
   resultContainer.innerHTML = `
     <article class="player-card">
-      <img src="${data.head}" alt="${data.name}'s Minecraft head" loading="lazy" decoding="async" width="96" height="96" referrerpolicy="no-referrer">
+      <img src="${proxiedImageUrl(data.head)}" alt="${data.name}'s Minecraft head" loading="lazy" decoding="async" width="96" height="96" referrerpolicy="no-referrer">
       <div class="player-details">
         <h2>${data.name}</h2>
         <p class="player-subtitle">Latest Vault Hunters reward data.</p>
@@ -161,7 +172,8 @@ async function renderProfile(data) {
   setFavicon(data.head);
   // Update document title to include player name
   if (data && data.name) {
-    document.title = `${data.name} — Vault Hunters Rewards`;
+    document.title = `${data.name} - Vault Hunters Rewards`;
+    setMetaDescription(`Vault Hunters rewards for ${data.name}: sets, tiers, and more.`);
   }
 
   bindDisclosureToggle('extra-toggle', 'extra-panel');
@@ -607,6 +619,13 @@ function formatLabel(value) {
     .filter(Boolean)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+}
+
+// Register Service Worker for offline caching (images cache-first)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
 }
 
 const presetUsername = getUsernameFromQuery();
