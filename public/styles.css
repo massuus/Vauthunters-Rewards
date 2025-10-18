@@ -484,14 +484,12 @@ body {
   margin: 0 0 0.5rem;
 }
 .recent-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.6rem;
 }
 @media (max-width: 480px) {
-  .recent-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  }
+  .recent-grid { gap: 0.6rem; }
 }
 .recent-item {
   display: flex;
@@ -530,6 +528,9 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Let items size to their content without stretching */
+.recent-item { flex: 0 0 auto; max-width: 100%; }
 
 /* Skeleton placeholder to reserve space and reduce CLS */
 .skeleton {
