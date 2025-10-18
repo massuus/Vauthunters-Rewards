@@ -23,23 +23,90 @@ export async function onRequest({ request }) {
       id: "mock",
       name: mockName,
       head: "https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf",
-      // Reward groups for the table renderer
-      rewards: {
-        shield: ["Golden Kappa", "Spring Shield"],
-        helmet: ["royale_crown", "companion10"],
-        chestplate: ["dylans_suit"],
-        magnets: ["spring_magnet"],
-        axe: ["reddragon_axe"],
-        focus: ["ancient_scroll"],
-      },
-      // Sets correspond to keys in set-art.json (and some armor pieces to test merging)
+      "rewards": {
+        "the_vault:shield": [
+            "the_vault:gear/shield/golden_kappa",
+            "the_vault:gear/shield/spring_shield",
+            "the_vault:gear/shield/dylans_protector",
+            "the_vault:gear/shield/mattress"
+        ],
+        "the_vault:boots": [
+            "the_vault:gear/armor/companion10/boots",
+            "the_vault:gear/armor/flowery_madness/boots",
+            "the_vault:gear/armor/dylans_suit/boots"
+        ],
+        "the_vault:helmet": [
+            "the_vault:gear/armor/companion10/helmet",
+            "the_vault:gear/armor/royale_crown/helmet",
+            "the_vault:gear/armor/flowery_madness/helmet",
+            "the_vault:gear/armor/dylans_suit/helmet",
+            "the_vault:gear/armor/falcon/helmet"
+        ],
+        "the_vault:leggings": [
+            "the_vault:gear/armor/companion10/leggings",
+            "the_vault:gear/armor/flowery_madness/leggings",
+            "the_vault:gear/armor/dylans_suit/leggings"
+        ],
+        "the_vault:chestplate": [
+            "the_vault:gear/armor/companion10/chestplate",
+            "the_vault:gear/armor/flowery_madness/chestplate",
+            "the_vault:gear/armor/five_in_a_row_guard/chestplate",
+            "the_vault:gear/armor/dylans_suit/chestplate",
+            "the_vault:gear/armor/falcon/chestplate"
+        ],
+        "the_vault:axe": [
+            "the_vault:gear/axe/spring_axe",
+            "the_vault:gear/axe/dylans_cleaver",
+            "the_vault:gear/axe/reddragon_axe",
+            "the_vault:gear/axe/petal_splitter"
+        ],
+        "the_vault:wand": [
+            "the_vault:gear/wand/spring_wand",
+            "the_vault:gear/wand/dylans_magic_stick"
+        ],
+        "the_vault:focus": [
+            "the_vault:gear/focus/spring_focus",
+            "the_vault:gear/focus/tiny_treasure_train",
+            "the_vault:gear/focus/dylans_book",
+            "the_vault:gear/focus/ancient_scroll"
+        ],
+        "the_vault:sword": [
+            "the_vault:gear/sword/spring_sword",
+            "the_vault:gear/sword/dylans_blade",
+            "the_vault:gear/sword/twin_blade",
+            "the_vault:gear/sword/reddragon_sword"
+        ],
+        "the_vault:magnet": [
+            "the_vault:gear/magnets/spring_magnet"
+        ],
+        "the_vault:companion": [
+            "the_vault:baby_creeper_gold",
+            "the_vault:baby_creeper_pog",
+            "the_vault:dino",
+            "the_vault:dylan_penguin"
+        ]
+    },
+      // all sets unlocked in the set-art.json
       sets: [
         "golden_kappa",
+        "companion_leader_s1",
+        "i85_royale_crown",
         "i85_spring_set",
+        "i85_treasure_train",
+        "i85_server_bingos",
+        "dylan_vip",
+        "baby_creeper_gold",
+        "baby_creeper_pog",
         "iskall85_falcon_helmet",
         "iskall85_falcon_chestplate",
-        "i85_treasure_train",
-        "dylans_set",
+        "iskall85_reddragon_axe",
+        "iskall85_ancient_scroll",
+        "i85_companion_dino",
+        "i85_dylan_penguin",
+        "i85_mattress",
+        "i85_petal_splitter",
+        "i85_twin_blade",
+        "iskall85_reddragon_sword"
       ],
       tier: []
     });
