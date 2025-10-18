@@ -1,7 +1,8 @@
-﻿const form = document.getElementById('search-form');
+const form = document.getElementById('search-form');
 const usernameInput = document.getElementById('username');
 const feedback = document.getElementById('feedback');
 const resultContainer = document.getElementById('result');
+const recentContainer = document.getElementById('recent');
 const DEFAULT_FAVICON = 'https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/64';
 const defaultTitle = document.title;
 const metaDescriptionEl = document.querySelector('meta[name="description"]');
@@ -77,7 +78,7 @@ async function submitSearch() {
     resultContainer.classList.remove('hidden');
     setFavicon(DEFAULT_FAVICON);
     document.title = defaultTitle;
-    const response = await fetch(`/api/profile?username=${encodeURIComponent(username)}`);
+    const response = await fetch(buildProfileApiUrl(username));
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -93,7 +94,6 @@ async function submitSearch() {
 
     const data = await response.json();
     await renderProfile(data);
-    showFeedback(`Profile loaded for ${data.name}.`, 'success');
   } catch (error) {
     clearResult();
     showFeedback(error.message, 'error');
@@ -111,6 +111,7 @@ function setLoadingState(isLoading) {
 function clearFeedback() {
   feedback.textContent = '';
   feedback.classList.remove('error', 'success');
+  try { feedback.setAttribute('hidden', ''); } catch (_) {}
 }
 
 function showFeedback(message, type) {
@@ -120,6 +121,14 @@ function showFeedback(message, type) {
   if (type) {
     feedback.classList.add(type);
   }
+  const hasText = !!(message && String(message).trim());
+  try {
+    if (hasText) {
+      feedback.removeAttribute('hidden');
+    } else {
+      feedback.setAttribute('hidden', '');
+    }
+  } catch (_) {}
 }
 
 function clearResult() {
@@ -140,8 +149,13 @@ async function renderProfile(data) {
   const sets = augmentSets(originalSets);
   const tiers = Array.isArray(data.tier) ? data.tier : [];
   const rewards = data.rewards && typeof data.rewards === 'object' ? data.rewards : {};
+  const usernameKey = (data && data.name ? String(data.name) : '').trim().toLowerCase();
+  const previouslySeen = getSeenSets(usernameKey);
+  const newSetKeys = previouslySeen && previouslySeen.size
+    ? new Set(sets.filter((k) => !previouslySeen.has(k)))
+    : new Set();
 
-  const setsSection = renderSetsSection(sets);
+  const setsSection = renderSetsSection(sets, newSetKeys);
   const tiersSection = renderTiersSection(tiers);
   const extraSection = renderExtraSection(rewards);
   const shareUrl = getShareUrl(data.name);
@@ -178,6 +192,28 @@ async function renderProfile(data) {
 
   bindDisclosureToggle('extra-toggle', 'extra-panel');
   bindDisclosureToggle('unlocks-toggle', 'unlocks-panel');
+
+  // Persist the current sets so future lookups can detect new ones
+  setSeenSets(usernameKey, new Set(sets));
+
+  // Update recent list
+  addRecentUser({ name: data.name, head: data.head });
+  renderRecentSection();
+}
+
+function buildProfileApiUrl(username) {
+  const base = new URL('/api/profile', window.location.origin);
+  base.searchParams.set('username', username);
+  // Pass through a small allowlist of debug params from the page URL
+  try {
+    const current = new URL(window.location.href);
+    ['mock', 'bust'].forEach((k) => {
+      if (current.searchParams.has(k)) {
+        base.searchParams.set(k, current.searchParams.get(k) || '1');
+      }
+    });
+  } catch {}
+  return base.pathname + '?' + base.searchParams.toString();
 }
 
 function bindShareButton() {
@@ -220,16 +256,16 @@ function bindDisclosureToggle(toggleId, panelId) {
     panel.classList.toggle('hidden');
     const chev = toggle.querySelector('.chevron');
     if (chev) {
-      chev.textContent = isExpanded ? '▾' : '▴';
+      chev.textContent = isExpanded ? '?' : '?';
     }
   });
 }
 
-function renderSetsSection(sets) {
+function renderSetsSection(sets, newSetKeys = new Set()) {
   const note = `
     <div class="sets-help">
       <button id="unlocks-toggle" class="extra-toggle" type="button" aria-expanded="false" aria-controls="unlocks-panel">
-        Not seeing all your unlocks? <span class="chevron" aria-hidden="true">▾</span>
+        Not seeing all your unlocks? <span class="chevron" aria-hidden="true">?</span>
       </button>
       <div id="unlocks-panel" class="rewards-panel hidden" role="region" aria-labelledby="unlocks-toggle">
         <p class='sets-note muted'>This list only shows sets you have already unlocked in-game. Upcoming or unreleased sets will appear here after they are added to the game.</p>
@@ -248,7 +284,7 @@ function renderSetsSection(sets) {
     `;
   }
 
-  const items = sets.map((setKey) => renderSetCard(setKey)).join('');
+  const items = sets.map((setKey) => renderSetCard(setKey, newSetKeys.has(setKey))).join('');
 
   return `
     <section>
@@ -259,7 +295,7 @@ function renderSetsSection(sets) {
   `;
 }
 
-function renderSetCard(setKey) {
+function renderSetCard(setKey, isNew = false) {
   const asset = setArtStore?.[setKey];
   const label = asset?.label || formatLabel(setKey);
 
@@ -268,10 +304,14 @@ function renderSetCard(setKey) {
     ? `<img src="${proxied}" alt="${asset.alt || label}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${asset?.image || ''}'">`
     : '';
 
+  const newBadge = isNew ? `<span class=\"set-card__badge\" aria-label=\"New unlock\">New</span>` : '';
+  const extraClass = isNew ? ' set-card--new' : '';
+
   return `
-    <button class="set-card" type="button" data-set-key="${setKey}">
+    <button class="set-card${extraClass}" type="button" data-set-key="${setKey}">
       ${imageMarkup}
       <span>${label}</span>
+      ${newBadge}
     </button>
   `;
 }
@@ -644,6 +684,30 @@ function updateQueryString(username) {
   history.replaceState(null, '', `${window.location.pathname}${next}`);
 }
 
+function getSeenSets(username) {
+  try {
+    if (!username) return new Set();
+    const raw = localStorage.getItem(`vh.seenSets.${username}`);
+    if (!raw) return new Set();
+    const list = JSON.parse(raw);
+    if (!Array.isArray(list)) return new Set();
+    return new Set(list.filter((v) => typeof v === 'string'));
+  } catch (_) {
+    return new Set();
+  }
+}
+
+function setSeenSets(username, setKeys) {
+  try {
+    if (!username) return;
+    const arr = Array.from(setKeys || []);
+    localStorage.setItem(`vh.seenSets.${username}`, JSON.stringify(arr));
+  } catch (_) {
+    // ignore storage errors (quota, privacy mode, etc.)
+  }
+}
+
+
 async function copyShareLink(link) {
   if (!link) {
     return false;
@@ -719,5 +783,73 @@ const presetUsername = getUsernameFromQuery();
 if (presetUsername) {
   usernameInput.value = presetUsername;
   form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+}
+// Render recents on first load as well
+renderRecentSection();
+
+function getRecentUsers() {
+  try {
+    const raw = localStorage.getItem('vh.recentUsers');
+    if (!raw) return [];
+    const list = JSON.parse(raw);
+    if (!Array.isArray(list)) return [];
+    // sanitize
+    return list
+      .map((x) => ({ name: String(x?.name || '').trim(), head: String(x?.head || '') }))
+      .filter((x) => x.name);
+  } catch (_) {
+    return [];
+  }
+}
+
+function saveRecentUsers(list) {
+  try {
+    localStorage.setItem('vh.recentUsers', JSON.stringify(list || []));
+  } catch (_) {}
+}
+
+function addRecentUser(user) {
+  try {
+    const name = String(user?.name || '').trim();
+    const head = String(user?.head || '');
+    if (!name) return;
+    const key = name.toLowerCase();
+    const existing = getRecentUsers().filter((u) => u.name.toLowerCase() !== key);
+    const next = [{ name, head }, ...existing].slice(0, 4);
+    saveRecentUsers(next);
+  } catch (_) {}
+}
+
+function renderRecentSection() {
+  if (!recentContainer) return;
+  const items = getRecentUsers();
+  if (!items.length) {
+    recentContainer.classList.add('hidden');
+    recentContainer.innerHTML = '';
+    return;
+  }
+  const buttons = items
+    .map((u) => {
+      const img = proxiedImageUrl(u.head || DEFAULT_FAVICON);
+      const safe = escapeHtml(u.name);
+      return `<button class="recent-item" type="button" data-name="${safe}"><img src="${img}" alt="${safe}'s head" width="28" height="28"><span>${safe}</span></button>`;
+    })
+    .join('');
+  recentContainer.innerHTML = `<h3 class="recent-title">Recent Searches</h3><div class="recent-grid">${buttons}</div>`;
+  recentContainer.classList.remove('hidden');
+  bindRecentHandlers();
+}
+
+function bindRecentHandlers() {
+  if (!recentContainer) return;
+  recentContainer.querySelectorAll('button.recent-item[data-name]')
+    .forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const name = btn.getAttribute('data-name') || '';
+        if (!name) return;
+        usernameInput.value = name;
+        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      });
+    });
 }
 

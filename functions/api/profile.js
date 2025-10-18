@@ -16,6 +16,51 @@ export async function onRequest({ request }) {
     return json({ error: "Username query parameter is required." }, 400);
   }
 
+  // Simple mock mode to aid local testing: /api/profile?username=...&mock=1
+  if (url.searchParams.has("mock")) {
+    const mockName = username || "Mock User";
+    return json({
+      id: "mock",
+      name: mockName,
+      head: "https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf",
+      // Reward groups for the table renderer
+      rewards: {
+        shield: ["Golden Kappa", "Spring Shield"],
+        helmet: ["royale_crown", "companion10"],
+        chestplate: ["dylans_suit"],
+        magnets: ["spring_magnet"],
+        axe: ["reddragon_axe"],
+        focus: ["ancient_scroll"],
+      },
+      // Sets correspond to keys in set-art.json (and some armor pieces to test merging)
+      sets: [
+        "golden_kappa",
+        "i85_spring_set",
+        "iskall85_falcon_helmet",
+        "iskall85_falcon_chestplate",
+        "i85_treasure_train",
+        "dylans_set",
+      ],
+      tier: []
+    });
+  }
+
+  if (url.searchParams.has('mock')) {
+    return json({
+      id: 'mock',
+      name: 'Mock User',
+      head: 'https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf',
+      rewards: {
+      shield: ['Golden Kappa', 'Spring Shield'],
+      helmet: ['companion10', 'royale_crown'],
+      chestplate: ['dylans_suit'],
+      magnets: ['spring_magnet']
+    },
+      sets: ['Spring Set', 'Dylan\'s Set'],
+      tier: []
+    });
+  }
+
   try {
     const profile = await fetchProfile(username);
 

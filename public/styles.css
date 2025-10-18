@@ -135,6 +135,7 @@ body {
 
 .feedback.error {
   color: var(--error);
+  font-size: 0.85rem; /* smaller than default feedback text */
 }
 
 .feedback.success {
@@ -299,6 +300,11 @@ body {
   transition: border 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
+.set-card--new {
+  border-color: var(--accent);
+  box-shadow: 0 6px 16px rgba(244, 169, 65, 0.22);
+}
+
 .set-card:hover {
   border-color: var(--accent);
   box-shadow: 0 12px 24px rgba(244, 169, 65, 0.18);
@@ -319,6 +325,20 @@ body {
 .set-card span {
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.set-card__badge {
+  margin-left: auto;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, #f3c36b, var(--accent));
+  color: #141821;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.2;
 }
 
 .tiers-list {
@@ -449,6 +469,66 @@ body {
 
 .footer a:hover {
   text-decoration: underline;
+}
+
+/* Recent searches */
+.recent {
+  margin-top: 1rem;
+}
+.recent .recent-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.5rem;
+}
+.recent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.6rem;
+}
+@media (max-width: 480px) {
+  .recent-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 12px;
+  border: 1px solid var(--accent);
+  background: #10141c;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Ensure search-section button styles don't override recent items */
+.search .recent-item {
+  background: #10141c; /* override .search button gradient */
+  border: 1px solid var(--accent); /* yellow outline */
+  color: var(--text-primary); /* readable white text */
+  flex: initial; /* neutralize .search button flex rule */
+}
+.search .recent-item:hover,
+.search .recent-item:focus-visible {
+  background: #121822;
+  box-shadow: none;
+  transform: none;
+}
+.recent-item img {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+.recent-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Skeleton placeholder to reserve space and reduce CLS */

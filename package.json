@@ -2,9 +2,10 @@
   "name": "vauthunters-rewards",
   "version": "1.0.0",
   "description": "Vault Hunters rewards lookup tool",
-  "main": "server.js",
+  "main": "public/index.html",
   "scripts": {
-    "start": "node server.js"
+    "start": "npx --yes wrangler@4.43.0 pages dev public --compatibility-date=2025-10-18",
+    "dev": "npx --yes wrangler@4.43.0 pages dev public --compatibility-date=2025-10-18"
   },
   "keywords": [
     "vault-hunters",
@@ -13,7 +14,5 @@
   ],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "express": "^5.1.0"
-  }
+  "dependencies": {}
 }

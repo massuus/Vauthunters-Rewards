@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const STATIC_CACHE = `vhr-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `vhr-runtime-${CACHE_VERSION}`;
 
