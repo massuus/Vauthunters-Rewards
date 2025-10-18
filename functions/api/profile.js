@@ -24,7 +24,9 @@ export async function onRequest({ request }) {
       name: mockName,
       head: "https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf",
       "rewards": {},
-      sets: [],
+      sets: [
+        "dylan_vip",
+      ],
       tier: []
     });
   }
