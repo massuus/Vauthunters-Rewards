@@ -250,14 +250,24 @@ function bindDisclosureToggle(toggleId, panelId) {
   const toggle = document.getElementById(toggleId);
   const panel = document.getElementById(panelId);
   if (!toggle || !panel) return;
+  const chev = toggle.querySelector('.chevron');
+
+  const setChevronForState = (expanded) => {
+    if (!chev) return;
+    // Show ▲ when collapsed, ▼ when expanded
+    chev.textContent = expanded ? '▼' : '▲';
+  };
+
+  // Ensure initial chevron matches current state
+  const initialExpanded = toggle.getAttribute('aria-expanded') === 'true';
+  setChevronForState(initialExpanded);
+
   toggle.addEventListener('click', () => {
-    const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-    toggle.setAttribute('aria-expanded', String(!isExpanded));
+    const wasExpanded = toggle.getAttribute('aria-expanded') === 'true';
+    const nextExpanded = !wasExpanded;
+    toggle.setAttribute('aria-expanded', String(nextExpanded));
     panel.classList.toggle('hidden');
-    const chev = toggle.querySelector('.chevron');
-    if (chev) {
-      chev.textContent = isExpanded ? '?' : '?';
-    }
+    setChevronForState(nextExpanded);
   });
 }
 
@@ -265,7 +275,7 @@ function renderSetsSection(sets, newSetKeys = new Set()) {
   const note = `
     <div class="sets-help">
       <button id="unlocks-toggle" class="extra-toggle" type="button" aria-expanded="false" aria-controls="unlocks-panel">
-        Not seeing all your unlocks? <span class="chevron" aria-hidden="true">?</span>
+        Not seeing all your unlocks? <span class="chevron" aria-hidden="true">▲</span>
       </button>
       <div id="unlocks-panel" class="rewards-panel hidden" role="region" aria-labelledby="unlocks-toggle">
         <p class='sets-note muted'>This list only shows sets you have already unlocked in-game. Upcoming or unreleased sets will appear here after they are added to the game.</p>
