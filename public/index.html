@@ -29,6 +29,8 @@
     .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0 }
     .footer{ margin-top:3rem; text-align:center; color:var(--text-secondary); font-size:.9rem }
     .footer a{ color:var(--accent); text-decoration:none }
+    .footer .support-btn{ display:inline-flex; align-items:center; gap:.5rem; margin-top:.5rem; padding:.7rem 1.1rem; border-radius:12px; background:linear-gradient(135deg, #f3c36b, var(--accent)); color:#141821; font-family:'Rajdhani', system-ui, sans-serif; font-weight:700; letter-spacing:.08em; text-transform:uppercase; box-shadow:var(--shadow) }
+    .footer .support-btn:hover{ filter:brightness(1.05) }
     /* Reserve space when loading via query param before JS runs */
     .has-query #result.hidden{ display:grid !important; background:var(--panel); border-radius:20px; border:1px solid var(--border); box-shadow:var(--shadow); padding:2rem; min-height:clamp(420px,70vh,1000px) }
   </style>
@@ -70,6 +72,9 @@
       <p>Everything is open source and available on <a href="https://github.com/massuus/Vauthunters-Rewards" target="_blank" rel="noopener">GitHub</a>.</p>
       <p>Created by <a href="https://massuus.com" target="_blank" rel="noopener">massuus</a>.</p>
       <p>🎉 <a href="https://www.twitch.tv/iskall85" target="_blank" rel="noopener">Iskall85</a> Approved! 🎉</p>
+      <p>
+        <a class="support-btn" href="https://buymeacoffee.com/massuus" target="_blank" rel="noopener" aria-label="Support massuus on Buy Me a Coffee">☕ Buy Me a Coffee</a>
+      </p>
     </footer>
   </div>
   <script src="app.js" defer></script>

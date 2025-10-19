@@ -2,6 +2,8 @@
 
 A lightweight web app to look up a Minecraft player and display their Vault Hunters rewards, sets, and Patreon tiers. It serves a static frontend with Cloudflare Pages and implements API routes as Pages Functions.
 
+Live site: https://vh-rewards.massuus.com/
+
 ## Features
 
 - Username search resolves Mojang UUIDs and fetches Vault Hunters rewards and Patreon tiers.
@@ -108,6 +110,12 @@ You can bypass upstream calls during development:
 - Images broken when hotlinking:
   - Use `/img?url=...` (the app does this automatically for allowed hosts).
 
+## Support
+
+If this project helped you, you can support it here:
+
+- Buy Me a Coffee: https://buymeacoffee.com/massuus
+
 ## License
 
 ISC License. See `package.json` for details.
@@ -115,4 +123,3 @@ ISC License. See `package.json` for details.
 ## Disclaimer
 
 This tool is fan‑made and for fun. It uses the [vaulthunters.gg](https://vaulthunters.gg/) APIs and images from [wiki.vaulthunters.gg](https://wiki.vaulthunters.gg/). There’s no guarantee of continued support.
-
