@@ -685,3 +685,19 @@ body {
   line-height: 1.4;
 }
 
+
+/* Responsive grid and uniform set card sizing */
+.sets-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: stretch; /* ensure tracks stretch and cards can match height */
+}
+.set-card {
+  min-height: 84px; /* keep rows visually uniform */
+  height: 100%; /* stretch to fill grid track */
+}
+.set-card span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* keep single-line labels for uniform height */
+}
+
