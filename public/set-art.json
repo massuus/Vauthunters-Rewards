@@ -1,4 +1,4 @@
-﻿{
+{
   "baby_creeper_gold": {
     "label": "Golden Creeper",
     "image": "https://wiki.vaulthunters.gg/images/c/c9/Invicon_Companion_Golden_Creeper.gif",
@@ -118,5 +118,11 @@
     "image": "https://wiki.vaulthunters.gg/images/0/0f/Invicon_I85_Twin_Blade.gif",
     "alt": "Twin Blade icon",
     "description": "You secured this weapon through Iskall85's Horde Rush event."
+  },
+  "halloween_pumpkin": {
+    "label": "Bumbo Pumpkini",
+    "image": "https://wiki.vaulthunters.gg/images/d/d4/Invicon_BumboPumpkini.gif",
+    "alt": "Bumbo Pumpkini icon",
+    "description": "Dropped during the Halloween Twitch event with Iskall85."
   }
 }
