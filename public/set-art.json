@@ -160,5 +160,29 @@
     "image": "https://wiki.vaulthunters.gg/images/e/ed/Invicon_Golden_BumboCactoni.gif",
     "alt": "Golden Bumbo Cactoni icon",
     "description": "You got this by getting level 25 in the second season."
+  },
+  "essence_of_iskallium": {
+    "label": "Essence of Iskallium",
+    "image": "https://wiki.vaulthunters.gg/images/3/3a/Invicon_Essence_of_Iskallium.gif",
+    "alt": "Essence of Iskallium icon",
+    "description": "You obtained this reward by reaching Ethernal level 60."
+  },
+  "hypefuse_scepter": {
+    "label": "Hypefuse Scepter",
+    "image": "https://wiki.vaulthunters.gg/images/2/2a/Invicon_Hypefuse_Scepter.gif",
+    "alt": "Hypefuse Scepter icon",
+    "description": "You obtained this reward by reaching Ethernal level 60."
+  },
+  "never_ever": {
+    "label": "Never Ever",
+    "image": "https://wiki.vaulthunters.gg/images/7/7b/Invicon_NeverEver_Shield_Blocking.gif",
+    "alt": "Never Ever icon",
+    "description": "You obtained this shield by reaching Ethernal level 60."
+  },
+  "sculk_set": {
+    "label": "Sculk Set",
+    "image": "https://wiki.vaulthunters.gg/images/9/9a/Invicon_SkullSword.gif",
+    "alt": "Sculk Set icon",
+    "description": "You obtained this set by reaching Ethernal level 80."
   }
 }
