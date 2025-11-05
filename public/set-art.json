@@ -124,5 +124,41 @@
     "image": "https://wiki.vaulthunters.gg/images/d/d4/Invicon_BumboPumpkini.gif",
     "alt": "Bumbo Pumpkini icon",
     "description": "Dropped during the Halloween Twitch event with Iskall85."
+  },
+  "pink_dylan": {
+    "label": "Pink Dylan",
+    "image": "https://ebs.vaulthunters.gg/assets/sprites/battlepass/seasonal/season-2/pink_dylan_preview.gif",
+    "alt": "Pink Dylan icon",
+    "description": "You got this by getting level 5 in the second season."
+  },
+  "forsaken_axe": {
+    "label": "Forsaken Axe",
+    "image": "https://ebs.vaulthunters.gg/assets/sprites/battlepass/seasonal/season-2/forsaken_axe_preview.gif",
+    "alt": "Forsaken Axe icon",
+    "description": "You got this by getting level 7 in the second season."
+  },
+  "forsaken_sword": {
+    "label": "Forsaken Sword",
+    "image": "https://ebs.vaulthunters.gg/assets/sprites/battlepass/seasonal/season-2/forsaken_sword_preview.gif",
+    "alt": "Forsaken Sword icon",
+    "description": "You got this by getting level 7 in the second season."
+  },
+  "bumbo_cactoni": {
+    "label": "Bumbo Cactoni",
+    "image": "https://ebs.vaulthunters.gg/assets/sprites/battlepass/seasonal/season-2/bumbo_cactoni_preview.gif",
+    "alt": "Bumbo Cactoni icon",
+    "description": "You got this by getting level 10 in the second season."
+  },
+  "carrot": {
+    "label": "Carrot",
+    "image": "https://ebs.vaulthunters.gg/assets/sprites/battlepass/seasonal/season-2/carrot_preview.gif",
+    "alt": "Carrot icon",
+    "description": "You got this by getting level 15 in the second season."
+  },
+  "golden_bumbo_cactoni": {
+    "label": "Golden Bumbo Cactoni",
+    "image": "https://ebs.vaulthunters.gg/assets/sprites/battlepass/seasonal/season-2/golden_bumbo_cactoni_preview.gif",
+    "alt": "Golden Bumbo Cactoni icon",
+    "description": "You got this by getting level 25 in the second season."
   }
 }
