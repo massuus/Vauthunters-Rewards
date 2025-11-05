@@ -289,6 +289,13 @@ function renderSetsSection(sets, newSetKeys = new Set()) {
       <section>
         <h3 class='section-title'>Vault Sets</h3>
         <p class='muted'>No sets recorded yet.</p>
+        <p class='rewards-cta'>
+          <a class="rewards-cta__link" href="https://companions.vaulthunters.gg/rewards" target="_blank" rel="noopener">
+            <span class="rewards-cta__icon" aria-hidden="true">🎁</span>
+            <span>Browse all rewards</span>
+            <span class="rewards-cta__arrow" aria-hidden="true">→</span>
+          </a>
+        </p>
         ${note}
       </section>
     `;
@@ -300,6 +307,13 @@ function renderSetsSection(sets, newSetKeys = new Set()) {
     <section>
       <h3 class='section-title'>Vault Sets</h3>
       <div class='sets-grid'>${items}</div>
+      <p class='rewards-cta'>
+        <a class="rewards-cta__link" href="https://companions.vaulthunters.gg/rewards" target="_blank" rel="noopener">
+          <span class="rewards-cta__icon" aria-hidden="true">🎁</span>
+          <span>Browse all rewards</span>
+          <span class="rewards-cta__arrow" aria-hidden="true">→</span>
+        </a>
+      </p>
       ${note}
     </section>
   `;

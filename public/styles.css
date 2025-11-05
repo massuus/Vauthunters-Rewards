@@ -685,6 +685,38 @@ body {
   line-height: 1.4;
 }
 
+/* Rewards CTA under Vault Sets */
+.rewards-cta {
+  margin-top: 0.75rem;
+}
+.rewards-cta__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(20, 24, 33, 0.6);
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  transition: filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.rewards-cta__link:hover,
+.rewards-cta__link:focus-visible {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(244, 169, 65, 0.18);
+  outline: none;
+}
+.rewards-cta__icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+.rewards-cta__arrow {
+  opacity: 0.85;
+}
+
 
 /* Responsive grid and uniform set card sizing */
 .sets-grid {
