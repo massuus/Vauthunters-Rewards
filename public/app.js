@@ -409,7 +409,7 @@ function renderSetCard(setKey, isNew = false) {
 }
 
 function renderTiersSection(tiers) {
-  const title = 'Patreon Sets Unlocked';
+  const title = 'Patreon Tiers Unlocked';
 
   if (!tiers.length) {
     return `
