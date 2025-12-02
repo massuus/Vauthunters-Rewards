@@ -4,6 +4,9 @@ const feedback = document.getElementById('feedback');
 const resultContainer = document.getElementById('result');
 const recentContainer = document.getElementById('recent');
 const DEFAULT_FAVICON = 'https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/64';
+const UNKNOWN_ITEM_IMAGE = '/img/unknown_item.png';
+const CODES_QUERY_KEYWORD = 'codes';
+const CODES_DATA_URL = '/codes.json';
 const defaultTitle = document.title;
 const metaDescriptionEl = document.querySelector('meta[name="description"]');
 const defaultDescription = metaDescriptionEl ? (metaDescriptionEl.getAttribute('content') || '') : '';
@@ -20,6 +23,7 @@ let setArtLoadPromise = null;
 let setModalElements = null;
 let lastFocusedElement = null;
 let modalKeydownHandler = null;
+let codesDataPromise = null;
 
 function setFavicon(url) {
   try {
@@ -67,6 +71,18 @@ async function submitSearch() {
 
   if (!username) {
     showFeedback('Please enter a Minecraft username.', 'error');
+    return;
+  }
+
+  if (isCodesQuery(username)) {
+    setLoadingState(true);
+    try {
+      await renderCodesPage();
+    } catch (error) {
+      showFeedback('Unable to load the reward codes right now. Please try again in a moment.', 'error');
+    } finally {
+      setLoadingState(false);
+    }
     return;
   }
 
@@ -139,6 +155,56 @@ function clearResult() {
   setFavicon(DEFAULT_FAVICON);
   document.title = defaultTitle;
   setMetaDescription(defaultDescription);
+}
+
+async function renderCodesPage() {
+  resultContainer.classList.remove('hidden');
+  resultContainer.innerHTML = `
+    <section class="codes-page">
+      <div class="codes-page__loading">Loading codes...</div>
+    </section>
+  `;
+  setFavicon(DEFAULT_FAVICON);
+  document.title = 'Vault Hunters Reward Codes';
+  setMetaDescription('Here is a comprehensive list on how to unlock all possible Vault Hunters code rewards.');
+  closeSetDetailModal();
+
+  try {
+    const codes = await fetchCodesData();
+    const cards = codes.length
+      ? codes.map(renderCodeCard).join('')
+      : '<p class="codes-page__empty">No featured codes yet. Check back soon!</p>';
+
+    resultContainer.innerHTML = `
+      <section class="codes-page" aria-live="polite">
+        <header class="codes-page__intro">
+          <h2 class="codes-page__title">Unlockable rewards using codes</h2>
+          <p class="codes-page__lead">Here is a comprehensive list on how to unlock all possible code rewards.</p>
+          <p class="codes-page__subtext">Watch the VODs to learn how to earn each reward, or reveal the code if you just need it fast.</p>
+        </header>
+        <div class="codes-grid">
+          ${cards}
+        </div>
+        <div class="codes-page__redeem">
+          <p>You can redeem the codes here:</p>
+          <a class="codes-page__redeem-btn" href="https://companions.vaulthunters.gg/redeem" target="_blank" rel="noopener">
+            Redeem at companions.vaulthunters.gg
+          </a>
+        </div>
+      </section>
+    `;
+
+    bindCodeRevealHandlers();
+    updateQueryString(CODES_QUERY_KEYWORD);
+  } catch (error) {
+    resultContainer.innerHTML = `
+      <section class="codes-page">
+        <p class="codes-page__error">We couldn't load the reward codes right now. Please refresh and try again.</p>
+      </section>
+    `;
+    updateQueryString('');
+    throw error;
+  }
 }
 
 async function renderProfile(data) {
@@ -323,10 +389,12 @@ function renderSetCard(setKey, isNew = false) {
   const asset = setArtStore?.[setKey];
   const label = asset?.label || formatLabel(setKey);
 
-  const proxied = asset?.image ? proxiedImageUrl(asset.image) : '';
-  const imageMarkup = asset?.image
-    ? `<img src="${proxied}" alt="${asset.alt || label}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${asset?.image || ''}'">`
-    : '';
+  const isFallbackImage = !asset?.image;
+  const imageSource = asset?.image || UNKNOWN_ITEM_IMAGE;
+  const proxied = proxiedImageUrl(imageSource);
+  const altText = asset?.alt || label;
+  const fallbackClass = isFallbackImage ? ' class="pixelated-image"' : '';
+  const imageMarkup = `<img${fallbackClass} src="${proxied}" alt="${altText}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
 
   const newBadge = isNew ? `<span class=\"set-card__badge\" aria-label=\"New unlock\">New</span>` : '';
   const extraClass = isNew ? ' set-card--new' : '';
@@ -411,6 +479,84 @@ function renderRewardsList(rewards) {
       `;
     })
     .join('');
+}
+
+function isCodesQuery(value) {
+  return String(value || '').trim().toLowerCase() === CODES_QUERY_KEYWORD;
+}
+
+async function fetchCodesData() {
+  if (!codesDataPromise) {
+    codesDataPromise = fetch(CODES_DATA_URL)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to load codes');
+        }
+        return response.json();
+      })
+      .then((data) => (Array.isArray(data) ? data : []))
+      .catch((error) => {
+        codesDataPromise = null;
+        throw error;
+      });
+  }
+
+  return codesDataPromise;
+}
+
+function renderCodeCard(item) {
+  const safeName = escapeHtml(item?.name || 'Mystery Reward');
+  const safeDescription = escapeHtml(item?.description || 'Watch the VOD to learn how to unlock this code.');
+  const imageSource = item?.image || UNKNOWN_ITEM_IMAGE;
+  const safeImage = proxiedImageUrl(imageSource);
+  const fallbackClass = imageSource === UNKNOWN_ITEM_IMAGE ? ' class="pixelated-image"' : '';
+  const safeVodUrl = escapeHtml(item?.vodUrl || '#');
+  const safeCode = escapeHtml(item?.code || '???');
+
+  return `
+    <article class="codes-card">
+      <div class="codes-card__header">
+        <img${fallbackClass} src="${safeImage}" alt="${safeName} reward icon" loading="lazy" decoding="async" width="72" height="72">
+        <h3>${safeName}</h3>
+      </div>
+      <p class="codes-card__description">${safeDescription}</p>
+      <a class="codes-card__vod" href="${safeVodUrl}" target="_blank" rel="noopener">
+        Watch VOD for code
+      </a>
+      <p class="codes-card__hint">
+        Can’t find the code in the VOD, or already watched the stream but don’t remember it?
+      </p>
+      <div class="codes-card__reveal-row">
+        <button class="codes-card__reveal" type="button" data-code="${safeCode}">
+          Reveal code
+        </button>
+        <span class="codes-card__code" data-code-value hidden aria-live="polite"></span>
+      </div>
+    </article>
+  `;
+}
+
+function bindCodeRevealHandlers() {
+  resultContainer.querySelectorAll('.codes-card__reveal').forEach((button) => {
+    button.addEventListener('click', () => {
+      const codeValue = button.getAttribute('data-code') || '';
+      const parentCard = button.closest('.codes-card');
+      if (!parentCard) return;
+      const readout = parentCard.querySelector('[data-code-value]');
+      if (!readout) return;
+      const isHidden = readout.hasAttribute('hidden');
+
+      if (isHidden) {
+        readout.textContent = codeValue;
+        readout.removeAttribute('hidden');
+        button.textContent = 'Hide code';
+      } else {
+        readout.textContent = '';
+        readout.setAttribute('hidden', '');
+        button.textContent = 'Reveal code';
+      }
+    });
+  });
 }
 
 function escapeHtml(str) {
@@ -586,22 +732,19 @@ function openSetDetailModal(setKey) {
   const label = asset.label || formatLabel(setKey);
   const description = asset.description || `You obtained this by unlocking the ${label}.`;
 
-  if (asset.image) {
-    const proxied = proxiedImageUrl(asset.image);
-    modal.image.src = proxied;
-    modal.image.alt = asset.alt || label;
+  const isFallbackImage = !asset.image;
+  const modalImageSource = asset.image || UNKNOWN_ITEM_IMAGE;
+  const proxied = proxiedImageUrl(modalImageSource);
+  modal.image.src = proxied;
+  modal.image.alt = asset.alt || label;
+  modal.image.setAttribute('referrerpolicy', 'no-referrer');
+  modal.image.onerror = () => {
+    modal.image.onerror = null;
+    modal.image.src = modalImageSource;
     modal.image.setAttribute('referrerpolicy', 'no-referrer');
-    modal.image.onerror = () => {
-      modal.image.onerror = null;
-      modal.image.src = asset.image;
-      modal.image.setAttribute('referrerpolicy', 'no-referrer');
-    };
-    modal.image.classList.remove('set-modal__image--hidden');
-  } else {
-    modal.image.src = '';
-    modal.image.alt = '';
-    modal.image.classList.add('set-modal__image--hidden');
-  }
+  };
+  modal.image.classList.remove('set-modal__image--hidden');
+  modal.image.classList.toggle('pixelated-image', isFallbackImage);
 
   modal.title.textContent = label;
   modal.description.textContent = description;

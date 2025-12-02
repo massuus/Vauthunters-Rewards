@@ -26,6 +26,11 @@ body {
   padding: 0 1rem 3rem;
 }
 
+.pixelated-image {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
 .page {
   width: min(980px, 100%);
 }
@@ -731,5 +736,194 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap; /* keep single-line labels for uniform height */
+}
+
+/* Codes landing experience */
+.codes-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  line-height: 1.5;
+}
+
+.codes-page__intro {
+  padding: 0;
+}
+
+.codes-page__lead,
+.codes-page__title,
+.codes-page__subtext {
+  margin: 0;
+}
+
+.codes-page__title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.codes-page__lead {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.codes-page__subtext {
+  color: var(--text-secondary);
+  margin-top: 0.4rem;
+}
+
+.codes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.25rem;
+}
+
+.codes-card {
+  border: 1px solid rgba(244, 169, 65, 0.25);
+  border-radius: 16px;
+  padding: 1.25rem;
+  background: rgba(13, 17, 23, 0.75);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+.codes-card__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.codes-card__header h3 {
+  margin: 0;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.codes-card__description {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.codes-card__vod {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.75rem 1.2rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f3c36b, var(--accent));
+  color: #141821;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.codes-card__vod:hover,
+.codes-card__vod:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(244, 169, 65, 0.25);
+  outline: none;
+}
+
+.codes-card__hint {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.codes-card__reveal-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.codes-card__reveal {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(20, 24, 33, 0.85);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.4rem 1.4rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.codes-card__reveal:hover,
+.codes-card__reveal:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(244, 169, 65, 0.25);
+  outline: none;
+}
+
+.codes-card__code {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.codes-page__redeem {
+  border-top: 1px solid rgba(244, 169, 65, 0.25);
+  padding-top: 1rem;
+  text-align: center;
+}
+
+.codes-page__redeem-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  text-decoration: none;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.codes-page__redeem-btn:hover,
+.codes-page__redeem-btn:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(244, 169, 65, 0.2);
+  outline: none;
+}
+
+.codes-page__loading,
+.codes-page__error,
+.codes-page__empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+  .codes-card__header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .codes-card__reveal-row {
+    justify-content: center;
+  }
+
+  .codes-card__code {
+    width: 100%;
+    text-align: center;
+  }
 }
 

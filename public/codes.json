@@ -1,0 +1,18 @@
+[
+  {
+    "id": "iskall100",
+    "name": "I85 100steam",
+    "description": "This reward was to celebrate the 100th iskall85 stream since his return!",
+    "vodUrl": "https://www.youtube.com/watch?v=d7vtIXRpYHA",
+    "code": "ISKALL100",
+    "image": "/img/unknown_item.png"
+  },
+  {
+    "id": "dylans-xmas-day-1",
+    "name": "Green Christmas Hat",
+    "description": "This is the first reward from the 12 Days of Dylan Christmas event on iskall85's streams!",
+    "vodUrl": "https://www.youtube.com/watch?v=JlLVI3-oMAs",
+    "code": "DYLANS-XMAS-DAY-1",
+    "image": "/img/unknown_item.png"
+  }
+]
