@@ -826,6 +826,15 @@ body {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.codes-card__expiry {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
 .codes-card__vod:hover,
 .codes-card__vod:focus-visible {
   transform: translateY(-1px);

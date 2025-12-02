@@ -5,7 +5,7 @@ const resultContainer = document.getElementById('result');
 const recentContainer = document.getElementById('recent');
 const DEFAULT_FAVICON = 'https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/64';
 const UNKNOWN_ITEM_IMAGE = '/img/unknown_item.png';
-const CODES_QUERY_KEYWORD = 'codes';
+const CODES_QUERY_KEYWORDS = ['codes', 'code'];
 const CODES_DATA_URL = '/codes.json';
 const defaultTitle = document.title;
 const metaDescriptionEl = document.querySelector('meta[name="description"]');
@@ -195,7 +195,7 @@ async function renderCodesPage() {
     `;
 
     bindCodeRevealHandlers();
-    updateQueryString(CODES_QUERY_KEYWORD);
+    updateQueryString(CODES_QUERY_KEYWORDS[0]);
   } catch (error) {
     resultContainer.innerHTML = `
       <section class="codes-page">
@@ -482,7 +482,8 @@ function renderRewardsList(rewards) {
 }
 
 function isCodesQuery(value) {
-  return String(value || '').trim().toLowerCase() === CODES_QUERY_KEYWORD;
+  const normalized = String(value || '').trim().toLowerCase();
+  return CODES_QUERY_KEYWORDS.includes(normalized);
 }
 
 async function fetchCodesData() {
@@ -512,6 +513,7 @@ function renderCodeCard(item) {
   const fallbackClass = imageSource === UNKNOWN_ITEM_IMAGE ? ' class="pixelated-image"' : '';
   const safeVodUrl = escapeHtml(item?.vodUrl || '#');
   const safeCode = escapeHtml(item?.code || '???');
+  const safeExpiry = escapeHtml(item?.expires || '');
 
   return `
     <article class="codes-card">
@@ -523,8 +525,9 @@ function renderCodeCard(item) {
       <a class="codes-card__vod" href="${safeVodUrl}" target="_blank" rel="noopener">
         Watch VOD for code
       </a>
+      ${safeExpiry ? `<p class="codes-card__expiry">Claimable until ${safeExpiry}</p>` : ''}
       <p class="codes-card__hint">
-        Can’t find the code in the VOD, or already watched the stream but don’t remember it?
+        Can't find the code in the VOD, or already watched the stream but don't remember it?
       </p>
       <div class="codes-card__reveal-row">
         <button class="codes-card__reveal" type="button" data-code="${safeCode}">
