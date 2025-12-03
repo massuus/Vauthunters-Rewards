@@ -796,6 +796,14 @@ body {
   gap: 1rem;
 }
 
+/* Ensure reward images keep their aspect ratio and aren't squashed */
+.codes-card__header img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  object-position: center;
+}
+
 .codes-card__header h3 {
   margin: 0;
   font-family: 'Rajdhani', sans-serif;

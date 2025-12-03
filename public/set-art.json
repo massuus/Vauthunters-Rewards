@@ -185,4 +185,17 @@
     "alt": "Sculk Set icon",
     "description": "You obtained this set by reaching Ethernal level 80."
   }
+,
+  "green_christmas_hat": {
+    "label": "Green Christmas Hat",
+    "image": "/img/green_christmas_hat_thumbnail.png",
+    "alt": "Green Christmas Hat thumbnail",
+    "description": "A festive hat awarded during Iskall85's holiday stream events."
+  },
+  "i85_100stream": {
+    "label": "100 Streams Blade",
+    "image": "/img/100-steams-blade.png",
+    "alt": "100 Streams Blade icon",
+    "description": "This reward celebrates Iskall85's 100th stream since his return."
+  }
 }
