@@ -16,5 +16,14 @@
     "code": "DYLANS-XMAS-DAY-1",
     "image": "/img/green_christmas_hat_thumbnail.png",
     "expires": "31-12-2025"
+  },
+  {
+    "id": "day3-scav-santa",
+    "name": "Day 3 Scavenger Santa",
+    "description": "This reward is from the third day of the Dylan Christmas event!",
+    "vodUrl": "https://www.youtube.com/@vodskall85",
+    "code": "DAY3-SCAV-SANTA",
+    "image": "/img/unknown_item.png",
+    "expires": "31-12-2025"
   }
 ]
