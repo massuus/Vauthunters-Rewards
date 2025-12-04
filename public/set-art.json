@@ -197,5 +197,12 @@
     "image": "/img/100-steams-blade.png",
     "alt": "100 Streams Blade icon",
     "description": "This reward celebrates Iskall85's 100th stream since his return."
+  },
+  "i85_xmas_day3": {
+    "label": "Santa Claus Dylan & Christmas Sword",
+    "image": "/img/Santa_Dylan.gif",
+    "images": ["/img/Santa_Dylan.gif", "/img/Lost_Christmas_Sword.gif"],
+    "alt": "Santa Dylan companion",
+    "description": "This reward is from the third day of the Dylan Christmas event!"
   }
 }

@@ -718,7 +718,7 @@ function ensureSetDetailModal() {
         <span aria-hidden="true">&times;</span>
       </button>
       <div class="set-modal__body">
-        <img class="set-modal__image set-modal__image--hidden" alt="" decoding="async" fetchpriority="low" width="96" height="96">
+        <div class="set-modal__images"></div>
         <h3 id="set-modal-title" class="set-modal__title"></h3>
         <p class="set-modal__description"></p>
       </div>
@@ -732,7 +732,7 @@ function ensureSetDetailModal() {
     backdrop: overlay.querySelector('.set-modal__backdrop'),
     content: overlay.querySelector('.set-modal__content'),
     close: overlay.querySelector('.set-modal__close'),
-    image: overlay.querySelector('.set-modal__image'),
+    imagesContainer: overlay.querySelector('.set-modal__images'),
     title: overlay.querySelector('.set-modal__title'),
     description: overlay.querySelector('.set-modal__description')
   };
@@ -750,19 +750,45 @@ function openSetDetailModal(setKey) {
   const label = asset.label || formatLabel(setKey);
   const description = asset.description || `You obtained this by unlocking the ${label}.`;
 
-  const isFallbackImage = !asset.image;
-  const modalImageSource = asset.image || UNKNOWN_ITEM_IMAGE;
-  const proxied = proxiedImageUrl(modalImageSource);
-  modal.image.src = proxied;
-  modal.image.alt = asset.alt || label;
-  modal.image.setAttribute('referrerpolicy', 'no-referrer');
-  modal.image.onerror = () => {
-    modal.image.onerror = null;
-    modal.image.src = modalImageSource;
-    modal.image.setAttribute('referrerpolicy', 'no-referrer');
-  };
-  modal.image.classList.remove('set-modal__image--hidden');
-  modal.image.classList.toggle('pixelated-image', isFallbackImage);
+  // Support both single image and multiple images
+  let imageSources = [];
+  if (asset.images && Array.isArray(asset.images)) {
+    imageSources = asset.images;
+  } else if (asset.image) {
+    imageSources = [asset.image];
+  } else {
+    imageSources = [UNKNOWN_ITEM_IMAGE];
+  }
+
+  // Clear previous images
+  modal.imagesContainer.innerHTML = '';
+
+  // Add all images to the modal
+  imageSources.forEach((imageSource, index) => {
+    const isFallbackImage = imageSource === UNKNOWN_ITEM_IMAGE;
+    const proxied = proxiedImageUrl(imageSource);
+    
+    const img = document.createElement('img');
+    img.className = 'set-modal__image';
+    if (isFallbackImage) {
+      img.classList.add('pixelated-image');
+    }
+    img.src = proxied;
+    img.alt = asset.alt || label;
+    img.setAttribute('referrerpolicy', 'no-referrer');
+    img.setAttribute('decoding', 'async');
+    img.setAttribute('fetchpriority', 'low');
+    img.setAttribute('width', '96');
+    img.setAttribute('height', '96');
+    
+    img.onerror = () => {
+      img.onerror = null;
+      img.src = imageSource;
+      img.setAttribute('referrerpolicy', 'no-referrer');
+    };
+    
+    modal.imagesContainer.appendChild(img);
+  });
 
   modal.title.textContent = label;
   modal.description.textContent = description;

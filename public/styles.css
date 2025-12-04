@@ -614,6 +614,12 @@ body {
   justify-items: start;
 }
 
+.set-modal__images {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .set-modal__image {
   width: 96px;
   height: 96px;
@@ -622,10 +628,6 @@ body {
   background: rgba(0, 0, 0, 0.4);
   object-fit: contain;
   object-position: center;
-}
-
-.set-modal__image--hidden {
-  display: none;
 }
 
 .set-modal__title {
