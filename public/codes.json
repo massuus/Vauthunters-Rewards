@@ -5,7 +5,7 @@
     "description": "This reward was to celebrate the 100th iskall85 stream since his return!",
     "vodUrl": "https://www.youtube.com/watch?v=d7vtIXRpYHA",
     "code": "ISKALL100",
-    "image": "/img/100-steams-blade.png",
+    "images": ["/img/100-steams-blade.png"],
     "expires": "31-12-2025"
   },
   {
@@ -14,16 +14,16 @@
     "description": "This is the first reward from the 12 Days of Dylan Christmas event on iskall85's streams!",
     "vodUrl": "https://www.youtube.com/watch?v=JlLVI3-oMAs",
     "code": "DYLANS-XMAS-DAY-1",
-    "image": "/img/green_christmas_hat_thumbnail.png",
+    "images": ["/img/green_christmas_hat_thumbnail.png"],
     "expires": "31-12-2025"
   },
   {
     "id": "day3-scav-santa",
-    "name": "Day 3 Scavenger Santa",
+    "name": "Santa Claus Dylan & Christmas Sword",
     "description": "This reward is from the third day of the Dylan Christmas event!",
     "vodUrl": "https://www.youtube.com/@vodskall85",
     "code": "DAY3-SCAV-SANTA",
-    "image": "/img/unknown_item.png",
+    "images": ["/img/Lost_Christmas_Sword.gif", "/img/Santa_Dylan.gif"],
     "expires": "31-12-2025"
   }
 ]

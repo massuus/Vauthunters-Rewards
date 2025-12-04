@@ -508,9 +508,24 @@ async function fetchCodesData() {
 function renderCodeCard(item) {
   const safeName = escapeHtml(item?.name || 'Mystery Reward');
   const safeDescription = escapeHtml(item?.description || 'Watch the VOD to learn how to unlock this code.');
-  const imageSource = item?.image || UNKNOWN_ITEM_IMAGE;
-  const safeImage = proxiedImageUrl(imageSource);
-  const fallbackClass = imageSource === UNKNOWN_ITEM_IMAGE ? ' class="pixelated-image"' : '';
+  
+  // Support both old 'image' field and new 'images' array
+  let imageSources = [];
+  if (item?.images && Array.isArray(item.images)) {
+    imageSources = item.images;
+  } else if (item?.image) {
+    imageSources = [item.image];
+  } else {
+    imageSources = [UNKNOWN_ITEM_IMAGE];
+  }
+  
+  // Generate image HTML for all images
+  const imagesHtml = imageSources.map(imageSource => {
+    const safeImage = proxiedImageUrl(imageSource);
+    const fallbackClass = imageSource === UNKNOWN_ITEM_IMAGE ? ' class="pixelated-image"' : '';
+    return `<img${fallbackClass} src="${safeImage}" alt="${safeName} reward icon" loading="lazy" decoding="async" width="72" height="72">`;
+  }).join('');
+  
   const safeVodUrl = escapeHtml(item?.vodUrl || '#');
   const safeCode = escapeHtml(item?.code || '???');
   const safeExpiry = escapeHtml(item?.expires || '');
@@ -518,7 +533,7 @@ function renderCodeCard(item) {
   return `
     <article class="codes-card">
       <div class="codes-card__header">
-        <img${fallbackClass} src="${safeImage}" alt="${safeName} reward icon" loading="lazy" decoding="async" width="72" height="72">
+        ${imagesHtml}
         <h3>${safeName}</h3>
       </div>
       <p class="codes-card__description">${safeDescription}</p>
