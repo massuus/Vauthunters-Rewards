@@ -26,4 +26,14 @@
     "images": ["/img/Lost_Christmas_Sword.gif", "/img/Santa_Dylan.gif"],
     "expires": "31-12-2025"
   }
+  ,
+  {
+    "id": "day4-gingerbread-easy",
+    "name": "Gingerbread Chestplate (Easy)",
+    "description": "This is the reward for the 4th day of the Dylan Christmas event!",
+    "vodUrl": "https://www.youtube.com/@vodskall85",
+    "code": "DAY4-GINGERBREAD-EASY",
+    "images": ["/img/Gingerbread_Chestplate.gif"],
+    "expires": "31-12-2025"
+  }
 ]
