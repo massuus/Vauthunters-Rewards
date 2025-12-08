@@ -1,0 +1,16 @@
+<section>
+  <h3 class='section-title'>Vault Sets</h3>
+  {{#if hasSets}}
+  <div class='sets-grid'>{{setsContent}}</div>
+  {{else}}
+  <p class='muted'>No sets recorded yet.</p>
+  {{/if}}
+  <p class='rewards-cta'>
+    <a class="rewards-cta__link" href="https://companions.vaulthunters.gg/rewards" target="_blank" rel="noopener">
+      <span class="rewards-cta__icon" aria-hidden="true">🎁</span>
+      <span>Browse all rewards</span>
+      <span class="rewards-cta__arrow" aria-hidden="true">→</span>
+    </a>
+  </p>
+  {{helpNote}}
+</section>

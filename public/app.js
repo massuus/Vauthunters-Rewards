@@ -1,3 +1,6 @@
+import { isCodesQuery, isAllQuery, renderCodesPage, renderAllRewardsPage } from './special-pages.js';
+import { loadTemplate, renderTemplate, preloadTemplates } from './template-loader.js';
+
 const form = document.getElementById('search-form');
 const usernameInput = document.getElementById('username');
 const feedback = document.getElementById('feedback');
@@ -5,8 +8,6 @@ const resultContainer = document.getElementById('result');
 const recentContainer = document.getElementById('recent');
 const DEFAULT_FAVICON = 'https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/64';
 const UNKNOWN_ITEM_IMAGE = '/img/unknown_item.png';
-const CODES_QUERY_KEYWORDS = ['codes', 'code'];
-const CODES_DATA_URL = '/codes.json';
 const defaultTitle = document.title;
 const metaDescriptionEl = document.querySelector('meta[name="description"]');
 const defaultDescription = metaDescriptionEl ? (metaDescriptionEl.getAttribute('content') || '') : '';
@@ -23,7 +24,7 @@ let setArtLoadPromise = null;
 let setModalElements = null;
 let lastFocusedElement = null;
 let modalKeydownHandler = null;
-let codesDataPromise = null;
+let templateCache = {};
 
 function setFavicon(url) {
   try {
@@ -77,9 +78,40 @@ async function submitSearch() {
   if (isCodesQuery(username)) {
     setLoadingState(true);
     try {
-      await renderCodesPage();
+      await renderCodesPage(
+        resultContainer,
+        setFavicon,
+        setMetaDescription,
+        closeSetDetailModal,
+        updateQueryString,
+        proxiedImageUrl,
+        escapeHtml,
+        DEFAULT_FAVICON
+      );
     } catch (error) {
       showFeedback('Unable to load the reward codes right now. Please try again in a moment.', 'error');
+    } finally {
+      setLoadingState(false);
+    }
+    return;
+  }
+
+  if (isAllQuery(username)) {
+    setLoadingState(true);
+    try {
+      await renderAllRewardsPage(
+        resultContainer,
+        setFavicon,
+        setMetaDescription,
+        closeSetDetailModal,
+        updateQueryString,
+        proxiedImageUrl,
+        escapeHtml,
+        formatLabel,
+        DEFAULT_FAVICON
+      );
+    } catch (error) {
+      showFeedback('Unable to load all rewards right now. Please try again in a moment.', 'error');
     } finally {
       setLoadingState(false);
     }
@@ -90,7 +122,7 @@ async function submitSearch() {
 
   try {
     // Reserve space to reduce CLS during loading
-    resultContainer.innerHTML = '<div class="skeleton skeleton--result" aria-hidden="true"></div>';
+    resultContainer.innerHTML = await loadTemplate('loading-skeleton');
     resultContainer.classList.remove('hidden');
     setFavicon(DEFAULT_FAVICON);
     document.title = defaultTitle;
@@ -157,56 +189,6 @@ function clearResult() {
   setMetaDescription(defaultDescription);
 }
 
-async function renderCodesPage() {
-  resultContainer.classList.remove('hidden');
-  resultContainer.innerHTML = `
-    <section class="codes-page">
-      <div class="codes-page__loading">Loading codes...</div>
-    </section>
-  `;
-  setFavicon(DEFAULT_FAVICON);
-  document.title = 'Vault Hunters Reward Codes';
-  setMetaDescription('Here is a comprehensive list on how to unlock all possible Vault Hunters code rewards.');
-  closeSetDetailModal();
-
-  try {
-    const codes = await fetchCodesData();
-    const cards = codes.length
-      ? codes.map(renderCodeCard).join('')
-      : '<p class="codes-page__empty">No featured codes yet. Check back soon!</p>';
-
-    resultContainer.innerHTML = `
-      <section class="codes-page" aria-live="polite">
-        <header class="codes-page__intro">
-          <h2 class="codes-page__title">Unlockable rewards using codes</h2>
-          <p class="codes-page__lead">Here is a comprehensive list on how to unlock all possible code rewards.</p>
-          <p class="codes-page__subtext">Watch the VODs to learn how to earn each reward, or reveal the code if you just need it fast.</p>
-        </header>
-        <div class="codes-grid">
-          ${cards}
-        </div>
-        <div class="codes-page__redeem">
-          <p>You can redeem the codes here:</p>
-          <a class="codes-page__redeem-btn" href="https://companions.vaulthunters.gg/redeem" target="_blank" rel="noopener">
-            Redeem at companions.vaulthunters.gg
-          </a>
-        </div>
-      </section>
-    `;
-
-    bindCodeRevealHandlers();
-    updateQueryString(CODES_QUERY_KEYWORDS[0]);
-  } catch (error) {
-    resultContainer.innerHTML = `
-      <section class="codes-page">
-        <p class="codes-page__error">We couldn't load the reward codes right now. Please refresh and try again.</p>
-      </section>
-    `;
-    updateQueryString('');
-    throw error;
-  }
-}
-
 async function renderProfile(data) {
   await loadSetArt();
   closeSetDetailModal();
@@ -226,22 +208,12 @@ async function renderProfile(data) {
   const extraSection = renderExtraSection(rewards);
   const shareUrl = getShareUrl(data.name);
 
-  resultContainer.innerHTML = `
-    <article class="player-card">
-      <img src="${proxiedImageUrl(data.head)}" alt="${data.name}'s Minecraft head" loading="lazy" decoding="async" width="96" height="96" referrerpolicy="no-referrer">
-      <div class="player-details">
-        <h2>${data.name}</h2>
-        <p class="player-subtitle">Latest Vault Hunters reward data.</p>
-        <div class="player-actions">
-          <button id="share-button" class="share-button" type="button" data-share="${shareUrl}">Copy Share Link</button>
-          <span id="share-feedback" class="share-feedback" role="status" aria-live="polite"></span>
-        </div>
-      </div>
-    </article>
-    ${setsSection}
-    ${tiersSection}
-    ${extraSection}
-  `;
+  const playerCard = await loadTemplate('player-card');
+  resultContainer.innerHTML = renderTemplate(playerCard, {
+    head: proxiedImageUrl(data.head),
+    name: data.name,
+    shareUrl: shareUrl
+  }) + setsSection + tiersSection + extraSection;
 
   resultContainer.classList.remove('hidden');
 
@@ -338,43 +310,16 @@ function bindDisclosureToggle(toggleId, panelId) {
 }
 
 function renderSetsSection(sets, newSetKeys = new Set()) {
-  const note = `
-    <div class="sets-help">
-      <button id="unlocks-toggle" class="extra-toggle" type="button" aria-expanded="false" aria-controls="unlocks-panel">
-        Not seeing all your unlocks? <span class="chevron" aria-hidden="true">▲</span>
-      </button>
-      <div id="unlocks-panel" class="rewards-panel hidden" role="region" aria-labelledby="unlocks-toggle">
-        <p class='sets-note muted'>This list only shows sets you have already unlocked in-game. Upcoming or unreleased sets will appear here after they are added to the game.</p>
-        <p class="muted">New rewards showing for other people but not for you? Make sure to connect your Minecraft and Twitch accounts with the Vault Hunters rewards service. In the Twitch extension go to the "info" tab and click the "Connect Accounts" button!</p>
-      </div>
-    </div>
-  `;
-
-  if (!sets.length) {
-    return `
-      <section>
-        <h3 class='section-title'>Vault Sets</h3>
-        <p class='muted'>No sets recorded yet.</p>
-        <p class='rewards-cta'>
-          <a class="rewards-cta__link" href="https://companions.vaulthunters.gg/rewards" target="_blank" rel="noopener">
-            <span class="rewards-cta__icon" aria-hidden="true">🎁</span>
-            <span>Browse all rewards</span>
-            <span class="rewards-cta__arrow" aria-hidden="true">→</span>
-          </a>
-        </p>
-        ${note}
-      </section>
-    `;
-  }
-
-  const items = sets.map((setKey) => renderSetCard(setKey, newSetKeys.has(setKey))).join('');
-
+  const note = templateCache['sets-help'] || '';
+  const hasSets = sets.length > 0;
+  const setsContent = hasSets ? sets.map((setKey) => renderSetCard(setKey, newSetKeys.has(setKey))).join('') : '';
+  
   return `
     <section>
       <h3 class='section-title'>Vault Sets</h3>
-      <div class='sets-grid'>${items}</div>
+      ${hasSets ? `<div class='sets-grid'>${setsContent}</div>` : `<p class='muted'>No sets recorded yet.</p>`}
       <p class='rewards-cta'>
-        <a class="rewards-cta__link" href="https://companions.vaulthunters.gg/rewards" target="_blank" rel="noopener">
+        <a class="rewards-cta__link" href="?all" rel="noopener">
           <span class="rewards-cta__icon" aria-hidden="true">🎁</span>
           <span>Browse all rewards</span>
           <span class="rewards-cta__arrow" aria-hidden="true">→</span>
@@ -410,29 +355,21 @@ function renderSetCard(setKey, isNew = false) {
 
 function renderTiersSection(tiers) {
   const title = 'Patreon Tiers Unlocked';
+  const hasTiers = tiers.length > 0;
 
-  if (!tiers.length) {
-    return `
-      <section>
-        <h3 class="section-title">${title}</h3>
-        <p class="muted">No Patreon tiers unlocked yet.</p>
-      </section>
-    `;
-  }
-
-  const items = tiers
+  const items = hasTiers ? tiers
     .map((tier) => {
       const label = tier && typeof tier === 'object'
         ? tier.name || formatLabel(tier.id)
         : formatLabel(tier);
       return `<li>${label}</li>`;
     })
-    .join('');
+    .join('') : '';
 
   return `
     <section>
       <h3 class="section-title">${title}</h3>
-      <ul class="tiers-list">${items}</ul>
+      ${hasTiers ? `<ul class="tiers-list">${items}</ul>` : `<p class="muted">No Patreon tiers unlocked yet.</p>`}
     </section>
   `;
 }
@@ -479,102 +416,6 @@ function renderRewardsList(rewards) {
       `;
     })
     .join('');
-}
-
-function isCodesQuery(value) {
-  const normalized = String(value || '').trim().toLowerCase();
-  return CODES_QUERY_KEYWORDS.includes(normalized);
-}
-
-async function fetchCodesData() {
-  if (!codesDataPromise) {
-    codesDataPromise = fetch(CODES_DATA_URL)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Failed to load codes');
-        }
-        return response.json();
-      })
-      .then((data) => (Array.isArray(data) ? data : []))
-      .catch((error) => {
-        codesDataPromise = null;
-        throw error;
-      });
-  }
-
-  return codesDataPromise;
-}
-
-function renderCodeCard(item) {
-  const safeName = escapeHtml(item?.name || 'Mystery Reward');
-  const safeDescription = escapeHtml(item?.description || 'Watch the VOD to learn how to unlock this code.');
-  
-  // Support both old 'image' field and new 'images' array
-  let imageSources = [];
-  if (item?.images && Array.isArray(item.images)) {
-    imageSources = item.images;
-  } else if (item?.image) {
-    imageSources = [item.image];
-  } else {
-    imageSources = [UNKNOWN_ITEM_IMAGE];
-  }
-  
-  // Generate image HTML for all images
-  const imagesHtml = imageSources.map(imageSource => {
-    const safeImage = proxiedImageUrl(imageSource);
-    const fallbackClass = imageSource === UNKNOWN_ITEM_IMAGE ? ' class="pixelated-image"' : '';
-    return `<img${fallbackClass} src="${safeImage}" alt="${safeName} reward icon" loading="lazy" decoding="async" width="72" height="72">`;
-  }).join('');
-  
-  const safeVodUrl = escapeHtml(item?.vodUrl || '#');
-  const safeCode = escapeHtml(item?.code || '???');
-  const safeExpiry = escapeHtml(item?.expires || '');
-
-  return `
-    <article class="codes-card">
-      <div class="codes-card__header">
-        ${imagesHtml}
-        <h3>${safeName}</h3>
-      </div>
-      <p class="codes-card__description">${safeDescription}</p>
-      <a class="codes-card__vod" href="${safeVodUrl}" target="_blank" rel="noopener">
-        Watch VOD for code
-      </a>
-      ${safeExpiry ? `<p class="codes-card__expiry">Claimable until ${safeExpiry}</p>` : ''}
-      <p class="codes-card__hint">
-        Can't find the code in the VOD, or already watched the stream but don't remember it?
-      </p>
-      <div class="codes-card__reveal-row">
-        <button class="codes-card__reveal" type="button" data-code="${safeCode}">
-          Reveal code
-        </button>
-        <span class="codes-card__code" data-code-value hidden aria-live="polite"></span>
-      </div>
-    </article>
-  `;
-}
-
-function bindCodeRevealHandlers() {
-  resultContainer.querySelectorAll('.codes-card__reveal').forEach((button) => {
-    button.addEventListener('click', () => {
-      const codeValue = button.getAttribute('data-code') || '';
-      const parentCard = button.closest('.codes-card');
-      if (!parentCard) return;
-      const readout = parentCard.querySelector('[data-code-value]');
-      if (!readout) return;
-      const isHidden = readout.hasAttribute('hidden');
-
-      if (isHidden) {
-        readout.textContent = codeValue;
-        readout.removeAttribute('hidden');
-        button.textContent = 'Hide code';
-      } else {
-        readout.textContent = '';
-        readout.setAttribute('hidden', '');
-        button.textContent = 'Reveal code';
-      }
-    });
-  });
 }
 
 function escapeHtml(str) {
@@ -703,27 +544,15 @@ async function loadSetArt() {
   return setArtLoadPromise;
 }
 
-function ensureSetDetailModal() {
+async function ensureSetDetailModal() {
   if (setModalElements) {
     return setModalElements;
   }
 
-  const overlay = document.createElement('div');
-  overlay.id = 'set-modal';
-  overlay.className = 'set-modal hidden';
-  overlay.innerHTML = `
-    <div class="set-modal__backdrop" data-close="true"></div>
-    <div class="set-modal__content" role="dialog" aria-modal="true" aria-labelledby="set-modal-title" tabindex="-1">
-      <button type="button" class="set-modal__close" aria-label="Close set details">
-        <span aria-hidden="true">&times;</span>
-      </button>
-      <div class="set-modal__body">
-        <div class="set-modal__images"></div>
-        <h3 id="set-modal-title" class="set-modal__title"></h3>
-        <p class="set-modal__description"></p>
-      </div>
-    </div>
-  `;
+  const modalTemplate = await loadTemplate('set-modal');
+  const temp = document.createElement('div');
+  temp.innerHTML = modalTemplate;
+  const overlay = temp.firstElementChild;
 
   document.body.appendChild(overlay);
 
@@ -983,6 +812,29 @@ function formatLabel(value) {
     .join(' ');
 }
 
+// Initialize templates and app
+async function initializeApp() {
+  // Preload commonly used templates
+  try {
+    const templates = ['player-card', 'sets-help', 'recent-section', 'loading-skeleton', 'set-modal'];
+    await preloadTemplates(templates);
+    // Store sets-help in cache for sync access
+    templateCache['sets-help'] = await loadTemplate('sets-help');
+  } catch (error) {
+    console.error('Error preloading templates:', error);
+  }
+
+  // Check for preset username from URL
+  const presetUsername = getUsernameFromQuery();
+  if (presetUsername) {
+    usernameInput.value = presetUsername;
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+  }
+  
+  // Render recents on first load as well
+  await renderRecentSection();
+}
+
 // Register Service Worker for offline caching (images cache-first)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -990,13 +842,8 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-const presetUsername = getUsernameFromQuery();
-if (presetUsername) {
-  usernameInput.value = presetUsername;
-  form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-}
-// Render recents on first load as well
-renderRecentSection();
+// Initialize the app
+initializeApp();
 
 function getRecentUsers() {
   try {
@@ -1031,7 +878,7 @@ function addRecentUser(user) {
   } catch (_) {}
 }
 
-function renderRecentSection() {
+async function renderRecentSection() {
   if (!recentContainer) return;
   const items = getRecentUsers();
   if (!items.length) {
@@ -1046,7 +893,9 @@ function renderRecentSection() {
       return `<button class="recent-item" type="button" data-name="${safe}"><img src="${img}" alt="${safe}'s head" width="28" height="28"><span>${safe}</span></button>`;
     })
     .join('');
-  recentContainer.innerHTML = `<h3 class="recent-title">Recent Searches</h3><div class="recent-grid">${buttons}</div>`;
+  
+  const template = await loadTemplate('recent-section');
+  recentContainer.innerHTML = renderTemplate(template, { buttons });
   recentContainer.classList.remove('hidden');
   bindRecentHandlers();
 }
