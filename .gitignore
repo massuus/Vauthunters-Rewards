@@ -1,12 +1,16 @@
-# Wrangler temp files
+# Wrangler temp files and build output
 .wrangler/
+dist/
+build/
 
 # Node modules
 node_modules/
+package-lock.json
 
 # Environment variables
 .env
 .env.local
+.env.*.local
 
 # OS files
 .DS_Store
@@ -18,9 +22,21 @@ Thumbs.db
 *.swp
 *.swo
 *~
+*.sublime-workspace
 
 # Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+.cache/
+.turbo/
+dist-ssr/
+*.pem

@@ -1,0 +1,84 @@
+// Reward processing and formatting utilities
+
+/**
+ * Escape HTML special characters to prevent XSS
+ */
+export function escapeHtml(text) {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  };
+  return text.replace(/[&<>"']/g, (m) => map[m]);
+}
+
+/**
+ * Convert text to snake_case for reward paths
+ */
+export function toSnake(text) {
+  return text.toLowerCase().replace(/\s+/g, '_');
+}
+
+/**
+ * Derive the path to a reward image from its name
+ */
+export function deriveRewardPath(name, suffix = '') {
+  const snakeName = toSnake(name);
+  const suffixStr = suffix ? `_${suffix}` : '';
+  return `/img/${snakeName}${suffixStr}.webp`;
+}
+
+/**
+ * Derive the reward name from a snake_case path
+ */
+export function deriveRewardName(snakeName) {
+  return snakeName
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
+ * Augment reward sets with additional metadata
+ */
+export function augmentSets(sets, setArtStore) {
+  try {
+    const list = Array.isArray(sets) ? sets.slice() : [];
+    const helmet = 'iskall85_falcon_helmet';
+    const chest = 'iskall85_falcon_chestplate';
+    const combined = 'iskall85_falcon_set';
+
+    const hasHelmet = list.includes(helmet);
+    const hasChest = list.includes(chest);
+
+    if (hasHelmet && hasChest) {
+      const filtered = list.filter((k) => k !== helmet && k !== chest);
+      if (!filtered.includes(combined)) filtered.push(combined);
+      return Array.from(new Set(filtered));
+    }
+
+    // Only one or none present: keep as-is
+    return Array.from(new Set(list));
+  } catch (_) {
+    return Array.isArray(sets) ? sets : [];
+  }
+}
+
+/**
+ * Format a label string with proper capitalization and special characters
+ */
+export function formatLabel(label) {
+  return label
+    .split('_')
+    .map((word) => {
+      // Handle special cases
+      if (word.toLowerCase() === 'xp') return 'XP';
+      if (word.toLowerCase() === 'hp') return 'HP';
+      if (word.toLowerCase() === 'dmg') return 'DMG';
+      // Normal capitalization
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
+}

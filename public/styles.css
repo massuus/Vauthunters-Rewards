@@ -693,8 +693,15 @@ body {
 }
 
 /* Rewards CTA under Vault Sets */
-.rewards-cta {
+.rewards-cta-container {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
   margin-top: 0.75rem;
+}
+.rewards-cta {
+  margin-top: 0;
+  flex: 0 1 auto;
 }
 .rewards-cta__link {
   display: inline-flex;

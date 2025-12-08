@@ -250,7 +250,6 @@ function renderRewardCard(setKey, setData, proxiedImageUrl, escapeHtml, formatLa
         <h3>${safeName}</h3>
       </div>
       <p class="reward-card__description">${safeDescription}</p>
-      <p class="reward-card__key"><code>${safeKey}</code></p>
     </article>
   `;
 }
