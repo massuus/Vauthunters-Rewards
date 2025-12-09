@@ -350,6 +350,9 @@ body {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .tiers-list li {
@@ -358,6 +361,17 @@ body {
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   background: rgba(13, 17, 23, 0.55);
+  flex: 0 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.tier-badge {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .extra-toggle {
@@ -462,9 +476,53 @@ body {
 
 .footer {
   margin-top: 3rem;
-  text-align: center;
+  padding: 2.5rem 1.5rem 2.75rem;
+  background: linear-gradient(135deg, rgba(34, 52, 70, 0.25), rgba(26, 31, 44, 0.4));
+  border-top: 1px solid var(--card-border);
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+}
+
+.footer__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.footer__brand {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.footer__title {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--text-primary);
+}
+
+.footer__meta {
+  margin: 0;
+  max-width: 720px;
+  line-height: 1.5;
+}
+
+.footer__links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem 2rem;
+}
+
+.footer__column {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.footer__label {
+  margin: 0 0 0.15rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
 }
 
 .footer a {
@@ -474,6 +532,21 @@ body {
 
 .footer a:hover {
   text-decoration: underline;
+}
+
+.external-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+}
+
+.external-link::after {
+  content: '';
+  width: 0.75rem;
+  height: 0.75rem;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="%23f4a941"><path d="M19 1h-8l3.286 3.286L6 12l1.371 1.472 8.332-7.77.007.008L19 9zM2 5h4v2H3v10h10v-4.004h2V18a1 1 0 01-1 1H2a1 1 0 01-1-1V6a1 1 0 011-1"/></svg>') center/contain no-repeat;
+  opacity: 0.95;
 }
 
 /* Recent searches */

@@ -145,11 +145,25 @@ function renderTiersSection(tiers) {
   const title = 'Patreon Tiers Unlocked';
   const hasTiers = tiers.length > 0;
 
+  const tierConfig = {
+    'vault legend': { color: '#71ff9e', badge: '/img/badge/legend.webp' },
+    'vault champion': { color: '#a2ff00', badge: '/img/badge/champion.webp' },
+    'vault goblin': { color: '#00ff6c', badge: '/img/badge/goblin.webp' },
+    'vault cheeser': { color: '#f3dc00', badge: '/img/badge/cheeser.webp' },
+    'vault dweller': { color: '#dc1717', badge: '/img/badge/dweller.webp' }
+  };
+
   const items = hasTiers ? tiers
     .map((tier) => {
       const label = tier && typeof tier === 'object'
         ? tier.name || formatLabel(tier.id)
         : formatLabel(tier);
+      const tierKey = label.toLowerCase();
+      const config = tierConfig[tierKey];
+      
+      if (config) {
+        return `<li style="color: ${config.color}"><img class="tier-badge pixelated-image" src="${config.badge}" alt="${label} badge" width="24" height="24">${label}</li>`;
+      }
       return `<li>${label}</li>`;
     })
     .join('') : '';
