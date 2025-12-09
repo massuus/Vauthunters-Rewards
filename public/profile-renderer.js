@@ -38,7 +38,10 @@ export async function renderProfile(data) {
   const rewards = data.rewards && typeof data.rewards === 'object' ? data.rewards : {};
   const usernameKey = (data && data.name ? String(data.name) : '').trim().toLowerCase();
   const previouslySeen = getSeenSets(usernameKey);
-  const newSetKeys = new Set(sets.filter((s) => !previouslySeen.has(s)));
+  
+  // Only show "New" badges if the player was already in the cache (previouslySeen has items)
+  const isReturningPlayer = previouslySeen.size > 0;
+  const newSetKeys = isReturningPlayer ? new Set(sets.filter((s) => !previouslySeen.has(s))) : new Set();
 
   const setsSection = renderSetsSection(sets, newSetKeys);
   const tiersSection = renderTiersSection(tiers);
