@@ -44,5 +44,14 @@
     "code": "DAY5-FACTORY-MAN",
     "images": ["/img/Gingerbread_Man.gif"],
     "expires": "31-12-2025"
+  },
+  {
+    "id": "day6-crackoni",
+    "name": "Nutcracker Wand",
+    "description": "This is the reward for the 6th day of the Dylan Christmas event!",
+    "vodUrl": "https://www.youtube.com/@vodskall85",
+    "code": "DAY6-CRACKONI",
+    "images": ["/img/unknown_item.png"],
+    "expires": "31-12-2025"
   }
 ]
