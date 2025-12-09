@@ -1,7 +1,7 @@
 // Profile rendering and display functions
 
 import { loadTemplate, renderTemplate } from './template-loader.js';
-import { resultContainer, proxiedImageUrl, setMetaDescription, setFavicon, DEFAULT_FAVICON, usernameInput, form } from './dom-utils.js';
+import { resultContainer, proxiedImageUrl, setMetaDescription, setFavicon, DEFAULT_FAVICON, UNKNOWN_ITEM_IMAGE, usernameInput, form } from './dom-utils.js';
 import { escapeHtml, toSnake, deriveRewardPath, deriveRewardName, augmentSets, formatLabel } from './reward-utils.js';
 import { loadSetArt, getSetArtStore, closeSetDetailModal, openSetDetailModal } from './set-art-manager.js';
 import { getShareUrl } from './url-state.js';
@@ -120,7 +120,7 @@ function renderSetCard(setKey, isNew = false) {
   const label = asset?.label || formatLabel(setKey);
 
   const isFallbackImage = !asset?.image;
-  const imageSource = asset?.image || DEFAULT_FAVICON;
+  const imageSource = asset?.image || UNKNOWN_ITEM_IMAGE;
   const proxied = proxiedImageUrl(imageSource);
   const altText = asset?.alt || label;
   const fallbackClass = isFallbackImage ? ' class="pixelated-image"' : '';
