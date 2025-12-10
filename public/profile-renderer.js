@@ -219,7 +219,24 @@ function renderRewardsList(rewards) {
           const lastSegment = segments[segments.length - 1] || normalizedPath;
           const name = deriveRewardName(lastSegment || raw);
 
-          const safeName = name ? escapeHtml(name) : '';
+          // Improve name for generic armor pieces using parent armor set
+          let displayName = name;
+          const pathParts = normalizedPath.split(/[\/\\:]/);
+          if (['boots', 'helmet', 'leggings', 'chestplate'].includes(lastSegment)) {
+            // Try to get armor set name from path hierarchy
+            const armorSetIdx = pathParts.indexOf('armor');
+            if (armorSetIdx >= 0 && armorSetIdx + 1 < pathParts.length) {
+              const armorSet = pathParts[armorSetIdx + 1];
+              displayName = deriveRewardName(armorSet);
+            }
+          }
+          // For companions, clean up "The Vault:" prefix
+          if (normalizedPath.startsWith('the_vault:') && !normalizedPath.includes('/')) {
+            const compName = normalizedPath.replace(/^the_vault:/, '');
+            displayName = deriveRewardName(compName);
+          }
+
+          const safeName = displayName ? escapeHtml(displayName) : '';
           const safePath = path ? escapeHtml(path) : '';
           return `<tr><td>${safeName}</td><td><code>${safePath}</code></td></tr>`;
         })
