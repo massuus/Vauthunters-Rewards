@@ -3,16 +3,33 @@
   "version": "1.0.0",
   "description": "Vault Hunters rewards lookup tool",
   "main": "public/index.html",
+  "type": "module",
   "scripts": {
-    "start": "npx --yes wrangler@4.43.0 pages dev public --compatibility-date=2025-10-18",
-    "dev": "npx --yes wrangler@4.43.0 pages dev public --compatibility-date=2025-10-18"
+    "start": "npx --yes wrangler@4.43.0 pages dev public --compatibility-date=2024-12-10",
+    "dev": "npx --yes wrangler@4.43.0 pages dev public --compatibility-date=2024-12-10",
+    "build": "node build.js",
+    "build:dev": "node build.js --dev",
+    "build:watch": "node build.js --dev --watch",
+    "build:prod": "node build.js",
+    "deploy": "npm run build:prod && npx --yes wrangler@4.43.0 pages deploy dist"
   },
   "keywords": [
     "vault-hunters",
     "minecraft",
     "rewards"
   ],
-  "author": "",
+  "author": "massuus",
   "license": "ISC",
-  "dependencies": {}
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/massuus/Vauthunters-Rewards.git"
+  },
+  "bugs": {
+    "url": "https://github.com/massuus/Vauthunters-Rewards/issues"
+  },
+  "homepage": "https://vh-rewards.massuus.com",
+  "dependencies": {},
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
 }

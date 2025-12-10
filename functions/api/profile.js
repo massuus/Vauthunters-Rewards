@@ -2,11 +2,36 @@
 const REWARDS_URL = "https://rewards.vaulthunters.gg/rewards?minecraft=";
 const TIER_URL = "https://api.vaulthunters.gg/users/reward?uuid=";
 
-const INVALID_UUID_LENGTH = 32;
+// Minecraft UUID without dashes is 32 hex characters
+const UUID_HEX_LENGTH = 32;
 const REQUEST_HEADERS = {
   "user-agent": "Vauthunters Rewards/1.0 (+https://vh-rewards.massuus.com)",
   accept: "application/json"
 };
+
+/**
+ * Generic fetch handler with consistent error handling
+ */
+async function fetchJson(url, context = 'API') {
+  try {
+    const response = await fetch(url, { headers: REQUEST_HEADERS });
+    
+    if (response.status === 404) {
+      return { notFound: true, data: null };
+    }
+    
+    if (!response.ok) {
+      console.error(`${context} error status:`, response.status);
+      return { error: true, status: response.status, data: null };
+    }
+    
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    console.error(`${context} fetch error:`, error);
+    return { error: true, message: error.message, data: null };
+  }
+}
 
 export async function onRequest({ request }) {
   const url = new URL(request.url);
@@ -91,7 +116,7 @@ async function fetchProfile(username) {
   const player = data.data.player;
   const rawId = player.raw_id;
 
-  if (typeof rawId !== "string" || rawId.length !== INVALID_UUID_LENGTH) {
+  if (typeof rawId !== "string" || rawId.length !== UUID_HEX_LENGTH) {
     return null;
   }
 
@@ -103,7 +128,7 @@ async function fetchProfile(username) {
 }
 
 function formatUuid(hexId) {
-  if (!hexId || hexId.length !== INVALID_UUID_LENGTH) {
+  if (!hexId || hexId.length !== UUID_HEX_LENGTH) {
     return null;
   }
 
@@ -111,52 +136,33 @@ function formatUuid(hexId) {
 }
 
 async function fetchRewards(formattedId) {
-  try {
-    const response = await fetch(`${REWARDS_URL}${encodeURIComponent(formattedId)}`, {
-      headers: REQUEST_HEADERS
-    });
+  const result = await fetchJson(
+    `${REWARDS_URL}${encodeURIComponent(formattedId)}`,
+    'Rewards API'
+  );
 
-    if (response.status === 404) {
-      return { rewards: {}, sets: [] };
-    }
-
-    if (!response.ok) {
-      console.error("Rewards API error status:", response.status);
-      return { rewards: {}, sets: [] };
-    }
-
-    const data = await response.json();
-    const rewards = Array.isArray(data.rewards) ? {} : data.rewards || {};
-    const sets = Array.isArray(data.sets) ? data.sets : data.sets || [];
-
-    return { rewards, sets };
-  } catch (error) {
-    console.error("Rewards fetch error:", error);
+  if (result.notFound || result.error || !result.data) {
     return { rewards: {}, sets: [] };
   }
+
+  const data = result.data;
+  const rewards = Array.isArray(data.rewards) ? {} : data.rewards || {};
+  const sets = Array.isArray(data.sets) ? data.sets : data.sets || [];
+
+  return { rewards, sets };
 }
 
 async function fetchTiers(formattedId) {
-  try {
-    const response = await fetch(`${TIER_URL}${encodeURIComponent(formattedId)}`, {
-      headers: REQUEST_HEADERS
-    });
+  const result = await fetchJson(
+    `${TIER_URL}${encodeURIComponent(formattedId)}`,
+    'Tier API'
+  );
 
-    if (response.status === 404) {
-      return [];
-    }
-
-    if (!response.ok) {
-      console.error("Tier API error status:", response.status);
-      return [];
-    }
-
-    const data = await response.json();
-    return Array.isArray(data.tier) ? data.tier : [];
-  } catch (error) {
-    console.error("Tier fetch error:", error);
+  if (result.notFound || result.error || !result.data) {
     return [];
   }
+
+  return Array.isArray(result.data.tier) ? result.data.tier : [];
 }
 
 function json(body, status = 200) {

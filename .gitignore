@@ -2,6 +2,7 @@
 .wrangler/
 dist/
 build/
+*.meta.json
 
 # Node modules
 node_modules/

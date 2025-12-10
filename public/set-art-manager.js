@@ -1,5 +1,6 @@
 // Set art loading and modal management
 
+import { logger } from './logger.js';
 import { loadTemplate } from './template-loader.js';
 import { proxiedImageUrl, UNKNOWN_ITEM_IMAGE, resultContainer } from './dom-utils.js';
 import { formatLabel, escapeHtml } from './reward-utils.js';
@@ -41,7 +42,7 @@ export async function loadSetArt() {
       return setArtStore;
     })
     .catch((error) => {
-      console.error(error);
+      logger.error('Failed to load set art', { error: error.message, stack: error.stack });
       setArtStore = {};
       return setArtStore;
     });

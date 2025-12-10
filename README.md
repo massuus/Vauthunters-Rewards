@@ -32,10 +32,38 @@ npm start
 ```
 
 This uses `wrangler pages dev public` via `npx` and serves:
+
 - Frontend at `http://127.0.0.1:8788/`
 - Functions under `/api/*` and `/img`
 
 Compatibility date is set in `wrangler.toml`.
+
+## Build for Production
+
+For production deployment with optimized assets:
+
+```bash
+# Install dependencies (includes esbuild)
+npm install
+
+# Build optimized production bundle
+npm run build:prod
+
+# Or deploy directly to Cloudflare Pages
+npm run deploy
+```
+
+The build process:
+- Minifies JavaScript with esbuild
+- Enables code splitting for optimal loading
+- Removes console.log/debug statements in production
+- Generates bundle size analysis in `dist/meta.json`
+
+For development builds with sourcemaps:
+
+```bash
+npm run build:dev
+```
 
 ## Usage
 

@@ -1,6 +1,10 @@
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const STATIC_CACHE = `vhr-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `vhr-runtime-${CACHE_VERSION}`;
+
+// Cache size limits (number of entries)
+const MAX_RUNTIME_CACHE_SIZE = 100;
+const MAX_IMAGE_CACHE_SIZE = 200;
 
 const STATIC_ASSETS = [
   '/',
@@ -9,6 +13,19 @@ const STATIC_ASSETS = [
   '/app.js',
   '/set-art.json',
 ];
+
+/**
+ * Trim cache to maximum size by removing oldest entries
+ */
+async function trimCache(cacheName, maxSize) {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length > maxSize) {
+    // Remove oldest entries (FIFO)
+    const toDelete = keys.slice(0, keys.length - maxSize);
+    await Promise.all(toDelete.map((key) => cache.delete(key)));
+  }
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -26,12 +43,14 @@ self.addEventListener('activate', (event) => {
         }
       } catch {}
 
+      // Clean up old caches
       const keys = await caches.keys();
-      Promise.all(
+      await Promise.all(
         keys
           .filter((key) => key !== STATIC_CACHE && key !== RUNTIME_CACHE)
           .map((key) => caches.delete(key))
       );
+      
       await self.clients.claim();
     })()
   );
@@ -73,9 +92,20 @@ self.addEventListener('fetch', (event) => {
         const response = await fetch(request);
         caches.open(STATIC_CACHE).then((cache) => cache.put(request, response.clone())).catch(() => {});
         return response;
-      } catch {
+      } catch (error) {
+        // Network failed - try cache
         const cached = await caches.match(request);
-        return cached || caches.match('/index.html');
+        if (cached) return cached;
+        
+        // No cache - return offline page
+        const offlinePage = await caches.match('/index.html');
+        if (offlinePage) return offlinePage;
+        
+        // Last resort: return a basic offline response
+        return new Response(
+          '<html><body><h1>Offline</h1><p>No internet connection. Please check your network and try again.</p></body></html>',
+          { status: 503, statusText: 'Service Unavailable', headers: { 'Content-Type': 'text/html' } }
+        );
       }
     })());
     return;
@@ -94,11 +124,17 @@ self.addEventListener('fetch', (event) => {
         const ct = response.headers.get('content-type') || '';
         if (response.ok && /^image\//i.test(ct)) {
           cache.put(request, response.clone()).catch(() => {});
+          // Trim cache size after adding
+          trimCache(RUNTIME_CACHE, MAX_IMAGE_CACHE_SIZE).catch(() => {});
         }
         return response;
       } catch (err) {
         if (cached) return cached; // last resort
-        throw err;
+        // Return a transparent 1x1 pixel as fallback
+        return new Response(
+          new Uint8Array([0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00, 0x80, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x21, 0xF9, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x2C, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x02, 0x02, 0x44, 0x01, 0x00, 0x3B]),
+          { status: 200, headers: { 'Content-Type': 'image/gif' } }
+        );
       }
     })());
     return;
@@ -142,6 +178,8 @@ self.addEventListener('fetch', (event) => {
               headers.set('x-sw-cached-at', String(Date.now()));
               const toStore = new Response(net.clone().body, { status: net.status, statusText: net.statusText, headers });
               await cache.put(request, toStore);
+              // Trim cache size
+              trimCache(RUNTIME_CACHE, MAX_RUNTIME_CACHE_SIZE).catch(() => {});
             }
             return net;
           } catch (e) {

@@ -1,5 +1,6 @@
 // Profile rendering and display functions
 
+import { logger } from './logger.js';
 import { loadTemplate, renderTemplate } from './template-loader.js';
 import { resultContainer, proxiedImageUrl, setMetaDescription, setFavicon, DEFAULT_FAVICON, UNKNOWN_ITEM_IMAGE, usernameInput, form } from './dom-utils.js';
 import { escapeHtml, toSnake, deriveRewardPath, deriveRewardName, augmentSets, formatLabel } from './reward-utils.js';
@@ -26,7 +27,7 @@ export async function renderProfile(data) {
     try {
       setsHelpTemplate = await loadTemplate('sets-help');
     } catch (err) {
-      console.error('Error loading sets-help template:', err);
+      logger.error('Error loading sets-help template', { error: err.message, stack: err.stack });
       setsHelpTemplate = '';
     }
   }

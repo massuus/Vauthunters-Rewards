@@ -8,11 +8,34 @@
   <title>Vault Hunters Rewards Lookup</title>
   <link id="favicon" rel="icon" href="https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf" type="image/png" sizes="any">
   <script>if(location.search&&location.search.length>1){document.documentElement.classList.add('has-query')}</script>
-  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Preconnect to external domains for faster resource loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://mc-heads.net">
+  <link rel="dns-prefetch" href="https://playerdb.co">
+  <link rel="dns-prefetch" href="https://rewards.vaulthunters.gg">
+  <link rel="dns-prefetch" href="https://api.vaulthunters.gg">
+  <link rel="dns-prefetch" href="https://wiki.vaulthunters.gg">
+  
+  <!-- Preload critical CSS -->
+  <link rel="preload" href="styles.css" as="style">
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Preload critical fonts -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@400;500;600&display=optional">
+  
+  <!-- Modulepreload for critical JavaScript modules -->
+  <link rel="modulepreload" href="app.js">
+  <link rel="modulepreload" href="logger.js">
+  <link rel="modulepreload" href="error-handler.js">
+  <link rel="modulepreload" href="dom-utils.js">
+  <link rel="modulepreload" href="search-handler.js">
+  
+  <!-- Prefetch commonly used resources -->
+  <link rel="prefetch" href="set-art.json">
+  <link rel="prefetch" href="templates/player-card.html">
+  <link rel="prefetch" href="templates/loading-skeleton.html">
 </head>
 <body>
   <div class="page">

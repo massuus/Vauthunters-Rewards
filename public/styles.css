@@ -1,4 +1,15 @@
-﻿:root {
+﻿/**
+ * Vault Hunters Rewards Styles
+ * 
+ * Note: This CSS file is currently served as a single file.
+ * For future optimization, consider:
+ * - Extracting critical CSS for above-the-fold content
+ * - Using PostCSS for minification and autoprefixing
+ * - Splitting into component-based CSS modules
+ * - Using CSS-in-JS or CSS modules for better tree-shaking
+ */
+
+:root {
   --bg: #0d1117;
   --panel: rgba(21, 26, 36, 0.85);
   --accent: #f4a941;

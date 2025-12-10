@@ -1,6 +1,8 @@
 // Main application entry point
 // This file coordinates all modules and initializes the app
 
+import { logger } from './logger.js';
+import { initializeErrorHandlers } from './error-handler.js';
 import { preloadTemplates } from './template-loader.js';
 import { usernameInput } from './dom-utils.js';
 import { initializeSearch } from './search-handler.js';
@@ -12,12 +14,15 @@ import { getUsernameFromQuery } from './url-state.js';
  * Initialize the application
  */
 async function initializeApp() {
+  // Initialize global error handlers first
+  initializeErrorHandlers();
+
   // Preload commonly used templates
   try {
     const templates = ['player-card', 'sets-help', 'recent-section', 'loading-skeleton', 'set-modal'];
     await preloadTemplates(templates);
   } catch (error) {
-    console.error('Error preloading templates:', error);
+    logger.error('Error preloading templates', { error: error.message, stack: error.stack });
   }
 
   // Initialize search form handling
@@ -45,7 +50,7 @@ if ('serviceWorker' in navigator) {
 
 // Initialize the app
 initializeApp().catch((error) => {
-  console.error('Error initializing app:', error);
+  logger.error('Error initializing app', { error: error.message, stack: error.stack });
 });
 
 

@@ -1,5 +1,7 @@
 // Clipboard utility functions
 
+import { logger } from './logger.js';
+
 /**
  * Copy text to the clipboard
  */
@@ -8,7 +10,7 @@ async function copyToClipboard(text) {
     await navigator.clipboard.writeText(text);
     return true;
   } catch (err) {
-    console.error('Clipboard copy failed:', err);
+    logger.error('Clipboard copy failed', { error: err.message, stack: err.stack });
     return false;
   }
 }

@@ -1,5 +1,7 @@
 // Template loader and renderer utility
 
+import { logger } from './logger.js';
+
 const templateCache = {};
 
 /**
@@ -21,7 +23,7 @@ export async function loadTemplate(templateName) {
     templateCache[templateName] = html;
     return html;
   } catch (error) {
-    console.error(`Error loading template ${templateName}:`, error);
+    logger.error('Error loading template', { templateName, error: error.message, stack: error.stack });
     return '';
   }
 }
