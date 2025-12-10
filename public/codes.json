@@ -29,9 +29,9 @@
   ,
   {
     "id": "day4-gingerbread-easy",
-    "name": "Gingerbread Chestplate (Easy)",
+    "name": "Gingerbread Chestplate",
     "description": "This is the reward for the 4th day of the Dylan Christmas event!",
-    "vodUrl": "https://www.youtube.com/@vodskall85",
+    "vodUrl": "https://www.youtube.com/watch?v=8UkNJ50Sszc",
     "code": "DAY4-GINGERBREAD-EASY",
     "images": ["/img/Gingerbread_Chestplate.gif"],
     "expires": "31-12-2025"
