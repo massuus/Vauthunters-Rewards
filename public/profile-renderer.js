@@ -201,11 +201,24 @@ function renderRewardsList(rewards) {
   return Object.entries(rewards)
     .map(([group, items]) => {
       const normalizedItems = Array.isArray(items) ? items : [];
+      const groupLabelRaw = String(group);
+      const groupLabelKey = groupLabelRaw.includes(':') ? groupLabelRaw.split(':').pop() : groupLabelRaw;
+      const groupLabelClean = groupLabelKey.replace(/[_\\/]+/g, ' ');
+      const groupHeading = formatLabel(groupLabelClean);
 
       const rows = normalizedItems
         .map((item) => {
-          const path = deriveRewardPath(String(group), String(item));
-          const name = deriveRewardName(path, String(group), String(item));
+          const raw = String(item).trim();
+          // Strip leading /img/ and extension, then normalize
+          const withoutPrefix = raw.replace(/^\/?img\//i, '');
+          const withoutExt = withoutPrefix.replace(/\.(webp|png|jpg|jpeg|gif)$/i, '');
+          const normalizedPath = withoutExt.replace(/\s+/g, '_').toLowerCase();
+          const path = normalizedPath || withoutExt || raw;
+
+          const segments = normalizedPath.split(/[\\/]/);
+          const lastSegment = segments[segments.length - 1] || normalizedPath;
+          const name = deriveRewardName(lastSegment || raw);
+
           const safeName = name ? escapeHtml(name) : '';
           const safePath = path ? escapeHtml(path) : '';
           return `<tr><td>${safeName}</td><td><code>${safePath}</code></td></tr>`;
@@ -214,7 +227,7 @@ function renderRewardsList(rewards) {
 
       return `
         <div class="reward-group">
-          <h3>${formatLabel(group)}</h3>
+          <h3>${groupHeading}</h3>
           <table class="rewards-table">
             <thead>
               <tr><th>Name</th><th>Path</th></tr>
