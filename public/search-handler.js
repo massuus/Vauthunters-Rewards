@@ -1,5 +1,6 @@
 // Search form handling and API interaction
 
+import { SEARCH_DEBOUNCE_MS } from './config.js';
 import { loadTemplate } from './template-loader.js';
 import { form, usernameInput, resultContainer, DEFAULT_FAVICON, defaultTitle, setFavicon, setMetaDescription, proxiedImageUrl } from './dom-utils.js';
 import { setLoadingState, clearFeedback, showFeedback, clearResult } from './ui-feedback.js';
@@ -9,6 +10,7 @@ import { isCodesQuery, isAllQuery, renderCodesPage, renderAllRewardsPage } from 
 import { escapeHtml, formatLabel } from './reward-utils.js';
 
 let submitTimer = null;
+let currentRequestController = null;
 
 /**
  * Initialize search form handling
@@ -17,7 +19,7 @@ export function initializeSearch() {
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     if (submitTimer) clearTimeout(submitTimer);
-    submitTimer = setTimeout(() => { submitSearch().catch(() => {}); }, 250);
+    submitTimer = setTimeout(() => { submitSearch().catch(() => {}); }, SEARCH_DEBOUNCE_MS);
   });
 }
 
@@ -28,6 +30,12 @@ async function submitSearch() {
   const username = usernameInput.value.trim();
 
   clearFeedback();
+
+  // Cancel any in-flight request to avoid stale renders
+  if (currentRequestController) {
+    currentRequestController.abort();
+  }
+  currentRequestController = new AbortController();
 
   if (!username) {
     showFeedback('Please enter a Minecraft username.', 'error');
@@ -103,7 +111,7 @@ async function submitSearch() {
     resultContainer.classList.remove('hidden');
     setFavicon(DEFAULT_FAVICON);
     document.title = defaultTitle;
-    const response = await fetch(buildProfileApiUrl(username));
+    const response = await fetch(buildProfileApiUrl(username), { signal: currentRequestController.signal });
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -120,6 +128,10 @@ async function submitSearch() {
     const data = await response.json();
     await renderProfile(data);
   } catch (error) {
+    if (error?.name === 'AbortError') {
+      // Ignore aborted requests triggered by a newer search
+      return;
+    }
     clearResult();
     showFeedback(error.message, 'error');
   } finally {

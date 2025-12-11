@@ -1,0 +1,44 @@
+/* Base styles and resets */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+  display: flex;
+  justify-content: center;
+  padding: 0 1rem 3rem;
+}
+
+.page {
+  width: min(980px, 100%);
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Hidden utility */
+.hidden {
+  display: none !important;
+}
+
+/* Muted text */
+.muted {
+  color: var(--text-secondary);
+  opacity: 0.85;
+}

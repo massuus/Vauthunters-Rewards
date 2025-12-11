@@ -1,0 +1,64 @@
+/* PWA Install Button Styles */
+
+.pwa-install-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: linear-gradient(135deg, var(--accent) 0%, rgba(244, 169, 65, 0.8) 100%);
+  color: var(--bg);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  box-shadow: 0 4px 12px rgba(244, 169, 65, 0.3);
+}
+
+.pwa-install-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(244, 169, 65, 0.4);
+}
+
+.pwa-install-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(244, 169, 65, 0.3);
+}
+
+.pwa-install-button.hidden {
+  display: none;
+}
+
+.pwa-install-button svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.5;
+}
+
+/* Animation for button appearance */
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pwa-install-button:not(.hidden) {
+  animation: slideInFromTop 0.3s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .pwa-install-button {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.9rem;
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+}

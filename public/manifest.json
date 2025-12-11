@@ -1,0 +1,53 @@
+{
+  "name": "Vault Hunters Rewards Lookup",
+  "short_name": "VH Rewards",
+  "description": "Look up Vault Hunters players to see their sets, rewards, and Patreon unlocks",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#f4a941",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/512",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "games"],
+  "shortcuts": [
+    {
+      "name": "Reward Codes",
+      "short_name": "Codes",
+      "description": "View all unlockable reward codes",
+      "url": "/?codes",
+      "icons": [
+        {
+          "src": "https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/96",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "All Rewards",
+      "short_name": "Browse",
+      "description": "Browse all unlockable rewards",
+      "url": "/?all",
+      "icons": [
+        {
+          "src": "https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/96",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Vault Hunters Rewards</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #0d1117;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    
+    .offline-container {
+      max-width: 500px;
+      text-align: center;
+      padding: 2rem;
+      background: rgba(21, 26, 36, 0.85);
+      border-radius: 20px;
+      border: 1px solid rgba(244, 169, 65, 0.3);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+    }
+    
+    .offline-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      opacity: 0.5;
+    }
+    
+    h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 2rem;
+      margin: 0 0 1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #f4a941;
+    }
+    
+    p {
+      margin: 0 0 1.5rem;
+      color: #b8c1d1;
+      line-height: 1.6;
+    }
+    
+    .retry-button {
+      display: inline-block;
+      padding: 0.85rem 1.6rem;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #f3c36b, #f4a941);
+      color: #141821;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .retry-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(244, 169, 65, 0.3);
+    }
+    
+    .retry-button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <svg class="offline-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 9C3 9 6 6 12 6C18 6 21 9 21 9" stroke="#f4a941" stroke-width="2" stroke-linecap="round"/>
+      <path d="M6 12C6 12 8 10 12 10C16 10 18 12 18 12" stroke="#f4a941" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="12" cy="16" r="1" fill="#f4a941"/>
+      <line x1="3" y1="3" x2="21" y2="21" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    
+    <h1>You're Offline</h1>
+    
+    <p>
+      It looks like you've lost your connection to the internet. 
+      Please check your network and try again.
+    </p>
+    
+    <button class="retry-button" onclick="window.location.reload()">
+      Retry Connection
+    </button>
+  </div>
+</body>
+</html>
