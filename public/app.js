@@ -8,6 +8,8 @@ import { usernameInput } from './dom-utils.js';
 import { initializeSearch } from './search-handler.js';
 import { renderRecentSection } from './recent-section.js';
 import { getUsernameFromQuery } from './url-state.js';
+import { initLazyImages } from './image-loader.js';
+import { initPWAInstall } from './pwa-install.js';
 
 
 /**
@@ -27,6 +29,12 @@ async function initializeApp() {
 
   // Initialize search form handling
   initializeSearch();
+
+  // Initialize lazy image loading
+  initLazyImages();
+
+  // Initialize PWA install prompt
+  initPWAInstall();
 
   // Check for preset username from URL
   const presetUsername = getUsernameFromQuery();

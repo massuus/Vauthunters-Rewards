@@ -3,6 +3,7 @@
 dist/
 build/
 *.meta.json
+meta.json
 
 # Node modules
 node_modules/

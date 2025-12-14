@@ -4,8 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Look up Vault Hunters players to see their sets, rewards, and Patreon unlocks.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://mc-heads.net https://wiki.vaulthunters.gg; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com; base-uri 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://mc-heads.net https://wiki.vaulthunters.gg; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com; base-uri 'self'; manifest-src 'self'">
+  <meta name="theme-color" content="#f4a941">
   <title>Vault Hunters Rewards Lookup</title>
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- iOS specific meta tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="VH Rewards">
+  <link rel="apple-touch-icon" href="https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/180">
   <link id="favicon" rel="icon" href="https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf" type="image/png" sizes="any">
   <script>if(location.search&&location.search.length>1){document.documentElement.classList.add('has-query')}</script>
   
@@ -19,8 +29,8 @@
   <link rel="dns-prefetch" href="https://wiki.vaulthunters.gg">
   
   <!-- Preload critical CSS -->
-  <link rel="preload" href="styles.css" as="style">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="preload" href="main.css" as="style">
+  <link rel="stylesheet" href="main.css">
   
   <!-- Preload critical fonts -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@400;500;600&display=optional">

@@ -1,0 +1,39 @@
+/* Hero section styles */
+
+.hero {
+  background: radial-gradient(circle at top, rgba(244, 169, 65, 0.28), transparent 55%),
+              linear-gradient(135deg, rgba(35, 42, 59, 0.85), rgba(12, 19, 32, 0.9));
+  border-bottom: 1px solid var(--border);
+  padding: 3.5rem 2rem 2.5rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  box-shadow: var(--shadow);
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(244, 169, 65, 0.15), transparent 70%);
+  pointer-events: none;
+}
+
+.hero h1 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(2.5rem, 4vw, 3.25rem);
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+}
+
+.hero__content {
+  position: relative;
+  z-index: 1;
+}

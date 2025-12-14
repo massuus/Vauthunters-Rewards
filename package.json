@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "vauthunters-rewards",
   "version": "1.0.0",
   "description": "Vault Hunters rewards lookup tool",
@@ -28,8 +28,11 @@
     "url": "https://github.com/massuus/Vauthunters-Rewards/issues"
   },
   "homepage": "https://vh-rewards.massuus.com",
-  "dependencies": {},
   "devDependencies": {
-    "esbuild": "^0.24.0"
+    "autoprefixer": "^10.4.22",
+    "cssnano": "^7.1.2",
+    "esbuild": "^0.24.0",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1"
   }
 }

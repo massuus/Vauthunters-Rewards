@@ -17,6 +17,10 @@ Live site: https://vh-rewards.massuus.com/
 - **Patreon Tier Badges**: Visual badges for each Patreon tier (Dweller, Cheeser, Goblin, Champion, Legend) with color coding.
 - **Service Worker Caching**: Cache‑first images and short‑TTL caching for `/api/profile`.
 - **New Unlock Detection**: Highlights newly obtained sets with a "New" badge per player.
+- **Rate Limiting**: API endpoints are rate-limited to prevent abuse (60 requests/minute).
+- **Retry Logic**: Failed API requests automatically retry with exponential backoff.
+- **Offline Support**: Custom offline page with graceful degradation.
+- **Lazy Image Loading**: Images load lazily with skeleton loaders for better UX.
 
 ## Prerequisites
 
@@ -43,7 +47,7 @@ Compatibility date is set in `wrangler.toml`.
 For production deployment with optimized assets:
 
 ```bash
-# Install dependencies (includes esbuild)
+# Install dependencies (includes esbuild, PostCSS, autoprefixer, cssnano)
 npm install
 
 # Build optimized production bundle
@@ -55,6 +59,7 @@ npm run deploy
 
 The build process:
 - Minifies JavaScript with esbuild
+- Minifies and autoprefixes CSS with PostCSS
 - Enables code splitting for optimal loading
 - Removes console.log/debug statements in production
 - Generates bundle size analysis in `dist/meta.json`
@@ -125,7 +130,7 @@ You can bypass upstream calls during development:
 - `public/special-pages.js` – Codes page and all rewards page rendering and event binding
 - `public/template-loader.js` – Template loading with caching and rendering with data interpolation
 - `public/clipboard-utils.js` – Copy-to-clipboard functionality for share links and codes
-- `public/styles.css` – Comprehensive styling; responsive grid, modal, codes page, and rewards browsing styles
+- `public/main.css` – Root stylesheet importing modular CSS (variables, base, utilities, components)
 - `public/set-art.json` – set metadata (labels, images, descriptions); supports both single and multiple images per set
 - `public/codes.json` – Reward codes data (name, description, vodUrl, code, expires, images)
 - `public/sw.js` – Service Worker with cache‑first images and short‑TTL API caching
@@ -166,7 +171,7 @@ Search for **"all"** or **"rewards"** to browse every unlockable reward:
 - **Set Metadata**: Add or adjust set data in `public/set-art.json`, including labels, single/multiple images, descriptions, and alt text.
 - **Codes Data**: Manage reward codes in `public/codes.json` with VOD links, expiry dates, and multi-image support.
 - **Path Derivation**: Customize reward path rules in `public/reward-utils.js` (`deriveRewardPath` and `deriveRewardName` functions).
-- **Styling**: Update `public/styles.css` for responsive grids, modal appearance, and special pages layout.
+- **Styling**: Update `public/main.css` (and its imported modules) for responsive grids, modal appearance, and special pages layout.
 - **Templates**: Modify template fragments in `public/templates/` for structural changes to cards, modals, and sections.
 
 ## Troubleshooting

@@ -1,45 +1,43 @@
-﻿const PLAYERDB_PROFILE_URL = "https://playerdb.co/api/player/minecraft/";
-const REWARDS_URL = "https://rewards.vaulthunters.gg/rewards?minecraft=";
-const TIER_URL = "https://api.vaulthunters.gg/users/reward?uuid=";
+﻿import { fetchJson } from '../utils/fetch-utils.js';
+import { apiRateLimiter, getRateLimitKey, rateLimitResponse } from '../utils/rate-limiter.js';
+import {
+  PLAYERDB_PROFILE_URL,
+  REWARDS_URL,
+  TIER_URL,
+  UUID_HEX_LENGTH,
+  REQUEST_HEADERS,
+  PROFILE_API_TIMEOUT,
+  REWARDS_API_TIMEOUT,
+  TIER_API_TIMEOUT
+} from '../utils/config.js';
 
-// Minecraft UUID without dashes is 32 hex characters
-const UUID_HEX_LENGTH = 32;
-const REQUEST_HEADERS = {
-  "user-agent": "Vauthunters Rewards/1.0 (+https://vh-rewards.massuus.com)",
-  accept: "application/json"
-};
+const USERNAME_REGEX = /^[A-Za-z0-9_]{3,16}$/;
 
-/**
- * Generic fetch handler with consistent error handling
- */
-async function fetchJson(url, context = 'API') {
-  try {
-    const response = await fetch(url, { headers: REQUEST_HEADERS });
-    
-    if (response.status === 404) {
-      return { notFound: true, data: null };
-    }
-    
-    if (!response.ok) {
-      console.error(`${context} error status:`, response.status);
-      return { error: true, status: response.status, data: null };
-    }
-    
-    const data = await response.json();
-    return { data };
-  } catch (error) {
-    console.error(`${context} fetch error:`, error);
-    return { error: true, message: error.message, data: null };
-  }
+function badRequest(message) {
+  return json({ error: message }, 400);
 }
 
 export async function onRequest({ request }) {
+  // Apply rate limiting
+  const rateLimitKey = getRateLimitKey(request);
+  if (!apiRateLimiter.allow(rateLimitKey)) {
+    const info = apiRateLimiter.getInfo(rateLimitKey);
+    return rateLimitResponse(info);
+  }
+  
   const url = new URL(request.url);
   const username = (url.searchParams.get("username") || "").trim();
 
   if (!username) {
-    return json({ error: "Username query parameter is required." }, 400);
+    return badRequest("Username query parameter is required.");
   }
+
+  const normalizedUsername = username.toLowerCase();
+
+  if (!USERNAME_REGEX.test(normalizedUsername)) {
+    return badRequest("Invalid Minecraft username. Use 3-16 letters, numbers, or underscores.");
+  }
+
 
   // Simple mock mode to aid local testing: /api/profile?username=...&mock=1
   if (url.searchParams.has("mock")) {
@@ -57,7 +55,7 @@ export async function onRequest({ request }) {
   }
 
   try {
-    const profile = await fetchProfile(username);
+    const profile = await fetchProfile(normalizedUsername);
 
     if (!profile) {
       return json({ error: "Player not found." }, 404);
@@ -86,25 +84,38 @@ export async function onRequest({ request }) {
       tier
     });
   } catch (error) {
-    console.error("Profile lookup error:", error);
+    console.error("Profile lookup error", {
+      username: normalizedUsername,
+      message: error instanceof Error ? error.message : String(error),
+      status: error?.status,
+      stack: error?.stack,
+      isTimeout: error?.isTimeout
+    });
+    const status = typeof error?.status === 'number' ? error.status : 500;
     return json({
-      error: "Failed to retrieve player data.",
-      details: error instanceof Error ? error.message : String(error)
-    }, 500);
+      error: status >= 500 ? "Failed to retrieve player data. Please try again." : (error?.message || "Request failed."),
+      details: error?.details || undefined
+    }, status);
   }
 }
 
 async function fetchProfile(username) {
-  const response = await fetch(`${PLAYERDB_PROFILE_URL}${encodeURIComponent(username)}`, {
-    headers: REQUEST_HEADERS
-  });
+  const { fetchWithRetry } = await import('../utils/fetch-utils.js');
+  const response = await fetchWithRetry(
+    `${PLAYERDB_PROFILE_URL}${encodeURIComponent(username)}`,
+    { headers: REQUEST_HEADERS },
+    PROFILE_API_TIMEOUT
+  );
 
-  if (response.status === 404) {
+  // Treat 400 and 404 as "player not found"
+  if (response.status === 404 || response.status === 400) {
     return null;
   }
 
   if (!response.ok) {
-    throw new Error(`Profile API error: ${response.status}`);
+    const err = new Error(`Profile API error: ${response.status}`);
+    err.status = 502;
+    throw err;
   }
 
   const data = await response.json();
@@ -138,11 +149,19 @@ function formatUuid(hexId) {
 async function fetchRewards(formattedId) {
   const result = await fetchJson(
     `${REWARDS_URL}${encodeURIComponent(formattedId)}`,
-    'Rewards API'
+    'Rewards API',
+    REWARDS_API_TIMEOUT
   );
 
-  if (result.notFound || result.error || !result.data) {
+  if (result.notFound) {
     return { rewards: {}, sets: [] };
+  }
+
+  if (result.error || !result.data) {
+    const err = new Error(result.message || 'Rewards API failed');
+    err.status = 502;
+    err.details = { timeout: result.isTimeout, status: result.status };
+    throw err;
   }
 
   const data = result.data;
@@ -155,11 +174,19 @@ async function fetchRewards(formattedId) {
 async function fetchTiers(formattedId) {
   const result = await fetchJson(
     `${TIER_URL}${encodeURIComponent(formattedId)}`,
-    'Tier API'
+    'Tier API',
+    TIER_API_TIMEOUT
   );
 
-  if (result.notFound || result.error || !result.data) {
+  if (result.notFound) {
     return [];
+  }
+
+  if (result.error || !result.data) {
+    const err = new Error(result.message || 'Tier API failed');
+    err.status = 502;
+    err.details = { timeout: result.isTimeout, status: result.status };
+    throw err;
   }
 
   return Array.isArray(result.data.tier) ? result.data.tier : [];

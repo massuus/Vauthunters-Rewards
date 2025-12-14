@@ -1,4 +1,9 @@
-const CACHE_VERSION = 'v5';
+// Service Worker with caching strategy
+// Cache version and configuration is managed in config.js but duplicated here
+// since service workers can't import ES modules in all browsers yet
+
+// This value is injected at build time via esbuild define; falls back to 'dev'
+const CACHE_VERSION = typeof __BUILD_REV__ !== 'undefined' ? __BUILD_REV__ : 'dev';
 const STATIC_CACHE = `vhr-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `vhr-runtime-${CACHE_VERSION}`;
 
@@ -6,12 +11,17 @@ const RUNTIME_CACHE = `vhr-runtime-${CACHE_VERSION}`;
 const MAX_RUNTIME_CACHE_SIZE = 100;
 const MAX_IMAGE_CACHE_SIZE = 200;
 
+// Cache TTL
+const API_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const CACHE_TIMESTAMP_HEADER = 'x-vhr-sw-cached-at';
+
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/styles.css',
+  '/main.css',
   '/app.js',
   '/set-art.json',
+  '/offline.html',
 ];
 
 /**
@@ -98,13 +108,13 @@ self.addEventListener('fetch', (event) => {
         if (cached) return cached;
         
         // No cache - return offline page
-        const offlinePage = await caches.match('/index.html');
+        const offlinePage = await caches.match('/offline.html');
         if (offlinePage) return offlinePage;
         
-        // Last resort: return a basic offline response
+        // Fallback to a simple offline response
         return new Response(
-          '<html><body><h1>Offline</h1><p>No internet connection. Please check your network and try again.</p></body></html>',
-          { status: 503, statusText: 'Service Unavailable', headers: { 'Content-Type': 'text/html' } }
+          '<html><body><h1>Offline</h1><p>Please check your connection.</p></body></html>',
+          { status: 503, headers: { 'Content-Type': 'text/html' } }
         );
       }
     })());
@@ -145,22 +155,21 @@ self.addEventListener('fetch', (event) => {
     try {
       const url = new URL(request.url);
       if (url.origin === self.location.origin && url.pathname === '/api/profile') {
-        const TTL_MS = 10 * 60 * 1000; // 10 minutes
         event.respondWith((async () => {
           const cache = await caches.open(RUNTIME_CACHE);
           const cached = await cache.match(request);
           const now = Date.now();
           let cachedAt = 0;
           if (cached) {
-            cachedAt = Number(cached.headers.get('x-sw-cached-at') || '0');
-            if (Number.isFinite(cachedAt) && (now - cachedAt) < TTL_MS) {
+            cachedAt = Number(cached.headers.get(CACHE_TIMESTAMP_HEADER) || '0');
+            if (Number.isFinite(cachedAt) && (now - cachedAt) < API_CACHE_TTL_MS) {
               // Fresh enough; revalidate in background
               event.waitUntil((async () => {
                 try {
                   const net = await fetch(request);
                   if (net.ok) {
                     const headers = new Headers(net.headers);
-                    headers.set('x-sw-cached-at', String(Date.now()));
+                    headers.set(CACHE_TIMESTAMP_HEADER, String(Date.now()));
                     const toStore = new Response(net.clone().body, { status: net.status, statusText: net.statusText, headers });
                     await cache.put(request, toStore);
                   }
@@ -175,7 +184,7 @@ self.addEventListener('fetch', (event) => {
             const net = await fetch(request);
             if (net.ok) {
               const headers = new Headers(net.headers);
-              headers.set('x-sw-cached-at', String(Date.now()));
+              headers.set(CACHE_TIMESTAMP_HEADER, String(Date.now()));
               const toStore = new Response(net.clone().body, { status: net.status, statusText: net.statusText, headers });
               await cache.put(request, toStore);
               // Trim cache size
