@@ -40,7 +40,7 @@
     "id": "day5-factory-man",
     "name": "Gingerbread Man",
     "description": "This is the reward for the 5th day of the Dylan Christmas event!",
-    "vodUrl": "https://www.youtube.com/@vodskall85",
+    "vodUrl": "https://www.youtube.com/watch?v=3KIP4sYfWnE",
     "code": "DAY5-FACTORY-MAN",
     "images": ["/img/Gingerbread_Man.gif"],
     "expires": "31-12-2025"
@@ -55,11 +55,11 @@
     "expires": "31-12-2025"
   },
   {
-    "id": "day7-fireplace",
+    "id": "day8-fireplace",
     "name": "Christmas Fireplace Shield",
-    "description": "This is the reward for the 7th day of the Dylan Christmas event!",
+    "description": "This is the reward for the 8th day of the Dylan Christmas event!",
     "vodUrl": "https://www.youtube.com/@vodskall85",
-    "code": "???",
+    "code": "DAY8-BRAUM-FIREPLACE",
     "images": ["img/Christmas_Fireplace_Shield_Blocking.gif"],
     "expires": "31-12-2025"
   }
