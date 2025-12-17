@@ -222,5 +222,17 @@
     "image": "/img/Nutcracker.webp",
     "alt": "Nutcracker Wand",
     "description": "This reward is from the 6th day of the Dylan Christmas event!"
+  },
+  "christmas_fireplace": {
+    "label": "Christmas Fireplace Shield",
+    "image": "/img/Christmas_Fireplace_Shield_Blocking.gif",
+    "alt": "Christmas Fireplace Shield",
+    "description": "This reward is from the 8th day of the Dylan Christmas event!"
+  },
+  "bumbo_frostoni": {
+    "label": "Bumbo Frostoni",
+    "image": "/img/Bumbo_Frostoni.gif",
+    "alt": "Bumbo Frostoni",
+    "description": "This reward is from the 9th day of the Dylan Christmas event!"
   }
 }
