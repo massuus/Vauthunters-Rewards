@@ -76,7 +76,7 @@
     "name": "Snowman Helmet",
     "description": "This is the reward for the 10th day of the Dylan Christmas event!",
     "vodUrl": "https://www.youtube.com/@vodskall85",
-    "code": "DAY10-CLUTCH",
+    "code": "DAY-10-CLUTCH",
     "images": ["/img/snowman_helm.gif"],
     "expires": "30-12-2025"
   }
