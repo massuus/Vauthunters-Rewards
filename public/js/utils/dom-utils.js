@@ -54,7 +54,7 @@ export function proxiedImageUrl(url) {
   try {
     const u = new URL(url);
     if (u.hostname === 'wiki.vaulthunters.gg' || u.hostname === 'mc-heads.net') {
-      return `/img?url=${encodeURIComponent(url)}`;
+      return `/proxy-img?url=${encodeURIComponent(url)}`;
     }
   } catch (e) {
     // ignore invalid URLs

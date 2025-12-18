@@ -15,11 +15,11 @@ const buildRev = process.env.BUILD_REV || (isDev ? 'dev' : String(Date.now()));
 
 const config = {
   entryPoints: [
-    'public/app.js',
+    'public/js/core/app.js',
     'public/sw.js',
-    'public/config.js',
-    'public/image-loader.js',
-    'public/pwa-install.js',
+    'public/js/utils/config.js',
+    'public/js/loaders/image-loader.js',
+    'public/js/features/pwa-install.js',
   ],
   bundle: true,
   format: 'esm',
@@ -50,7 +50,7 @@ async function processCss() {
   console.log('Processing CSS with PostCSS...');
   
   // Read the consolidated main.css
-  const cssPath = path.join(publicDir, 'main.css');
+  const cssPath = path.join(publicDir, 'css', 'main.css');
   const cssContent = await fs.readFile(cssPath, 'utf-8');
   
   // In production, minify with PostCSS
@@ -62,13 +62,15 @@ async function processCss() {
     const result = await postcss([
       autoprefixer,
       cssnano({ preset: 'default' })
-    ]).process(cssContent, { from: cssPath, to: path.join(distDir, 'main.css') });
+    ]).process(cssContent, { from: cssPath, to: path.join(distDir, 'css', 'main.css') });
     
-    await fs.writeFile(path.join(distDir, 'main.css'), result.css);
+    await fs.mkdir(path.join(distDir, 'css'), { recursive: true });
+    await fs.writeFile(path.join(distDir, 'css', 'main.css'), result.css);
     console.log('CSS minified and optimized');
   } else {
     // In dev mode, just copy
-    await fs.copyFile(cssPath, path.join(distDir, 'main.css'));
+    await fs.mkdir(path.join(distDir, 'css'), { recursive: true });
+    await fs.copyFile(cssPath, path.join(distDir, 'css', 'main.css'));
     console.log('CSS copied (dev mode)');
   }
 }
@@ -85,11 +87,8 @@ async function copyPublicAssets() {
   
   // Files to copy (non-JS and non-CSS files)
   const filesToCopy = [
-    'index.html',
     '_headers',
-    'codes.json',
-    'set-art.json',
-    'offline.html',
+    '_routes.json',
     'manifest.json',
   ];
   
@@ -108,7 +107,7 @@ async function copyPublicAssets() {
   }
   
   // Copy directories
-  const dirsToCopy = ['templates', 'img', 'css'];
+  const dirsToCopy = ['templates', 'img', 'css', 'js', 'data', 'pages'];
   for (const dir of dirsToCopy) {
     const src = path.join(publicDir, dir);
     const dest = path.join(distDir, dir);
@@ -137,13 +136,13 @@ async function copyPublicAssets() {
 async function updateHtmlReferences() {
   if (isDev) return; // Skip in dev mode
   
-  const htmlPath = path.join(__dirname, 'dist', 'index.html');
+  const htmlPath = path.join(__dirname, 'dist', 'pages', 'index.html');
   let html = await fs.readFile(htmlPath, 'utf-8');
   
-  // Update script reference to point to bundled version
+  // Update script reference to point to the correct bundled location
   html = html.replace(
     /<script src="app\.js" type="module"><\/script>/,
-    '<script src="app.js" type="module"></script>'
+    '<script src="../js/core/app.js" type="module"></script>'
   );
   
   await fs.writeFile(htmlPath, html);

@@ -1,11 +1,11 @@
 /* Main styles entry point - imports all CSS modules */
 
-@import './css/variables.css';
-@import './css/base.css';
-@import './css/utilities.css';
-@import './css/components/hero.css';
-@import './css/components/search.css';
-@import './css/components/footer.css';
+@import './variables.css';
+@import './base.css';
+@import './utilities.css';
+@import './components/hero.css';
+@import './components/search.css';
+@import './components/footer.css';
 
 /* Import the remaining styles from the original styles.css */
 /* These will be split into more components in a future refactor */

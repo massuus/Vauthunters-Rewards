@@ -19,10 +19,10 @@ export const ERROR_AUTO_HIDE_MS = 5000; // Auto-hide error messages after 5 seco
 // Static assets to cache
 export const STATIC_ASSETS = [
   '/',
-  '/index.html',
-  '/main.css',
-  '/app.js',
-  '/set-art.json',
+  '/pages/index.html',
+  '/css/main.css',
+  '/js/core/app.js',
+  '/data/set-art.json',
 ];
 
 // Animation durations

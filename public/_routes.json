@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "include": [
+    "/",
+    "/api/*",
+    "/img*",
+    "/proxy-img",
+    "/proxy-img*"
+  ],
+  "exclude": [
+    "/css/*",
+    "/js/*",
+    "/templates/*",
+    "/img/*",
+    "/data/*",
+    "/pages/*",
+    "/manifest.json",
+    "/sw.js",
+    "/_headers"
+  ]
+}

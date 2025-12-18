@@ -1,6 +1,6 @@
 // PWA Install Prompt Handler
 
-import { logger } from './logger.js';
+import { logger } from '../core/logger.js';
 
 let deferredPrompt = null;
 let installButton = null;

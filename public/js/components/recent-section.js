@@ -1,9 +1,9 @@
 // Recent users section rendering and handling
 
-import { loadTemplate, renderTemplate } from './template-loader.js';
-import { recentContainer, usernameInput, form, proxiedImageUrl, DEFAULT_FAVICON } from './dom-utils.js';
-import { getRecentUsers } from './storage-manager.js';
-import { escapeHtml } from './reward-utils.js';
+import { loadTemplate, renderTemplate } from '../loaders/template-loader.js';
+import { recentContainer, usernameInput, form, proxiedImageUrl, DEFAULT_FAVICON } from '../utils/dom-utils.js';
+import { getRecentUsers } from '../utils/storage-manager.js';
+import { escapeHtml } from '../features/reward-utils.js';
 
 /**
  * Render the recent users section

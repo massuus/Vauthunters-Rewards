@@ -1,6 +1,6 @@
 // Template loader and renderer utility
 
-import { logger } from './logger.js';
+import { logger } from '../core/logger.js';
 
 const templateCache = {};
 

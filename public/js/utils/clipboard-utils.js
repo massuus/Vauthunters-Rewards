@@ -1,6 +1,6 @@
 // Clipboard utility functions
 
-import { logger } from './logger.js';
+import { logger } from '../core/logger.js';
 
 /**
  * Copy text to the clipboard

@@ -5,8 +5,8 @@
   "main": "public/index.html",
   "type": "module",
   "scripts": {
-    "start": "npx --yes wrangler@4.43.0 pages dev public --compatibility-date=2024-12-10",
-    "dev": "npx --yes wrangler@4.43.0 pages dev public --compatibility-date=2024-12-10",
+    "start": "npm run build:prod && npx --yes wrangler@4.43.0 pages dev dist --compatibility-date=2024-12-10",
+    "dev": "npm run build:prod && npx --yes wrangler@4.43.0 pages dev dist --compatibility-date=2024-12-10",
     "build": "node build.js",
     "build:dev": "node build.js --dev",
     "build:watch": "node build.js --dev --watch",

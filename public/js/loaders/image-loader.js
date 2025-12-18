@@ -1,6 +1,6 @@
 // Image loading utilities with skeleton states
 
-import { IMAGE_FADE_IN_MS } from './config.js';
+import { IMAGE_FADE_IN_MS } from '../utils/config.js';
 
 /**
  * Create an image element with lazy loading and skeleton state

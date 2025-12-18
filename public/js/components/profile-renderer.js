@@ -1,14 +1,14 @@
 // Profile rendering and display functions
 
-import { logger } from './logger.js';
-import { loadTemplate, renderTemplate } from './template-loader.js';
-import { resultContainer, proxiedImageUrl, setMetaDescription, setFavicon, DEFAULT_FAVICON, UNKNOWN_ITEM_IMAGE, usernameInput, form } from './dom-utils.js';
-import { escapeHtml, toSnake, deriveRewardPath, deriveRewardName, augmentSets, formatLabel } from './reward-utils.js';
+import { logger } from '../core/logger.js';
+import { loadTemplate, renderTemplate } from '../loaders/template-loader.js';
+import { resultContainer, proxiedImageUrl, setMetaDescription, setFavicon, DEFAULT_FAVICON, UNKNOWN_ITEM_IMAGE, usernameInput, form } from '../utils/dom-utils.js';
+import { escapeHtml, toSnake, deriveRewardPath, deriveRewardName, augmentSets, formatLabel } from '../features/reward-utils.js';
 import { loadSetArt, getSetArtStore, closeSetDetailModal, openSetDetailModal } from './set-art-manager.js';
-import { getShareUrl } from './url-state.js';
-import { getSeenSets, setSeenSets, addRecentUser } from './storage-manager.js';
-import { copyShareLink } from './clipboard-utils.js';
-import { updateShareFeedback } from './ui-feedback.js';
+import { getShareUrl } from '../features/url-state.js';
+import { getSeenSets, setSeenSets, addRecentUser } from '../utils/storage-manager.js';
+import { copyShareLink } from '../utils/clipboard-utils.js';
+import { updateShareFeedback } from '../features/ui-feedback.js';
 
 let setsHelpTemplate = '';
 

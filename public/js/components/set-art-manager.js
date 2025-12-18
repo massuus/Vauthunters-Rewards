@@ -1,10 +1,10 @@
 // Set art loading and modal management
 
-import { logger } from './logger.js';
-import { loadTemplate } from './template-loader.js';
-import { proxiedImageUrl, UNKNOWN_ITEM_IMAGE, resultContainer } from './dom-utils.js';
-import { formatLabel, escapeHtml } from './reward-utils.js';
-import { getLastFocusedElement, setLastFocusedElement, getModalKeydownHandler, setModalKeydownHandler } from './url-state.js';
+import { logger } from '../core/logger.js';
+import { loadTemplate } from '../loaders/template-loader.js';
+import { proxiedImageUrl, UNKNOWN_ITEM_IMAGE, resultContainer } from '../utils/dom-utils.js';
+import { formatLabel, escapeHtml } from '../features/reward-utils.js';
+import { getLastFocusedElement, setLastFocusedElement, getModalKeydownHandler, setModalKeydownHandler } from '../features/url-state.js';
 
 let setArtStore = {};
 let setArtLoadPromise = null;
@@ -29,7 +29,7 @@ export async function loadSetArt() {
     return setArtLoadPromise;
   }
 
-  setArtLoadPromise = fetch('set-art.json')
+  setArtLoadPromise = fetch('/data/set-art.json')
     .then((response) => {
       if (!response.ok) {
         throw new Error(`Failed to load set art: ${response.status}`);

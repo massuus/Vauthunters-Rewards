@@ -1,13 +1,13 @@
 // Search form handling and API interaction
 
-import { SEARCH_DEBOUNCE_MS } from './config.js';
-import { loadTemplate } from './template-loader.js';
-import { form, usernameInput, resultContainer, DEFAULT_FAVICON, defaultTitle, setFavicon, setMetaDescription, proxiedImageUrl } from './dom-utils.js';
-import { setLoadingState, clearFeedback, showFeedback, clearResult } from './ui-feedback.js';
-import { loadSetArt } from './set-art-manager.js';
-import { renderProfile } from './profile-renderer.js';
-import { isCodesQuery, isAllQuery, renderCodesPage, renderAllRewardsPage } from './special-pages.js';
-import { escapeHtml, formatLabel } from './reward-utils.js';
+import { SEARCH_DEBOUNCE_MS } from '../utils/config.js';
+import { loadTemplate } from '../loaders/template-loader.js';
+import { form, usernameInput, resultContainer, DEFAULT_FAVICON, defaultTitle, setFavicon, setMetaDescription, proxiedImageUrl } from '../utils/dom-utils.js';
+import { setLoadingState, clearFeedback, showFeedback, clearResult } from '../features/ui-feedback.js';
+import { loadSetArt } from '../components/set-art-manager.js';
+import { renderProfile } from '../components/profile-renderer.js';
+import { isCodesQuery, isAllQuery, renderCodesPage, renderAllRewardsPage } from '../components/special-pages.js';
+import { escapeHtml, formatLabel } from '../features/reward-utils.js';
 
 let submitTimer = null;
 let currentRequestController = null;

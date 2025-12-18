@@ -1,6 +1,6 @@
 // UI feedback and loading state management
 
-import { form, feedback, resultContainer, defaultTitle, DEFAULT_FAVICON, setMetaDescription, setFavicon } from './dom-utils.js';
+import { form, feedback, resultContainer, defaultTitle, DEFAULT_FAVICON, setMetaDescription, setFavicon } from '../utils/dom-utils.js';
 
 /**
  * Set the loading state of the search button

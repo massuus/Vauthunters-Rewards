@@ -1,9 +1,12 @@
 // Special pages logic (codes page, all rewards page, etc.)
 
+import { escapeHtml, formatLabel } from '../features/reward-utils.js';
+import { loadTemplate, renderTemplate } from '../loaders/template-loader.js';
+
 const CODES_QUERY_KEYWORDS = ['codes', 'code'];
 const ALL_QUERY_KEYWORDS = ['all', 'rewards'];
-const CODES_DATA_URL = '/codes.json';
-const SET_ART_DATA_URL = '/set-art.json';
+const CODES_DATA_URL = '/data/codes.json';
+const SET_ART_DATA_URL = '/data/set-art.json';
 const UNKNOWN_ITEM_IMAGE = '/img/unknown_item.png';
 
 let codesDataPromise = null;

@@ -17,11 +17,11 @@ const CACHE_TIMESTAMP_HEADER = 'x-vhr-sw-cached-at';
 
 const STATIC_ASSETS = [
   '/',
-  '/index.html',
-  '/main.css',
-  '/app.js',
-  '/set-art.json',
-  '/offline.html',
+  '/pages/index.html',
+  '/css/main.css',
+  '/js/core/app.js',
+  '/data/set-art.json',
+  '/pages/offline.html',
 ];
 
 /**
@@ -108,7 +108,7 @@ self.addEventListener('fetch', (event) => {
         if (cached) return cached;
         
         // No cache - return offline page
-        const offlinePage = await caches.match('/offline.html');
+        const offlinePage = await caches.match('/pages/offline.html');
         if (offlinePage) return offlinePage;
         
         // Fallback to a simple offline response

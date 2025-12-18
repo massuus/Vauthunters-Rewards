@@ -3,13 +3,13 @@
 
 import { logger } from './logger.js';
 import { initializeErrorHandlers } from './error-handler.js';
-import { preloadTemplates } from './template-loader.js';
-import { usernameInput } from './dom-utils.js';
-import { initializeSearch } from './search-handler.js';
-import { renderRecentSection } from './recent-section.js';
-import { getUsernameFromQuery } from './url-state.js';
-import { initLazyImages } from './image-loader.js';
-import { initPWAInstall } from './pwa-install.js';
+import { preloadTemplates } from '../loaders/template-loader.js';
+import { usernameInput } from '../utils/dom-utils.js';
+import { initializeSearch } from '../handlers/search-handler.js';
+import { renderRecentSection } from '../components/recent-section.js';
+import { getUsernameFromQuery } from '../features/url-state.js';
+import { initLazyImages } from '../loaders/image-loader.js';
+import { initPWAInstall } from '../features/pwa-install.js';
 
 
 /**
