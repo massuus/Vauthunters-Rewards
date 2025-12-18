@@ -9,7 +9,7 @@
     "expires": "30-12-2025"
   },
   {
-    "id": "dylans-xmas-day-1",
+    "id": "day1",
     "name": "Green Christmas Hat",
     "description": "This is the first reward from the 12 Days of Dylan Christmas event on iskall85's streams!",
     "vodUrl": "https://www.youtube.com/watch?v=JlLVI3-oMAs",
@@ -18,7 +18,7 @@
     "expires": "30-12-2025"
   },
   {
-    "id": "day3-scav-santa",
+    "id": "day3",
     "name": "Santa Claus Dylan & Christmas Sword",
     "description": "This reward is from the third day of the Dylan Christmas event!",
     "vodUrl": "https://m.youtube.com/watch?v=CpGAGL-rycM",
@@ -27,7 +27,7 @@
     "expires": "30-12-2025"
   },
   {
-    "id": "day4-gingerbread-easy",
+    "id": "day4",
     "name": "Gingerbread Chestplate",
     "description": "This is the reward for the 4th day of the Dylan Christmas event!",
     "vodUrl": "https://www.youtube.com/watch?v=8UkNJ50Sszc",
@@ -36,7 +36,7 @@
     "expires": "30-12-2025"
   },
   {
-    "id": "day5-factory-man",
+    "id": "day5",
     "name": "Gingerbread Man",
     "description": "This is the reward for the 5th day of the Dylan Christmas event!",
     "vodUrl": "https://www.youtube.com/watch?v=3KIP4sYfWnE",
@@ -45,7 +45,7 @@
     "expires": "30-12-2025"
   },
   {
-    "id": "day6-crackoni",
+    "id": "day6",
     "name": "Nutcracker Wand",
     "description": "This is the reward for the 6th day of the Dylan Christmas event!",
     "vodUrl": "https://www.youtube.com/watch?v=aXvNCBUccDg",
@@ -54,7 +54,7 @@
     "expires": "30-12-2025"
   },
   {
-    "id": "day8-fireplace",
+    "id": "day8",
     "name": "Christmas Fireplace Shield",
     "description": "This is the reward for the 8th day of the Dylan Christmas event!",
     "vodUrl": "https://www.youtube.com/watch?v=GkHP-YsXvGc",
@@ -63,7 +63,7 @@
     "expires": "30-12-2025"
   },
   {
-    "id": "day9-bumbo-frostoni",
+    "id": "day9",
     "name": "Bumbo Frostoni",
     "description": "This is the reward for the 9th day of the Dylan Christmas event!",
     "vodUrl": "https://www.youtube.com/@vodskall85",
@@ -72,12 +72,21 @@
     "expires": "30-12-2025"
   },
   {
-    "id": "day10-snowman-helmet",
+    "id": "day10",
     "name": "Snowman Helmet",
     "description": "This is the reward for the 10th day of the Dylan Christmas event!",
     "vodUrl": "https://www.youtube.com/@vodskall85",
     "code": "DAY-10-CLUTCH",
     "images": ["/img/snowman_helm.gif"],
+    "expires": "30-12-2025"
+  },
+  {
+    "id": "day11",
+    "name": "Christmas Axe",
+    "description": "This is the reward for the 11th day of the Dylan Christmas event!",
+    "vodUrl": "https://www.youtube.com/@vodskall85",
+    "code": "DAY11-SNOWMAN",
+    "images": ["/img/Lost_Christmas_Axe.gif"],
     "expires": "30-12-2025"
   }
 ]
