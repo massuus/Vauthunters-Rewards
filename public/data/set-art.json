@@ -234,5 +234,23 @@
     "image": "/img/Bumbo_Frostoni.gif",
     "alt": "Bumbo Frostoni",
     "description": "This reward is from the 9th day of the Dylan Christmas event!"
+  },
+  "snowman_helmet": {
+    "label": "Snowman Helmet",
+    "image": "/img/snowman_helm.gif",
+    "alt": "Snowman Helmet",
+    "description": "This reward is from the 10th day of the Dylan Christmas event!"
+  },
+  "lost_christmas_axe": {
+    "label": "Christmas Axe",
+    "image": "/img/Lost_Christmas_Axe.gif",
+    "alt": "Christmas Axe",
+    "description": "This reward is from the 11th day of the Dylan Christmas event!"
+  },
+  "blueberry_turtle": {
+    "label": "Sweet Turtle",
+    "image": "/img/Sweet_Turtle.gif",
+    "alt": "Sweet Turtle",
+    "description": "This reward is from the 12th day of the Dylan Christmas event!"
   }
 }
