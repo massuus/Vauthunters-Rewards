@@ -10,6 +10,7 @@ import { renderRecentSection } from '../components/recent-section.js';
 import { getUsernameFromQuery } from '../features/url-state.js';
 import { initLazyImages } from '../loaders/image-loader.js';
 import { initPWAInstall } from '../features/pwa-install.js';
+import { initRewardCodesPopup } from '../components/reward-codes-popup.js';
 
 
 /**
@@ -35,6 +36,9 @@ async function initializeApp() {
 
   // Initialize PWA install prompt
   initPWAInstall();
+
+  // Initialize reward codes popup
+  initRewardCodesPopup();
 
   // Check for preset username from URL
   const presetUsername = getUsernameFromQuery();
