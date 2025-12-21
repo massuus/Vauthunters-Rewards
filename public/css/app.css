@@ -270,6 +270,7 @@ body {
   padding: 0.5rem 1rem;
   border-radius: 6px;
   transition: all 0.2s ease;
+  margin: 0;
 }
 
 .share-link-button:hover {
@@ -281,6 +282,24 @@ body {
 .share-link-button:active {
   background: rgba(244, 169, 65, 0.15);
   transform: scale(0.98);
+}
+
+.share-label-mobile {
+  display: none;
+}
+
+.share-label-desktop {
+  display: inline;
+}
+
+@media (max-width: 640px) {
+  .share-label-mobile {
+    display: inline;
+  }
+  
+  .share-label-desktop {
+    display: none;
+  }
 }
 
 /* Extra-tight layout for very narrow screens */
@@ -788,7 +807,7 @@ body {
   }
 
   .player-actions {
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .section-title {
