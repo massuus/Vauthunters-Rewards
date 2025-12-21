@@ -806,8 +806,12 @@ body {
     height: 82px;
   }
 
+  .player-name-container {
+    justify-content: center;
+  }
+
   .player-actions {
-    justify-content: flex-start;
+    justify-content: center;
   }
 
   .section-title {
