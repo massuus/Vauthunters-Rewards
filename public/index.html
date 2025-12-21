@@ -3,10 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Look up Vault Hunters players to see their sets, rewards, and Patreon unlocks.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://mc-heads.net https://wiki.vaulthunters.gg; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com; base-uri 'self'; manifest-src 'self'">
+  <meta name="description" content="Look up Vault Hunters players to see their sets, rewards, and Patreon unlocks. Explore reward codes and track your progress.">
+  <meta name="keywords" content="Vault Hunters, Minecraft, rewards, sets, player lookup">
+  <meta name="author" content="massuus">
+  <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#f4a941">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://mc-heads.net https://wiki.vaulthunters.gg; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com; base-uri 'self'; manifest-src 'self'">
   <title>Vault Hunters Rewards Lookup</title>
+  
+  <!-- Canonical URL for SEO -->
+  <link rel="canonical" href="https://rewards.vaulthunters.gg/">
+  
+  <!-- OpenGraph Meta Tags for Social Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Vault Hunters Rewards Lookup">
+  <meta property="og:description" content="Look up Vault Hunters players to see their sets, rewards, and Patreon unlocks.">
+  <meta property="og:url" content="https://rewards.vaulthunters.gg/">
+  <meta property="og:site_name" content="Vault Hunters Rewards">
+  <meta property="og:image" content="https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/180">
+  <meta property="og:image:alt" content="Vault Hunters Logo">
+  
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Vault Hunters Rewards Lookup">
+  <meta name="twitter:description" content="Look up Vault Hunters players and their rewards.">
+  <meta name="twitter:image" content="https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/180">
+  <meta name="twitter:creator" content="@massuus">
   
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
@@ -42,10 +64,31 @@
   <link rel="modulepreload" href="js/utils/dom-utils.js">
   <link rel="modulepreload" href="js/handlers/search-handler.js">
   
-  <!-- Prefetch commonly used resources -->
-  <link rel="prefetch" href="set-art.json">
+  <!-- Prefetch commonly used resources for faster subsequent loads -->
+  <link rel="prefetch" href="data/set-art.json">
+  <link rel="prefetch" href="data/codes.json">
   <link rel="prefetch" href="templates/player-card.html">
   <link rel="prefetch" href="templates/loading-skeleton.html">
+  <link rel="prefetch" href="templates/reward-group.html">
+  <link rel="prefetch" href="templates/recent-section.html">
+  
+  <!-- Structured Data (JSON-LD) for rich search results -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Vault Hunters Rewards Lookup",
+    "description": "Look up Vault Hunters players to see their sets, rewards, and Patreon unlocks.",
+    "url": "https://rewards.vaulthunters.gg/",
+    "applicationCategory": "UtilityApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "screenshot": "https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/180"
+  }
+  </script>
 </head>
 <body>
   <div class="page">

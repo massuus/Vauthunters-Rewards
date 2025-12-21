@@ -1,10 +1,11 @@
 /* PWA Install Button Styles */
 
 .pwa-install-button {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-sm);
-  margin-top: var(--spacing-md);
+  margin: var(--spacing-md) 0 0 0;
   padding: var(--spacing-sm) var(--spacing-lg);
   background: linear-gradient(135deg, var(--accent) 0%, rgba(244, 169, 65, 0.8) 100%);
   color: var(--bg);
@@ -15,6 +16,7 @@
   cursor: pointer;
   transition: all var(--transition-normal);
   box-shadow: 0 4px 12px rgba(244, 169, 65, 0.3);
+  width: fit-content;
 }
 
 .pwa-install-button:hover {
@@ -57,8 +59,7 @@
 @media (max-width: 768px) {
   .pwa-install-button {
     width: 100%;
-    justify-content: center;
     font-size: 0.9rem;
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-lg);
   }
 }

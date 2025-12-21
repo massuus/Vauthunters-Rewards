@@ -57,18 +57,20 @@ export function getUsernameFromQuery() {
  * Get the share URL for the current profile
  */
 export function getShareUrl(username) {
-  return `${window.location.origin}${window.location.pathname}?user=${encodeURIComponent(username)}`;
+  const path = window.location.pathname === '/' ? '' : window.location.pathname;
+  return `${window.location.origin}${path}?${encodeURIComponent(username)}`;
 }
 
 /**
  * Update the query string with the given username
  */
 export function updateQueryString(username) {
+  const path = window.location.pathname === '/' ? '' : window.location.pathname;
   if (!username) {
-    window.history.replaceState({}, '', `${window.location.pathname}`);
+    window.history.replaceState({}, '', path || '/');
     return;
   }
-  window.history.replaceState({}, '', `${window.location.pathname}?user=${encodeURIComponent(username)}`);
+  window.history.replaceState({}, '', `${path}?${encodeURIComponent(username)}`);
 }
 
 /**

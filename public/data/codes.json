@@ -6,7 +6,8 @@
     "vodUrl": "https://www.youtube.com/watch?v=d7vtIXRpYHA",
     "code": "ISKALL100",
     "images": ["/img/100-steams-blade.png"],
-    "expires": "30-12-2025"
+    "expires": "30-12-2025",
+    "updatedAt": "2025-12-20T00:00:00Z"
   },
   {
     "id": "day1",
@@ -15,7 +16,8 @@
     "vodUrl": "https://www.youtube.com/watch?v=JlLVI3-oMAs",
     "code": "DYLANS-XMAS-DAY-1",
     "images": ["/img/green_christmas_hat_thumbnail.png"],
-    "expires": "30-12-2025"
+    "expires": "30-12-2025",
+    "updatedAt": "2025-12-15T00:00:00Z"
   },
   {
     "id": "day3",
@@ -24,7 +26,8 @@
     "vodUrl": "https://m.youtube.com/watch?v=CpGAGL-rycM",
     "code": "DAY3-SCAV-SANTA",
     "images": ["/img/Lost_Christmas_Sword.gif", "/img/Santa_Dylan.gif"],
-    "expires": "30-12-2025"
+    "expires": "30-12-2025",
+    "updatedAt": "2025-12-15T00:00:00Z"
   },
   {
     "id": "day4",
@@ -33,7 +36,8 @@
     "vodUrl": "https://www.youtube.com/watch?v=8UkNJ50Sszc",
     "code": "DAY4-GINGERBREAD-EASY",
     "images": ["/img/Gingerbread_Chestplate.gif"],
-    "expires": "30-12-2025"
+    "expires": "30-12-2025",
+    "updatedAt": "2025-12-15T00:00:00Z"
   },
   {
     "id": "day5",
@@ -42,7 +46,8 @@
     "vodUrl": "https://www.youtube.com/watch?v=3KIP4sYfWnE",
     "code": "DAY5-FACTORY-MAN",
     "images": ["/img/Gingerbread_Man.gif"],
-    "expires": "30-12-2025"
+    "expires": "30-12-2025",
+    "updatedAt": "2025-12-15T00:00:00Z"
   },
   {
     "id": "day6",
@@ -51,7 +56,8 @@
     "vodUrl": "https://www.youtube.com/watch?v=aXvNCBUccDg",
     "code": "DAY6-CRACKONI",
     "images": ["/img/Nutcracker.webp"],
-    "expires": "30-12-2025"
+    "expires": "30-12-2025",
+    "updatedAt": "2025-12-15T00:00:00Z"
   },
   {
     "id": "day8",
@@ -60,7 +66,8 @@
     "vodUrl": "https://www.youtube.com/watch?v=GkHP-YsXvGc",
     "code": "DAY8-BRAUM-FIREPLACE",
     "images": ["img/Christmas_Fireplace_Shield_Blocking.gif"],
-    "expires": "30-12-2025"
+    "expires": "30-12-2025",
+    "updatedAt": "2025-12-15T00:00:00Z"
   },
   {
     "id": "day9",
@@ -69,7 +76,8 @@
     "vodUrl": "https://www.youtube.com/@vodskall85",
     "code": "DAY9-GREG-MATHS",
     "images": ["/img/Bumbo_Frostoni.gif"],
-    "expires": "30-12-2025"
+    "expires": "30-12-2025",
+    "updatedAt": "2025-12-15T00:00:00Z"
   },
   {
     "id": "day10",
@@ -78,7 +86,8 @@
     "vodUrl": "https://www.youtube.com/@vodskall85",
     "code": "DAY-10-CLUTCH",
     "images": ["/img/snowman_helm.gif"],
-    "expires": "30-12-2025"
+    "expires": "30-12-2025",
+    "updatedAt": "2025-12-15T00:00:00Z"
   },
   {
     "id": "day11",
@@ -87,7 +96,8 @@
     "vodUrl": "https://www.youtube.com/@vodskall85",
     "code": "DAY11-SNOWMAN",
     "images": ["/img/Lost_Christmas_Axe.gif"],
-    "expires": "30-12-2025"
+    "expires": "30-12-2025",
+    "updatedAt": "2025-12-15T00:00:00Z"
   },
   {
     "id": "day12",
@@ -96,6 +106,7 @@
     "vodUrl": "https://www.youtube.com/@vodskall85",
     "code": "DAY12-SWEET-40S",
     "images": ["img/Sweet_Turtle.gif"],
-    "expires": "30-12-2025"
+    "expires": "30-12-2025",
+    "updatedAt": "2025-12-15T00:00:00Z"
   }
 ]

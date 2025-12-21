@@ -1,10 +1,12 @@
 <article class="player-card">
   <img src="{{head}}" alt="{{name}}'s Minecraft head" loading="lazy" decoding="async" width="96" height="96" referrerpolicy="no-referrer">
   <div class="player-details">
-    <h2>{{name}}</h2>
-    <p class="player-subtitle">Latest Vault Hunters reward data.</p>
+    <div class="player-name-container">
+      <h2 style="{{nameStyle}}">{{name}}</h2>
+      {{tierBadge}}
+    </div>
     <div class="player-actions">
-      <button id="share-button" class="share-button" type="button" data-share="{{shareUrl}}">Copy Share Link</button>
+      <button id="share-button" class="share-link-button" type="button" data-share="{{shareUrl}}" title="Click to copy">{{shareUrl}}</button>
       <span id="share-feedback" class="share-feedback" role="status" aria-live="polite"></span>
     </div>
   </div>

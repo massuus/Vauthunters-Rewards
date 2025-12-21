@@ -9,6 +9,7 @@ import { getShareUrl } from '../features/url-state.js';
 import { getSeenSets, setSeenSets, addRecentUser } from '../utils/storage-manager.js';
 import { copyShareLink } from '../utils/clipboard-utils.js';
 import { updateShareFeedback } from '../features/ui-feedback.js';
+import { getBestPatreonTier } from '../utils/tier-utils.js';
 
 let setsHelpTemplate = '';
 
@@ -49,11 +50,18 @@ export async function renderProfile(data) {
   const extraSection = renderExtraSection(rewards);
   const shareUrl = getShareUrl(data.name);
 
+  // Get best Patreon tier for user badge and name styling
+  const bestTier = getBestPatreonTier(tiers);
+  const nameStyle = bestTier ? `color: ${bestTier.color}; font-weight: 600;` : '';
+  const tierBadge = bestTier ? `<img class="tier-badge pixelated-image" src="${bestTier.badge}" alt="${bestTier.name} badge" title="${bestTier.name}" width="24" height="24">` : '';
+
   const playerCard = await loadTemplate('player-card');
   resultContainer.innerHTML = renderTemplate(playerCard, {
     head: proxiedImageUrl(data.head),
     name: data.name,
-    shareUrl: shareUrl
+    shareUrl: shareUrl,
+    nameStyle: nameStyle,
+    tierBadge: tierBadge
   }) + setsSection + tiersSection + extraSection;
 
   resultContainer.classList.remove('hidden');
@@ -79,7 +87,7 @@ export async function renderProfile(data) {
   setSeenSets(usernameKey, new Set(sets));
 
   // Update recent list with both name and head
-  addRecentUser({ name: data.name, head: data.head });
+  addRecentUser({ name: data.name, head: data.head, tier: tiers });
   await renderRecentSection();
 }
 

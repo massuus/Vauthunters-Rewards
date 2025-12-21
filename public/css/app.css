@@ -192,6 +192,14 @@ body {
   background: rgba(0, 0, 0, 0.4);
 }
 
+.player-card img.tier-badge {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  border-radius: 0;
+}
+
 .player-details {
   flex: 1 1 220px;
 }
@@ -202,6 +210,17 @@ body {
   font-size: 2rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+.player-name-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.player-name-container h2 {
+  margin: 0;
 }
 
 .player-actions {
@@ -239,6 +258,29 @@ body {
   opacity: 0.6;
   cursor: not-allowed;
   box-shadow: none;
+}
+
+.share-link-button {
+  background: rgba(244, 169, 65, 0.1);
+  border: 1px solid rgba(244, 169, 65, 0.3);
+  color: var(--accent);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.share-link-button:hover {
+  background: rgba(244, 169, 65, 0.2);
+  border-color: var(--accent);
+  color: #ffeb3b;
+}
+
+.share-link-button:active {
+  background: rgba(244, 169, 65, 0.15);
+  transform: scale(0.98);
 }
 
 /* Extra-tight layout for very narrow screens */

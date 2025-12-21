@@ -66,13 +66,10 @@ function showInstallButton() {
     // Add click handler
     installButton.addEventListener('click', handleInstallClick);
     
-    // Insert into the search section (after the form)
-    const searchSection = document.querySelector('.search');
-    if (searchSection) {
-      const form = searchSection.querySelector('.search__form');
-      if (form) {
-        form.insertAdjacentElement('afterend', installButton);
-      }
+    // Insert into the footer
+    const footer = document.querySelector('.footer__inner');
+    if (footer) {
+      footer.insertAdjacentElement('beforeend', installButton);
     }
   }
   

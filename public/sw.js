@@ -6,13 +6,17 @@
 const CACHE_VERSION = typeof __BUILD_REV__ !== 'undefined' ? __BUILD_REV__ : 'dev';
 const STATIC_CACHE = `vhr-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `vhr-runtime-${CACHE_VERSION}`;
+const TEMPLATE_CACHE = `vhr-templates-${CACHE_VERSION}`;
+const DATA_CACHE = `vhr-data-${CACHE_VERSION}`;
 
 // Cache size limits (number of entries)
 const MAX_RUNTIME_CACHE_SIZE = 100;
 const MAX_IMAGE_CACHE_SIZE = 200;
+const MAX_TEMPLATE_CACHE_SIZE = 50;
 
 // Cache TTL
 const API_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const DATA_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour (codes/sets data)
 const CACHE_TIMESTAMP_HEADER = 'x-vhr-sw-cached-at';
 
 const STATIC_ASSETS = [
@@ -21,7 +25,15 @@ const STATIC_ASSETS = [
   '/css/main.css',
   '/js/core/app.js',
   '/data/set-art.json',
+  '/data/codes.json',
   '/pages/offline.html',
+];
+
+const TEMPLATE_ASSETS = [
+  'player-card.html',
+  'loading-skeleton.html',
+  'reward-group.html',
+  'recent-section.html',
 ];
 
 /**
@@ -39,7 +51,16 @@ async function trimCache(cacheName, maxSize) {
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS)).then(() => self.skipWaiting())
+    Promise.all([
+      caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS)),
+      caches.open(TEMPLATE_CACHE).then((cache) => {
+        return Promise.all(
+          TEMPLATE_ASSETS.map(name => 
+            fetch(`/templates/${name}`).then(r => cache.put(`/templates/${name}`, r.clone())).catch(() => {})
+          )
+        );
+      })
+    ]).then(() => self.skipWaiting())
   );
 });
 
@@ -55,9 +76,10 @@ self.addEventListener('activate', (event) => {
 
       // Clean up old caches
       const keys = await caches.keys();
+      const validCaches = [STATIC_CACHE, RUNTIME_CACHE, TEMPLATE_CACHE, DATA_CACHE];
       await Promise.all(
         keys
-          .filter((key) => key !== STATIC_CACHE && key !== RUNTIME_CACHE)
+          .filter((key) => !validCaches.includes(key))
           .map((key) => caches.delete(key))
       );
       
@@ -154,6 +176,76 @@ self.addEventListener('fetch', (event) => {
   if (request.method === 'GET') {
     try {
       const url = new URL(request.url);
+      
+      // Cache template requests with longer TTL
+      if (url.pathname.startsWith('/templates/') && url.pathname.endsWith('.html')) {
+        event.respondWith((async () => {
+          const cache = await caches.open(TEMPLATE_CACHE);
+          const cached = await cache.match(request);
+          if (cached) {
+            // Revalidate in background
+            event.waitUntil((async () => {
+              try {
+                const net = await fetch(request);
+                if (net.ok) await cache.put(request, net.clone());
+              } catch {}
+            })());
+            return cached;
+          }
+          try {
+            const net = await fetch(request);
+            if (net.ok) await cache.put(request, net.clone());
+            return net;
+          } catch (e) {
+            return new Response('Template not found', { status: 404 });
+          }
+        })());
+        return;
+      }
+      
+      // Cache data requests (codes, sets) with longer TTL
+      if (url.pathname === '/data/codes.json' || url.pathname === '/data/set-art.json') {
+        event.respondWith((async () => {
+          const cache = await caches.open(DATA_CACHE);
+          const cached = await cache.match(request);
+          const now = Date.now();
+          let cachedAt = 0;
+          if (cached) {
+            cachedAt = Number(cached.headers.get(CACHE_TIMESTAMP_HEADER) || '0');
+            if (Number.isFinite(cachedAt) && (now - cachedAt) < DATA_CACHE_TTL_MS) {
+              // Fresh enough; revalidate in background
+              event.waitUntil((async () => {
+                try {
+                  const net = await fetch(request);
+                  if (net.ok) {
+                    const headers = new Headers(net.headers);
+                    headers.set(CACHE_TIMESTAMP_HEADER, String(Date.now()));
+                    const toStore = new Response(net.clone().body, { status: net.status, statusText: net.statusText, headers });
+                    await cache.put(request, toStore);
+                  }
+                } catch {}
+              })());
+              return cached;
+            }
+          }
+          try {
+            const net = await fetch(request);
+            if (net.ok) {
+              const headers = new Headers(net.headers);
+              headers.set(CACHE_TIMESTAMP_HEADER, String(Date.now()));
+              const toStore = new Response(net.clone().body, { status: net.status, statusText: net.statusText, headers });
+              await cache.put(request, toStore);
+              trimCache(DATA_CACHE, MAX_TEMPLATE_CACHE_SIZE).catch(() => {});
+            }
+            return net;
+          } catch (e) {
+            if (cached) return cached;
+            throw e;
+          }
+        })());
+        return;
+      }
+      
       if (url.origin === self.location.origin && url.pathname === '/api/profile') {
         event.respondWith((async () => {
           const cache = await caches.open(RUNTIME_CACHE);

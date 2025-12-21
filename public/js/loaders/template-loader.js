@@ -6,6 +6,7 @@ const templateCache = {};
 
 /**
  * Load a template file from the templates directory
+ * Utilizes browser cache and service worker for offline support
  * @param {string} templateName - Name of the template file (without .html extension)
  * @returns {Promise<string>} The template HTML content
  */
@@ -15,7 +16,10 @@ export async function loadTemplate(templateName) {
   }
 
   try {
-    const response = await fetch(`/templates/${templateName}.html`);
+    const response = await fetch(`/templates/${templateName}.html`, {
+      // Use cache strategy: prefer cached over network if available
+      cache: 'default'
+    });
     if (!response.ok) {
       throw new Error(`Failed to load template: ${templateName}`);
     }
@@ -60,10 +64,36 @@ export async function loadAndRender(templateName, data = {}) {
 }
 
 /**
- * Preload multiple templates at once
+ * Preload multiple templates at once for faster rendering
+ * Populates in-memory cache and leverages service worker cache
  * @param {string[]} templateNames - Array of template names to preload
  * @returns {Promise<void>}
  */
 export async function preloadTemplates(templateNames) {
-  await Promise.all(templateNames.map(name => loadTemplate(name)));
+  try {
+    await Promise.all(templateNames.map(name => loadTemplate(name)));
+    logger.debug(`Preloaded ${templateNames.length} templates`);
+  } catch (error) {
+    logger.error('Error preloading templates', { error: error.message });
+  }
+}
+
+/**
+ * Clear the in-memory template cache if needed
+ * Service worker cache is maintained separately
+ */
+export function clearTemplateCache() {
+  Object.keys(templateCache).forEach(key => delete templateCache[key]);
+  logger.debug('Template cache cleared');
+}
+
+/**
+ * Get cache statistics for debugging
+ * @returns {Object} Cache stats
+ */
+export function getTemplateCacheStats() {
+  return {
+    cached: Object.keys(templateCache).length,
+    templates: Object.keys(templateCache)
+  };
 }

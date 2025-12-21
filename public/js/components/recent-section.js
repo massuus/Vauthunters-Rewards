@@ -4,6 +4,7 @@ import { loadTemplate, renderTemplate } from '../loaders/template-loader.js';
 import { recentContainer, usernameInput, form, proxiedImageUrl, DEFAULT_FAVICON } from '../utils/dom-utils.js';
 import { getRecentUsers } from '../utils/storage-manager.js';
 import { escapeHtml } from '../features/reward-utils.js';
+import { getBestPatreonTier } from '../utils/tier-utils.js';
 
 /**
  * Render the recent users section
@@ -20,7 +21,9 @@ export async function renderRecentSection() {
     .map((u) => {
       const img = proxiedImageUrl(u.head || DEFAULT_FAVICON);
       const safe = escapeHtml(u.name);
-      return `<button class="recent-item" type="button" data-name="${safe}"><img src="${img}" alt="${safe}'s head" width="28" height="28"><span>${safe}</span></button>`;
+      const bestTier = getBestPatreonTier(u.tier || []);
+      const nameStyle = bestTier ? `color: ${bestTier.color};` : '';
+      return `<button class="recent-item" type="button" data-name="${safe}"><img src="${img}" alt="${safe}'s head" width="28" height="28"><span style="${nameStyle}">${safe}</span></button>`;
     })
     .join('');
   

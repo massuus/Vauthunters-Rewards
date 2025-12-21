@@ -7,6 +7,13 @@ import { IMAGE_FADE_IN_MS } from '../utils/config.js';
  * @param {string} src - Image source URL
  * @param {string} alt - Alt text
  * @param {object} options - Additional options
+ * @param {string} options.className - CSS class names
+ * @param {number|string} options.width - Width
+ * @param {number|string} options.height - Height
+ * @param {boolean} options.pixelated - Apply pixelated styling
+ * @param {string} options.srcset - Responsive sources (e.g., "small.jpg 480w, large.jpg 1024w")
+ * @param {function} options.onLoad - Load callback
+ * @param {function} options.onError - Error callback
  * @returns {HTMLElement} - Container with skeleton and image
  */
 export function createLazyImage(src, alt = '', options = {}) {
@@ -15,6 +22,7 @@ export function createLazyImage(src, alt = '', options = {}) {
     width,
     height,
     pixelated = false,
+    srcset = '',
     onLoad,
     onError
   } = options;
@@ -40,6 +48,7 @@ export function createLazyImage(src, alt = '', options = {}) {
   img.src = src;
   img.alt = alt;
   img.loading = 'lazy';
+  if (srcset) img.srcset = srcset;
   img.className = `lazy-img ${pixelated ? 'pixelated-image' : ''}`;
   img.style.opacity = '0';
   img.style.transition = `opacity ${IMAGE_FADE_IN_MS}ms ease`;
@@ -86,11 +95,12 @@ export function createLazyImage(src, alt = '', options = {}) {
 
 /**
  * Enhance existing images with lazy loading and skeleton states
+ * Supports data-src for deferred loading and data-srcset for responsive sources
  * @param {HTMLImageElement} img - Existing image element
  */
 export function enhanceImageWithSkeleton(img) {
   // Skip if already loaded or no src
-  if (img.complete || !img.src) return;
+  if (img.complete || (!img.src && !img.dataset.src)) return;
 
   const parent = img.parentElement;
   if (!parent) return;
@@ -114,6 +124,18 @@ export function enhanceImageWithSkeleton(img) {
   // Set initial opacity
   img.style.opacity = '0';
   img.style.transition = `opacity ${IMAGE_FADE_IN_MS}ms ease`;
+
+  // Handle deferred loading via data-src
+  if (img.dataset.src && !img.src) {
+    img.src = img.dataset.src;
+    img.removeAttribute('data-src');
+  }
+
+  // Handle responsive sources via data-srcset
+  if (img.dataset.srcset && !img.srcset) {
+    img.srcset = img.dataset.srcset;
+    img.removeAttribute('data-srcset');
+  }
 
   // Handle load
   const handleLoad = () => {

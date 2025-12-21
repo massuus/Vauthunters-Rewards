@@ -14,7 +14,11 @@ export function getRecentUsers() {
     if (!Array.isArray(list)) return [];
     // sanitize
     return list
-      .map((x) => ({ name: String(x?.name || '').trim(), head: String(x?.head || '') }))
+      .map((x) => ({ 
+        name: String(x?.name || '').trim(), 
+        head: String(x?.head || ''),
+        tier: Array.isArray(x?.tier) ? x.tier : []
+      }))
       .filter((x) => x.name);
   } catch (_) {
     return [];
@@ -37,10 +41,11 @@ export function addRecentUser(user) {
   try {
     const name = typeof user === 'string' ? user : String(user?.name || '').trim();
     const head = typeof user === 'string' ? '' : String(user?.head || '');
+    const tier = typeof user === 'string' ? [] : Array.isArray(user?.tier) ? user.tier : [];
     if (!name) return;
     const key = name.toLowerCase();
     const existing = getRecentUsers().filter((u) => u.name.toLowerCase() !== key);
-    const next = [{ name, head }, ...existing].slice(0, 4);
+    const next = [{ name, head, tier }, ...existing].slice(0, 4);
     saveRecentUsers(next);
   } catch (_) {}
 }
