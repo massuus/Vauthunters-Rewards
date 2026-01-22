@@ -252,5 +252,11 @@
     "image": "/img/Sweet_Turtle.gif",
     "alt": "Sweet Turtle",
     "description": "This reward is from the 12th day of the Dylan Christmas event!"
+  },
+  "golden_dylan": {
+    "label": "Golden Dylan",
+    "image": "/img/Golden_Dylan.png",
+    "alt": "Golden Dylan icon",
+    "description": "You obtained this companion by reaching level 30 in the Companion Pass."
   }
 }
