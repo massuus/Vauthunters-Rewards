@@ -46,20 +46,6 @@ export function deriveRewardName(snakeName) {
 export function augmentSets(sets, setArtStore) {
   try {
     const list = Array.isArray(sets) ? sets.slice() : [];
-    const helmet = 'iskall85_falcon_helmet';
-    const chest = 'iskall85_falcon_chestplate';
-    const combined = 'iskall85_falcon_set';
-
-    const hasHelmet = list.includes(helmet);
-    const hasChest = list.includes(chest);
-
-    if (hasHelmet && hasChest) {
-      const filtered = list.filter((k) => k !== helmet && k !== chest);
-      if (!filtered.includes(combined)) filtered.push(combined);
-      return Array.from(new Set(filtered));
-    }
-
-    // Only one or none present: keep as-is
     return Array.from(new Set(list));
   } catch (_) {
     return Array.isArray(sets) ? sets : [];

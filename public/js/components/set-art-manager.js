@@ -85,11 +85,13 @@ async function ensureSetDetailModal() {
 /**
  * Open the set detail modal for a given set key
  */
-export async function openSetDetailModal(setKey) {
+export async function openSetDetailModal(setKey, isOwned = true) {
   const modal = await ensureSetDetailModal();
   const asset = setArtStore?.[setKey] || {};
   const label = asset.label || formatLabel(setKey);
-  const description = asset.description || `You obtained this by unlocking the ${label}.`;
+  const description = isOwned 
+    ? (asset.descriptionObtained || asset.description || `You obtained this by unlocking the ${label}.`)
+    : (asset.descriptionLocked || asset.description || `Unlock the ${label}.`);
 
   // Support both single image and multiple images
   let imageSources = [];

@@ -3,260 +3,338 @@
     "label": "Golden Creeper",
     "image": "https://wiki.vaulthunters.gg/images/c/c9/Invicon_Companion_Golden_Creeper.gif",
     "alt": "Golden Creeper companion icon",
-    "description": "You unlocked this companion by joining Iskall85's Gemstone event streams and collecting 50 gemstones with your companion."
+    "obtainable": false,
+    "descriptionObtained": "You unlocked this companion by joining Iskall85's Gemstone event streams and collecting 50 gemstones with your companion.",
+    "descriptionLocked": "No longer obtainable. This companion was unlockable by joining Iskall85's Gemstone event streams and collecting 50 gemstones with your companion."
   },
   "baby_creeper_pog": {
     "label": "POG Creeper",
     "image": "https://wiki.vaulthunters.gg/images/e/e4/Invicon_Companion_POG_Creeper.gif",
     "alt": "POG Creeper companion icon",
-    "description": "You unlocked this companion by being present for Iskall85's Gemstone event and placing within the top 123 players."
+    "obtainable": false,
+    "descriptionObtained": "You unlocked this companion by being present for Iskall85's Gemstone event and placing within the top 123 players.",
+    "descriptionLocked": "No longer obtainable. This companion was unlockable by being present for Iskall85's Gemstone event and placing within the top 123 players."
   },
   "golden_kappa": {
     "label": "Golden Kappa",
     "image": "https://wiki.vaulthunters.gg/images/8/8e/Invicon_Golden_Kappa_Shield.png.webp",
     "alt": "Golden Kappa icon",
-    "description": "You obtained this shield by having an awake companion during a Golden Kappa Hype Train on Twitch."
+    "obtainable": true,
+    "descriptionObtained": "You obtained this shield by having an awake companion during a Golden Kappa Hype Train on Twitch.",
+    "descriptionLocked": "Obtain this shield by having an awake companion during a Golden Kappa Hype Train on Twitch."
   },
   "dylan_vip": {
     "label": "Dylan VIP",
     "image": "https://wiki.vaulthunters.gg/images/7/78/Invicon_Dylan_Armour.webp",
     "alt": "Dylan armour icon",
-    "description": "You obtained this set when Iskall85 personally gifted it to you live on Twitch."
+    "obtainable": true,
+    "descriptionObtained": "You obtained this set when Iskall85 personally gifted it to you live on Twitch.",
+    "descriptionLocked": "This exclusive set can only be obtained when Iskall85 personally gifts it to you live on Twitch."
   },
   "companion_leader_s1": {
     "label": "Companion Leader S1",
     "image": "https://wiki.vaulthunters.gg/images/d/d5/Invicon_PartyLeader.gif",
     "alt": "Companion party leader icon",
-    "description": "You earned this set by getting your companion to level 12 during an Iskall85 stream."
+    "obtainable": true,
+    "descriptionObtained": "You earned this set by getting your companion to level 12 during an Iskall85 stream.",
+    "descriptionLocked": "Earn this set by getting your companion to level 12 during an Iskall85 stream."
   },
   "i85_royale_crown": {
     "label": "Royale Crown",
     "image": "https://wiki.vaulthunters.gg/images/9/9c/Invicon_Royale_Crown.png.webp",
     "alt": "Royale Crown icon",
-    "description": "You unlocked this crown by being present when Iskall completed the very first Vault Royale."
+    "obtainable": false,
+    "descriptionObtained": "You unlocked this crown by being present when Iskall completed the very first Vault Royale.",
+    "descriptionLocked": "No longer obtainable. This crown was unlockable by being present when Iskall completed the very first Vault Royale."
   },
   "i85_spring_set": {
     "label": "Spring Set",
     "image": "https://wiki.vaulthunters.gg/images/f/f2/Spring_focus.png",
     "alt": "Spring set icon",
-    "description": "You secured this set by tuning into Iskall85's special Twitch event on 18 June 2025."
+    "obtainable": false,
+    "descriptionObtained": "You secured this set by tuning into Iskall85's special Twitch event on 18 June 2025.",
+    "descriptionLocked": "No longer obtainable. This set was unlockable by tuning into Iskall85's special Twitch event on 18 June 2025."
   },
   "i85_treasure_train": {
     "label": "Treasure Train",
     "image": "https://wiki.vaulthunters.gg/images/5/50/Invicon_Golden_Kappa_Train.webp",
     "alt": "Golden Kappa Train icon",
-    "description": "You picked this up by having an awake companion during a Treasure Hype Train on Twitch."
+    "obtainable": true,
+    "descriptionObtained": "You picked this up by having an awake companion during a Treasure Hype Train on Twitch.",
+    "descriptionLocked": "Pick this up by having an awake companion during a Treasure Hype Train on Twitch."
   },
   "i85_server_bingos": {
     "label": "Bingo Chestplate",
     "image": "https://wiki.vaulthunters.gg/images/a/a2/Invicon_I85_Server_Bingos.gif",
     "alt": "Bingo Chestplate icon",
-    "description": "You claimed this prize by winning a Bingo Bust event on the official Vault Hunters servers."
+    "obtainable": true,
+    "descriptionObtained": "You claimed this prize by winning a Bingo Bust event on the official Vault Hunters servers.",
+    "descriptionLocked": "Claim this prize by winning a Bingo Bust event on the official Vault Hunters servers."
   },
   "iskall85_falcon_helmet": {
     "label": "Falcon Helmet",
     "image": "https://wiki.vaulthunters.gg/images/1/1c/Invicon_Falcon_Set.gif",
     "alt": "Falcon Helmet",
-    "description": "You unlocked this armor piece by participating in Iskall85's Horde Rush event."
+    "obtainable": false,
+    "descriptionObtained": "You unlocked this armor piece by participating in Iskall85's Horde Rush event.",
+    "descriptionLocked": "No longer obtainable. This armor piece was unlockable by participating in Iskall85's Horde Rush event."
   },
   "iskall85_falcon_chestplate": {
     "label": "Falcon Chestplate",
     "image": "https://wiki.vaulthunters.gg/images/1/1c/Invicon_Falcon_Set.gif",
     "alt": "Falcon Chestplate",
-    "description": "You unlocked this armor piece by participating in Iskall85's Horde Rush event."
-  },
-  "iskall85_falcon_set": {
-    "label": "Falcon Set",
-    "image": "https://wiki.vaulthunters.gg/images/1/1c/Invicon_Falcon_Set.gif",
-    "alt": "Falcon set icon",
-    "description": "You have both the Falcon Helmet and Chestplate from Iskall85's Horde Rush event."
+    "obtainable": false,
+    "descriptionObtained": "You unlocked this armor piece by participating in Iskall85's Horde Rush event.",
+    "descriptionLocked": "No longer obtainable. This armor piece was unlockable by participating in Iskall85's Horde Rush event."
   },
   "iskall85_reddragon_axe": {
     "label": "Red Dragon Axe",
     "image": "https://wiki.vaulthunters.gg/images/b/b2/Invicon_Iskall85_Reddragon_Axe.gif",
     "alt": "Red Dragon Axe icon",
-    "description": "You claimed this weapon by joining Iskall85's Horde Rush community event."
+    "obtainable": false,
+    "descriptionObtained": "You claimed this weapon by joining Iskall85's Horde Rush community event.",
+    "descriptionLocked": "No longer obtainable. This weapon was unlockable by joining Iskall85's Horde Rush community event."
   },
   "iskall85_reddragon_sword": {
     "label": "Red Dragon Sword",
     "image": "https://wiki.vaulthunters.gg/images/0/0f/Invicon_Iskall85_Reddragon_Sword.gif",
     "alt": "Red Dragon Sword icon",
-    "description": "You claimed this weapon by joining Iskall85's Horde Rush community event."
+    "obtainable": false,
+    "descriptionObtained": "You claimed this weapon by joining Iskall85's Horde Rush community event.",
+    "descriptionLocked": "No longer obtainable. This weapon was unlockable by joining Iskall85's Horde Rush community event."
   },
   "iskall85_ancient_scroll": {
     "label": "Ancient Scroll",
     "image": "https://wiki.vaulthunters.gg/images/5/56/Invicon_Iskall85_Ancient_Scroll.gif",
     "alt": "Ancient Scroll icon",
-    "description": "You uncovered this scroll as part of Iskall85's Horde Rush event rewards."
+    "obtainable": false,
+    "descriptionObtained": "You uncovered this scroll as part of Iskall85's Horde Rush event rewards.",
+    "descriptionLocked": "No longer obtainable. This scroll was unlockable by participating in Iskall85's Horde Rush event."
   },
   "i85_companion_dino": {
     "label": "Dino Companion",
     "image": "https://wiki.vaulthunters.gg/images/e/e4/Invicon_I85_Companion_Dino.gif",
     "alt": "Dino Companion icon",
-    "description": "You earned this companion by participating in Iskall85's Horde Rush event."
+    "obtainable": false,
+    "descriptionObtained": "You earned this companion by participating in Iskall85's Horde Rush event.",
+    "descriptionLocked": "No longer obtainable. This companion was unlockable by participating in Iskall85's Horde Rush event."
   },
   "i85_dylan_penguin": {
     "label": "Dylan Penguin",
     "image": "https://wiki.vaulthunters.gg/images/c/c6/Invicon_I85_Dylan_Penguin.gif",
     "alt": "Dylan Penguin icon",
-    "description": "You received this companion by participating in Iskall85's Horde Rush event."
+    "obtainable": false,
+    "descriptionObtained": "You received this companion by participating in Iskall85's Horde Rush event.",
+    "descriptionLocked": "No longer obtainable. This companion was unlockable by participating in Iskall85's Horde Rush event."
   },
   "i85_mattress": {
     "label": "Mattress",
     "image": "https://wiki.vaulthunters.gg/images/0/0b/Invicon_I85_Mattress.gif",
     "alt": "Mattress icon",
-    "description": "You obtained this reward during Iskall85's Horde Rush event."
+    "obtainable": false,
+    "descriptionObtained": "You obtained this reward during Iskall85's Horde Rush event.",
+    "descriptionLocked": "No longer obtainable. This reward was unlockable by participating in Iskall85's Horde Rush event."
   },
   "i85_petal_splitter": {
     "label": "Petal Splitter",
     "image": "https://wiki.vaulthunters.gg/images/b/b3/Invicon_I85_Petal_Splitter.gif",
     "alt": "Petal Splitter icon",
-    "description": "You picked up this dual blade by taking part in Iskall85's Horde Rush event."
+    "obtainable": false,
+    "descriptionObtained": "You picked up this dual blade by taking part in Iskall85's Horde Rush event.",
+    "descriptionLocked": "No longer obtainable. This dual blade was unlockable by taking part in Iskall85's Horde Rush event."
   },
   "i85_twin_blade": {
     "label": "Twin Blade",
     "image": "https://wiki.vaulthunters.gg/images/0/0f/Invicon_I85_Twin_Blade.gif",
     "alt": "Twin Blade icon",
-    "description": "You secured this weapon through Iskall85's Horde Rush event."
+    "obtainable": false,
+    "descriptionObtained": "You secured this weapon through Iskall85's Horde Rush event.",
+    "descriptionLocked": "No longer obtainable. This weapon was unlockable by participating in Iskall85's Horde Rush event."
   },
   "halloween_pumpkin": {
     "label": "Bumbo Pumpkini",
     "image": "https://wiki.vaulthunters.gg/images/d/d4/Invicon_BumboPumpkini.gif",
     "alt": "Bumbo Pumpkini icon",
-    "description": "Dropped during the Halloween Twitch event with Iskall85."
+    "obtainable": false,
+    "descriptionObtained": "You obtained this companion during the Halloween Twitch event with Iskall85.",
+    "descriptionLocked": "No longer obtainable. This companion was unlockable during Halloween Twitch events with Iskall85."
   },
   "pink_dylan": {
     "label": "Pink Dylan",
     "image": "https://wiki.vaulthunters.gg/images/e/ec/Invicon_Dylan_Pink.gif",
     "alt": "Pink Dylan icon",
-    "description": "You got this by getting level 5 in the second season."
+    "obtainable": true,
+    "descriptionObtained": "You got this by reaching level 5 in the second season.",
+    "descriptionLocked": "Get this by reaching level 5 in the second season."
   },
   "forsaken_axe": {
     "label": "Forsaken Axe",
     "image": "https://wiki.vaulthunters.gg/images/3/3c/Invicon_ForsakenAxe.gif",
     "alt": "Forsaken Axe icon",
-    "description": "You got this by getting level 7 in the second season."
+    "obtainable": true,
+    "descriptionObtained": "You got this by reaching level 7 in the second season.",
+    "descriptionLocked": "Get this by reaching level 7 in the second season."
   },
   "forsaken_sword": {
     "label": "Forsaken Sword",
     "image": "https://wiki.vaulthunters.gg/images/7/7f/Invicon_ForsakenSword.gif",
     "alt": "Forsaken Sword icon",
-    "description": "You got this by getting level 7 in the second season."
+    "obtainable": true,
+    "descriptionObtained": "You got this by reaching level 7 in the second season.",
+    "descriptionLocked": "Get this by reaching level 7 in the second season."
   },
   "bumbo_cactoni": {
     "label": "Bumbo Cactoni",
     "image": "https://wiki.vaulthunters.gg/images/d/db/Invicon_BumboCactoni.gif",
     "alt": "Bumbo Cactoni icon",
-    "description": "You got this by getting level 10 in the second season."
+    "obtainable": true,
+    "descriptionObtained": "You got this by reaching level 10 in the second season.",
+    "descriptionLocked": "Get this by reaching level 10 in the second season."
   },
   "carrot": {
     "label": "Carrot",
     "image": "https://wiki.vaulthunters.gg/images/9/94/Invicon_Carrotpet.gif",
     "alt": "Carrot icon",
-    "description": "You got this by getting level 15 in the second season."
+    "obtainable": true,
+    "descriptionObtained": "You got this by reaching level 15 in the second season.",
+    "descriptionLocked": "Get this by reaching level 15 in the second season."
   },
   "golden_bumbo_cactoni": {
     "label": "Golden Bumbo Cactoni",
     "image": "https://wiki.vaulthunters.gg/images/e/ed/Invicon_Golden_BumboCactoni.gif",
     "alt": "Golden Bumbo Cactoni icon",
-    "description": "You got this by getting level 25 in the second season."
+    "obtainable": true,
+    "descriptionObtained": "You got this by reaching level 25 in the second season.",
+    "descriptionLocked": "Get this by reaching level 25 in the second season."
   },
   "essence_of_iskallium": {
     "label": "Essence of Iskallium",
     "image": "https://wiki.vaulthunters.gg/images/3/3a/Invicon_Essence_of_Iskallium.gif",
     "alt": "Essence of Iskallium icon",
-    "description": "You obtained this reward by reaching Ethernal level 60."
+    "obtainable": true,
+    "descriptionObtained": "You obtained this reward by reaching Ethernal level 60.",
+    "descriptionLocked": "Obtain this reward by reaching Ethernal level 60."
   },
   "hypefuse_scepter": {
     "label": "Hypefuse Scepter",
     "image": "https://wiki.vaulthunters.gg/images/2/2a/Invicon_Hypefuse_Scepter.gif",
     "alt": "Hypefuse Scepter icon",
-    "description": "You obtained this reward by reaching Ethernal level 60."
+    "obtainable": true,
+    "descriptionObtained": "You obtained this reward by reaching Ethernal level 60.",
+    "descriptionLocked": "Obtain this reward by reaching Ethernal level 60."
   },
   "never_ever": {
     "label": "Never Ever",
     "image": "https://wiki.vaulthunters.gg/images/7/7b/Invicon_NeverEver_Shield_Blocking.gif",
     "alt": "Never Ever icon",
-    "description": "You obtained this shield by reaching Ethernal level 60."
+    "obtainable": true,
+    "descriptionObtained": "You obtained this shield by reaching Ethernal level 60.",
+    "descriptionLocked": "Obtain this shield by reaching Ethernal level 60."
   },
   "sculk_set": {
     "label": "Sculk Set",
     "image": "https://wiki.vaulthunters.gg/images/9/9a/Invicon_SkullSword.gif",
     "alt": "Sculk Set icon",
-    "description": "You obtained this set by reaching Ethernal level 80."
+    "obtainable": true,
+    "descriptionObtained": "You obtained this set by reaching Ethernal level 80.",
+    "descriptionLocked": "Obtain this set by reaching Ethernal level 80."
   }
 ,
   "green_christmas_hat": {
     "label": "Green Christmas Hat",
     "image": "/img/green_christmas_hat_thumbnail.png",
     "alt": "Green Christmas Hat thumbnail",
-    "description": "A festive hat awarded during the first Iskall85's holiday stream event."
+    "obtainable": false,
+    "descriptionObtained": "You received this festive hat during Iskall85's first holiday stream event.",
+    "descriptionLocked": "No longer obtainable. This festive hat was awarded during Iskall85's holiday stream events."
   },
   "i85_100stream": {
     "label": "100 Streams Blade",
     "image": "/img/100-steams-blade.png",
     "alt": "100 Streams Blade icon",
-    "description": "This reward celebrates Iskall85's 100th stream since his return."
+    "obtainable": false,
+    "descriptionObtained": "You received this reward to celebrate Iskall85's 100th stream since his return.",
+    "descriptionLocked": "No longer obtainable. This reward celebrated Iskall85's special streaming milestones."
   },
   "i85_xmas_day3": {
     "label": "Santa Claus Dylan & Christmas Sword",
     "image": "/img/Santa_Dylan.gif",
     "images": ["/img/Santa_Dylan.gif", "/img/Lost_Christmas_Sword.gif"],
     "alt": "Santa Dylan companion",
-    "description": "This reward is from the third day of the Dylan Christmas event!"
+    "obtainable": false,
+    "descriptionObtained": "You obtained this reward on the third day of the Dylan Christmas event!",
+    "descriptionLocked": "No longer obtainable. This reward was unlockable on the third day of the Dylan Christmas event."
   },
   "xmas_dayfour_chest": {
     "label": "Gingerbread Chestplate",
     "image": "/img/Gingerbread_Chestplate.gif",
     "alt": "Gingerbread Chestplate",
-    "description": "This reward is from the fourth day of the Dylan Christmas event!"
+    "obtainable": false,
+    "descriptionObtained": "You obtained this reward on the fourth day of the Dylan Christmas event!",
+    "descriptionLocked": "No longer obtainable. This reward was unlockable on the fourth day of the Dylan Christmas event."
   },
   "gingerbread_man": {
     "label": "Gingerbread Man",
     "image": "/img/Gingerbread_Man.gif",
     "alt": "Gingerbread Man",
-    "description": "This reward is from the fifth day of the Dylan Christmas event!"
+    "obtainable": false,
+    "descriptionObtained": "You obtained this reward on the fifth day of the Dylan Christmas event!",
+    "descriptionLocked": "No longer obtainable. This reward was unlockable on the fifth day of the Dylan Christmas event."
   },
   "nutcracker_wand": {
     "label": "Nutcracker Wand",
     "image": "/img/Nutcracker.webp",
     "alt": "Nutcracker Wand",
-    "description": "This reward is from the 6th day of the Dylan Christmas event!"
+    "obtainable": false,
+    "descriptionObtained": "You obtained this reward on the 6th day of the Dylan Christmas event!",
+    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 6th day of the Dylan Christmas event."
   },
   "christmas_fireplace": {
     "label": "Christmas Fireplace Shield",
     "image": "/img/Christmas_Fireplace_Shield_Blocking.gif",
     "alt": "Christmas Fireplace Shield",
-    "description": "This reward is from the 8th day of the Dylan Christmas event!"
+    "obtainable": false,
+    "descriptionObtained": "You obtained this reward on the 8th day of the Dylan Christmas event!",
+    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 8th day of the Dylan Christmas event."
   },
   "bumbo_frostoni": {
     "label": "Bumbo Frostoni",
     "image": "/img/Bumbo_Frostoni.gif",
     "alt": "Bumbo Frostoni",
-    "description": "This reward is from the 9th day of the Dylan Christmas event!"
+    "obtainable": false,
+    "descriptionObtained": "You obtained this reward on the 9th day of the Dylan Christmas event!",
+    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 9th day of the Dylan Christmas event."
   },
   "snowman_helmet": {
     "label": "Snowman Helmet",
     "image": "/img/snowman_helm.gif",
     "alt": "Snowman Helmet",
-    "description": "This reward is from the 10th day of the Dylan Christmas event!"
+    "obtainable": false,
+    "descriptionObtained": "You obtained this reward on the 10th day of the Dylan Christmas event!",
+    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 10th day of the Dylan Christmas event."
   },
   "lost_christmas_axe": {
     "label": "Christmas Axe",
     "image": "/img/Lost_Christmas_Axe.gif",
     "alt": "Christmas Axe",
-    "description": "This reward is from the 11th day of the Dylan Christmas event!"
+    "obtainable": false,
+    "descriptionObtained": "You obtained this reward on the 11th day of the Dylan Christmas event!",
+    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 11th day of the Dylan Christmas event."
   },
   "blueberry_turtle": {
     "label": "Sweet Turtle",
     "image": "/img/Sweet_Turtle.gif",
     "alt": "Sweet Turtle",
-    "description": "This reward is from the 12th day of the Dylan Christmas event!"
+    "obtainable": false,
+    "descriptionObtained": "You obtained this reward on the 12th day of the Dylan Christmas event!",
+    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 12th day of the Dylan Christmas event."
   },
   "golden_dylan": {
     "label": "Golden Dylan",
     "image": "/img/Golden_Dylan.png",
     "alt": "Golden Dylan icon",
-    "description": "You obtained this companion by reaching level 30 in the Companion Pass."
+    "obtainable": true,
+    "descriptionObtained": "You obtained this companion by reaching level 30 in the Companion Pass.",
+    "descriptionLocked": "Obtain this companion by reaching level 30 in the Companion Pass."
   }
 }

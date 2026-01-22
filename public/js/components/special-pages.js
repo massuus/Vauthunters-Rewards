@@ -217,7 +217,7 @@ export async function renderCodesPage(
  */
 function renderRewardCard(setKey, setData, proxiedImageUrl, escapeHtml, formatLabel) {
   const label = setData?.label || formatLabel(setKey);
-  const description = setData?.description || 'Unlockable reward';
+  const description = setData?.descriptionLocked || setData?.description || 'Unlockable reward';
   
   // Support both single image and multiple images
   let imageSources = [];
@@ -286,20 +286,59 @@ export async function renderAllRewardsPage(
     const setArtData = await fetchSetArtData();
     const entries = Object.entries(setArtData);
     
-    const cards = entries.length
-      ? entries.map(([key, data]) => renderRewardCard(key, data, proxiedImageUrl, escapeHtml, formatLabel)).join('')
-      : '<p class="all-rewards-page__empty">No rewards data available.</p>';
+    // Split rewards into obtainable and unobtainable
+    const obtainableRewards = [];
+    const unobtainableRewards = [];
+    
+    entries.forEach(([key, data]) => {
+      if (data.obtainable === false) {
+        unobtainableRewards.push([key, data]);
+      } else {
+        obtainableRewards.push([key, data]);
+      }
+    });
+    
+    const obtainableCards = obtainableRewards.length
+      ? obtainableRewards.map(([key, data]) => renderRewardCard(key, data, proxiedImageUrl, escapeHtml, formatLabel)).join('')
+      : '<p class="all-rewards-page__empty">No obtainable rewards available.</p>';
+    
+    const unobtainableCards = unobtainableRewards.length
+      ? unobtainableRewards.map(([key, data]) => renderRewardCard(key, data, proxiedImageUrl, escapeHtml, formatLabel)).join('')
+      : '';
+
+    const unobtainableSection = unobtainableRewards.length ? `
+      <section class="rewards-section rewards-section--unavailable">
+        <header class="rewards-section__header">
+          <h3 class="rewards-section__title">No Longer Obtainable</h3>
+          <p class="rewards-section__description">These rewards were available during past events and can no longer be unlocked.</p>
+          <p class="rewards-section__count">${unobtainableRewards.length} reward${unobtainableRewards.length !== 1 ? 's' : ''}</p>
+        </header>
+        <div class="rewards-grid rewards-grid--unavailable">
+          ${unobtainableCards}
+        </div>
+      </section>
+    ` : '';
 
     resultContainer.innerHTML = `
       <section class="all-rewards-page" aria-live="polite">
         <header class="all-rewards-page__intro">
-          <h2 class="all-rewards-page__title">All Unlockable Rewards</h2>
-          <p class="all-rewards-page__lead">Browse every possible reward you can unlock in Vault Hunters.</p>
-          <p class="all-rewards-page__subtext">Total rewards: ${entries.length}</p>
+          <h2 class="all-rewards-page__title">All Vault Hunters Rewards</h2>
+          <p class="all-rewards-page__lead">Browse every reward in Vault Hunters.</p>
+          <p class="all-rewards-page__subtext">Total rewards: ${entries.length} (${obtainableRewards.length} obtainable, ${unobtainableRewards.length} legacy)</p>
         </header>
-        <div class="rewards-grid">
-          ${cards}
-        </div>
+        
+        <section class="rewards-section rewards-section--obtainable">
+          <header class="rewards-section__header">
+            <h3 class="rewards-section__title">Currently Obtainable Rewards</h3>
+            <p class="rewards-section__description">These rewards can still be unlocked through gameplay or events.</p>
+            <p class="rewards-section__count">${obtainableRewards.length} reward${obtainableRewards.length !== 1 ? 's' : ''}</p>
+          </header>
+          <div class="rewards-grid">
+            ${obtainableCards}
+          </div>
+        </section>
+        
+        ${unobtainableSection}
       </section>
     `;
 

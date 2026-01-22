@@ -45,7 +45,8 @@ export async function renderProfile(data) {
   const isReturningPlayer = previouslySeen.size > 0;
   const newSetKeys = isReturningPlayer ? new Set(sets.filter((s) => !previouslySeen.has(s))) : new Set();
 
-  const setsSection = renderSetsSection(sets, newSetKeys);
+  const setsSection = renderSetsSection(sets, newSetKeys, setArtStore);
+  const missingRewardsSection = renderMissingRewardsSection(sets, setArtStore);
   const tiersSection = renderTiersSection(tiers);
   const extraSection = renderExtraSection(rewards);
   const shareUrl = getShareUrl(data.name);
@@ -62,7 +63,7 @@ export async function renderProfile(data) {
     shareUrl: shareUrl,
     nameStyle: nameStyle,
     tierBadge: tierBadge
-  }) + setsSection + tiersSection + extraSection;
+  }) + setsSection + missingRewardsSection + tiersSection + extraSection;
 
   resultContainer.classList.remove('hidden');
 
@@ -82,6 +83,8 @@ export async function renderProfile(data) {
 
   bindDisclosureToggle('extra-toggle', 'extra-panel');
   bindDisclosureToggle('unlocks-toggle', 'unlocks-panel');
+  bindDisclosureToggle('missing-obtainable-toggle', 'missing-obtainable-panel');
+  bindDisclosureToggle('missing-legacy-toggle', 'missing-legacy-panel');
 
   // Persist the current sets so future lookups can detect new ones (per-player)
   setSeenSets(usernameKey, new Set(sets));
@@ -94,7 +97,7 @@ export async function renderProfile(data) {
 /**
  * Render the vault sets section
  */
-function renderSetsSection(sets, newSetKeys = new Set()) {
+function renderSetsSection(sets, newSetKeys = new Set(), setArtStore = {}) {
   const hasSets = sets.length > 0;
   const setsContent = hasSets ? sets.map((setKey) => renderSetCard(setKey, newSetKeys.has(setKey))).join('') : '';
   
@@ -120,6 +123,103 @@ function renderSetsSection(sets, newSetKeys = new Set()) {
       </div>
       ${setsHelpTemplate}
     </section>
+  `;
+}
+
+/**
+ * Render missing rewards section
+ */
+function renderMissingRewardsSection(ownedSets, setArtStore) {
+  const ownedSetKeys = new Set(ownedSets);
+  const allRewards = Object.entries(setArtStore);
+  
+  // Filter rewards into obtainable and legacy (unobtainable)
+  const missingObtainable = [];
+  const missingLegacy = [];
+  
+  allRewards.forEach(([key, data]) => {
+    if (!ownedSetKeys.has(key)) {
+      if (data.obtainable === false) {
+        missingLegacy.push([key, data]);
+      } else {
+        missingObtainable.push([key, data]);
+      }
+    }
+  });
+  
+  const hasMissingObtainable = missingObtainable.length > 0;
+  const hasMissingLegacy = missingLegacy.length > 0;
+  
+  if (!hasMissingObtainable && !hasMissingLegacy) {
+    return ''; // Player has everything, don't show section
+  }
+  
+  const obtainableContent = hasMissingObtainable 
+    ? missingObtainable.map(([key, data]) => renderMissingRewardCard(key, data, false)).join('')
+    : '';
+  
+  const legacyContent = hasMissingLegacy
+    ? missingLegacy.map(([key, data]) => renderMissingRewardCard(key, data, true)).join('')
+    : '';
+  
+  const obtainableSection = hasMissingObtainable ? `
+    <div class="missing-rewards__obtainable">
+      <button id="missing-obtainable-toggle" class="missing-rewards__toggle" type="button" aria-expanded="false">
+        <span class="missing-rewards__toggle-icon" aria-hidden="true">▶</span>
+        <span>Still Obtainable (${missingObtainable.length})</span>
+      </button>
+      <div id="missing-obtainable-panel" class="missing-rewards__panel" hidden>
+        <p class="missing-rewards__description">These rewards can still be unlocked through gameplay or events.</p>
+        <div class="sets-grid sets-grid--missing">
+          ${obtainableContent}
+        </div>
+      </div>
+    </div>
+  ` : '';
+  
+  const legacySection = hasMissingLegacy ? `
+    <div class="missing-rewards__legacy">
+      <button id="missing-legacy-toggle" class="missing-rewards__toggle missing-rewards__toggle--legacy" type="button" aria-expanded="false">
+        <span class="missing-rewards__toggle-icon" aria-hidden="true">▶</span>
+        <span>No Longer Obtainable (${missingLegacy.length})</span>
+      </button>
+      <div id="missing-legacy-panel" class="missing-rewards__panel" hidden>
+        <p class="missing-rewards__description missing-rewards__description--legacy">These rewards were available during past events and can no longer be unlocked.</p>
+        <div class="sets-grid sets-grid--missing sets-grid--legacy">
+          ${legacyContent}
+        </div>
+      </div>
+    </div>
+  ` : '';
+  
+  return `
+    <section class="missing-rewards-section">
+      <h3 class="section-title">Missing Rewards</h3>
+      ${obtainableSection}
+      ${legacySection}
+    </section>
+  `;
+}
+
+/**
+ * Render a missing reward card
+ */
+function renderMissingRewardCard(setKey, data, isLegacy = false) {
+  const label = data?.label || formatLabel(setKey);
+  const isFallbackImage = !data?.image;
+  const imageSource = data?.image || UNKNOWN_ITEM_IMAGE;
+  const proxied = proxiedImageUrl(imageSource);
+  const altText = data?.alt || label;
+  const fallbackClass = isFallbackImage ? ' class="pixelated-image"' : '';
+  const imageMarkup = `<img${fallbackClass} src="${proxied}" alt="${altText}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
+  
+  const legacyClass = isLegacy ? ' set-card--legacy' : '';
+  
+  return `
+    <button class="set-card set-card--missing${legacyClass}" type="button" data-set-key="${setKey}">
+      ${imageMarkup}
+      <span>${label}</span>
+    </button>
   `;
 }
 
@@ -299,7 +399,8 @@ function bindSetCardHandlers() {
   }
 
   cards.forEach((card) => {
-    card.addEventListener('click', () => openSetDetailModal(card.dataset.setKey));
+    const isOwned = !card.classList.contains('set-card--missing');
+    card.addEventListener('click', () => openSetDetailModal(card.dataset.setKey, isOwned));
   });
 }
 
@@ -330,7 +431,7 @@ function bindDisclosureToggle(toggleId, panelId) {
   const toggle = document.getElementById(toggleId);
   const panel = document.getElementById(panelId);
   if (!toggle || !panel) return;
-  const chev = toggle.querySelector('.chevron');
+  const chev = toggle.querySelector('.chevron') || toggle.querySelector('.missing-rewards__toggle-icon');
 
   const setChevronForState = (expanded) => {
     if (!chev) return;
@@ -346,7 +447,21 @@ function bindDisclosureToggle(toggleId, panelId) {
     const wasExpanded = toggle.getAttribute('aria-expanded') === 'true';
     const nextExpanded = !wasExpanded;
     toggle.setAttribute('aria-expanded', String(nextExpanded));
-    panel.classList.toggle('hidden');
+    
+    // Toggle visibility - check which method this panel uses
+    if (panel.hasAttribute('hidden') || nextExpanded === false) {
+      // Use attribute-based toggling
+      if (nextExpanded) {
+        panel.removeAttribute('hidden');
+      } else {
+        panel.setAttribute('hidden', '');
+      }
+    }
+    // Also handle class-based toggling for backwards compatibility
+    if (panel.classList.contains('hidden') || (!panel.hasAttribute('hidden') && !nextExpanded)) {
+      panel.classList.toggle('hidden');
+    }
+    
     setChevronForState(nextExpanded);
   });
 }
