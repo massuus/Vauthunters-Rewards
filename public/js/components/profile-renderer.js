@@ -103,9 +103,13 @@ function renderSetsSection(sets, newSetKeys = new Set(), setArtStore = {}) {
   
   return `
     <section>
-      <h3 class='section-title'>Vault Sets</h3>
+      <div class="section-title-container">
+        <h3 class='section-title'>Vault Sets</h3>
+        <button id="unlocks-toggle" class="section-info-button" type="button" aria-expanded="false" aria-controls="unlocks-panel" title="View help">ℹ️</button>
+      </div>
+      ${setsHelpTemplate}
       ${hasSets ? `<div class='sets-grid'>${setsContent}</div>` : `<p class='muted'>No sets recorded yet.</p>`}
-      <div class='rewards-cta-container'>
+      <div class='rewards-cta-container' style="display: none;">
         <p class='rewards-cta'>
           <button class="rewards-cta__link" data-search="all" type="button">
             <span class="rewards-cta__icon" aria-hidden="true">🎁</span>
@@ -121,7 +125,6 @@ function renderSetsSection(sets, newSetKeys = new Set(), setArtStore = {}) {
           </button>
         </p>
       </div>
-      ${setsHelpTemplate}
     </section>
   `;
 }

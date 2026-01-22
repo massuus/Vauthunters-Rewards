@@ -293,6 +293,32 @@ body {
   display: inline;
 }
 
+.player-info-button {
+  background: rgba(244, 169, 65, 0.1);
+  border: 1px solid rgba(244, 169, 65, 0.3);
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.player-info-button:hover {
+  background: rgba(244, 169, 65, 0.2);
+  border-color: var(--accent);
+}
+
+.player-info-button:active {
+  background: rgba(244, 169, 65, 0.15);
+  transform: scale(0.98);
+}
+
 @media (max-width: 640px) {
   .share-label-mobile {
     display: inline;
@@ -353,6 +379,26 @@ body {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--accent);
+}
+
+.section-title-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-info-button {
+  display: none;
+}
+
+.section-info-button:hover {
+  background: rgba(244, 169, 65, 0.2);
+  border-color: var(--accent);
+}
+
+.section-info-button:active {
+  background: rgba(244, 169, 65, 0.15);
+  transform: scale(0.98);
 }
 
 .sets-grid,
@@ -476,10 +522,6 @@ body {
   background: rgba(13, 17, 23, 0.75);
   border-color: var(--accent);
   box-shadow: 0 4px 12px rgba(244, 169, 65, 0.1);
-}
-
-.missing-rewards__toggle[aria-expanded="true"] .missing-rewards__toggle-icon {
-  transform: rotate(90deg);
 }
 
 .missing-rewards__toggle--legacy {
