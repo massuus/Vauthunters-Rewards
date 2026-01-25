@@ -15,7 +15,17 @@
     "lint": "eslint . --ext .js,.mjs",
     "lint:fix": "eslint . --ext .js,.mjs --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky",
+    "lint-staged": {
+      "*.{js,mjs}": [
+        "eslint --fix",
+        "prettier --write"
+      ],
+      "*.{json,md,html,css}": [
+        "prettier --write"
+      ]
+    }
   },
   "keywords": [
     "vault-hunters",
@@ -36,10 +46,12 @@
     "@eslint/js": "^9.14.0",
     "autoprefixer": "^10.4.22",
     "cssnano": "^7.1.2",
-    "esbuild": "^0.24.0",
+    "esbuild": "^0.27.2",
     "eslint": "^9.14.0",
     "eslint-config-prettier": "^9.1.0",
     "globals": "^15.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "postcss": "^8.5.6",
     "postcss-cli": "^11.0.1",
     "prettier": "^3.3.3"

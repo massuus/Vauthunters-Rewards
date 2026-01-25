@@ -5,7 +5,7 @@ const LOG_LEVELS = {
   ERROR: 0,
   WARN: 1,
   INFO: 2,
-  DEBUG: 3
+  DEBUG: 3,
 };
 
 class Logger {
@@ -29,7 +29,7 @@ class Logger {
       message,
       ...context,
       userAgent: navigator.userAgent,
-      url: window.location.href
+      url: window.location.href,
     };
   }
 
@@ -37,7 +37,7 @@ class Logger {
     if (this.level >= LOG_LEVELS.ERROR) {
       const formatted = this.formatMessage('ERROR', message, context);
       console.error(`[${formatted.timestamp}] ERROR:`, message, context);
-      
+
       // In production, you could send to error tracking service here
       // e.g., Sentry, LogRocket, etc.
       if (this.isProduction) {

@@ -20,7 +20,7 @@
   flex-wrap: nowrap;
 }
 
-.search input[type="text"] {
+.search input[type='text'] {
   flex: 1 1 auto;
   min-width: 0;
   padding: 0.85rem 1.1rem;
@@ -29,10 +29,12 @@
   background: rgba(13, 17, 23, 0.65);
   color: var(--text-primary);
   font-size: 1rem;
-  transition: border var(--transition-normal), box-shadow var(--transition-normal);
+  transition:
+    border var(--transition-normal),
+    box-shadow var(--transition-normal);
 }
 
-.search input[type="text"]:focus {
+.search input[type='text']:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
@@ -50,7 +52,9 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  transition:
+    transform var(--transition-normal),
+    box-shadow var(--transition-normal);
 }
 
 .search button:hover {

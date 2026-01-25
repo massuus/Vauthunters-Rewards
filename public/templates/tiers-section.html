@@ -1,7 +1,9 @@
 <section>
   <h3 class="section-title">{{title}}</h3>
   {{#if hasTiers}}
-  <ul class="tiers-list">{{items}}</ul>
+  <ul class="tiers-list">
+    {{items}}
+  </ul>
   {{else}}
   <p class="muted">No Patreon tiers unlocked yet.</p>
   {{/if}}

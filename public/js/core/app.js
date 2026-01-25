@@ -12,7 +12,6 @@ import { initLazyImages } from '../loaders/image-loader.js';
 import { initPWAInstall } from '../features/pwa-install.js';
 import { initRewardCodesPopup } from '../components/reward-codes-popup.js';
 
-
 /**
  * Initialize the application
  */
@@ -22,7 +21,13 @@ async function initializeApp() {
 
   // Preload commonly used templates
   try {
-    const templates = ['player-card', 'sets-help', 'recent-section', 'loading-skeleton', 'set-modal'];
+    const templates = [
+      'player-card',
+      'sets-help',
+      'recent-section',
+      'loading-skeleton',
+      'set-modal',
+    ];
     await preloadTemplates(templates);
   } catch (error) {
     logger.error('Error preloading templates', { error: error.message, stack: error.stack });
@@ -48,7 +53,7 @@ async function initializeApp() {
     const form = document.getElementById('search-form');
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
   }
-  
+
   // Render recents on first load
   await renderRecentSection();
 }
@@ -64,5 +69,3 @@ if ('serviceWorker' in navigator) {
 initializeApp().catch((error) => {
   logger.error('Error initializing app', { error: error.message, stack: error.stack });
 });
-
-

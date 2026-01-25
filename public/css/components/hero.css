@@ -1,8 +1,9 @@
 /* Hero section styles */
 
 .hero {
-  background: radial-gradient(circle at top, rgba(244, 169, 65, 0.28), transparent 55%),
-              linear-gradient(135deg, rgba(35, 42, 59, 0.85), rgba(12, 19, 32, 0.9));
+  background:
+    radial-gradient(circle at top, rgba(244, 169, 65, 0.28), transparent 55%),
+    linear-gradient(135deg, rgba(35, 42, 59, 0.85), rgba(12, 19, 32, 0.9));
   border-bottom: 1px solid var(--border);
   padding: 3.5rem 2rem 2.5rem;
   position: relative;

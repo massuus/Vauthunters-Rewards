@@ -11,7 +11,7 @@ const baseRules = {
   'no-eval': 'error',
   'no-implied-eval': 'error',
   'no-with': 'error',
-  'prefer-template': 'warn'
+  'prefer-template': 'warn',
 };
 
 export default [
@@ -29,8 +29,8 @@ export default [
       'public/pages/**',
       'public/templates/**',
       'public/_routes.json',
-      'public/_headers'
-    ]
+      'public/_headers',
+    ],
   },
   {
     ...js.configs.recommended,
@@ -39,35 +39,35 @@ export default [
       sourceType: 'module',
       globals: {
         ...globals.browser,
-        ...globals.es2022
-      }
+        ...globals.es2022,
+      },
     },
-    rules: baseRules
+    rules: baseRules,
   },
   {
     files: ['functions/**/*.js', 'build.js'],
     languageOptions: {
       globals: {
         ...globals.node,
-        ...globals.es2022
-      }
+        ...globals.es2022,
+      },
     },
     rules: {
       ...baseRules,
-      'no-console': 'off'
-    }
+      'no-console': 'off',
+    },
   },
   {
     files: ['public/sw.js'],
     languageOptions: {
       globals: {
         ...globals.serviceworker,
-        ...globals.es2022
-      }
+        ...globals.es2022,
+      },
     },
     rules: {
       ...baseRules,
-      'no-console': 'off'
-    }
-  }
+      'no-console': 'off',
+    },
+  },
 ];

@@ -9,11 +9,11 @@ export function initializeErrorHandlers() {
   // Handle unhandled promise rejections
   window.addEventListener('unhandledrejection', (event) => {
     event.preventDefault(); // Prevent default console logging
-    
+
     logger.error('Unhandled Promise Rejection', {
       reason: event.reason,
       promise: event.promise,
-      stack: event.reason?.stack
+      stack: event.reason?.stack,
     });
 
     // Show user-friendly error message
@@ -28,7 +28,7 @@ export function initializeErrorHandlers() {
       lineno: event.lineno,
       colno: event.colno,
       error: event.error,
-      stack: event.error?.stack
+      stack: event.error?.stack,
     });
 
     // Show user-friendly error message
@@ -36,17 +36,24 @@ export function initializeErrorHandlers() {
   });
 
   // Handle module loading errors
-  window.addEventListener('error', (event) => {
-    if (event.target !== window && (event.target.tagName === 'SCRIPT' || event.target.tagName === 'LINK')) {
-      logger.error('Resource Loading Error', {
-        tag: event.target.tagName,
-        src: event.target.src || event.target.href,
-        type: event.target.type
-      });
+  window.addEventListener(
+    'error',
+    (event) => {
+      if (
+        event.target !== window &&
+        (event.target.tagName === 'SCRIPT' || event.target.tagName === 'LINK')
+      ) {
+        logger.error('Resource Loading Error', {
+          tag: event.target.tagName,
+          src: event.target.src || event.target.href,
+          type: event.target.type,
+        });
 
-      showUserError('Failed to load application resources. Please refresh the page.');
-    }
-  }, true); // Use capture phase to catch resource errors
+        showUserError('Failed to load application resources. Please refresh the page.');
+      }
+    },
+    true
+  ); // Use capture phase to catch resource errors
 }
 
 /**
@@ -79,7 +86,7 @@ export function withErrorBoundary(asyncFn, fallbackValue = null) {
       logger.error('Error in wrapped function', {
         functionName: asyncFn.name,
         error: error.message,
-        stack: error.stack
+        stack: error.stack,
       });
       return fallbackValue;
     }
@@ -98,7 +105,7 @@ export function safeAsync(asyncFn, errorMessage = 'An error occurred') {
         functionName: asyncFn.name,
         error: error.message,
         stack: error.stack,
-        args
+        args,
       });
       showUserError(errorMessage);
       throw error; // Re-throw for caller to handle if needed

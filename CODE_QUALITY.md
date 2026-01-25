@@ -29,6 +29,7 @@ npm install
 ### VS Code
 
 Install the official extensions:
+
 - [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 - [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 
@@ -47,6 +48,7 @@ Add to `.vscode/settings.json`:
 ### Other Editors
 
 Follow the official guides:
+
 - [ESLint Editor Integration](https://eslint.org/docs/latest/use/integrations)
 - [Prettier Editor Support](https://prettier.io/docs/en/editors.html)
 

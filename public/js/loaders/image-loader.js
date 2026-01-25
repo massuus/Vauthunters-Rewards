@@ -24,14 +24,14 @@ export function createLazyImage(src, alt = '', options = {}) {
     pixelated = false,
     srcset = '',
     onLoad,
-    onError
+    onError,
   } = options;
 
   // Create container
   const container = document.createElement('div');
   container.className = `lazy-img-container ${className}`;
   container.style.position = 'relative';
-  
+
   if (width) container.style.width = typeof width === 'number' ? `${width}px` : width;
   if (height) container.style.height = typeof height === 'number' ? `${height}px` : height;
 
@@ -63,7 +63,7 @@ export function createLazyImage(src, alt = '', options = {}) {
     setTimeout(() => {
       skeleton.remove();
     }, IMAGE_FADE_IN_MS);
-    
+
     if (onLoad) onLoad(img);
   });
 
@@ -85,7 +85,7 @@ export function createLazyImage(src, alt = '', options = {}) {
         Failed to load
       </div>
     `;
-    
+
     if (onError) onError(img);
   });
 
@@ -160,14 +160,14 @@ export function enhanceImageWithSkeleton(img) {
  */
 export function initLazyImages() {
   const images = document.querySelectorAll('img[data-lazy]');
-  images.forEach(img => {
+  images.forEach((img) => {
     enhanceImageWithSkeleton(img);
   });
 
   // Use IntersectionObserver for better performance with many images
   if ('IntersectionObserver' in window) {
     const imageObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
+      entries.forEach((entry) => {
         if (entry.isIntersecting) {
           const img = entry.target;
           if (img.dataset.src) {
@@ -179,7 +179,7 @@ export function initLazyImages() {
       });
     });
 
-    document.querySelectorAll('img[data-src]').forEach(img => {
+    document.querySelectorAll('img[data-src]').forEach((img) => {
       imageObserver.observe(img);
     });
   }

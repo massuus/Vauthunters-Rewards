@@ -55,11 +55,13 @@ self.addEventListener('install', (event) => {
       caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS)),
       caches.open(TEMPLATE_CACHE).then((cache) => {
         return Promise.all(
-          TEMPLATE_ASSETS.map(name => 
-            fetch(`/templates/${name}`).then(r => cache.put(`/templates/${name}`, r.clone())).catch(() => {})
+          TEMPLATE_ASSETS.map((name) =>
+            fetch(`/templates/${name}`)
+              .then((r) => cache.put(`/templates/${name}`, r.clone()))
+              .catch(() => {})
           )
         );
-      })
+      }),
     ]).then(() => self.skipWaiting())
   );
 });
@@ -78,11 +80,9 @@ self.addEventListener('activate', (event) => {
       const keys = await caches.keys();
       const validCaches = [STATIC_CACHE, RUNTIME_CACHE, TEMPLATE_CACHE, DATA_CACHE];
       await Promise.all(
-        keys
-          .filter((key) => !validCaches.includes(key))
-          .map((key) => caches.delete(key))
+        keys.filter((key) => !validCaches.includes(key)).map((key) => caches.delete(key))
       );
-      
+
       await self.clients.claim();
     })()
   );
@@ -102,7 +102,11 @@ function isImageRequest(request) {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   let url;
-  try { url = new URL(request.url); } catch { return; }
+  try {
+    url = new URL(request.url);
+  } catch {
+    return;
+  }
 
   // Only handle same-origin requests here; let cross-origin bypass SW
   if (url.origin !== self.location.origin) {
@@ -111,64 +115,79 @@ self.addEventListener('fetch', (event) => {
 
   // Handle navigation with preload/network-first, fallback to cache
   if (request.mode === 'navigate') {
-    event.respondWith((async () => {
-      try {
-        const preload = await event.preloadResponse;
-        if (preload) {
-          const copy = preload.clone();
-          caches.open(STATIC_CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
-          return preload;
+    event.respondWith(
+      (async () => {
+        try {
+          const preload = await event.preloadResponse;
+          if (preload) {
+            const copy = preload.clone();
+            caches
+              .open(STATIC_CACHE)
+              .then((cache) => cache.put(request, copy))
+              .catch(() => {});
+            return preload;
+          }
+        } catch {}
+        try {
+          const response = await fetch(request);
+          caches
+            .open(STATIC_CACHE)
+            .then((cache) => cache.put(request, response.clone()))
+            .catch(() => {});
+          return response;
+        } catch {
+          // Network failed - try cache
+          const cached = await caches.match(request);
+          if (cached) return cached;
+
+          // No cache - return offline page
+          const offlinePage = await caches.match('/pages/offline.html');
+          if (offlinePage) return offlinePage;
+
+          // Fallback to a simple offline response
+          return new Response(
+            '<html><body><h1>Offline</h1><p>Please check your connection.</p></body></html>',
+            { status: 503, headers: { 'Content-Type': 'text/html' } }
+          );
         }
-      } catch {}
-      try {
-        const response = await fetch(request);
-        caches.open(STATIC_CACHE).then((cache) => cache.put(request, response.clone())).catch(() => {});
-        return response;
-      } catch {
-        // Network failed - try cache
-        const cached = await caches.match(request);
-        if (cached) return cached;
-        
-        // No cache - return offline page
-        const offlinePage = await caches.match('/pages/offline.html');
-        if (offlinePage) return offlinePage;
-        
-        // Fallback to a simple offline response
-        return new Response(
-          '<html><body><h1>Offline</h1><p>Please check your connection.</p></body></html>',
-          { status: 503, headers: { 'Content-Type': 'text/html' } }
-        );
-      }
-    })());
+      })()
+    );
     return;
   }
 
   // Cache-first for images (includes proxied image URLs)
   if (isImageRequest(request)) {
-    event.respondWith((async () => {
-      const cache = await caches.open(RUNTIME_CACHE);
-      const cached = await cache.match(request);
-      if (cached && cached.ok) {
-        return cached;
-      }
-      try {
-        const response = await fetch(request);
-        const ct = response.headers.get('content-type') || '';
-        if (response.ok && /^image\//i.test(ct)) {
-          cache.put(request, response.clone()).catch(() => {});
-          // Trim cache size after adding
-          trimCache(RUNTIME_CACHE, MAX_IMAGE_CACHE_SIZE).catch(() => {});
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(RUNTIME_CACHE);
+        const cached = await cache.match(request);
+        if (cached && cached.ok) {
+          return cached;
         }
-        return response;
-      } catch {
-        if (cached) return cached; // last resort
-        // Return a transparent 1x1 pixel as fallback
-        return new Response(
-          new Uint8Array([0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00, 0x80, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x21, 0xF9, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x2C, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x02, 0x02, 0x44, 0x01, 0x00, 0x3B]),
-          { status: 200, headers: { 'Content-Type': 'image/gif' } }
-        );
-      }
-    })());
+        try {
+          const response = await fetch(request);
+          const ct = response.headers.get('content-type') || '';
+          if (response.ok && /^image\//i.test(ct)) {
+            cache.put(request, response.clone()).catch(() => {});
+            // Trim cache size after adding
+            trimCache(RUNTIME_CACHE, MAX_IMAGE_CACHE_SIZE).catch(() => {});
+          }
+          return response;
+        } catch {
+          if (cached) return cached; // last resort
+          // Return a transparent 1x1 pixel as fallback
+          return new Response(
+            new Uint8Array([
+              0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00, 0x80, 0x00, 0x00, 0xff,
+              0xff, 0xff, 0x00, 0x00, 0x00, 0x21, 0xf9, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x2c,
+              0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x02, 0x02, 0x44, 0x01, 0x00,
+              0x3b,
+            ]),
+            { status: 200, headers: { 'Content-Type': 'image/gif' } }
+          );
+        }
+      })()
+    );
     return;
   }
 
@@ -176,131 +195,161 @@ self.addEventListener('fetch', (event) => {
   if (request.method === 'GET') {
     try {
       const url = new URL(request.url);
-      
+
       // Cache template requests with longer TTL
       if (url.pathname.startsWith('/templates/') && url.pathname.endsWith('.html')) {
-        event.respondWith((async () => {
-          const cache = await caches.open(TEMPLATE_CACHE);
-          const cached = await cache.match(request);
-          if (cached) {
-            // Revalidate in background
-            event.waitUntil((async () => {
-              try {
-                const net = await fetch(request);
-                if (net.ok) await cache.put(request, net.clone());
-              } catch {}
-            })());
-            return cached;
-          }
-          try {
-            const net = await fetch(request);
-            if (net.ok) await cache.put(request, net.clone());
-            return net;
-          } catch {
-            return new Response('Template not found', { status: 404 });
-          }
-        })());
+        event.respondWith(
+          (async () => {
+            const cache = await caches.open(TEMPLATE_CACHE);
+            const cached = await cache.match(request);
+            if (cached) {
+              // Revalidate in background
+              event.waitUntil(
+                (async () => {
+                  try {
+                    const net = await fetch(request);
+                    if (net.ok) await cache.put(request, net.clone());
+                  } catch {}
+                })()
+              );
+              return cached;
+            }
+            try {
+              const net = await fetch(request);
+              if (net.ok) await cache.put(request, net.clone());
+              return net;
+            } catch {
+              return new Response('Template not found', { status: 404 });
+            }
+          })()
+        );
         return;
       }
-      
+
       // Cache data requests (codes, sets) with longer TTL
       if (url.pathname === '/data/codes.json' || url.pathname === '/data/set-art.json') {
-        event.respondWith((async () => {
-          const cache = await caches.open(DATA_CACHE);
-          const cached = await cache.match(request);
-          const now = Date.now();
-          let cachedAt = 0;
-          if (cached) {
-            cachedAt = Number(cached.headers.get(CACHE_TIMESTAMP_HEADER) || '0');
-            if (Number.isFinite(cachedAt) && (now - cachedAt) < DATA_CACHE_TTL_MS) {
-              // Fresh enough; revalidate in background
-              event.waitUntil((async () => {
-                try {
-                  const net = await fetch(request);
-                  if (net.ok) {
-                    const headers = new Headers(net.headers);
-                    headers.set(CACHE_TIMESTAMP_HEADER, String(Date.now()));
-                    const toStore = new Response(net.clone().body, { status: net.status, statusText: net.statusText, headers });
-                    await cache.put(request, toStore);
-                  }
-                } catch {}
-              })());
-              return cached;
+        event.respondWith(
+          (async () => {
+            const cache = await caches.open(DATA_CACHE);
+            const cached = await cache.match(request);
+            const now = Date.now();
+            let cachedAt = 0;
+            if (cached) {
+              cachedAt = Number(cached.headers.get(CACHE_TIMESTAMP_HEADER) || '0');
+              if (Number.isFinite(cachedAt) && now - cachedAt < DATA_CACHE_TTL_MS) {
+                // Fresh enough; revalidate in background
+                event.waitUntil(
+                  (async () => {
+                    try {
+                      const net = await fetch(request);
+                      if (net.ok) {
+                        const headers = new Headers(net.headers);
+                        headers.set(CACHE_TIMESTAMP_HEADER, String(Date.now()));
+                        const toStore = new Response(net.clone().body, {
+                          status: net.status,
+                          statusText: net.statusText,
+                          headers,
+                        });
+                        await cache.put(request, toStore);
+                      }
+                    } catch {}
+                  })()
+                );
+                return cached;
+              }
             }
-          }
-          try {
-            const net = await fetch(request);
-            if (net.ok) {
-              const headers = new Headers(net.headers);
-              headers.set(CACHE_TIMESTAMP_HEADER, String(Date.now()));
-              const toStore = new Response(net.clone().body, { status: net.status, statusText: net.statusText, headers });
-              await cache.put(request, toStore);
-              trimCache(DATA_CACHE, MAX_TEMPLATE_CACHE_SIZE).catch(() => {});
+            try {
+              const net = await fetch(request);
+              if (net.ok) {
+                const headers = new Headers(net.headers);
+                headers.set(CACHE_TIMESTAMP_HEADER, String(Date.now()));
+                const toStore = new Response(net.clone().body, {
+                  status: net.status,
+                  statusText: net.statusText,
+                  headers,
+                });
+                await cache.put(request, toStore);
+                trimCache(DATA_CACHE, MAX_TEMPLATE_CACHE_SIZE).catch(() => {});
+              }
+              return net;
+            } catch (error) {
+              if (cached) return cached;
+              throw error;
             }
-            return net;
-          } catch (error) {
-            if (cached) return cached;
-            throw error;
-          }
-        })());
+          })()
+        );
         return;
       }
-      
-      if (url.origin === self.location.origin && url.pathname === '/api/profile') {
-        event.respondWith((async () => {
-          const cache = await caches.open(RUNTIME_CACHE);
-          const cached = await cache.match(request);
-          const now = Date.now();
-          let cachedAt = 0;
-          if (cached) {
-            cachedAt = Number(cached.headers.get(CACHE_TIMESTAMP_HEADER) || '0');
-            if (Number.isFinite(cachedAt) && (now - cachedAt) < API_CACHE_TTL_MS) {
-              // Fresh enough; revalidate in background
-              event.waitUntil((async () => {
-                try {
-                  const net = await fetch(request);
-                  if (net.ok) {
-                    const headers = new Headers(net.headers);
-                    headers.set(CACHE_TIMESTAMP_HEADER, String(Date.now()));
-                    const toStore = new Response(net.clone().body, { status: net.status, statusText: net.statusText, headers });
-                    await cache.put(request, toStore);
-                  }
-                } catch {}
-              })());
-              return cached;
-            }
-          }
 
-          // No cached or expired -> try network
-          try {
-            const net = await fetch(request);
-            if (net.ok) {
-              const headers = new Headers(net.headers);
-              headers.set(CACHE_TIMESTAMP_HEADER, String(Date.now()));
-              const toStore = new Response(net.clone().body, { status: net.status, statusText: net.statusText, headers });
-              await cache.put(request, toStore);
-              // Trim cache size
-              trimCache(RUNTIME_CACHE, MAX_RUNTIME_CACHE_SIZE).catch(() => {});
+      if (url.origin === self.location.origin && url.pathname === '/api/profile') {
+        event.respondWith(
+          (async () => {
+            const cache = await caches.open(RUNTIME_CACHE);
+            const cached = await cache.match(request);
+            const now = Date.now();
+            let cachedAt = 0;
+            if (cached) {
+              cachedAt = Number(cached.headers.get(CACHE_TIMESTAMP_HEADER) || '0');
+              if (Number.isFinite(cachedAt) && now - cachedAt < API_CACHE_TTL_MS) {
+                // Fresh enough; revalidate in background
+                event.waitUntil(
+                  (async () => {
+                    try {
+                      const net = await fetch(request);
+                      if (net.ok) {
+                        const headers = new Headers(net.headers);
+                        headers.set(CACHE_TIMESTAMP_HEADER, String(Date.now()));
+                        const toStore = new Response(net.clone().body, {
+                          status: net.status,
+                          statusText: net.statusText,
+                          headers,
+                        });
+                        await cache.put(request, toStore);
+                      }
+                    } catch {}
+                  })()
+                );
+                return cached;
+              }
             }
-            return net;
-          } catch (error) {
-            // Network failed; fall back to stale cache if present
-            if (cached) return cached;
-            throw error;
-          }
-        })());
+
+            // No cached or expired -> try network
+            try {
+              const net = await fetch(request);
+              if (net.ok) {
+                const headers = new Headers(net.headers);
+                headers.set(CACHE_TIMESTAMP_HEADER, String(Date.now()));
+                const toStore = new Response(net.clone().body, {
+                  status: net.status,
+                  statusText: net.statusText,
+                  headers,
+                });
+                await cache.put(request, toStore);
+                // Trim cache size
+                trimCache(RUNTIME_CACHE, MAX_RUNTIME_CACHE_SIZE).catch(() => {});
+              }
+              return net;
+            } catch (error) {
+              // Network failed; fall back to stale cache if present
+              if (cached) return cached;
+              throw error;
+            }
+          })()
+        );
         return;
       }
     } catch {}
   }
 
   // Default: try network, fall back to cache; always return a Response
-  event.respondWith((async () => {
-    try {
-      return await fetch(request);
-    } catch {
-      const cached = await caches.match(request);
-      return cached || Response.error();
-    }
-  })());
+  event.respondWith(
+    (async () => {
+      try {
+        return await fetch(request);
+      } catch {
+        const cached = await caches.match(request);
+        return cached || Response.error();
+      }
+    })()
+  );
 });

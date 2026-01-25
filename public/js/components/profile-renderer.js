@@ -2,9 +2,27 @@
 
 import { logger } from '../core/logger.js';
 import { loadTemplate, renderTemplate } from '../loaders/template-loader.js';
-import { resultContainer, proxiedImageUrl, setMetaDescription, setFavicon, UNKNOWN_ITEM_IMAGE, usernameInput, form } from '../utils/dom-utils.js';
-import { escapeHtml, deriveRewardName, augmentSets, formatLabel } from '../features/reward-utils.js';
-import { loadSetArt, getSetArtStore, closeSetDetailModal, openSetDetailModal } from './set-art-manager.js';
+import {
+  resultContainer,
+  proxiedImageUrl,
+  setMetaDescription,
+  setFavicon,
+  UNKNOWN_ITEM_IMAGE,
+  usernameInput,
+  form,
+} from '../utils/dom-utils.js';
+import {
+  escapeHtml,
+  deriveRewardName,
+  augmentSets,
+  formatLabel,
+} from '../features/reward-utils.js';
+import {
+  loadSetArt,
+  getSetArtStore,
+  closeSetDetailModal,
+  openSetDetailModal,
+} from './set-art-manager.js';
 import { getShareUrl } from '../features/url-state.js';
 import { getSeenSets, setSeenSets, addRecentUser } from '../utils/storage-manager.js';
 import { copyShareLink } from '../utils/clipboard-utils.js';
@@ -19,7 +37,7 @@ let setsHelpTemplate = '';
 export async function renderProfile(data) {
   // Import renderRecentSection here to avoid circular dependency
   const { renderRecentSection } = await import('./recent-section.js');
-  
+
   await loadSetArt();
   closeSetDetailModal();
 
@@ -40,10 +58,12 @@ export async function renderProfile(data) {
   const rewards = data.rewards && typeof data.rewards === 'object' ? data.rewards : {};
   const usernameKey = (data && data.name ? String(data.name) : '').trim().toLowerCase();
   const previouslySeen = getSeenSets(usernameKey);
-  
+
   // Only show "New" badges if the player was already in the cache (previouslySeen has items)
   const isReturningPlayer = previouslySeen.size > 0;
-  const newSetKeys = isReturningPlayer ? new Set(sets.filter((s) => !previouslySeen.has(s))) : new Set();
+  const newSetKeys = isReturningPlayer
+    ? new Set(sets.filter((s) => !previouslySeen.has(s)))
+    : new Set();
 
   const setsSection = renderSetsSection(sets, newSetKeys);
   const missingRewardsSection = renderMissingRewardsSection(sets, setArtStore);
@@ -54,22 +74,33 @@ export async function renderProfile(data) {
   // Get best Patreon tier for user badge and name styling
   const bestTier = getBestPatreonTier(tiers);
   const nameStyle = bestTier ? `color: ${bestTier.color}; font-weight: 600;` : '';
-  const tierBadge = bestTier ? `<img class="tier-badge pixelated-image" src="${bestTier.badge}" alt="${bestTier.name} badge" title="${bestTier.name}" width="24" height="24">` : '';
+  const tierBadge = bestTier
+    ? `<img class="tier-badge pixelated-image" src="${bestTier.badge}" alt="${bestTier.name} badge" title="${bestTier.name}" width="24" height="24">`
+    : '';
 
   const playerCard = await loadTemplate('player-card');
-  resultContainer.innerHTML = renderTemplate(playerCard, {
-    head: proxiedImageUrl(data.head),
-    name: data.name,
-    shareUrl: shareUrl,
-    nameStyle: nameStyle,
-    tierBadge: tierBadge
-  }) + setsSection + missingRewardsSection + tiersSection + extraSection;
+  resultContainer.innerHTML =
+    renderTemplate(playerCard, {
+      head: proxiedImageUrl(data.head),
+      name: data.name,
+      shareUrl: shareUrl,
+      nameStyle: nameStyle,
+      tierBadge: tierBadge,
+    }) +
+    setsSection +
+    missingRewardsSection +
+    tiersSection +
+    extraSection;
 
   resultContainer.classList.remove('hidden');
 
   // Update query string manually
-  window.history.replaceState({}, '', `${window.location.pathname}?user=${encodeURIComponent(data.name)}`);
-  
+  window.history.replaceState(
+    {},
+    '',
+    `${window.location.pathname}?user=${encodeURIComponent(data.name)}`
+  );
+
   bindShareButton();
   bindSetCardHandlers();
   bindCtaButtonHandlers();
@@ -99,13 +130,14 @@ export async function renderProfile(data) {
  */
 function renderSetsSection(sets, newSetKeys = new Set()) {
   const hasSets = sets.length > 0;
-  const setsContent = hasSets ? sets.map((setKey) => renderSetCard(setKey, newSetKeys.has(setKey))).join('') : '';
-  
+  const setsContent = hasSets
+    ? sets.map((setKey) => renderSetCard(setKey, newSetKeys.has(setKey))).join('')
+    : '';
+
   return `
     <section>
       <div class="section-title-container">
         <h3 class='section-title'>Vault Sets</h3>
-        <button id="unlocks-toggle" class="section-info-button" type="button" aria-expanded="false" aria-controls="unlocks-panel" title="View help">ℹ️</button>
       </div>
       ${setsHelpTemplate}
       ${hasSets ? `<div class='sets-grid'>${setsContent}</div>` : `<p class='muted'>No sets recorded yet.</p>`}
@@ -135,11 +167,11 @@ function renderSetsSection(sets, newSetKeys = new Set()) {
 function renderMissingRewardsSection(ownedSets, setArtStore) {
   const ownedSetKeys = new Set(ownedSets);
   const allRewards = Object.entries(setArtStore);
-  
+
   // Filter rewards into obtainable and legacy (unobtainable)
   const missingObtainable = [];
   const missingLegacy = [];
-  
+
   allRewards.forEach(([key, data]) => {
     if (!ownedSetKeys.has(key)) {
       if (data.obtainable === false) {
@@ -149,23 +181,24 @@ function renderMissingRewardsSection(ownedSets, setArtStore) {
       }
     }
   });
-  
+
   const hasMissingObtainable = missingObtainable.length > 0;
   const hasMissingLegacy = missingLegacy.length > 0;
-  
+
   if (!hasMissingObtainable && !hasMissingLegacy) {
     return ''; // Player has everything, don't show section
   }
-  
-  const obtainableContent = hasMissingObtainable 
+
+  const obtainableContent = hasMissingObtainable
     ? missingObtainable.map(([key, data]) => renderMissingRewardCard(key, data, false)).join('')
     : '';
-  
+
   const legacyContent = hasMissingLegacy
     ? missingLegacy.map(([key, data]) => renderMissingRewardCard(key, data, true)).join('')
     : '';
-  
-  const obtainableSection = hasMissingObtainable ? `
+
+  const obtainableSection = hasMissingObtainable
+    ? `
     <div class="missing-rewards__obtainable">
       <button id="missing-obtainable-toggle" class="missing-rewards__toggle" type="button" aria-expanded="false">
         <span class="missing-rewards__toggle-icon" aria-hidden="true">▶</span>
@@ -178,9 +211,11 @@ function renderMissingRewardsSection(ownedSets, setArtStore) {
         </div>
       </div>
     </div>
-  ` : '';
-  
-  const legacySection = hasMissingLegacy ? `
+  `
+    : '';
+
+  const legacySection = hasMissingLegacy
+    ? `
     <div class="missing-rewards__legacy">
       <button id="missing-legacy-toggle" class="missing-rewards__toggle missing-rewards__toggle--legacy" type="button" aria-expanded="false">
         <span class="missing-rewards__toggle-icon" aria-hidden="true">▶</span>
@@ -193,8 +228,9 @@ function renderMissingRewardsSection(ownedSets, setArtStore) {
         </div>
       </div>
     </div>
-  ` : '';
-  
+  `
+    : '';
+
   return `
     <section class="missing-rewards-section">
       <h3 class="section-title">Missing Rewards</h3>
@@ -215,9 +251,9 @@ function renderMissingRewardCard(setKey, data, isLegacy = false) {
   const altText = data?.alt || label;
   const fallbackClass = isFallbackImage ? ' class="pixelated-image"' : '';
   const imageMarkup = `<img${fallbackClass} src="${proxied}" alt="${altText}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
-  
+
   const legacyClass = isLegacy ? ' set-card--legacy' : '';
-  
+
   return `
     <button class="set-card set-card--missing${legacyClass}" type="button" data-set-key="${setKey}">
       ${imageMarkup}
@@ -241,7 +277,9 @@ function renderSetCard(setKey, isNew = false) {
   const fallbackClass = isFallbackImage ? ' class="pixelated-image"' : '';
   const imageMarkup = `<img${fallbackClass} src="${proxied}" alt="${altText}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
 
-  const newBadge = isNew ? `<span class=\"set-card__badge\" aria-label=\"New unlock\">New</span>` : '';
+  const newBadge = isNew
+    ? `<span class=\"set-card__badge\" aria-label=\"New unlock\">New</span>`
+    : '';
   const extraClass = isNew ? ' set-card--new' : '';
 
   return `
@@ -265,23 +303,26 @@ function renderTiersSection(tiers) {
     'vault champion': { color: '#a2ff00', badge: '/img/badge/champion.webp' },
     'vault goblin': { color: '#00ff6c', badge: '/img/badge/goblin.webp' },
     'vault cheeser': { color: '#f3dc00', badge: '/img/badge/cheeser.webp' },
-    'vault dweller': { color: '#dc1717', badge: '/img/badge/dweller.webp' }
+    'vault dweller': { color: '#dc1717', badge: '/img/badge/dweller.webp' },
   };
 
-  const items = hasTiers ? tiers
-    .map((tier) => {
-      const label = tier && typeof tier === 'object'
-        ? tier.name || formatLabel(tier.id)
-        : formatLabel(tier);
-      const tierKey = label.toLowerCase();
-      const config = tierConfig[tierKey];
-      
-      if (config) {
-        return `<li style="color: ${config.color}"><img class="tier-badge pixelated-image" src="${config.badge}" alt="${label} badge" width="24" height="24">${label}</li>`;
-      }
-      return `<li>${label}</li>`;
-    })
-    .join('') : '';
+  const items = hasTiers
+    ? tiers
+        .map((tier) => {
+          const label =
+            tier && typeof tier === 'object'
+              ? tier.name || formatLabel(tier.id)
+              : formatLabel(tier);
+          const tierKey = label.toLowerCase();
+          const config = tierConfig[tierKey];
+
+          if (config) {
+            return `<li style="color: ${config.color}"><img class="tier-badge pixelated-image" src="${config.badge}" alt="${label} badge" width="24" height="24">${label}</li>`;
+          }
+          return `<li>${label}</li>`;
+        })
+        .join('')
+    : '';
 
   return `
     <section>
@@ -296,7 +337,9 @@ function renderTiersSection(tiers) {
  */
 function renderExtraSection(rewards) {
   const hasRewards = Object.keys(rewards).length > 0;
-  const panelContent = hasRewards ? renderRewardsList(rewards) : '<p class="muted">No individual rewards recorded.</p>';
+  const panelContent = hasRewards
+    ? renderRewardsList(rewards)
+    : '<p class="muted">No individual rewards recorded.</p>';
 
   return `
     <section>
@@ -314,7 +357,9 @@ function renderRewardsList(rewards) {
     .map(([group, items]) => {
       const normalizedItems = Array.isArray(items) ? items : [];
       const groupLabelRaw = String(group);
-      const groupLabelKey = groupLabelRaw.includes(':') ? groupLabelRaw.split(':').pop() : groupLabelRaw;
+      const groupLabelKey = groupLabelRaw.includes(':')
+        ? groupLabelRaw.split(':').pop()
+        : groupLabelRaw;
       const groupLabelClean = groupLabelKey.replace(/[_\\/]+/g, ' ');
       const groupHeading = formatLabel(groupLabelClean);
 
@@ -434,7 +479,8 @@ function bindDisclosureToggle(toggleId, panelId) {
   const toggle = document.getElementById(toggleId);
   const panel = document.getElementById(panelId);
   if (!toggle || !panel) return;
-  const chev = toggle.querySelector('.chevron') || toggle.querySelector('.missing-rewards__toggle-icon');
+  const chev =
+    toggle.querySelector('.chevron') || toggle.querySelector('.missing-rewards__toggle-icon');
 
   const setChevronForState = (expanded) => {
     if (!chev) return;
@@ -450,7 +496,7 @@ function bindDisclosureToggle(toggleId, panelId) {
     const wasExpanded = toggle.getAttribute('aria-expanded') === 'true';
     const nextExpanded = !wasExpanded;
     toggle.setAttribute('aria-expanded', String(nextExpanded));
-    
+
     // Toggle visibility - check which method this panel uses
     if (panel.hasAttribute('hidden') || nextExpanded === false) {
       // Use attribute-based toggling
@@ -464,7 +510,7 @@ function bindDisclosureToggle(toggleId, panelId) {
     if (panel.classList.contains('hidden') || (!panel.hasAttribute('hidden') && !nextExpanded)) {
       panel.classList.toggle('hidden');
     }
-    
+
     setChevronForState(nextExpanded);
   });
 }

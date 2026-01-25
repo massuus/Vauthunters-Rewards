@@ -12,13 +12,10 @@ export async function onRequest(context) {
 
   // If requesting root, serve pages/index.html
   if (pathname === '/') {
-    const indexRequest = new Request(
-      new URL('/pages/index.html', url.origin),
-      {
-        method: request.method,
-        headers: request.headers,
-      }
-    );
+    const indexRequest = new Request(new URL('/pages/index.html', url.origin), {
+      method: request.method,
+      headers: request.headers,
+    });
     return context.env.ASSETS.fetch(indexRequest);
   }
 

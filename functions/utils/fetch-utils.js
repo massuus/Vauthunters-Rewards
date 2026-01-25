@@ -6,7 +6,7 @@ import {
   INITIAL_RETRY_DELAY_MS,
   MAX_RETRY_DELAY_MS,
   RETRY_BACKOFF_MULTIPLIER,
-  RETRYABLE_STATUS_CODES
+  RETRYABLE_STATUS_CODES,
 } from './config.js';
 
 /**
@@ -23,7 +23,7 @@ export async function fetchWithTimeout(url, options = {}, timeoutMs = TIMEOUT_MS
   try {
     const response = await fetch(url, {
       ...options,
-      signal: controller.signal
+      signal: controller.signal,
     });
     return response;
   } finally {
@@ -47,7 +47,7 @@ function getRetryDelay(attempt) {
  * Sleep for specified milliseconds
  */
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -58,16 +58,16 @@ function isRetryable(error, response) {
   if (error?.name === 'AbortError') {
     return true;
   }
-  
+
   if (error && !response) {
     return true;
   }
-  
+
   // Specific HTTP status codes are retryable
   if (response && RETRYABLE_STATUS_CODES.includes(response.status)) {
     return true;
   }
-  
+
   return false;
 }
 
@@ -91,14 +91,14 @@ export async function fetchWithRetry(
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const response = await fetchWithTimeout(url, options, timeoutMs);
-      
+
       // If successful or non-retryable error, return immediately
       if (response.ok || !isRetryable(null, response)) {
         return response;
       }
-      
+
       lastResponse = response;
-      
+
       // If we have retries left and it's retryable, continue
       if (attempt < maxRetries && isRetryable(null, response)) {
         const delay = getRetryDelay(attempt);
@@ -106,18 +106,20 @@ export async function fetchWithRetry(
         await sleep(delay);
         continue;
       }
-      
+
       return response;
     } catch (error) {
       lastError = error;
-      
+
       // If this is the last attempt or not retryable, throw
       if (attempt >= maxRetries || !isRetryable(error, null)) {
         throw error;
       }
-      
+
       const delay = getRetryDelay(attempt);
-      console.log(`Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms due to error: ${error.message}`);
+      console.log(
+        `Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms due to error: ${error.message}`
+      );
       await sleep(delay);
     }
   }
@@ -138,22 +140,26 @@ export async function fetchWithRetry(
  */
 export async function fetchJson(url, context = 'API', timeoutMs = TIMEOUT_MS) {
   try {
-    const response = await fetchWithRetry(url, {
-      headers: {
-        "user-agent": "Vauthunters Rewards/1.0 (+https://vh-rewards.massuus.com)",
-        accept: "application/json"
-      }
-    }, timeoutMs);
-    
+    const response = await fetchWithRetry(
+      url,
+      {
+        headers: {
+          'user-agent': 'Vauthunters Rewards/1.0 (+https://vh-rewards.massuus.com)',
+          accept: 'application/json',
+        },
+      },
+      timeoutMs
+    );
+
     if (response.status === 404) {
       return { notFound: true, data: null };
     }
-    
+
     if (!response.ok) {
       console.error(`${context} error status:`, response.status);
       return { error: true, status: response.status, data: null };
     }
-    
+
     const data = await response.json();
     return { data };
   } catch (error) {
@@ -163,7 +169,7 @@ export async function fetchJson(url, context = 'API', timeoutMs = TIMEOUT_MS) {
       error: true,
       message: isTimeout ? 'Request timeout' : error.message,
       isTimeout,
-      data: null
+      data: null,
     };
   }
 }

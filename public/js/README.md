@@ -40,30 +40,36 @@ js/
 ## Module Responsibilities
 
 ### Core (`js/core/`)
+
 - **app.js**: Orchestrates module initialization and app startup
 - **logger.js**: Provides logging functionality across the app
 - **error-handler.js**: Sets up global error handlers for runtime and promise errors
 
 ### Utils (`js/utils/`)
+
 - **dom-utils.js**: Cached DOM element references and manipulation helpers
 - **config.js**: App configuration constants (debounce times, cache values, etc.)
 - **clipboard-utils.js**: Clipboard copy functionality
 - **storage-manager.js**: Local storage wrapper for recent users and seen sets
 
 ### Handlers (`js/handlers/`)
+
 - **search-handler.js**: Search form submission, API calls, and result display logic
 
 ### Loaders (`js/loaders/`)
+
 - **template-loader.js**: Loads and caches HTML templates from `/templates/`
 - **image-loader.js**: Creates lazy-loading images with skeleton placeholders
 
 ### Components (`js/components/`)
+
 - **profile-renderer.js**: Renders player profiles with sets, tiers, and rewards
 - **recent-section.js**: Displays recently searched players
 - **set-art-manager.js**: Manages set detail modal and art loading
 - **special-pages.js**: Handles special pages (reward codes, all rewards)
 
 ### Features (`js/features/`)
+
 - **pwa-install.js**: PWA install prompt and standalone mode handling
 - **ui-feedback.js**: Loading states, error messages, and UI feedback
 - **url-state.js**: URL query string parsing and state management

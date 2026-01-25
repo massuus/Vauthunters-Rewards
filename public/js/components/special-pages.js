@@ -13,7 +13,9 @@ let setArtDataPromise = null;
  * Check if a search query is requesting the codes page
  */
 export function isCodesQuery(value) {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   return CODES_QUERY_KEYWORDS.includes(normalized);
 }
 
@@ -21,7 +23,9 @@ export function isCodesQuery(value) {
  * Check if a search query is requesting the all rewards page
  */
 export function isAllQuery(value) {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   return ALL_QUERY_KEYWORDS.includes(normalized);
 }
 
@@ -74,8 +78,10 @@ export async function fetchSetArtData() {
  */
 export function renderCodeCard(item, proxiedImageUrl, escapeHtml) {
   const safeName = escapeHtml(item?.name || 'Mystery Reward');
-  const safeDescription = escapeHtml(item?.description || 'Watch the VOD to learn how to unlock this code.');
-  
+  const safeDescription = escapeHtml(
+    item?.description || 'Watch the VOD to learn how to unlock this code.'
+  );
+
   // Support both old 'image' field and new 'images' array
   let imageSources = [];
   if (item?.images && Array.isArray(item.images)) {
@@ -85,14 +91,16 @@ export function renderCodeCard(item, proxiedImageUrl, escapeHtml) {
   } else {
     imageSources = [UNKNOWN_ITEM_IMAGE];
   }
-  
+
   // Generate image HTML for all images
-  const imagesHtml = imageSources.map(imageSource => {
-    const safeImage = proxiedImageUrl(imageSource);
-    const fallbackClass = imageSource === UNKNOWN_ITEM_IMAGE ? ' class="pixelated-image"' : '';
-    return `<img${fallbackClass} src="${safeImage}" alt="${safeName} reward icon" loading="lazy" decoding="async" width="72" height="72">`;
-  }).join('');
-  
+  const imagesHtml = imageSources
+    .map((imageSource) => {
+      const safeImage = proxiedImageUrl(imageSource);
+      const fallbackClass = imageSource === UNKNOWN_ITEM_IMAGE ? ' class="pixelated-image"' : '';
+      return `<img${fallbackClass} src="${safeImage}" alt="${safeName} reward icon" loading="lazy" decoding="async" width="72" height="72">`;
+    })
+    .join('');
+
   const safeVodUrl = escapeHtml(item?.vodUrl || '#');
   const safeCode = escapeHtml(item?.code || '???');
   const safeExpiry = escapeHtml(item?.expires || '');
@@ -168,13 +176,15 @@ export async function renderCodesPage(
   `;
   setFavicon(DEFAULT_FAVICON);
   document.title = 'Vault Hunters Reward Codes';
-  setMetaDescription('Here is a comprehensive list on how to unlock all possible Vault Hunters code rewards.');
+  setMetaDescription(
+    'Here is a comprehensive list on how to unlock all possible Vault Hunters code rewards.'
+  );
   closeSetDetailModal();
 
   try {
     const codes = await fetchCodesData();
     const cards = codes.length
-      ? codes.map(item => renderCodeCard(item, proxiedImageUrl, escapeHtml)).join('')
+      ? codes.map((item) => renderCodeCard(item, proxiedImageUrl, escapeHtml)).join('')
       : '<p class="codes-page__empty">No featured codes yet. Check back soon!</p>';
 
     resultContainer.innerHTML = `
@@ -215,7 +225,7 @@ export async function renderCodesPage(
 function renderRewardCard(setKey, setData, proxiedImageUrl, escapeHtml, formatLabel) {
   const label = setData?.label || formatLabel(setKey);
   const description = setData?.descriptionLocked || setData?.description || 'Unlockable reward';
-  
+
   // Support both single image and multiple images
   let imageSources = [];
   if (setData?.images && Array.isArray(setData.images)) {
@@ -225,20 +235,21 @@ function renderRewardCard(setKey, setData, proxiedImageUrl, escapeHtml, formatLa
   } else {
     imageSources = ['/img/unknown_item.png'];
   }
-  
+
   // Generate image HTML for all images
-  const imagesHtml = imageSources.map(imageSource => {
-    const safeImage = proxiedImageUrl(imageSource);
-    const isFallback = imageSource === '/img/unknown_item.png';
-    const fallbackClass = isFallback ? ' class="pixelated-image"' : '';
-    return `<img${fallbackClass} src="${safeImage}" alt="${escapeHtml(label)} icon" loading="lazy" decoding="async" width="72" height="72">`;
-  }).join('');
-  
+  const imagesHtml = imageSources
+    .map((imageSource) => {
+      const safeImage = proxiedImageUrl(imageSource);
+      const isFallback = imageSource === '/img/unknown_item.png';
+      const fallbackClass = isFallback ? ' class="pixelated-image"' : '';
+      return `<img${fallbackClass} src="${safeImage}" alt="${escapeHtml(label)} icon" loading="lazy" decoding="async" width="72" height="72">`;
+    })
+    .join('');
+
   // Wrap images in container if there are multiple
-  const imagesContainer = imageSources.length > 1 
-    ? `<div class="reward-card__images">${imagesHtml}</div>` 
-    : imagesHtml;
-  
+  const imagesContainer =
+    imageSources.length > 1 ? `<div class="reward-card__images">${imagesHtml}</div>` : imagesHtml;
+
   const safeName = escapeHtml(label);
   const safeDescription = escapeHtml(description);
 
@@ -281,11 +292,11 @@ export async function renderAllRewardsPage(
   try {
     const setArtData = await fetchSetArtData();
     const entries = Object.entries(setArtData);
-    
+
     // Split rewards into obtainable and unobtainable
     const obtainableRewards = [];
     const unobtainableRewards = [];
-    
+
     entries.forEach(([key, data]) => {
       if (data.obtainable === false) {
         unobtainableRewards.push([key, data]);
@@ -293,16 +304,25 @@ export async function renderAllRewardsPage(
         obtainableRewards.push([key, data]);
       }
     });
-    
+
     const obtainableCards = obtainableRewards.length
-      ? obtainableRewards.map(([key, data]) => renderRewardCard(key, data, proxiedImageUrl, escapeHtml, formatLabel)).join('')
+      ? obtainableRewards
+          .map(([key, data]) =>
+            renderRewardCard(key, data, proxiedImageUrl, escapeHtml, formatLabel)
+          )
+          .join('')
       : '<p class="all-rewards-page__empty">No obtainable rewards available.</p>';
-    
+
     const unobtainableCards = unobtainableRewards.length
-      ? unobtainableRewards.map(([key, data]) => renderRewardCard(key, data, proxiedImageUrl, escapeHtml, formatLabel)).join('')
+      ? unobtainableRewards
+          .map(([key, data]) =>
+            renderRewardCard(key, data, proxiedImageUrl, escapeHtml, formatLabel)
+          )
+          .join('')
       : '';
 
-    const unobtainableSection = unobtainableRewards.length ? `
+    const unobtainableSection = unobtainableRewards.length
+      ? `
       <section class="rewards-section rewards-section--unavailable">
         <header class="rewards-section__header">
           <h3 class="rewards-section__title">No Longer Obtainable</h3>
@@ -313,7 +333,8 @@ export async function renderAllRewardsPage(
           ${unobtainableCards}
         </div>
       </section>
-    ` : '';
+    `
+      : '';
 
     resultContainer.innerHTML = `
       <section class="all-rewards-page" aria-live="polite">

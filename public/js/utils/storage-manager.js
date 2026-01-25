@@ -14,10 +14,10 @@ export function getRecentUsers() {
     if (!Array.isArray(list)) return [];
     // sanitize
     return list
-      .map((x) => ({ 
-        name: String(x?.name || '').trim(), 
+      .map((x) => ({
+        name: String(x?.name || '').trim(),
         head: String(x?.head || ''),
-        tier: Array.isArray(x?.tier) ? x.tier : []
+        tier: Array.isArray(x?.tier) ? x.tier : [],
       }))
       .filter((x) => x.name);
   } catch {

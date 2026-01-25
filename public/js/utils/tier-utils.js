@@ -5,7 +5,7 @@ const TIER_CONFIG = {
   'vault champion': { rank: 4, color: '#a2ff00', badge: '/img/badge/champion.webp' },
   'vault goblin': { rank: 3, color: '#00ff6c', badge: '/img/badge/goblin.webp' },
   'vault cheeser': { rank: 2, color: '#f3dc00', badge: '/img/badge/cheeser.webp' },
-  'vault dweller': { rank: 1, color: '#dc1717', badge: '/img/badge/dweller.webp' }
+  'vault dweller': { rank: 1, color: '#dc1717', badge: '/img/badge/dweller.webp' },
 };
 
 /**
@@ -25,12 +25,12 @@ export function getBestPatreonTier(tiers) {
     const tierName = typeof tier === 'object' && tier.name ? tier.name : String(tier);
     const tierKey = tierName.toLowerCase();
     const config = TIER_CONFIG[tierKey];
-    
+
     if (config && config.rank > bestRank) {
       bestRank = config.rank;
       bestTier = {
         name: tierName,
-        ...config
+        ...config,
       };
     }
   });

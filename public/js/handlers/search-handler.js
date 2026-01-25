@@ -2,10 +2,29 @@
 
 import { SEARCH_DEBOUNCE_MS } from '../utils/config.js';
 import { loadTemplate } from '../loaders/template-loader.js';
-import { form, usernameInput, resultContainer, DEFAULT_FAVICON, defaultTitle, setFavicon, setMetaDescription, proxiedImageUrl } from '../utils/dom-utils.js';
-import { setLoadingState, clearFeedback, showFeedback, clearResult } from '../features/ui-feedback.js';
+import {
+  form,
+  usernameInput,
+  resultContainer,
+  DEFAULT_FAVICON,
+  defaultTitle,
+  setFavicon,
+  setMetaDescription,
+  proxiedImageUrl,
+} from '../utils/dom-utils.js';
+import {
+  setLoadingState,
+  clearFeedback,
+  showFeedback,
+  clearResult,
+} from '../features/ui-feedback.js';
 import { renderProfile } from '../components/profile-renderer.js';
-import { isCodesQuery, isAllQuery, renderCodesPage, renderAllRewardsPage } from '../components/special-pages.js';
+import {
+  isCodesQuery,
+  isAllQuery,
+  renderCodesPage,
+  renderAllRewardsPage,
+} from '../components/special-pages.js';
 import { escapeHtml, formatLabel } from '../features/reward-utils.js';
 
 let submitTimer = null;
@@ -18,7 +37,9 @@ export function initializeSearch() {
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     if (submitTimer) clearTimeout(submitTimer);
-    submitTimer = setTimeout(() => { submitSearch().catch(() => {}); }, SEARCH_DEBOUNCE_MS);
+    submitTimer = setTimeout(() => {
+      submitSearch().catch(() => {});
+    }, SEARCH_DEBOUNCE_MS);
   });
 }
 
@@ -64,7 +85,10 @@ async function submitSearch() {
         DEFAULT_FAVICON
       );
     } catch {
-      showFeedback('Unable to load the reward codes right now. Please try again in a moment.', 'error');
+      showFeedback(
+        'Unable to load the reward codes right now. Please try again in a moment.',
+        'error'
+      );
     } finally {
       setLoadingState(false);
     }
@@ -110,7 +134,9 @@ async function submitSearch() {
     resultContainer.classList.remove('hidden');
     setFavicon(DEFAULT_FAVICON);
     document.title = defaultTitle;
-    const response = await fetch(buildProfileApiUrl(username), { signal: currentRequestController.signal });
+    const response = await fetch(buildProfileApiUrl(username), {
+      signal: currentRequestController.signal,
+    });
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -118,7 +144,9 @@ async function submitSearch() {
       }
 
       if (response.status === 400) {
-        throw new Error('Invalid Minecraft username. Usernames are 3-16 characters without spaces.');
+        throw new Error(
+          'Invalid Minecraft username. Usernames are 3-16 characters without spaces.'
+        );
       }
 
       throw new Error('Something went wrong while retrieving the profile.');

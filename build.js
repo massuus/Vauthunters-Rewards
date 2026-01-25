@@ -35,7 +35,7 @@ const config = {
   pure: ['console.log', 'console.debug'], // Remove in production
   define: {
     'process.env.NODE_ENV': isDev ? '"development"' : '"production"',
-    '__BUILD_REV__': JSON.stringify(buildRev),
+    __BUILD_REV__: JSON.stringify(buildRev),
   },
   loader: {
     '.js': 'js',
@@ -46,24 +46,24 @@ const config = {
 async function processCss() {
   const publicDir = path.join(__dirname, 'public');
   const distDir = path.join(__dirname, 'dist');
-  
+
   console.log('Processing CSS with PostCSS...');
-  
+
   // Read the consolidated main.css
   const cssPath = path.join(publicDir, 'css', 'main.css');
   const cssContent = await fs.readFile(cssPath, 'utf-8');
-  
+
   // In production, minify with PostCSS
   if (!isDev) {
     const postcss = (await import('postcss')).default;
     const autoprefixer = (await import('autoprefixer')).default;
     const cssnano = (await import('cssnano')).default;
-    
-    const result = await postcss([
-      autoprefixer,
-      cssnano({ preset: 'default' })
-    ]).process(cssContent, { from: cssPath, to: path.join(distDir, 'css', 'main.css') });
-    
+
+    const result = await postcss([autoprefixer, cssnano({ preset: 'default' })]).process(
+      cssContent,
+      { from: cssPath, to: path.join(distDir, 'css', 'main.css') }
+    );
+
     await fs.mkdir(path.join(distDir, 'css'), { recursive: true });
     await fs.writeFile(path.join(distDir, 'css', 'main.css'), result.css);
     console.log('CSS minified and optimized');
@@ -78,20 +78,16 @@ async function processCss() {
 async function copyPublicAssets() {
   const publicDir = path.join(__dirname, 'public');
   const distDir = path.join(__dirname, 'dist');
-  
+
   // Ensure dist directory exists
   await fs.mkdir(distDir, { recursive: true });
-  
+
   // Process CSS separately
   await processCss();
-  
+
   // Files to copy (non-JS and non-CSS files)
-  const filesToCopy = [
-    '_headers',
-    '_routes.json',
-    'manifest.json',
-  ];
-  
+  const filesToCopy = ['_headers', '_routes.json', 'manifest.json'];
+
   // Copy files
   for (const file of filesToCopy) {
     const src = path.join(publicDir, file);
@@ -105,7 +101,7 @@ async function copyPublicAssets() {
       }
     }
   }
-  
+
   // Copy directories
   const dirsToCopy = ['templates', 'img', 'css', 'js', 'data', 'pages'];
   for (const dir of dirsToCopy) {
@@ -120,7 +116,7 @@ async function copyPublicAssets() {
       }
     }
   }
-  
+
   // Copy functions directory to root (not inside dist)
   const functionsDir = path.join(__dirname, 'functions');
   // Functions are already in the right place, just ensure they exist
@@ -134,27 +130,27 @@ async function copyPublicAssets() {
 
 async function updateHtmlReferences() {
   if (isDev) return; // Skip in dev mode
-  
+
   const htmlPath = path.join(__dirname, 'dist', 'pages', 'index.html');
   let html = await fs.readFile(htmlPath, 'utf-8');
-  
+
   // Update script reference to point to the correct bundled location
   html = html.replace(
     /<script src="app\.js" type="module"><\/script>/,
     '<script src="../js/core/app.js" type="module"></script>'
   );
-  
+
   await fs.writeFile(htmlPath, html);
   console.log('Updated HTML references');
 }
 
 async function generateMetaReport(result) {
   if (!result.metafile) return;
-  
+
   const metaPath = path.join(__dirname, 'dist', 'meta.json');
   await fs.writeFile(metaPath, JSON.stringify(result.metafile, null, 2));
   console.log('\nBuild analysis saved to dist/meta.json');
-  
+
   // Print bundle sizes
   console.log('\nBundle sizes:');
   for (const [file, info] of Object.entries(result.metafile.outputs)) {
@@ -166,33 +162,33 @@ async function generateMetaReport(result) {
 async function build() {
   try {
     console.log(`Building in ${isDev ? 'development' : 'production'} mode...`);
-    
+
     // Clean dist directory
     const distDir = path.join(__dirname, 'dist');
     try {
       await fs.rm(distDir, { recursive: true, force: true });
     } catch {}
-    
+
     // Build with esbuild
     if (watch) {
       const ctx = await esbuild.context(config);
       await ctx.watch();
       console.log('Watching for changes...');
-      
+
       // Copy assets once
       await copyPublicAssets();
     } else {
       const result = await esbuild.build(config);
-      
+
       // Copy non-JS assets
       await copyPublicAssets();
-      
+
       // Update HTML references
       await updateHtmlReferences();
-      
+
       // Generate meta report
       await generateMetaReport(result);
-      
+
       console.log('\nBuild completed successfully!');
     }
   } catch (error) {

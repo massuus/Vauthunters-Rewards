@@ -61,6 +61,7 @@ public/
 ## Directory Purposes
 
 ### CSS (`css/`)
+
 - **main.css**: Entry point importing all CSS modules
 - **styles.css**: Additional/legacy styles
 - **variables.css**: CSS custom properties and theme configuration
@@ -69,44 +70,51 @@ public/
 - **components/**: Component-specific styles organized by UI section
 
 ### Data (`data/`)
+
 - **codes.json**: Reward codes, descriptions, and VOD links
 - **set-art.json**: Set definitions with item mappings and images
 
 ### Images (`img/`)
+
 - Main game item images (PNG, GIF, WebP formats)
 - Badge folder with tier/achievement badges
 - Images are lazy-loaded for performance
 
 ### JavaScript (`js/`)
+
 Organized into 6 logical modules with clear responsibilities. See [js/README.md](js/README.md) for details.
 
 ### Pages (`pages/`)
+
 - **index.html**: Main application shell (loads app.js)
 - **offline.html**: Offline fallback page served by service worker
 
 ### Templates (`templates/`)
+
 - HTML template fragments loaded dynamically by the application
 - Used for profile cards, modals, sections, and skeleton loaders
 - Referenced by relative paths from the app
 
 ### Root Files
+
 - **manifest.json**: PWA manifest (must be at root per standard)
 - **sw.js**: Service worker (must be at root to have proper scope)
-- **_headers**: Cloudflare-specific header configuration
+- **\_headers**: Cloudflare-specific header configuration
 
 ## File References
 
 All relative file paths have been updated to reflect the new structure:
 
-| File Type | Old Path | New Path |
-|-----------|----------|----------|
-| HTML | `index.html` | `pages/index.html` |
+| File Type    | Old Path       | New Path             |
+| ------------ | -------------- | -------------------- |
+| HTML         | `index.html`   | `pages/index.html`   |
 | Offline page | `offline.html` | `pages/offline.html` |
-| CSS | `main.css` | `css/main.css` |
-| Codes data | `codes.json` | `data/codes.json` |
-| Set art data | `set-art.json` | `data/set-art.json` |
+| CSS          | `main.css`     | `css/main.css`       |
+| Codes data   | `codes.json`   | `data/codes.json`    |
+| Set art data | `set-art.json` | `data/set-art.json`  |
 
 References updated in:
+
 - ✅ `pages/index.html` - CSS, manifest, and script paths
 - ✅ `sw.js` - Static asset cache list and offline page path
 - ✅ `js/utils/config.js` - Static assets cache list
@@ -124,6 +132,7 @@ References updated in:
 ## Build System
 
 The build process (`build.js`) handles:
+
 - ✅ Copying CSS from `css/` folder
 - ✅ Copying `data/` folder with JSON files
 - ✅ Copying `pages/` folder with HTML files

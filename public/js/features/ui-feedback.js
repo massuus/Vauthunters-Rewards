@@ -1,6 +1,14 @@
 // UI feedback and loading state management
 
-import { form, feedback, resultContainer, defaultTitle, DEFAULT_FAVICON, setMetaDescription, setFavicon } from '../utils/dom-utils.js';
+import {
+  form,
+  feedback,
+  resultContainer,
+  defaultTitle,
+  DEFAULT_FAVICON,
+  setMetaDescription,
+  setFavicon,
+} from '../utils/dom-utils.js';
 
 /**
  * Set the loading state of the search button
@@ -17,7 +25,9 @@ export function setLoadingState(isLoading) {
 export function clearFeedback() {
   feedback.textContent = '';
   feedback.classList.remove('error', 'success');
-  try { feedback.setAttribute('hidden', ''); } catch {}
+  try {
+    feedback.setAttribute('hidden', '');
+  } catch {}
 }
 
 /**

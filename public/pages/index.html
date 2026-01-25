@@ -1,101 +1,167 @@
-﻿<!DOCTYPE html>
+﻿<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Look up Vault Hunters players to see their sets, rewards, and Patreon unlocks.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://mc-heads.net https://wiki.vaulthunters.gg; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com; base-uri 'self'; manifest-src 'self'">
-  <meta name="theme-color" content="#f4a941">
-  <title>Vault Hunters Rewards Lookup</title>
-  
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="../manifest.json">
-  
-  <!-- iOS specific meta tags -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="VH Rewards">
-  <link rel="apple-touch-icon" href="https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/180">
-  <link id="favicon" rel="icon" href="https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf" type="image/png" sizes="any">
-  <script>if(location.search&&location.search.length>1){document.documentElement.classList.add('has-query')}</script>
-  
-  <!-- Preconnect to external domains for faster resource loading -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://mc-heads.net">
-  <link rel="dns-prefetch" href="https://playerdb.co">
-  <link rel="dns-prefetch" href="https://rewards.vaulthunters.gg">
-  <link rel="dns-prefetch" href="https://api.vaulthunters.gg">
-  <link rel="dns-prefetch" href="https://wiki.vaulthunters.gg">
-  
-  <!-- Preload critical CSS -->
-  <link rel="preload" href="../css/main.css" as="style">
-  <link rel="stylesheet" href="../css/main.css">
-  
-  <!-- Preload critical fonts -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@400;500;600&display=optional">
-  
-  <!-- Modulepreload for critical JavaScript modules -->
-  <link rel="modulepreload" href="../js/core/app.js">
-  <link rel="modulepreload" href="../js/core/logger.js">
-  <link rel="modulepreload" href="../js/core/error-handler.js">
-  <link rel="modulepreload" href="../js/utils/dom-utils.js">
-  <link rel="modulepreload" href="../js/handlers/search-handler.js">
-  
-  <!-- Prefetch commonly used resources -->
-  <link rel="prefetch" href="../data/set-art.json">
-  <link rel="prefetch" href="../templates/player-card.html">
-  <link rel="prefetch" href="../templates/loading-skeleton.html">
-</head>
-<body>
-  <div class="page">
-    <header class="hero">
-      <div class="hero__content">
-        <h1>Vault Hunters Rewards</h1>
-        <p>Look up a Vault Hunter to see their sets, rewards, and Patreon unlocks.</p>
-      </div>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Look up Vault Hunters players to see their sets, rewards, and Patreon unlocks."
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://mc-heads.net https://wiki.vaulthunters.gg; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com; base-uri 'self'; manifest-src 'self'"
+    />
+    <meta name="theme-color" content="#f4a941" />
+    <title>Vault Hunters Rewards Lookup</title>
 
-    <main class="main">
-      <section class="search">
-        <form id="search-form" class="search__form">
-          <label for="username" class="sr-only">Minecraft Username</label>
-          <input type="text" id="username" name="username" placeholder="Enter Minecraft username" autocomplete="off" required>
-          <button type="submit">Search</button>
-        </form>
-        <p id="feedback" class="feedback" role="status" hidden></p>
-        <div id="recent" class="recent hidden" aria-label="Recent Searches"></div>
-      </section>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="../manifest.json" />
 
-      <section id="result" class="result hidden" aria-live="polite"></section>
-    </main>
+    <!-- iOS specific meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="VH Rewards" />
+    <link
+      rel="apple-touch-icon"
+      href="https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf/180"
+    />
+    <link
+      id="favicon"
+      rel="icon"
+      href="https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf"
+      type="image/png"
+      sizes="any"
+    />
+    <script>
+      if (location.search && location.search.length > 1) {
+        document.documentElement.classList.add('has-query');
+      }
+    </script>
 
-    <footer class="footer">
-      <div class="footer__inner">
-        <div class="footer__brand">
+    <!-- Preconnect to external domains for faster resource loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://mc-heads.net" />
+    <link rel="dns-prefetch" href="https://playerdb.co" />
+    <link rel="dns-prefetch" href="https://rewards.vaulthunters.gg" />
+    <link rel="dns-prefetch" href="https://api.vaulthunters.gg" />
+    <link rel="dns-prefetch" href="https://wiki.vaulthunters.gg" />
+
+    <!-- Preload critical CSS -->
+    <link rel="preload" href="../css/main.css" as="style" />
+    <link rel="stylesheet" href="../css/main.css" />
+
+    <!-- Preload critical fonts -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@400;500;600&display=optional"
+    />
+
+    <!-- Modulepreload for critical JavaScript modules -->
+    <link rel="modulepreload" href="../js/core/app.js" />
+    <link rel="modulepreload" href="../js/core/logger.js" />
+    <link rel="modulepreload" href="../js/core/error-handler.js" />
+    <link rel="modulepreload" href="../js/utils/dom-utils.js" />
+    <link rel="modulepreload" href="../js/handlers/search-handler.js" />
+
+    <!-- Prefetch commonly used resources -->
+    <link rel="prefetch" href="../data/set-art.json" />
+    <link rel="prefetch" href="../templates/player-card.html" />
+    <link rel="prefetch" href="../templates/loading-skeleton.html" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div class="hero__content">
+          <h1>Vault Hunters Rewards</h1>
+          <p>Look up a Vault Hunter to see their sets, rewards, and Patreon unlocks.</p>
+        </div>
+      </header>
+
+      <main class="main">
+        <section class="search">
+          <form id="search-form" class="search__form">
+            <label for="username" class="sr-only">Minecraft Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="Enter Minecraft username"
+              autocomplete="off"
+              required
+            />
+            <button type="submit">Search</button>
+          </form>
+          <p id="feedback" class="feedback" role="status" hidden></p>
+          <div id="recent" class="recent hidden" aria-label="Recent Searches"></div>
+        </section>
+
+        <section id="result" class="result hidden" aria-live="polite"></section>
+      </main>
+
+      <footer class="footer">
+        <div class="footer__inner">
+          <div class="footer__brand">
             <p class="footer__title">Unofficial Vault Hunters rewards lookup</p>
-            <p class="footer__meta"><a class="external-link" href="https://github.com/massuus/Vauthunters-Rewards" target="_blank" rel="noopener">Open source</a>, crafted by <a class="external-link" href="https://massuus.com" target="_blank" rel="noopener">massuus</a> with 💚</p>
-        </div>
-        <div class="footer__links">
-          <div class="footer__column">
-            <p class="footer__label">Official</p>
-              <a class="external-link" href="https://vaulthunters.gg/" target="_blank" rel="noopener">Vault Hunters</a>
-              <a class="external-link" href="https://companions.vaulthunters.gg" target="_blank" rel="noopener">Companion Viewer</a>
+            <p class="footer__meta">
+              <a
+                class="external-link"
+                href="https://github.com/massuus/Vauthunters-Rewards"
+                target="_blank"
+                rel="noopener"
+                >Open source</a
+              >, crafted by
+              <a class="external-link" href="https://massuus.com" target="_blank" rel="noopener"
+                >massuus</a
+              >
+              with 💚
+            </p>
           </div>
-          <div class="footer__column">
-            <p class="footer__label">Explore</p>
-            <a href="?codes" rel="noopener">Reward Codes</a>
+          <div class="footer__links">
+            <div class="footer__column">
+              <p class="footer__label">Official</p>
+              <a
+                class="external-link"
+                href="https://vaulthunters.gg/"
+                target="_blank"
+                rel="noopener"
+                >Vault Hunters</a
+              >
+              <a
+                class="external-link"
+                href="https://companions.vaulthunters.gg"
+                target="_blank"
+                rel="noopener"
+                >Companion Viewer</a
+              >
+            </div>
+            <div class="footer__column">
+              <p class="footer__label">Explore</p>
+              <a href="?codes" rel="noopener">Reward Codes</a>
               <a href="?all" rel="noopener">All Rewards</a>
-          </div>
-          <div class="footer__column">
-            <p class="footer__label">Support</p>
-              <a class="external-link" href="https://github.com/massuus/Vauthunters-Rewards" target="_blank" rel="noopener">Star on GitHub</a>
-              <a class="external-link" href="https://buymeacoffee.com/massuus" target="_blank" rel="noopener" aria-label="Support massuus on Buy Me a Coffee">Buy Me a Coffee</a>
+            </div>
+            <div class="footer__column">
+              <p class="footer__label">Support</p>
+              <a
+                class="external-link"
+                href="https://github.com/massuus/Vauthunters-Rewards"
+                target="_blank"
+                rel="noopener"
+                >Star on GitHub</a
+              >
+              <a
+                class="external-link"
+                href="https://buymeacoffee.com/massuus"
+                target="_blank"
+                rel="noopener"
+                aria-label="Support massuus on Buy Me a Coffee"
+                >Buy Me a Coffee</a
+              >
+            </div>
           </div>
         </div>
-      </div>
-    </footer>
-  </div>
-  <script src="../js/core/app.js" type="module"></script>
-</body>
+      </footer>
+    </div>
+    <script src="../js/core/app.js" type="module"></script>
+  </body>
 </html>

@@ -13,13 +13,13 @@ export function initPWAInstall() {
   window.addEventListener('beforeinstallprompt', (e) => {
     // Prevent the mini-infobar from appearing on mobile
     e.preventDefault();
-    
+
     // Stash the event so it can be triggered later
     deferredPrompt = e;
-    
+
     // Show the install button
     showInstallButton();
-    
+
     logger.info('PWA install prompt available');
   });
 
@@ -27,10 +27,10 @@ export function initPWAInstall() {
   window.addEventListener('appinstalled', () => {
     // Clear the deferredPrompt
     deferredPrompt = null;
-    
+
     // Hide the install button
     hideInstallButton();
-    
+
     logger.info('PWA installed successfully');
   });
 
@@ -46,7 +46,7 @@ export function initPWAInstall() {
 function showInstallButton() {
   // Check if button already exists
   installButton = document.getElementById('pwa-install-button');
-  
+
   if (!installButton) {
     // Create install button
     installButton = document.createElement('button');
@@ -62,17 +62,17 @@ function showInstallButton() {
       <span>Install App</span>
     `;
     installButton.setAttribute('aria-label', 'Install Vault Hunters Rewards as an app');
-    
+
     // Add click handler
     installButton.addEventListener('click', handleInstallClick);
-    
+
     // Insert into the footer
     const footer = document.querySelector('.footer__inner');
     if (footer) {
       footer.insertAdjacentElement('beforeend', installButton);
     }
   }
-  
+
   installButton.classList.remove('hidden');
 }
 
@@ -93,24 +93,24 @@ async function handleInstallClick() {
     logger.warn('No deferred install prompt available');
     return;
   }
-  
+
   // Show the install prompt
   deferredPrompt.prompt();
-  
+
   // Wait for the user to respond to the prompt
   const { outcome } = await deferredPrompt.userChoice;
-  
+
   logger.info('PWA install prompt outcome', { outcome });
-  
+
   if (outcome === 'accepted') {
     logger.info('User accepted the install prompt');
   } else {
     logger.info('User dismissed the install prompt');
   }
-  
+
   // Clear the deferredPrompt
   deferredPrompt = null;
-  
+
   // Hide the button
   hideInstallButton();
 }
@@ -126,5 +126,7 @@ export function isPWAInstallable() {
  * Check if running as PWA
  */
 export function isRunningAsPWA() {
-  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  return (
+    window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
+  );
 }

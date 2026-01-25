@@ -8,7 +8,7 @@ import {
   REQUEST_HEADERS,
   PROFILE_API_TIMEOUT,
   REWARDS_API_TIMEOUT,
-  TIER_API_TIMEOUT
+  TIER_API_TIMEOUT,
 } from '../utils/config.js';
 
 const USERNAME_REGEX = /^[A-Za-z0-9_]{3,16}$/;
@@ -24,33 +24,30 @@ export async function onRequest({ request }) {
     const info = apiRateLimiter.getInfo(rateLimitKey);
     return rateLimitResponse(info);
   }
-  
+
   const url = new URL(request.url);
-  const username = (url.searchParams.get("username") || "").trim();
+  const username = (url.searchParams.get('username') || '').trim();
 
   if (!username) {
-    return badRequest("Username query parameter is required.");
+    return badRequest('Username query parameter is required.');
   }
 
   const normalizedUsername = username.toLowerCase();
 
   if (!USERNAME_REGEX.test(normalizedUsername)) {
-    return badRequest("Invalid Minecraft username. Use 3-16 letters, numbers, or underscores.");
+    return badRequest('Invalid Minecraft username. Use 3-16 letters, numbers, or underscores.');
   }
 
-
   // Simple mock mode to aid local testing: /api/profile?username=...&mock=1
-  if (url.searchParams.has("mock")) {
-    const mockName = username || "Mock User";
+  if (url.searchParams.has('mock')) {
+    const mockName = username || 'Mock User';
     return json({
-      id: "mock",
+      id: 'mock',
       name: mockName,
-      head: "https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf",
-      "rewards": {},
-      sets: [
-        "dylan_vip",
-      ],
-      tier: []
+      head: 'https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf',
+      rewards: {},
+      sets: ['dylan_vip'],
+      tier: [],
     });
   }
 
@@ -58,19 +55,19 @@ export async function onRequest({ request }) {
     const profile = await fetchProfile(normalizedUsername);
 
     if (!profile) {
-      return json({ error: "Player not found." }, 404);
+      return json({ error: 'Player not found.' }, 404);
     }
 
     const { rawId, name, head } = profile;
     const formattedId = formatUuid(rawId);
 
     if (!rawId || !formattedId) {
-      return json({ error: "Unable to resolve player UUID." }, 502);
+      return json({ error: 'Unable to resolve player UUID.' }, 502);
     }
 
     const [rewardsData, tier] = await Promise.all([
       fetchRewards(formattedId),
-      fetchTiers(formattedId)
+      fetchTiers(formattedId),
     ]);
 
     const { rewards, sets } = rewardsData;
@@ -81,21 +78,27 @@ export async function onRequest({ request }) {
       head,
       rewards,
       sets,
-      tier
+      tier,
     });
   } catch (error) {
-    console.error("Profile lookup error", {
+    console.error('Profile lookup error', {
       username: normalizedUsername,
       message: error instanceof Error ? error.message : String(error),
       status: error?.status,
       stack: error?.stack,
-      isTimeout: error?.isTimeout
+      isTimeout: error?.isTimeout,
     });
     const status = typeof error?.status === 'number' ? error.status : 500;
-    return json({
-      error: status >= 500 ? "Failed to retrieve player data. Please try again." : (error?.message || "Request failed."),
-      details: error?.details || undefined
-    }, status);
+    return json(
+      {
+        error:
+          status >= 500
+            ? 'Failed to retrieve player data. Please try again.'
+            : error?.message || 'Request failed.',
+        details: error?.details || undefined,
+      },
+      status
+    );
   }
 }
 
@@ -127,14 +130,14 @@ async function fetchProfile(username) {
   const player = data.data.player;
   const rawId = player.raw_id;
 
-  if (typeof rawId !== "string" || rawId.length !== UUID_HEX_LENGTH) {
+  if (typeof rawId !== 'string' || rawId.length !== UUID_HEX_LENGTH) {
     return null;
   }
 
   return {
     rawId,
     name: player.username || username,
-    head: `https://mc-heads.net/avatar/${rawId}`
+    head: `https://mc-heads.net/avatar/${rawId}`,
   };
 }
 
@@ -196,7 +199,7 @@ function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
-      "content-type": "application/json; charset=utf-8"
-    }
+      'content-type': 'application/json; charset=utf-8',
+    },
   });
 }

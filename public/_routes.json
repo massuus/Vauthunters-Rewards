@@ -1,12 +1,6 @@
 {
   "version": 1,
-  "include": [
-    "/",
-    "/api/*",
-    "/img*",
-    "/proxy-img",
-    "/proxy-img*"
-  ],
+  "include": ["/", "/api/*", "/img*", "/proxy-img", "/proxy-img*"],
   "exclude": [
     "/css/*",
     "/js/*",

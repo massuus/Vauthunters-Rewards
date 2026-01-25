@@ -53,6 +53,7 @@ Is path = "/" ?
 ## Local Development
 
 When running locally with `wrangler dev`:
+
 - The Cloudflare Functions are still available
 - Static file serving works from the dist folder
 - Navigation to `/` is routed to `/pages/index.html`
@@ -60,6 +61,7 @@ When running locally with `wrangler dev`:
 ## Production Deployment
 
 When deployed to Cloudflare Workers:
+
 - The functions handle routing at the edge
 - Static files are cached and served globally
 - Zero-latency routing to the correct assets
@@ -84,6 +86,7 @@ dist/
 ## Testing Routes
 
 After building, you can test:
+
 - `http://localhost:8788/` → Should serve index.html
 - `http://localhost:8788/pages/index.html` → Should serve directly
 - `http://localhost:8788/css/main.css` → Should serve CSS

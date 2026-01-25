@@ -1,7 +1,13 @@
 // Recent users section rendering and handling
 
 import { loadTemplate, renderTemplate } from '../loaders/template-loader.js';
-import { recentContainer, usernameInput, form, proxiedImageUrl, DEFAULT_FAVICON } from '../utils/dom-utils.js';
+import {
+  recentContainer,
+  usernameInput,
+  form,
+  proxiedImageUrl,
+  DEFAULT_FAVICON,
+} from '../utils/dom-utils.js';
 import { getRecentUsers } from '../utils/storage-manager.js';
 import { escapeHtml } from '../features/reward-utils.js';
 import { getBestPatreonTier } from '../utils/tier-utils.js';
@@ -26,7 +32,7 @@ export async function renderRecentSection() {
       return `<button class="recent-item" type="button" data-name="${safe}"><img src="${img}" alt="${safe}'s head" width="28" height="28"><span style="${nameStyle}">${safe}</span></button>`;
     })
     .join('');
-  
+
   const template = await loadTemplate('recent-section');
   recentContainer.innerHTML = renderTemplate(template, { buttons });
   recentContainer.classList.remove('hidden');
@@ -38,13 +44,12 @@ export async function renderRecentSection() {
  */
 function bindRecentHandlers() {
   if (!recentContainer) return;
-  recentContainer.querySelectorAll('button.recent-item[data-name]')
-    .forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const name = btn.getAttribute('data-name') || '';
-        if (!name) return;
-        usernameInput.value = name;
-        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-      });
+  recentContainer.querySelectorAll('button.recent-item[data-name]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const name = btn.getAttribute('data-name') || '';
+      if (!name) return;
+      usernameInput.value = name;
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });
+  });
 }

@@ -20,14 +20,14 @@ export const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute
 export const RETRYABLE_STATUS_CODES = [408, 429, 500, 502, 503, 504];
 
 // API URLs (keeping them here for easy configuration)
-export const PLAYERDB_PROFILE_URL = "https://playerdb.co/api/player/minecraft/";
-export const REWARDS_URL = "https://rewards.vaulthunters.gg/rewards?minecraft=";
-export const TIER_URL = "https://api.vaulthunters.gg/users/reward?uuid=";
+export const PLAYERDB_PROFILE_URL = 'https://playerdb.co/api/player/minecraft/';
+export const REWARDS_URL = 'https://rewards.vaulthunters.gg/rewards?minecraft=';
+export const TIER_URL = 'https://api.vaulthunters.gg/users/reward?uuid=';
 
 // Minecraft UUID without dashes is 32 hex characters
 export const UUID_HEX_LENGTH = 32;
 
 export const REQUEST_HEADERS = {
-  "user-agent": "Vauthunters Rewards/1.0 (+https://vh-rewards.massuus.com)",
-  accept: "application/json"
+  'user-agent': 'Vauthunters Rewards/1.0 (+https://vh-rewards.massuus.com)',
+  accept: 'application/json',
 };

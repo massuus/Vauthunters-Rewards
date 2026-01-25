@@ -58,6 +58,7 @@ npm run deploy
 ```
 
 The build process:
+
 - Minifies JavaScript with esbuild
 - Minifies and autoprefixes CSS with PostCSS
 - Enables code splitting for optimal loading
@@ -95,6 +96,7 @@ Response:
 ```
 
 Errors:
+
 - 400 for missing/invalid username
 - 404 when player cannot be resolved
 - 500 for unexpected upstream failures
@@ -106,7 +108,7 @@ You can bypass upstream calls during development:
 - Add `&mock=1` to the request: `GET /api/profile?username=anything&mock=1`
 - The frontend forwards `mock` from the page URL to the API, so visiting:
   - `/?username=anything&mock=1&bust=1`
-  will render predictable mock data.
+    will render predictable mock data.
 
 ### Cache busting and service worker
 
@@ -154,14 +156,18 @@ You can bypass upstream calls during development:
 ## Special Pages
 
 ### Codes Page
+
 Search for **"codes"** to view all unlockable reward codes:
+
 - Each code card displays name, description, VOD link, and reveal button
 - Support for multiple images per reward
 - Expiry dates shown when available
 - Direct link to the official redeem page
 
 ### All Rewards Browse
+
 Search for **"all"** or **"rewards"** to browse every unlockable reward:
+
 - Grid view of all rewards with images and descriptions
 - Shows total count of available rewards
 - Multi-image support for rewards with multiple items

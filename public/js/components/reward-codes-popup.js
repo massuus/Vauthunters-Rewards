@@ -45,7 +45,7 @@ export class RewardCodesPopup {
     popup.setAttribute('role', 'dialog');
     popup.setAttribute('aria-labelledby', 'codes-popup-title');
     popup.setAttribute('aria-describedby', 'codes-popup-description');
-    
+
     popup.innerHTML = `
       <div class="codes-popup__header">
         <h3 id="codes-popup-title" class="codes-popup__title">Looking for reward codes?</h3>
@@ -56,7 +56,7 @@ export class RewardCodesPopup {
         <a href="?codes" class="codes-popup__link">View Codes</a>
       </div>
     `;
-    
+
     return popup;
   }
 
@@ -73,14 +73,14 @@ export class RewardCodesPopup {
     setTimeout(() => {
       this.popup = this.createPopup();
       document.body.appendChild(this.popup);
-      
+
       // Add event listeners
       const closeButton = this.popup.querySelector('.codes-popup__close');
       closeButton.addEventListener('click', () => this.dismiss());
-      
+
       const link = this.popup.querySelector('.codes-popup__link');
       link.addEventListener('click', () => this.markDismissed());
-      
+
       // Auto-dismiss after 15 seconds if user doesn't interact
       this.autoDismissTimeout = setTimeout(() => {
         if (this.popup && document.body.contains(this.popup)) {
@@ -95,15 +95,15 @@ export class RewardCodesPopup {
    */
   dismiss() {
     if (!this.popup) return;
-    
+
     // Clear auto-dismiss timeout
     if (this.autoDismissTimeout) {
       clearTimeout(this.autoDismissTimeout);
     }
-    
+
     // Add hiding animation
     this.popup.classList.add('hiding');
-    
+
     // Remove from DOM after animation
     setTimeout(() => {
       if (this.popup && document.body.contains(this.popup)) {
@@ -111,7 +111,7 @@ export class RewardCodesPopup {
       }
       this.popup = null;
     }, 300);
-    
+
     // Mark as dismissed so it doesn't show again
     this.markDismissed();
   }

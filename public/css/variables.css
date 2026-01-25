@@ -11,23 +11,23 @@
   --border: rgba(244, 169, 65, 0.3);
   --error: #ff6b6b;
   --success: #65d07d;
-  
+
   /* Shadows */
   --shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
-  
+
   /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
-  
+
   /* Border radius */
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
   --radius-xl: 24px;
-  
+
   /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-normal: 0.2s ease;

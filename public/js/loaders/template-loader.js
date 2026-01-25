@@ -18,7 +18,7 @@ export async function loadTemplate(templateName) {
   try {
     const response = await fetch(`/templates/${templateName}.html`, {
       // Use cache strategy: prefer cached over network if available
-      cache: 'default'
+      cache: 'default',
     });
     if (!response.ok) {
       throw new Error(`Failed to load template: ${templateName}`);
@@ -27,7 +27,11 @@ export async function loadTemplate(templateName) {
     templateCache[templateName] = html;
     return html;
   } catch (error) {
-    logger.error('Error loading template', { templateName, error: error.message, stack: error.stack });
+    logger.error('Error loading template', {
+      templateName,
+      error: error.message,
+      stack: error.stack,
+    });
     return '';
   }
 }
@@ -40,15 +44,15 @@ export async function loadTemplate(templateName) {
  */
 export function renderTemplate(template, data = {}) {
   let result = template;
-  
+
   // Replace {{key}} with data values
-  Object.keys(data).forEach(key => {
+  Object.keys(data).forEach((key) => {
     const value = data[key] !== undefined && data[key] !== null ? data[key] : '';
     // Use a global regex to replace all occurrences
     const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
     result = result.replace(regex, value);
   });
-  
+
   return result;
 }
 
@@ -71,7 +75,7 @@ export async function loadAndRender(templateName, data = {}) {
  */
 export async function preloadTemplates(templateNames) {
   try {
-    await Promise.all(templateNames.map(name => loadTemplate(name)));
+    await Promise.all(templateNames.map((name) => loadTemplate(name)));
     logger.debug(`Preloaded ${templateNames.length} templates`);
   } catch (error) {
     logger.error('Error preloading templates', { error: error.message });
@@ -83,7 +87,7 @@ export async function preloadTemplates(templateNames) {
  * Service worker cache is maintained separately
  */
 export function clearTemplateCache() {
-  Object.keys(templateCache).forEach(key => delete templateCache[key]);
+  Object.keys(templateCache).forEach((key) => delete templateCache[key]);
   logger.debug('Template cache cleared');
 }
 
@@ -94,6 +98,6 @@ export function clearTemplateCache() {
 export function getTemplateCacheStats() {
   return {
     cached: Object.keys(templateCache).length,
-    templates: Object.keys(templateCache)
+    templates: Object.keys(templateCache),
   };
 }

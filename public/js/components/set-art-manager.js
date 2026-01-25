@@ -4,7 +4,12 @@ import { logger } from '../core/logger.js';
 import { loadTemplate } from '../loaders/template-loader.js';
 import { proxiedImageUrl, UNKNOWN_ITEM_IMAGE } from '../utils/dom-utils.js';
 import { formatLabel } from '../features/reward-utils.js';
-import { getLastFocusedElement, setLastFocusedElement, getModalKeydownHandler, setModalKeydownHandler } from '../features/url-state.js';
+import {
+  getLastFocusedElement,
+  setLastFocusedElement,
+  getModalKeydownHandler,
+  setModalKeydownHandler,
+} from '../features/url-state.js';
 
 let setArtStore = {};
 let setArtLoadPromise = null;
@@ -72,7 +77,7 @@ async function ensureSetDetailModal() {
     close: overlay.querySelector('.set-modal__close'),
     imagesContainer: overlay.querySelector('.set-modal__images'),
     title: overlay.querySelector('.set-modal__title'),
-    description: overlay.querySelector('.set-modal__description')
+    description: overlay.querySelector('.set-modal__description'),
   };
 
   elements.backdrop.addEventListener('click', closeSetDetailModal);
@@ -89,9 +94,11 @@ export async function openSetDetailModal(setKey, isOwned = true) {
   const modal = await ensureSetDetailModal();
   const asset = setArtStore?.[setKey] || {};
   const label = asset.label || formatLabel(setKey);
-  const description = isOwned 
-    ? (asset.descriptionObtained || asset.description || `You obtained this by unlocking the ${label}.`)
-    : (asset.descriptionLocked || asset.description || `Unlock the ${label}.`);
+  const description = isOwned
+    ? asset.descriptionObtained ||
+      asset.description ||
+      `You obtained this by unlocking the ${label}.`
+    : asset.descriptionLocked || asset.description || `Unlock the ${label}.`;
 
   // Support both single image and multiple images
   let imageSources = [];
@@ -110,7 +117,7 @@ export async function openSetDetailModal(setKey, isOwned = true) {
   imageSources.forEach((imageSource) => {
     const isFallbackImage = imageSource === UNKNOWN_ITEM_IMAGE;
     const proxied = proxiedImageUrl(imageSource);
-    
+
     const img = document.createElement('img');
     img.className = 'set-modal__image';
     if (isFallbackImage) {
@@ -123,13 +130,13 @@ export async function openSetDetailModal(setKey, isOwned = true) {
     img.setAttribute('fetchpriority', 'low');
     img.setAttribute('width', '96');
     img.setAttribute('height', '96');
-    
+
     img.onerror = () => {
       img.onerror = null;
       img.src = imageSource;
       img.setAttribute('referrerpolicy', 'no-referrer');
     };
-    
+
     modal.imagesContainer.appendChild(img);
   });
 

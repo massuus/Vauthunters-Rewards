@@ -21,22 +21,22 @@ class RateLimiter {
   allow(key) {
     const now = Date.now();
     const userRequests = this.requests.get(key) || [];
-    
+
     // Remove expired entries
-    const validRequests = userRequests.filter(timestamp => now - timestamp < this.windowMs);
-    
+    const validRequests = userRequests.filter((timestamp) => now - timestamp < this.windowMs);
+
     if (validRequests.length >= this.maxRequests) {
       return false;
     }
-    
+
     validRequests.push(now);
     this.requests.set(key, validRequests);
-    
+
     // Cleanup old entries periodically
     if (this.requests.size > 1000) {
       this.cleanup(now);
     }
-    
+
     return true;
   }
 
@@ -46,14 +46,12 @@ class RateLimiter {
   getInfo(key) {
     const now = Date.now();
     const userRequests = this.requests.get(key) || [];
-    const validRequests = userRequests.filter(timestamp => now - timestamp < this.windowMs);
-    
+    const validRequests = userRequests.filter((timestamp) => now - timestamp < this.windowMs);
+
     return {
       remaining: Math.max(0, this.maxRequests - validRequests.length),
       limit: this.maxRequests,
-      resetTime: validRequests.length > 0 
-        ? validRequests[0] + this.windowMs 
-        : now + this.windowMs
+      resetTime: validRequests.length > 0 ? validRequests[0] + this.windowMs : now + this.windowMs,
     };
   }
 
@@ -62,7 +60,7 @@ class RateLimiter {
    */
   cleanup(now) {
     for (const [key, timestamps] of this.requests.entries()) {
-      const valid = timestamps.filter(t => now - t < this.windowMs);
+      const valid = timestamps.filter((t) => now - t < this.windowMs);
       if (valid.length === 0) {
         this.requests.delete(key);
       } else {
@@ -80,7 +78,7 @@ export function getRateLimitKey(request) {
   // Prefer Cloudflare's connecting IP header
   const cfIp = request.headers.get('CF-Connecting-IP');
   if (cfIp) return `ip:${cfIp}`;
-  
+
   // Fallback to user-agent hash
   const userAgent = request.headers.get('user-agent') || 'unknown';
   return `ua:${hashString(userAgent)}`;
@@ -93,7 +91,7 @@ function hashString(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash;
   }
   return Math.abs(hash).toString(36);
@@ -107,7 +105,7 @@ export function rateLimitResponse(info) {
   return new Response(
     JSON.stringify({
       error: 'Too many requests. Please try again later.',
-      retryAfter: retryAfterSeconds
+      retryAfter: retryAfterSeconds,
     }),
     {
       status: 429,
@@ -116,8 +114,8 @@ export function rateLimitResponse(info) {
         'Retry-After': String(retryAfterSeconds),
         'X-RateLimit-Limit': String(info.limit),
         'X-RateLimit-Remaining': String(info.remaining),
-        'X-RateLimit-Reset': String(Math.floor(info.resetTime / 1000))
-      }
+        'X-RateLimit-Reset': String(Math.floor(info.resetTime / 1000)),
+      },
     }
   );
 }
