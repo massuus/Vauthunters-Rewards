@@ -21,7 +21,7 @@ export function setMetaDescription(text) {
   try {
     if (!metaDescriptionEl) return;
     metaDescriptionEl.setAttribute('content', text || '');
-  } catch (_) {}
+  } catch {}
 }
 
 /**
@@ -42,7 +42,7 @@ export function setFavicon(url) {
     link.href = proxiedImageUrl(href);
     link.type = href.endsWith('.svg') ? 'image/svg+xml' : 'image/png';
     link.sizes = 'any';
-  } catch (_) {
+  } catch {
     // ignore
   }
 }
@@ -56,7 +56,7 @@ export function proxiedImageUrl(url) {
     if (u.hostname === 'wiki.vaulthunters.gg' || u.hostname === 'mc-heads.net') {
       return `/proxy-img?url=${encodeURIComponent(url)}`;
     }
-  } catch (e) {
+  } catch {
     // ignore invalid URLs
   }
   return url;

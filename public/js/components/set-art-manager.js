@@ -2,8 +2,8 @@
 
 import { logger } from '../core/logger.js';
 import { loadTemplate } from '../loaders/template-loader.js';
-import { proxiedImageUrl, UNKNOWN_ITEM_IMAGE, resultContainer } from '../utils/dom-utils.js';
-import { formatLabel, escapeHtml } from '../features/reward-utils.js';
+import { proxiedImageUrl, UNKNOWN_ITEM_IMAGE } from '../utils/dom-utils.js';
+import { formatLabel } from '../features/reward-utils.js';
 import { getLastFocusedElement, setLastFocusedElement, getModalKeydownHandler, setModalKeydownHandler } from '../features/url-state.js';
 
 let setArtStore = {};
@@ -107,7 +107,7 @@ export async function openSetDetailModal(setKey, isOwned = true) {
   modal.imagesContainer.innerHTML = '';
 
   // Add all images to the modal
-  imageSources.forEach((imageSource, index) => {
+  imageSources.forEach((imageSource) => {
     const isFallbackImage = imageSource === UNKNOWN_ITEM_IMAGE;
     const proxied = proxiedImageUrl(imageSource);
     
@@ -168,7 +168,7 @@ export function closeSetDetailModal() {
 
   setModalElements.overlay.classList.add('hidden');
 
-  let handler = getModalKeydownHandler();
+  const handler = getModalKeydownHandler();
   if (handler) {
     window.removeEventListener('keydown', handler);
     setModalKeydownHandler(null);

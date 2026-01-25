@@ -123,12 +123,11 @@ async function copyPublicAssets() {
   
   // Copy functions directory to root (not inside dist)
   const functionsDir = path.join(__dirname, 'functions');
-  const distFunctionsDir = path.join(__dirname, 'functions');
   // Functions are already in the right place, just ensure they exist
   try {
     await fs.access(functionsDir);
     console.log('Functions directory verified');
-  } catch (err) {
+  } catch {
     console.error('Warning: functions directory not found');
   }
 }

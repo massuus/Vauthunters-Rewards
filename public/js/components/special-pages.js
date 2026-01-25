@@ -1,8 +1,5 @@
 // Special pages logic (codes page, all rewards page, etc.)
 
-import { escapeHtml, formatLabel } from '../features/reward-utils.js';
-import { loadTemplate, renderTemplate } from '../loaders/template-loader.js';
-
 const CODES_QUERY_KEYWORDS = ['codes', 'code'];
 const ALL_QUERY_KEYWORDS = ['all', 'rewards'];
 const CODES_DATA_URL = '/data/codes.json';
@@ -244,7 +241,6 @@ function renderRewardCard(setKey, setData, proxiedImageUrl, escapeHtml, formatLa
   
   const safeName = escapeHtml(label);
   const safeDescription = escapeHtml(description);
-  const safeKey = escapeHtml(setKey);
 
   return `
     <article class="reward-card">

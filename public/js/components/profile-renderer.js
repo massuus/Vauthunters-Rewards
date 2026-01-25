@@ -2,8 +2,8 @@
 
 import { logger } from '../core/logger.js';
 import { loadTemplate, renderTemplate } from '../loaders/template-loader.js';
-import { resultContainer, proxiedImageUrl, setMetaDescription, setFavicon, DEFAULT_FAVICON, UNKNOWN_ITEM_IMAGE, usernameInput, form } from '../utils/dom-utils.js';
-import { escapeHtml, toSnake, deriveRewardPath, deriveRewardName, augmentSets, formatLabel } from '../features/reward-utils.js';
+import { resultContainer, proxiedImageUrl, setMetaDescription, setFavicon, UNKNOWN_ITEM_IMAGE, usernameInput, form } from '../utils/dom-utils.js';
+import { escapeHtml, deriveRewardName, augmentSets, formatLabel } from '../features/reward-utils.js';
 import { loadSetArt, getSetArtStore, closeSetDetailModal, openSetDetailModal } from './set-art-manager.js';
 import { getShareUrl } from '../features/url-state.js';
 import { getSeenSets, setSeenSets, addRecentUser } from '../utils/storage-manager.js';
@@ -45,7 +45,7 @@ export async function renderProfile(data) {
   const isReturningPlayer = previouslySeen.size > 0;
   const newSetKeys = isReturningPlayer ? new Set(sets.filter((s) => !previouslySeen.has(s))) : new Set();
 
-  const setsSection = renderSetsSection(sets, newSetKeys, setArtStore);
+  const setsSection = renderSetsSection(sets, newSetKeys);
   const missingRewardsSection = renderMissingRewardsSection(sets, setArtStore);
   const tiersSection = renderTiersSection(tiers);
   const extraSection = renderExtraSection(rewards);
@@ -97,7 +97,7 @@ export async function renderProfile(data) {
 /**
  * Render the vault sets section
  */
-function renderSetsSection(sets, newSetKeys = new Set(), setArtStore = {}) {
+function renderSetsSection(sets, newSetKeys = new Set()) {
   const hasSets = sets.length > 0;
   const setsContent = hasSets ? sets.map((setKey) => renderSetCard(setKey, newSetKeys.has(setKey))).join('') : '';
   

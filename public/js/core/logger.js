@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // Structured logging utility with environment-aware configuration
 
 const LOG_LEVELS = {
@@ -76,7 +77,7 @@ class Logger {
       // Keep only last 50 errors
       if (errors.length > 50) errors.shift();
       sessionStorage.setItem('app_errors', JSON.stringify(errors));
-    } catch (_) {
+    } catch {
       // Silently fail if storage is unavailable
     }
   }

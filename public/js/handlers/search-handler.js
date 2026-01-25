@@ -4,7 +4,6 @@ import { SEARCH_DEBOUNCE_MS } from '../utils/config.js';
 import { loadTemplate } from '../loaders/template-loader.js';
 import { form, usernameInput, resultContainer, DEFAULT_FAVICON, defaultTitle, setFavicon, setMetaDescription, proxiedImageUrl } from '../utils/dom-utils.js';
 import { setLoadingState, clearFeedback, showFeedback, clearResult } from '../features/ui-feedback.js';
-import { loadSetArt } from '../components/set-art-manager.js';
 import { renderProfile } from '../components/profile-renderer.js';
 import { isCodesQuery, isAllQuery, renderCodesPage, renderAllRewardsPage } from '../components/special-pages.js';
 import { escapeHtml, formatLabel } from '../features/reward-utils.js';
@@ -64,7 +63,7 @@ async function submitSearch() {
         escapeHtml,
         DEFAULT_FAVICON
       );
-    } catch (error) {
+    } catch {
       showFeedback('Unable to load the reward codes right now. Please try again in a moment.', 'error');
     } finally {
       setLoadingState(false);
@@ -95,7 +94,7 @@ async function submitSearch() {
         formatLabel,
         DEFAULT_FAVICON
       );
-    } catch (error) {
+    } catch {
       showFeedback('Unable to load all rewards right now. Please try again in a moment.', 'error');
     } finally {
       setLoadingState(false);
@@ -154,5 +153,5 @@ function buildProfileApiUrl(username) {
       }
     });
   } catch {}
-  return base.pathname + '?' + base.searchParams.toString();
+  return `${base.pathname}?${base.searchParams.toString()}`;
 }

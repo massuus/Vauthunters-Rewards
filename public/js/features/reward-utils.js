@@ -43,11 +43,11 @@ export function deriveRewardName(snakeName) {
 /**
  * Augment reward sets with additional metadata
  */
-export function augmentSets(sets, setArtStore) {
+export function augmentSets(sets) {
   try {
     const list = Array.isArray(sets) ? sets.slice() : [];
     return Array.from(new Set(list));
-  } catch (_) {
+  } catch {
     return Array.isArray(sets) ? sets : [];
   }
 }

@@ -17,7 +17,7 @@ export function setLoadingState(isLoading) {
 export function clearFeedback() {
   feedback.textContent = '';
   feedback.classList.remove('error', 'success');
-  try { feedback.setAttribute('hidden', ''); } catch (_) {}
+  try { feedback.setAttribute('hidden', ''); } catch {}
 }
 
 /**
@@ -37,7 +37,7 @@ export function showFeedback(message, type) {
     } else {
       feedback.setAttribute('hidden', '');
     }
-  } catch (_) {}
+  } catch {}
 }
 
 /**

@@ -27,7 +27,7 @@ export async function onRequest({ request }) {
     const headers = {
       "user-agent": REQUEST_HEADERS["user-agent"],
       accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
-      referer: target.origin + "/"
+      referer: `${target.origin}/`
     };
 
     // Pass through conditional headers

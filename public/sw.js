@@ -124,7 +124,7 @@ self.addEventListener('fetch', (event) => {
         const response = await fetch(request);
         caches.open(STATIC_CACHE).then((cache) => cache.put(request, response.clone())).catch(() => {});
         return response;
-      } catch (error) {
+      } catch {
         // Network failed - try cache
         const cached = await caches.match(request);
         if (cached) return cached;
@@ -160,7 +160,7 @@ self.addEventListener('fetch', (event) => {
           trimCache(RUNTIME_CACHE, MAX_IMAGE_CACHE_SIZE).catch(() => {});
         }
         return response;
-      } catch (err) {
+      } catch {
         if (cached) return cached; // last resort
         // Return a transparent 1x1 pixel as fallback
         return new Response(
@@ -196,7 +196,7 @@ self.addEventListener('fetch', (event) => {
             const net = await fetch(request);
             if (net.ok) await cache.put(request, net.clone());
             return net;
-          } catch (e) {
+          } catch {
             return new Response('Template not found', { status: 404 });
           }
         })());
@@ -238,9 +238,9 @@ self.addEventListener('fetch', (event) => {
               trimCache(DATA_CACHE, MAX_TEMPLATE_CACHE_SIZE).catch(() => {});
             }
             return net;
-          } catch (e) {
+          } catch (error) {
             if (cached) return cached;
-            throw e;
+            throw error;
           }
         })());
         return;
@@ -283,10 +283,10 @@ self.addEventListener('fetch', (event) => {
               trimCache(RUNTIME_CACHE, MAX_RUNTIME_CACHE_SIZE).catch(() => {});
             }
             return net;
-          } catch (e) {
+          } catch (error) {
             // Network failed; fall back to stale cache if present
             if (cached) return cached;
-            throw e;
+            throw error;
           }
         })());
         return;

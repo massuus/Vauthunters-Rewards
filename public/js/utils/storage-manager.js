@@ -20,7 +20,7 @@ export function getRecentUsers() {
         tier: Array.isArray(x?.tier) ? x.tier : []
       }))
       .filter((x) => x.name);
-  } catch (_) {
+  } catch {
     return [];
   }
 }
@@ -31,7 +31,7 @@ export function getRecentUsers() {
 export function saveRecentUsers(users) {
   try {
     localStorage.setItem(RECENT_USERS_KEY, JSON.stringify(users || []));
-  } catch (_) {}
+  } catch {}
 }
 
 /**
@@ -47,7 +47,7 @@ export function addRecentUser(user) {
     const existing = getRecentUsers().filter((u) => u.name.toLowerCase() !== key);
     const next = [{ name, head, tier }, ...existing].slice(0, 4);
     saveRecentUsers(next);
-  } catch (_) {}
+  } catch {}
 }
 
 /**
@@ -61,7 +61,7 @@ export function getSeenSets(username) {
     const list = JSON.parse(raw);
     if (!Array.isArray(list)) return new Set();
     return new Set(list.filter((v) => typeof v === 'string'));
-  } catch (_) {
+  } catch {
     return new Set();
   }
 }
@@ -74,7 +74,7 @@ export function setSeenSets(username, seenSets) {
     if (!username) return;
     const arr = Array.from(seenSets || []);
     localStorage.setItem(`${SEEN_SETS_KEY_PREFIX}${username}`, JSON.stringify(arr));
-  } catch (_) {
+  } catch {
     // ignore storage errors (quota, privacy mode, etc.)
   }
 }

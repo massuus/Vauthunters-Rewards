@@ -28,7 +28,7 @@ export function getUsernameFromQuery() {
   const decode = (value) => {
     try {
       return decodeURIComponent(value.replace(/\+/g, ' '));
-    } catch (error) {
+    } catch {
       return value;
     }
   };
