@@ -16,16 +16,7 @@
     "lint:fix": "eslint . --ext .js,.mjs --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky",
-    "lint-staged": {
-      "*.{js,mjs}": [
-        "eslint --fix",
-        "prettier --write"
-      ],
-      "*.{json,md,html,css}": [
-        "prettier --write"
-      ]
-    }
+    "prepare": "husky"
   },
   "keywords": [
     "vault-hunters",
