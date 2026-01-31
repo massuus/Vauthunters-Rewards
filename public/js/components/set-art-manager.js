@@ -42,8 +42,10 @@ export async function loadSetArt() {
 
       return response.json();
     })
-    .then((data) => {
-      setArtStore = data || {};
+    .then(async (data) => {
+      const base = data || {};
+      const apiSets = await fetchApiSets();
+      setArtStore = mergeApiSets(base, apiSets);
       return setArtStore;
     })
     .catch((error) => {
@@ -53,6 +55,48 @@ export async function loadSetArt() {
     });
 
   return setArtLoadPromise;
+}
+
+async function fetchApiSets() {
+  try {
+    const response = await fetch('/api/sets');
+    if (!response.ok) {
+      throw new Error(`Failed to load API sets: ${response.status}`);
+    }
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    logger.warn('Failed to load API sets, falling back to local set art', {
+      error: error.message,
+      stack: error.stack,
+    });
+    return [];
+  }
+}
+
+function mergeApiSets(localSets, apiSets) {
+  const merged = { ...(localSets || {}) };
+  if (!Array.isArray(apiSets)) {
+    return merged;
+  }
+
+  apiSets.forEach((item) => {
+    const id = item?.id;
+    if (!id || merged[id]) {
+      return;
+    }
+
+    const displayName = item?.displayName || formatLabel(id);
+    const unavailable = item?.unavailable;
+
+    merged[id] = {
+      label: displayName,
+      description: item?.description || undefined,
+      obtainable: typeof unavailable === 'boolean' ? !unavailable : undefined,
+    };
+  });
+
+  return merged;
 }
 
 /**

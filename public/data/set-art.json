@@ -1,6 +1,6 @@
 {
   "baby_creeper_gold": {
-    "label": "Golden Creeper",
+    "label": "Golden Baby Creeper",
     "image": "https://wiki.vaulthunters.gg/images/c/c9/Invicon_Companion_Golden_Creeper.gif",
     "alt": "Golden Creeper companion icon",
     "obtainable": false,
@@ -8,7 +8,7 @@
     "descriptionLocked": "No longer obtainable. This companion was unlockable by joining Iskall85's Gemstone event streams and collecting 50 gemstones with your companion."
   },
   "baby_creeper_pog": {
-    "label": "POG Creeper",
+    "label": "POG Baby Creeper",
     "image": "https://wiki.vaulthunters.gg/images/e/e4/Invicon_Companion_POG_Creeper.gif",
     "alt": "POG Creeper companion icon",
     "obtainable": false,
@@ -16,7 +16,7 @@
     "descriptionLocked": "No longer obtainable. This companion was unlockable by being present for Iskall85's Gemstone event and placing within the top 123 players."
   },
   "golden_kappa": {
-    "label": "Golden Kappa",
+    "label": "Golden Kappa Shield",
     "image": "https://wiki.vaulthunters.gg/images/8/8e/Invicon_Golden_Kappa_Shield.png.webp",
     "alt": "Golden Kappa icon",
     "obtainable": true,
@@ -24,7 +24,7 @@
     "descriptionLocked": "Obtain this shield by having an awake companion during a Golden Kappa Hype Train on Twitch."
   },
   "dylan_vip": {
-    "label": "Dylan VIP",
+    "label": "Dylan Set",
     "image": "https://wiki.vaulthunters.gg/images/7/78/Invicon_Dylan_Armour.webp",
     "alt": "Dylan armour icon",
     "obtainable": true,
@@ -32,7 +32,7 @@
     "descriptionLocked": "This exclusive set can only be obtained when Iskall85 personally gifts it to you live on Twitch."
   },
   "companion_leader_s1": {
-    "label": "Companion Leader S1",
+    "label": "Party Leader Set",
     "image": "https://wiki.vaulthunters.gg/images/d/d5/Invicon_PartyLeader.gif",
     "alt": "Companion party leader icon",
     "obtainable": true,
@@ -56,7 +56,7 @@
     "descriptionLocked": "No longer obtainable. This set was unlockable by tuning into Iskall85's special Twitch event on 18 June 2025."
   },
   "i85_treasure_train": {
-    "label": "Treasure Train",
+    "label": "Treasure Train Focus",
     "image": "https://wiki.vaulthunters.gg/images/5/50/Invicon_Golden_Kappa_Train.webp",
     "alt": "Golden Kappa Train icon",
     "obtainable": true,
@@ -64,7 +64,7 @@
     "descriptionLocked": "Pick this up by having an awake companion during a Treasure Hype Train on Twitch."
   },
   "i85_server_bingos": {
-    "label": "Bingo Chestplate",
+    "label": "Iskallia Server Bingo Chestplate",
     "image": "https://wiki.vaulthunters.gg/images/a/a2/Invicon_I85_Server_Bingos.gif",
     "alt": "Bingo Chestplate icon",
     "obtainable": true,
@@ -88,7 +88,7 @@
     "descriptionLocked": "No longer obtainable. This armor piece was unlockable by participating in Iskall85's Horde Rush event."
   },
   "iskall85_reddragon_axe": {
-    "label": "Red Dragon Axe",
+    "label": "Reddragon Axe",
     "image": "https://wiki.vaulthunters.gg/images/b/b2/Invicon_Iskall85_Reddragon_Axe.gif",
     "alt": "Red Dragon Axe icon",
     "obtainable": false,
@@ -96,7 +96,7 @@
     "descriptionLocked": "No longer obtainable. This weapon was unlockable by joining Iskall85's Horde Rush community event."
   },
   "iskall85_reddragon_sword": {
-    "label": "Red Dragon Sword",
+    "label": "Reddragon Sword",
     "image": "https://wiki.vaulthunters.gg/images/0/0f/Invicon_Iskall85_Reddragon_Sword.gif",
     "alt": "Red Dragon Sword icon",
     "obtainable": false,
@@ -120,7 +120,7 @@
     "descriptionLocked": "No longer obtainable. This companion was unlockable by participating in Iskall85's Horde Rush event."
   },
   "i85_dylan_penguin": {
-    "label": "Dylan Penguin",
+    "label": "Dylan Penguin Companion",
     "image": "https://wiki.vaulthunters.gg/images/c/c6/Invicon_I85_Dylan_Penguin.gif",
     "alt": "Dylan Penguin icon",
     "obtainable": false,
@@ -128,7 +128,7 @@
     "descriptionLocked": "No longer obtainable. This companion was unlockable by participating in Iskall85's Horde Rush event."
   },
   "i85_mattress": {
-    "label": "Mattress",
+    "label": "Mattress Shield",
     "image": "https://wiki.vaulthunters.gg/images/0/0b/Invicon_I85_Mattress.gif",
     "alt": "Mattress icon",
     "obtainable": false,
@@ -136,7 +136,7 @@
     "descriptionLocked": "No longer obtainable. This reward was unlockable by participating in Iskall85's Horde Rush event."
   },
   "i85_petal_splitter": {
-    "label": "Petal Splitter",
+    "label": "Petal Splitter Axe",
     "image": "https://wiki.vaulthunters.gg/images/b/b3/Invicon_I85_Petal_Splitter.gif",
     "alt": "Petal Splitter icon",
     "obtainable": false,
@@ -144,7 +144,7 @@
     "descriptionLocked": "No longer obtainable. This dual blade was unlockable by taking part in Iskall85's Horde Rush event."
   },
   "i85_twin_blade": {
-    "label": "Twin Blade",
+    "label": "Twin Blade Sword",
     "image": "https://wiki.vaulthunters.gg/images/0/0f/Invicon_I85_Twin_Blade.gif",
     "alt": "Twin Blade icon",
     "obtainable": false,
@@ -160,7 +160,7 @@
     "descriptionLocked": "No longer obtainable. This companion was unlockable during Halloween Twitch events with Iskall85."
   },
   "pink_dylan": {
-    "label": "Pink Dylan",
+    "label": "Pink Dylan Companion",
     "image": "https://wiki.vaulthunters.gg/images/e/ec/Invicon_Dylan_Pink.gif",
     "alt": "Pink Dylan icon",
     "obtainable": true,
@@ -192,7 +192,7 @@
     "descriptionLocked": "Get this by reaching level 10 in the second season."
   },
   "carrot": {
-    "label": "Carrot",
+    "label": "Carrot Companion",
     "image": "https://wiki.vaulthunters.gg/images/9/94/Invicon_Carrotpet.gif",
     "alt": "Carrot icon",
     "obtainable": true,
@@ -224,7 +224,7 @@
     "descriptionLocked": "Obtain this reward by reaching Ethernal level 60."
   },
   "never_ever": {
-    "label": "Never Ever",
+    "label": "NeverEver Shield",
     "image": "https://wiki.vaulthunters.gg/images/7/7b/Invicon_NeverEver_Shield_Blocking.gif",
     "alt": "Never Ever icon",
     "obtainable": true,
@@ -241,7 +241,7 @@
   }
 ,
   "green_christmas_hat": {
-    "label": "Green Christmas Hat",
+    "label": "Green Christmas Hat (of Doom)",
     "image": "/img/green_christmas_hat_thumbnail.png",
     "alt": "Green Christmas Hat thumbnail",
     "obtainable": false,
@@ -249,7 +249,7 @@
     "descriptionLocked": "No longer obtainable. This festive hat was awarded during Iskall85's holiday stream events."
   },
   "i85_100stream": {
-    "label": "100 Streams Blade",
+    "label": "Centennial Blade",
     "image": "/img/100-steams-blade.png",
     "alt": "100 Streams Blade icon",
     "obtainable": false,
@@ -257,7 +257,7 @@
     "descriptionLocked": "No longer obtainable. This reward celebrated Iskall85's special streaming milestones."
   },
   "i85_xmas_day3": {
-    "label": "Santa Claus Dylan & Christmas Sword",
+    "label": "12 Days of Dylan - Day 3",
     "image": "/img/Santa_Dylan.gif",
     "images": ["/img/Santa_Dylan.gif", "/img/Lost_Christmas_Sword.gif"],
     "alt": "Santa Dylan companion",
@@ -274,7 +274,7 @@
     "descriptionLocked": "No longer obtainable. This reward was unlockable on the fourth day of the Dylan Christmas event."
   },
   "gingerbread_man": {
-    "label": "Gingerbread Man",
+    "label": "Gingerbread Companion",
     "image": "/img/Gingerbread_Man.gif",
     "alt": "Gingerbread Man",
     "obtainable": false,
@@ -314,7 +314,7 @@
     "descriptionLocked": "No longer obtainable. This reward was unlockable on the 10th day of the Dylan Christmas event."
   },
   "lost_christmas_axe": {
-    "label": "Christmas Axe",
+    "label": "Lost Christmas",
     "image": "/img/Lost_Christmas_Axe.gif",
     "alt": "Christmas Axe",
     "obtainable": false,
@@ -322,7 +322,7 @@
     "descriptionLocked": "No longer obtainable. This reward was unlockable on the 11th day of the Dylan Christmas event."
   },
   "blueberry_turtle": {
-    "label": "Sweet Turtle",
+    "label": "Blueberry Turtle",
     "image": "/img/Sweet_Turtle.gif",
     "alt": "Sweet Turtle",
     "obtainable": false,
@@ -330,7 +330,7 @@
     "descriptionLocked": "No longer obtainable. This reward was unlockable on the 12th day of the Dylan Christmas event."
   },
   "golden_dylan": {
-    "label": "Golden Dylan",
+    "label": "Golden Dylan Companion",
     "image": "/img/Golden_Dylan.png",
     "alt": "Golden Dylan icon",
     "obtainable": true,

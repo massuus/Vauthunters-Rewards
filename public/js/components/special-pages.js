@@ -63,7 +63,11 @@ export async function fetchSetArtData() {
         }
         return response.json();
       })
-      .then((data) => (typeof data === 'object' && data !== null ? data : {}))
+      .then(async (data) => {
+        const base = typeof data === 'object' && data !== null ? data : {};
+        const apiSets = await fetchApiSets();
+        return mergeApiSets(base, apiSets);
+      })
       .catch((error) => {
         setArtDataPromise = null;
         throw error;
@@ -71,6 +75,42 @@ export async function fetchSetArtData() {
   }
 
   return setArtDataPromise;
+}
+
+async function fetchApiSets() {
+  try {
+    const response = await fetch('/api/sets');
+    if (!response.ok) {
+      throw new Error('Failed to load API sets');
+    }
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+function mergeApiSets(localSets, apiSets) {
+  const merged = { ...(localSets || {}) };
+  if (!Array.isArray(apiSets)) {
+    return merged;
+  }
+
+  apiSets.forEach((item) => {
+    const id = item?.id;
+    if (!id || merged[id]) {
+      return;
+    }
+
+    merged[id] = {
+      label: item?.displayName,
+      description: item?.description || undefined,
+      obtainable:
+        typeof item?.unavailable === 'boolean' ? !item.unavailable : undefined,
+    };
+  });
+
+  return merged;
 }
 
 /**
