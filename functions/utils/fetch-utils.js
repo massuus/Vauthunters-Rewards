@@ -138,7 +138,7 @@ export async function fetchWithRetry(
  * @param {number} timeoutMs - Timeout in milliseconds
  * @returns {Promise<object>} - {data?, notFound?, error?, status?, message?}
  */
-export async function fetchJson(url, context = 'API', timeoutMs = TIMEOUT_MS) {
+export async function fetchJson(url, context = 'API', timeoutMs = TIMEOUT_MS, headers = {}) {
   try {
     const response = await fetchWithRetry(
       url,
@@ -146,6 +146,7 @@ export async function fetchJson(url, context = 'API', timeoutMs = TIMEOUT_MS) {
         headers: {
           'user-agent': 'Vauthunters Rewards/1.0 (+https://vh-rewards.massuus.com)',
           accept: 'application/json',
+          ...headers,
         },
       },
       timeoutMs

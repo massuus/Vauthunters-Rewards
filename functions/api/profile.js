@@ -17,7 +17,7 @@ function badRequest(message) {
   return json({ error: message }, 400);
 }
 
-export async function onRequest({ request }) {
+export async function onRequest({ request, env }) {
   // Apply rate limiting
   const rateLimitKey = getRateLimitKey(request);
   if (!apiRateLimiter.allow(rateLimitKey)) {
@@ -65,8 +65,9 @@ export async function onRequest({ request }) {
       return json({ error: 'Unable to resolve player UUID.' }, 502);
     }
 
+    const rewardsApiKey = env?.REWARDS_API_KEY;
     const [rewardsData, tier] = await Promise.all([
-      fetchRewards(formattedId),
+      fetchRewards(formattedId, rewardsApiKey),
       fetchTiers(formattedId),
     ]);
 
@@ -149,11 +150,13 @@ function formatUuid(hexId) {
   return `${hexId.slice(0, 8)}-${hexId.slice(8, 12)}-${hexId.slice(12, 16)}-${hexId.slice(16, 20)}-${hexId.slice(20)}`;
 }
 
-async function fetchRewards(formattedId) {
+async function fetchRewards(formattedId, rewardsApiKey) {
+  const headers = rewardsApiKey ? { Authorization: `Bearer ${rewardsApiKey}` } : undefined;
   const result = await fetchJson(
     `${REWARDS_URL}${encodeURIComponent(formattedId)}`,
     'Rewards API',
-    REWARDS_API_TIMEOUT
+    REWARDS_API_TIMEOUT,
+    headers
   );
 
   if (result.notFound) {
