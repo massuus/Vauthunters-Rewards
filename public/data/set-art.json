@@ -336,5 +336,13 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this companion by reaching level 30 in the Companion Pass.",
     "descriptionLocked": "Obtain this companion by reaching level 30 in the Companion Pass."
+  },
+  "valentines_teddy": {
+    "label": "Teddy Companion",
+    "image": "/img/teddy_Bear.gif",
+    "alt": "Teddy bear companion icon",
+    "obtainable": true,
+    "descriptionObtained": "You obtained this companion by being present for Iskall85's Valentine's Day event!",
+    "descriptionLocked": "Not yet obtainable. This companion will be unlockable when Iskall.json has been installed again."
   }
 }

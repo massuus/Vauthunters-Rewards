@@ -10,6 +10,27 @@ let codesDataPromise = null;
 let setArtDataPromise = null;
 
 /**
+ * Check if a code has expired based on its expiry date
+ */
+function isCodeExpired(expiryDateString) {
+  if (!expiryDateString) return false;
+
+  try {
+    // Parse date in DD-MM-YYYY format
+    const [day, month, year] = expiryDateString.split('-').map(Number);
+    if (!day || !month || !year) return false;
+
+    const expiryDate = new Date(year, month - 1, day);
+    // Set to end of day for comparison
+    expiryDate.setHours(23, 59, 59, 999);
+
+    return new Date() > expiryDate;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Check if a search query is requesting the codes page
  */
 export function isCodesQuery(value) {
@@ -105,8 +126,7 @@ function mergeApiSets(localSets, apiSets) {
     merged[id] = {
       label: item?.displayName,
       description: item?.description || undefined,
-      obtainable:
-        typeof item?.unavailable === 'boolean' ? !item.unavailable : undefined,
+      obtainable: typeof item?.unavailable === 'boolean' ? !item.unavailable : undefined,
     };
   });
 
@@ -116,7 +136,7 @@ function mergeApiSets(localSets, apiSets) {
 /**
  * Render a single code card
  */
-export function renderCodeCard(item, proxiedImageUrl, escapeHtml) {
+export function renderCodeCard(item, proxiedImageUrl, escapeHtml, isExpired = false) {
   const safeName = escapeHtml(item?.name || 'Mystery Reward');
   const safeDescription = escapeHtml(
     item?.description || 'Watch the VOD to learn how to unlock this code.'
@@ -144,15 +164,18 @@ export function renderCodeCard(item, proxiedImageUrl, escapeHtml) {
   const safeVodUrl = escapeHtml(item?.vodUrl || '#');
   const safeCode = escapeHtml(item?.code || '???');
   const safeExpiry = escapeHtml(item?.expires || '');
+  const expiredClass = isExpired ? ' codes-card--expired' : '';
+  const buttonDisabled = isExpired ? ' disabled' : '';
 
   return `
-    <article class="codes-card">
+    <article class="codes-card${expiredClass}">
       <div class="codes-card__header">
         ${imagesHtml}
         <h3>${safeName}</h3>
+        ${isExpired ? '<span class="codes-card__expired-badge">Expired</span>' : ''}
       </div>
       <p class="codes-card__description">${safeDescription}</p>
-      <a class="codes-card__vod" href="${safeVodUrl}" target="_blank" rel="noopener">
+      <a class="codes-card__vod${buttonDisabled}" href="${safeVodUrl}" target="_blank" rel="noopener"${buttonDisabled ? ' aria-disabled="true"' : ''}>
         Watch VOD for code
       </a>
       ${safeExpiry ? `<p class="codes-card__expiry">Claimable until ${safeExpiry}</p>` : ''}
@@ -160,7 +183,7 @@ export function renderCodeCard(item, proxiedImageUrl, escapeHtml) {
         Can't find the code in the VOD, or already watched the stream but don't remember it?
       </p>
       <div class="codes-card__reveal-row">
-        <button class="codes-card__reveal" type="button" data-code="${safeCode}">
+        <button class="codes-card__reveal" type="button" data-code="${safeCode}"${buttonDisabled}>
           Reveal code
         </button>
         <span class="codes-card__code" data-code-value hidden aria-live="polite"></span>
@@ -223,9 +246,50 @@ export async function renderCodesPage(
 
   try {
     const codes = await fetchCodesData();
-    const cards = codes.length
-      ? codes.map((item) => renderCodeCard(item, proxiedImageUrl, escapeHtml)).join('')
-      : '<p class="codes-page__empty">No featured codes yet. Check back soon!</p>';
+
+    // Separate active and expired codes
+    const activeCodes = [];
+    const expiredCodes = [];
+    codes.forEach((item) => {
+      if (isCodeExpired(item?.expires)) {
+        expiredCodes.push(item);
+      } else {
+        activeCodes.push(item);
+      }
+    });
+
+    // Render active codes
+    const activeCards = activeCodes.length
+      ? activeCodes.map((item) => renderCodeCard(item, proxiedImageUrl, escapeHtml, false)).join('')
+      : '';
+
+    // Render expired codes
+    const expiredCards = expiredCodes.length
+      ? expiredCodes.map((item) => renderCodeCard(item, proxiedImageUrl, escapeHtml, true)).join('')
+      : '';
+
+    // Build expired section with collapsible toggle
+    const expiredSection = expiredCodes.length
+      ? `
+      <div class="codes-expired-section">
+        <button class="codes-expired-toggle" aria-expanded="false" aria-controls="expired-codes-container">
+          <span class="codes-expired-toggle__icon">▶</span>
+          <span class="codes-expired-toggle__text">View expired codes (${expiredCodes.length})</span>
+        </button>
+        <div id="expired-codes-container" class="codes-grid codes-grid--expired" hidden>
+          ${expiredCards}
+        </div>
+      </div>
+    `
+      : '';
+
+    const mainContent =
+      activeCodes.length || expiredCodes.length
+        ? `
+        ${activeCards ? `<div class="codes-grid">${activeCards}</div>` : ''}
+        ${expiredSection}
+      `
+        : '<p class="codes-page__empty">No featured codes yet. Check back soon!</p>';
 
     resultContainer.innerHTML = `
       <section class="codes-page" aria-live="polite">
@@ -234,9 +298,7 @@ export async function renderCodesPage(
           <p class="codes-page__lead">Here is a comprehensive list on how to unlock all possible code rewards.</p>
           <p class="codes-page__subtext">Watch the VODs to learn how to earn each reward, or reveal the code if you just need it fast.</p>
         </header>
-        <div class="codes-grid">
-          ${cards}
-        </div>
+        ${mainContent}
         <div class="codes-page__redeem">
           <p>You can redeem the codes here:</p>
           <a class="codes-page__redeem-btn" href="https://companions.vaulthunters.gg/redeem" target="_blank" rel="noopener">
@@ -247,6 +309,7 @@ export async function renderCodesPage(
     `;
 
     bindCodeRevealHandlers(resultContainer);
+    bindExpiredCodesToggle(resultContainer);
     updateQueryString(CODES_QUERY_KEYWORDS[0]);
   } catch (error) {
     resultContainer.innerHTML = `
@@ -257,6 +320,28 @@ export async function renderCodesPage(
     updateQueryString('');
     throw error;
   }
+}
+
+/**
+ * Bind event handlers for expired codes toggle button
+ */
+export function bindExpiredCodesToggle(resultContainer) {
+  const toggleButton = resultContainer.querySelector('.codes-expired-toggle');
+  if (!toggleButton) return;
+
+  toggleButton.addEventListener('click', () => {
+    const container = document.getElementById(toggleButton.getAttribute('aria-controls'));
+    if (!container) return;
+
+    const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+    toggleButton.setAttribute('aria-expanded', !isExpanded);
+
+    if (isExpanded) {
+      container.setAttribute('hidden', '');
+    } else {
+      container.removeAttribute('hidden');
+    }
+  });
 }
 
 /**
