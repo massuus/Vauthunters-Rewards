@@ -114,9 +114,9 @@
     "name": "Valentine Teddy",
     "description": "This is the reward for the Valentine's Day event!",
     "vodUrl": "https://www.youtube.co/@iskall85",
-    "code": "unknown",
+    "code": "WILL-YOU-BE-MY-VAULTINE",
     "images": ["/img/Teddy_Bear.gif"],
-    "expires": "31-03-2026",
+    "expires": "06-03-2026",
     "updatedAt": "2026-02-18T00:00:00Z"
   }
 ]
