@@ -972,6 +972,18 @@ body {
   line-height: 1.5;
 }
 
+.set-modal__description .inline-link,
+.reward-card__description .inline-link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.set-modal__description .inline-link:hover,
+.reward-card__description .inline-link:hover {
+  text-decoration-thickness: 2px;
+}
+
 @media (max-width: 640px) {
   .search {
     padding: 1.5rem;

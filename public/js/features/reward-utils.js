@@ -14,6 +14,39 @@ export function escapeHtml(text) {
   return text.replace(/[&<>"']/g, (m) => map[m]);
 }
 
+function splitCodesText(text) {
+  const source = String(text ?? '');
+  const parts = [];
+  const regex = /\bcode(s)?\b/gi;
+  let lastIndex = 0;
+  let match = null;
+
+  while ((match = regex.exec(source)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({ type: 'text', value: source.slice(lastIndex, match.index) });
+    }
+    parts.push({ type: 'code', value: match[0] });
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < source.length) {
+    parts.push({ type: 'text', value: source.slice(lastIndex) });
+  }
+
+  return parts;
+}
+
+export function buildCodesLinkedHtml(text, linkHref = '?codes') {
+  return splitCodesText(text)
+    .map((part) => {
+      if (part.type === 'code') {
+        return `<a class="inline-link" href="${linkHref}">${escapeHtml(part.value)}</a>`;
+      }
+      return escapeHtml(part.value);
+    })
+    .join('');
+}
+
 /**
  * Convert text to snake_case for reward paths
  */

@@ -3,7 +3,7 @@
 import { logger } from '../core/logger.js';
 import { loadTemplate } from '../loaders/template-loader.js';
 import { proxiedImageUrl, UNKNOWN_ITEM_IMAGE } from '../utils/dom-utils.js';
-import { formatLabel } from '../features/reward-utils.js';
+import { buildCodesLinkedHtml, formatLabel } from '../features/reward-utils.js';
 import {
   getLastFocusedElement,
   setLastFocusedElement,
@@ -185,7 +185,7 @@ export async function openSetDetailModal(setKey, isOwned = true) {
   });
 
   modal.title.textContent = label;
-  modal.description.textContent = description;
+  modal.description.innerHTML = buildCodesLinkedHtml(description);
 
   modal.overlay.classList.remove('hidden');
 

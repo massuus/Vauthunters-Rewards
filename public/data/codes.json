@@ -118,5 +118,25 @@
     "images": ["/img/Teddy_Bear.gif"],
     "expires": "06-03-2026",
     "updatedAt": "2026-02-18T00:00:00Z"
+  },
+  {
+    "id": "Muddy_Elephant",
+    "name": "Muddy Elephant",
+    "description": "This is a reward from the vault rush event!",
+    "vodUrl": "https://www.youtube.co/@iskall85",
+    "code": "DRUMROLL-PLEASE",
+    "images": ["/img/Muddy_Elephant.gif"],
+    "expires": "31-05-2026",
+    "updatedAt": "2026-02-18T00:00:00Z"
+  },
+  {
+    "id": "Buster_Blade",
+    "name": "Buster Blade",
+    "description": "This is a reward from the vault rush event!",
+    "vodUrl": "https://www.youtube.co/@iskall85",
+    "code": "unknown",
+    "images": ["/img/Buster_Blade.gif"],
+    "expires": "31-05-2026",
+    "updatedAt": "2026-02-18T00:00:00Z"
   }
 ]

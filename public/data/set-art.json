@@ -342,7 +342,23 @@
     "image": "/img/Teddy_Bear.gif",
     "alt": "Teddy bear companion icon",
     "obtainable": true,
-    "descriptionObtained": "You obtained this companion by being present for Iskall85's Valentine's Day event!",
-    "descriptionLocked": "You can uptain this by being pressent at the Valentine event or using the code (search code on this site to see the codes)."
+    "descriptionObtained": "You obtained this companion by using a code that iskall85 unlocked during the Valentine's Day event!",
+    "descriptionLocked": "You can obtain this by using the code that iskall85 unlocked during the Valentine's Day event."
+  },
+  "Muddy_Elephant": {
+    "label": "Muddy Elephant Companion",
+    "image": "/img/Muddy_Elephant.gif",
+    "alt": "Muddy Elephant companion icon",
+    "obtainable": true,
+    "descriptionObtained": "You obtained this companion by using a code that iskall85 unlocked during the vault rush event!",
+    "descriptionLocked": "You can obtain this by using a code that iskall85 unlocked during the vault rush event!"
+  },
+  "Buster_Blade": {
+    "label": "Buster Blade",
+    "image": "/img/Buster_Blade.gif",
+    "alt": "Buster Blade icon",
+    "obtainable": true,
+    "descriptionObtained": "You obtained this weapon by using a code that iskall85 unlocked during the vault rush event!",
+    "descriptionLocked": "You can obtain this by using a code that iskall85 unlocked during the vault rush event!"
   }
 }

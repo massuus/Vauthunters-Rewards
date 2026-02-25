@@ -1,5 +1,7 @@
 // Special pages logic (codes page, all rewards page, etc.)
 
+import { buildCodesLinkedHtml } from '../features/reward-utils.js';
+
 const CODES_QUERY_KEYWORDS = ['codes', 'code'];
 const ALL_QUERY_KEYWORDS = ['all', 'rewards'];
 const CODES_DATA_URL = '/data/codes.json';
@@ -376,7 +378,7 @@ function renderRewardCard(setKey, setData, proxiedImageUrl, escapeHtml, formatLa
     imageSources.length > 1 ? `<div class="reward-card__images">${imagesHtml}</div>` : imagesHtml;
 
   const safeName = escapeHtml(label);
-  const safeDescription = escapeHtml(description);
+  const safeDescription = buildCodesLinkedHtml(description);
 
   return `
     <article class="reward-card">
