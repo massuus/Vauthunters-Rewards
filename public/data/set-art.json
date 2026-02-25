@@ -345,7 +345,7 @@
     "descriptionObtained": "You obtained this companion by using a code that iskall85 unlocked during the Valentine's Day event!",
     "descriptionLocked": "You can obtain this by using the code that iskall85 unlocked during the Valentine's Day event."
   },
-  "Muddy_Elephant": {
+  "muddy_elephant": {
     "label": "Muddy Elephant Companion",
     "image": "/img/Muddy_Elephant.gif",
     "alt": "Muddy Elephant companion icon",
@@ -353,7 +353,7 @@
     "descriptionObtained": "You obtained this companion by using a code that iskall85 unlocked during the vault rush event!",
     "descriptionLocked": "You can obtain this by using a code that iskall85 unlocked during the vault rush event!"
   },
-  "Buster_Blade": {
+  "buster_sword": {
     "label": "Buster Blade",
     "image": "/img/Buster_Blade.gif",
     "alt": "Buster Blade icon",
