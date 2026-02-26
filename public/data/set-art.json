@@ -233,7 +233,7 @@
   },
   "sculk_set": {
     "label": "Sculk Set",
-    "image": "https://wiki.vaulthunters.gg/images/9/9a/sculk_set.gif",
+    "image": "/img/sculk_set.gif",
     "alt": "Sculk Set icon",
     "obtainable": true,
     "descriptionObtained": "You obtained this set by reaching Ethernal level 80.",
