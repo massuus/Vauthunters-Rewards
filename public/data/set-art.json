@@ -207,6 +207,14 @@
     "descriptionObtained": "You got this by reaching level 25 in the second season.",
     "descriptionLocked": "Get this by reaching level 25 in the second season."
   },
+  "sculk_set": {
+    "label": "Sculk Set",
+    "image": "/img/sculk_set.gif",
+    "alt": "Sculk Set icon",
+    "obtainable": true,
+    "descriptionObtained": "You obtained this set by reaching Ethernal level 40.",
+    "descriptionLocked": "Obtain this set by reaching Ethernal level 40."
+  },
   "essence_of_iskallium": {
     "label": "Essence of Iskallium",
     "image": "https://wiki.vaulthunters.gg/images/3/3a/Invicon_Essence_of_Iskallium.gif",
@@ -231,15 +239,6 @@
     "descriptionObtained": "You obtained this shield by reaching Ethernal level 60.",
     "descriptionLocked": "Obtain this shield by reaching Ethernal level 60."
   },
-  "sculk_set": {
-    "label": "Sculk Set",
-    "image": "/img/sculk_set.gif",
-    "alt": "Sculk Set icon",
-    "obtainable": true,
-    "descriptionObtained": "You obtained this set by reaching Ethernal level 80.",
-    "descriptionLocked": "Obtain this set by reaching Ethernal level 80."
-  }
-,
   "green_christmas_hat": {
     "label": "Green Christmas Hat (of Doom)",
     "image": "/img/green_christmas_hat_thumbnail.png",
