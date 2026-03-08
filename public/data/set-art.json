@@ -340,7 +340,7 @@
     "label": "Teddy Companion",
     "image": "/img/Teddy_Bear.gif",
     "alt": "Teddy bear companion icon",
-    "obtainable": true,
+    "obtainable": false,
     "descriptionObtained": "You obtained this companion by using a code that iskall85 unlocked during the Valentine's Day event!",
     "descriptionLocked": "You can obtain this by using the code that iskall85 unlocked during the Valentine's Day event."
   },
