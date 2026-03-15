@@ -1406,6 +1406,52 @@ body {
   height: 100%; /* stretch to fill grid track */
 }
 
+@media (hover: none), (pointer: coarse) {
+  .set-card:not(.set-card--expanded):hover,
+  .set-card:not(.set-card--expanded):focus-visible,
+  .set-card:not(.set-card--expanded).set-card--peek {
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: none;
+    transform: none;
+    outline: none;
+  }
+
+  .set-card:not(.set-card--expanded):hover .set-card__media-img.is-active,
+  .set-card:not(.set-card--expanded):focus-visible .set-card__media-img.is-active,
+  .set-card:not(.set-card--expanded).set-card--peek .set-card__media-img.is-active {
+    transform: translateY(12px) scale(0.98);
+  }
+
+  .set-card:not(.set-card--expanded):hover .set-card__name,
+  .set-card:not(.set-card--expanded):focus-visible .set-card__name,
+  .set-card:not(.set-card--expanded).set-card--peek .set-card__name {
+    transform: translateY(0);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    min-height: 2.1em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+  }
+
+  .set-card:not(.set-card--expanded):hover .set-card__description,
+  .set-card:not(.set-card--expanded):focus-visible .set-card__description,
+  .set-card:not(.set-card--expanded).set-card--peek .set-card__description {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@media (max-width: 640px) and (hover: none), (max-width: 640px) and (pointer: coarse) {
+  .set-card:not(.set-card--expanded):hover .set-card__media-img.is-active,
+  .set-card:not(.set-card--expanded):focus-visible .set-card__media-img.is-active,
+  .set-card:not(.set-card--expanded).set-card--peek .set-card__media-img.is-active {
+    transform: translateY(8px) scale(0.96);
+  }
+}
+
 /* Codes landing experience */
 .codes-page {
   display: flex;

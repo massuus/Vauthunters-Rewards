@@ -496,6 +496,11 @@ function bindSetCardHandlers() {
       const nextExpanded = !isExpanded;
       card.setAttribute('aria-expanded', String(nextExpanded));
       card.classList.toggle('set-card--expanded', nextExpanded);
+
+      if (window.matchMedia('(hover: none), (pointer: coarse)').matches) {
+        card.classList.remove('set-card--peek');
+        card.blur();
+      }
     });
 
     const mediaImages = card.querySelectorAll('.set-card__media-img');
