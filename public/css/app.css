@@ -1444,6 +1444,42 @@ body {
   }
 }
 
+.touch-input .set-card:not(.set-card--expanded):hover,
+.touch-input .set-card:not(.set-card--expanded):focus-visible,
+.touch-input .set-card:not(.set-card--expanded).set-card--peek {
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  outline: none !important;
+}
+
+.touch-input .set-card:not(.set-card--expanded):hover .set-card__media-img.is-active,
+.touch-input .set-card:not(.set-card--expanded):focus-visible .set-card__media-img.is-active,
+.touch-input .set-card:not(.set-card--expanded).set-card--peek .set-card__media-img.is-active {
+  transform: translateY(12px) scale(0.98) !important;
+}
+
+.touch-input .set-card:not(.set-card--expanded):hover .set-card__name,
+.touch-input .set-card:not(.set-card--expanded):focus-visible .set-card__name,
+.touch-input .set-card:not(.set-card--expanded).set-card--peek .set-card__name {
+  transform: translateY(0) !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  line-clamp: 2 !important;
+  min-height: 2.1em !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: normal !important;
+}
+
+.touch-input .set-card:not(.set-card--expanded):hover .set-card__description,
+.touch-input .set-card:not(.set-card--expanded):focus-visible .set-card__description,
+.touch-input .set-card:not(.set-card--expanded).set-card--peek .set-card__description {
+  max-height: 0 !important;
+  opacity: 0 !important;
+  transform: translateY(10px) !important;
+}
+
 @media (max-width: 640px) and (hover: none), (max-width: 640px) and (pointer: coarse) {
   .set-card:not(.set-card--expanded):hover .set-card__media-img.is-active,
   .set-card:not(.set-card--expanded):focus-visible .set-card__media-img.is-active,

@@ -472,6 +472,10 @@ function bindShareButton() {
  */
 function bindSetCardHandlers() {
   const cards = resultContainer.querySelectorAll('.set-card[data-set-key]');
+  const isTouchDevice =
+    window.matchMedia('(hover: none), (pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+
+  resultContainer.classList.toggle('touch-input', isTouchDevice);
 
   setCardCycleTimers.forEach((timerId) => window.clearInterval(timerId));
   setCardCycleTimers = [];
@@ -485,10 +489,12 @@ function bindSetCardHandlers() {
 
     const setPeekState = (peek) => card.classList.toggle('set-card--peek', peek);
 
-    card.addEventListener('pointerdown', () => setPeekState(true));
-    card.addEventListener('pointerup', () => setPeekState(false));
-    card.addEventListener('pointerleave', () => setPeekState(false));
-    card.addEventListener('pointercancel', () => setPeekState(false));
+    if (!isTouchDevice) {
+      card.addEventListener('pointerdown', () => setPeekState(true));
+      card.addEventListener('pointerup', () => setPeekState(false));
+      card.addEventListener('pointerleave', () => setPeekState(false));
+      card.addEventListener('pointercancel', () => setPeekState(false));
+    }
     card.addEventListener('blur', () => setPeekState(false));
 
     card.addEventListener('click', () => {
@@ -497,7 +503,7 @@ function bindSetCardHandlers() {
       card.setAttribute('aria-expanded', String(nextExpanded));
       card.classList.toggle('set-card--expanded', nextExpanded);
 
-      if (window.matchMedia('(hover: none), (pointer: coarse)').matches) {
+      if (isTouchDevice) {
         card.classList.remove('set-card--peek');
         card.blur();
       }
