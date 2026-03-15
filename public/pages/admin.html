@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Admin panel for Vault Hunters rewards management." />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://mc-heads.net https://wiki.vaulthunters.gg https://*.r2.dev https://*.r2.cloudflarestorage.com; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com; base-uri 'self'; manifest-src 'self'"
+    />
+    <meta name="theme-color" content="#f4a941" />
+    <title>Vault Hunters Rewards Admin</title>
+
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" href="/css/main.css" as="style" />
+    <link rel="stylesheet" href="/css/main.css" />
+    <link rel="stylesheet" href="/css/components/admin.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@400;500;600&display=optional"
+    />
+  </head>
+  <body>
+    <div class="page admin-page">
+      <header class="hero">
+        <div class="hero__content">
+          <h1>Rewards Admin</h1>
+          <p>Manage reward codes, set art, and images.</p>
+        </div>
+      </header>
+
+      <main class="main admin-main">
+        <!-- Login Screen -->
+        <div id="loginScreen" class="login-container">
+          <div class="login-form">
+            <div id="loginError" class="error" style="display: none"></div>
+            <input
+              type="password"
+              id="passwordInput"
+              placeholder="Enter admin password"
+              @keyup.enter="login"
+            />
+            <button onclick="login()">Login</button>
+          </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminScreen" class="admin-container">
+          <div class="admin-header">
+            <button class="logout-btn" onclick="logout()">Logout</button>
+          </div>
+
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('codes', this)">Reward Codes</button>
+            <button class="tab-btn" onclick="switchTab('sets', this)">Set Arts</button>
+          </div>
+
+          <!-- Codes Tab -->
+          <div id="codes" class="tab-content active">
+            <div class="form-section">
+              <h2>Add New Reward Code</h2>
+              <div id="codeMessage"></div>
+              <form id="codeForm">
+                <div class="form-group">
+                  <label for="codeId">ID *</label>
+                  <input type="text" id="codeId" placeholder="e.g., christmas_2026" required />
+                </div>
+                <div class="form-group">
+                  <label for="codeName">Name (optional)</label>
+                  <input type="text" id="codeName" placeholder="e.g., Christmas 2025" />
+                </div>
+                <div class="form-group">
+                  <label for="codeValue">Code *</label>
+                  <input type="text" id="codeValue" placeholder="e.g., SANTASLAYS" required />
+                </div>
+                <div class="form-group">
+                  <label for="codeDescription">Description (optional)</label>
+                  <textarea
+                    id="codeDescription"
+                    placeholder="What reward does this code give?"
+                  ></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="codeVod">VOD URL (optional)</label>
+                  <input type="url" id="codeVod" placeholder="https://youtube.com/..." />
+                </div>
+                <div class="form-group">
+                  <label for="codeExpires">Expires (optional)</label>
+                  <input type="datetime-local" id="codeExpires" />
+                </div>
+                <div class="form-group">
+                  <label>Reward Image (optional)</label>
+                  <div
+                    class="image-upload-section"
+                    onclick="document.getElementById('codeImageInput').click()"
+                  >
+                    <div class="admin-icon">🎁</div>
+                    <div>Click to upload reward image</div>
+                  </div>
+                  <input type="file" id="codeImageInput" accept="image/*" />
+                  <div id="codeImagePreview" class="uploaded-image"></div>
+                </div>
+                <div class="form-actions">
+                  <button type="button" class="btn btn-primary" onclick="addOrUpdateCode()">
+                    Save Code
+                  </button>
+                  <button type="button" class="btn btn-secondary" onclick="resetCodeForm()">
+                    Clear
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <h2 class="section-title">Existing Codes</h2>
+            <div id="codesList" class="items-list">
+              <div class="loading-state">Loading codes...</div>
+            </div>
+          </div>
+
+          <!-- Sets Tab -->
+          <div id="sets" class="tab-content">
+            <div class="form-section">
+              <h2>Add New Set Art</h2>
+              <div id="setMessage"></div>
+              <form id="setForm">
+                <div class="form-group">
+                  <label for="setId">ID *</label>
+                  <input type="text" id="setId" placeholder="e.g., dragon_set" required />
+                </div>
+                <div class="form-group">
+                  <label for="setLabel">Label *</label>
+                  <input type="text" id="setLabel" placeholder="e.g., Dragon Set" required />
+                </div>
+
+                <div class="form-group">
+                  <label>Main Image *</label>
+                  <div
+                    class="image-upload-section"
+                    onclick="document.getElementById('mainImageInput').click()"
+                  >
+                    <div class="admin-icon">📸</div>
+                    <div>Click to upload main image</div>
+                  </div>
+                  <input type="file" id="mainImageInput" accept="image/*" />
+                  <div id="mainImagePreview" class="uploaded-image"></div>
+                </div>
+
+                <div class="form-group">
+                  <label for="setAlt">Image Alt Text (optional)</label>
+                  <input type="text" id="setAlt" placeholder="Description for accessibility" />
+                </div>
+
+                <div class="form-group">
+                  <label>Gallery Images (optional)</label>
+                  <div
+                    class="image-upload-section"
+                    onclick="document.getElementById('galleryImageInput').click()"
+                  >
+                    <div class="admin-icon">🖼️</div>
+                    <div>Click to add gallery images</div>
+                  </div>
+                  <input type="file" id="galleryImageInput" accept="image/*" multiple />
+                  <div id="galleryPreview" class="gallery-images"></div>
+                </div>
+
+                <div class="form-group">
+                  <label for="setDescObtained">Description - Obtained (optional)</label>
+                  <textarea id="setDescObtained" placeholder="Description when obtained"></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label for="setDescLocked">Description - Locked (optional)</label>
+                  <textarea id="setDescLocked" placeholder="Description when locked"></textarea>
+                </div>
+
+                <div class="form-group checkbox">
+                  <input type="checkbox" id="setObtainable" checked />
+                  <label for="setObtainable" class="checkbox-label">Is Obtainable</label>
+                </div>
+
+                <div class="form-actions">
+                  <button type="button" class="btn btn-primary" onclick="addOrUpdateSet()">
+                    Save Set Art
+                  </button>
+                  <button type="button" class="btn btn-secondary" onclick="resetSetForm()">
+                    Clear
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <h2 class="section-title">Existing Sets</h2>
+            <div id="setsList" class="items-list">
+              <div class="loading-state">Loading sets...</div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="footer">
+        <div class="footer__inner">
+          <div class="footer__brand">
+            <p class="footer__title">Vault Hunters rewards administration</p>
+            <p class="footer__meta">Manage catalog content securely from this panel.</p>
+          </div>
+          <div class="footer__links">
+            <div class="footer__column">
+              <p class="footer__label">Navigation</p>
+              <a href="/" rel="noopener">Back to Lookup</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="/js/admin.js"></script>
+  </body>
+</html>

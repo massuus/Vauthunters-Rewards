@@ -9,7 +9,12 @@ export async function onRequest({ env }) {
       ? { Authorization: `Bearer ${env.REWARDS_API_KEY}` }
       : undefined;
 
-    const result = await fetchJson(REWARDS_SETS_URL, 'Rewards Sets API', REWARDS_API_TIMEOUT, headers);
+    const result = await fetchJson(
+      REWARDS_SETS_URL,
+      'Rewards Sets API',
+      REWARDS_API_TIMEOUT,
+      headers
+    );
 
     if (result.error || !result.data) {
       const err = new Error(result.message || 'Rewards Sets API failed');
