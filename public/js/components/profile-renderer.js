@@ -17,12 +17,7 @@ import {
   augmentSets,
   formatLabel,
 } from '../features/reward-utils.js';
-import {
-  loadSetArt,
-  getSetArtStore,
-  closeSetDetailModal,
-  openSetDetailModal,
-} from './set-art-manager.js';
+import { loadSetArt, getSetArtStore, closeSetDetailModal } from './set-art-manager.js';
 import { getShareUrl } from '../features/url-state.js';
 import { getSeenSets, setSeenSets, addRecentUser } from '../utils/storage-manager.js';
 import { copyShareLink } from '../utils/clipboard-utils.js';
@@ -30,6 +25,7 @@ import { updateShareFeedback } from '../features/ui-feedback.js';
 import { getBestPatreonTier } from '../utils/tier-utils.js';
 
 let setsHelpTemplate = '';
+let setCardCycleTimers = [];
 
 /**
  * Render a player profile with their sets, tiers, and rewards
@@ -245,19 +241,35 @@ function renderMissingRewardsSection(ownedSets, setArtStore) {
  */
 function renderMissingRewardCard(setKey, data, isLegacy = false) {
   const label = data?.label || formatLabel(setKey);
-  const isFallbackImage = !data?.image;
-  const imageSource = data?.image || UNKNOWN_ITEM_IMAGE;
-  const proxied = proxiedImageUrl(imageSource);
+  const description =
+    data?.descriptionLocked || data?.description || `Unlock this reward by obtaining the ${label}.`;
+  const imageSources =
+    Array.isArray(data?.images) && data.images.length
+      ? data.images
+      : [data?.image || UNKNOWN_ITEM_IMAGE];
   const altText = data?.alt || label;
-  const fallbackClass = isFallbackImage ? ' class="pixelated-image"' : '';
-  const imageMarkup = `<img${fallbackClass} src="${proxied}" alt="${altText}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
+  const imageMarkup = imageSources
+    .map((imageSource, index) => {
+      const isFallbackImage = imageSource === UNKNOWN_ITEM_IMAGE;
+      const proxied = proxiedImageUrl(imageSource);
+      const fallbackClass = isFallbackImage ? ' pixelated-image' : '';
+      const activeClass = index === 0 ? ' is-active' : '';
+      const imgAlt = imageSources.length > 1 ? `${altText} view ${index + 1}` : altText;
+      return `<img class="set-card__media-img${activeClass}${fallbackClass}" src="${proxied}" alt="${escapeHtml(imgAlt)}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
+    })
+    .join('');
 
   const legacyClass = isLegacy ? ' set-card--legacy' : '';
 
   return `
     <button class="set-card set-card--missing${legacyClass}" type="button" data-set-key="${setKey}">
-      ${imageMarkup}
-      <span>${label}</span>
+      <div class="set-card__media">
+        ${imageMarkup}
+      </div>
+      <div class="set-card__content">
+        <span class="set-card__name">${escapeHtml(label)}</span>
+        <p class="set-card__description">${escapeHtml(description)}</p>
+      </div>
     </button>
   `;
 }
@@ -269,13 +281,27 @@ function renderSetCard(setKey, isNew = false) {
   const setArtStore = getSetArtStore();
   const asset = setArtStore?.[setKey];
   const label = asset?.label || formatLabel(setKey);
+  const description =
+    asset?.descriptionObtained ||
+    asset?.description ||
+    asset?.descriptionLocked ||
+    `You unlocked ${label}.`;
 
-  const isFallbackImage = !asset?.image;
-  const imageSource = asset?.image || UNKNOWN_ITEM_IMAGE;
-  const proxied = proxiedImageUrl(imageSource);
+  const imageSources =
+    Array.isArray(asset?.images) && asset.images.length
+      ? asset.images
+      : [asset?.image || UNKNOWN_ITEM_IMAGE];
   const altText = asset?.alt || label;
-  const fallbackClass = isFallbackImage ? ' class="pixelated-image"' : '';
-  const imageMarkup = `<img${fallbackClass} src="${proxied}" alt="${altText}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
+  const imageMarkup = imageSources
+    .map((imageSource, index) => {
+      const isFallbackImage = imageSource === UNKNOWN_ITEM_IMAGE;
+      const proxied = proxiedImageUrl(imageSource);
+      const fallbackClass = isFallbackImage ? ' pixelated-image' : '';
+      const activeClass = index === 0 ? ' is-active' : '';
+      const imgAlt = imageSources.length > 1 ? `${altText} view ${index + 1}` : altText;
+      return `<img class="set-card__media-img${activeClass}${fallbackClass}" src="${proxied}" alt="${escapeHtml(imgAlt)}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
+    })
+    .join('');
 
   const newBadge = isNew
     ? `<span class=\"set-card__badge\" aria-label=\"New unlock\">New</span>`
@@ -284,8 +310,13 @@ function renderSetCard(setKey, isNew = false) {
 
   return `
     <button class="set-card${extraClass}" type="button" data-set-key="${setKey}">
-      ${imageMarkup}
-      <span>${label}</span>
+      <div class="set-card__media">
+        ${imageMarkup}
+      </div>
+      <div class="set-card__content">
+        <span class="set-card__name">${escapeHtml(label)}</span>
+        <p class="set-card__description">${escapeHtml(description)}</p>
+      </div>
       ${newBadge}
     </button>
   `;
@@ -442,13 +473,41 @@ function bindShareButton() {
 function bindSetCardHandlers() {
   const cards = resultContainer.querySelectorAll('.set-card[data-set-key]');
 
+  setCardCycleTimers.forEach((timerId) => window.clearInterval(timerId));
+  setCardCycleTimers = [];
+
   if (!cards.length) {
     return;
   }
 
   cards.forEach((card) => {
-    const isOwned = !card.classList.contains('set-card--missing');
-    card.addEventListener('click', () => openSetDetailModal(card.dataset.setKey, isOwned));
+    card.setAttribute('aria-expanded', 'false');
+
+    const setPeekState = (peek) => card.classList.toggle('set-card--peek', peek);
+
+    card.addEventListener('pointerdown', () => setPeekState(true));
+    card.addEventListener('pointerup', () => setPeekState(false));
+    card.addEventListener('pointerleave', () => setPeekState(false));
+    card.addEventListener('pointercancel', () => setPeekState(false));
+    card.addEventListener('blur', () => setPeekState(false));
+
+    card.addEventListener('click', () => {
+      const isExpanded = card.getAttribute('aria-expanded') === 'true';
+      const nextExpanded = !isExpanded;
+      card.setAttribute('aria-expanded', String(nextExpanded));
+      card.classList.toggle('set-card--expanded', nextExpanded);
+    });
+
+    const mediaImages = card.querySelectorAll('.set-card__media-img');
+    if (mediaImages.length > 1) {
+      let currentIndex = 0;
+      const timerId = window.setInterval(() => {
+        mediaImages[currentIndex].classList.remove('is-active');
+        currentIndex = (currentIndex + 1) % mediaImages.length;
+        mediaImages[currentIndex].classList.add('is-active');
+      }, 5000);
+      setCardCycleTimers.push(timerId);
+    }
   });
 }
 

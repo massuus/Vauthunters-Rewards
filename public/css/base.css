@@ -7,16 +7,53 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--bg);
+  position: relative;
+  isolation: isolate;
+  background-color: #111213;
   font-family: 'Inter', sans-serif;
   color: var(--text-primary);
   display: flex;
   justify-content: center;
-  padding: 0 1rem 3rem;
+  padding: 0 1rem 3.5rem;
+}
+
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+body::before {
+  z-index: -2;
+  background:
+    linear-gradient(var(--site-bg-dim), var(--site-bg-dim)),
+    var(--site-bg-image) center / cover no-repeat;
+  transform: scale(1.03);
+  filter: blur(2px) saturate(1.05);
+}
+
+body::after {
+  z-index: -1;
+  background:
+    radial-gradient(circle at 18% 4%, rgba(255, 154, 16, 0.14), transparent 34%),
+    radial-gradient(circle at 82% 2%, rgba(255, 154, 16, 0.1), transparent 32%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128' viewBox='0 0 128 128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.08'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(var(--site-bg-frost), var(--site-bg-frost));
+  background-repeat: no-repeat, no-repeat, repeat, no-repeat;
+  background-size:
+    auto,
+    auto,
+    180px 180px,
+    auto;
+  backdrop-filter: blur(var(--site-bg-blur));
 }
 
 .page {
   width: min(980px, 100%);
+  position: relative;
+  z-index: 1;
 }
 
 /* Screen reader only */

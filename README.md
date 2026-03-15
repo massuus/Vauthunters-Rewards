@@ -42,6 +42,27 @@ This uses `wrangler pages dev public` via `npx` and serves:
 
 Compatibility date is set in `wrangler.toml`.
 
+### Local API key setup
+
+Rewards requests use the `REWARDS_API_KEY` secret in Pages Functions.
+
+For local development with `wrangler pages dev`, add it to `.dev.vars`:
+
+```bash
+cp .dev.vars.example .dev.vars
+```
+
+Then edit `.dev.vars` and set:
+
+```dotenv
+REWARDS_API_KEY=your-real-key
+```
+
+Notes:
+
+- `.env` is not used as a Pages Function binding source in this setup.
+- `.dev.vars` is gitignored to avoid leaking secrets.
+
 ## Build for Production
 
 For production deployment with optimized assets:

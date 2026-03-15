@@ -10,10 +10,10 @@
     <meta name="keywords" content="Vault Hunters, Minecraft, rewards, sets, player lookup" />
     <meta name="author" content="massuus" />
     <meta name="robots" content="index, follow" />
-    <meta name="theme-color" content="#f4a941" />
+    <meta name="theme-color" content="#ff9a10" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://mc-heads.net https://wiki.vaulthunters.gg; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com; base-uri 'self'; manifest-src 'self'"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://mc-heads.net https://wiki.vaulthunters.gg https://vaulthunters.gg; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com; base-uri 'self'; manifest-src 'self'"
     />
     <title>Vault Hunters Rewards Lookup</title>
 
@@ -85,7 +85,7 @@
     <!-- Preload critical fonts -->
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@400;500;600&display=optional"
+      href="https://fonts.googleapis.com/css2?family=Funnel+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=optional"
     />
 
     <!-- Modulepreload for critical JavaScript modules -->
@@ -125,8 +125,20 @@
     <div class="page">
       <header class="hero">
         <div class="hero__content">
-          <h1>Vault Hunters Rewards</h1>
-          <p>Look up a Vault Hunter to see their sets, rewards, and Patreon unlocks.</p>
+          <h1 class="sr-only">Unofficial Vault Hunters Rewards</h1>
+          <img
+            class="hero__logo"
+            src="img/site-logo.png"
+            alt="Unofficial Vault Hunters Rewards"
+            width="1200"
+            height="675"
+            loading="eager"
+            decoding="async"
+          />
+          <p>
+            Look up a Vault Hunter to see their rewards! Or type "codes" to get a list of all
+            available codes!
+          </p>
         </div>
       </header>
 

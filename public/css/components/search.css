@@ -1,7 +1,7 @@
 /* Search section styles */
 
 .main {
-  margin-top: -2rem;
+  margin-top: 0;
   position: relative;
   z-index: 1;
 }
@@ -10,8 +10,9 @@
   background: var(--panel);
   padding: var(--spacing-xl);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
+  border: none;
   box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
 }
 
 .search__form {
@@ -25,8 +26,8 @@
   min-width: 0;
   padding: 0.85rem 1.1rem;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(13, 17, 23, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(17, 18, 19, 0.84);
   color: var(--text-primary);
   font-size: 1rem;
   transition:
@@ -40,31 +41,45 @@
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-.search button {
+.search__form > button[type='submit'] {
   flex: 0 0 auto;
   padding: 0.85rem 1.6rem;
-  border-radius: 12px;
-  border: none;
-  background: linear-gradient(135deg, #f3c36b, var(--accent));
-  color: #141821;
-  font-family: 'Rajdhani', sans-serif;
-  font-weight: 700;
+  border-radius: 999px;
+  border: 2px solid color-mix(in srgb, var(--accent) 75%, #ffd764 25%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 82%, #ffe08f 18%) 0%,
+    color-mix(in srgb, var(--accent) 92%, #ffb942 8%) 64%,
+    color-mix(in srgb, var(--accent) 78%, #c76b00 22%) 100%
+  );
+  color: #1a1209;
+  font-family: 'Funnel Sans', sans-serif;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
+  box-shadow:
+    0 7px 0 color-mix(in srgb, var(--accent) 58%, #8f4200 42%),
+    0 11px 20px rgba(0, 0, 0, 0.3);
   transition:
     transform var(--transition-normal),
     box-shadow var(--transition-normal);
 }
 
-.search button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(244, 169, 65, 0.3);
+.search__form > button[type='submit']:hover {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 74%, #ffe8a8 26%) 0%,
+    color-mix(in srgb, var(--accent) 88%, #ffc95d 12%) 64%,
+    color-mix(in srgb, var(--accent) 76%, #b45e00 24%) 100%
+  );
 }
 
-.search button:active {
-  transform: translateY(1px);
-  box-shadow: none;
+.search__form > button[type='submit']:active {
+  transform: translateY(5px);
+  box-shadow:
+    0 2px 0 color-mix(in srgb, var(--accent) 58%, #8f4200 42%),
+    0 6px 12px rgba(0, 0, 0, 0.22);
 }
 
 .feedback {

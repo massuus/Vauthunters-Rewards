@@ -9,6 +9,7 @@ import {
   PROFILE_API_TIMEOUT,
   REWARDS_API_TIMEOUT,
   TIER_API_TIMEOUT,
+  getRewardsAuthHeaders,
 } from '../utils/config.js';
 
 const USERNAME_REGEX = /^[A-Za-z0-9_]{3,16}$/;
@@ -65,9 +66,9 @@ export async function onRequest({ request, env }) {
       return json({ error: 'Unable to resolve player UUID.' }, 502);
     }
 
-    const rewardsApiKey = env?.REWARDS_API_KEY;
+    const rewardsHeaders = getRewardsAuthHeaders(env);
     const [rewardsData, tier] = await Promise.all([
-      fetchRewards(formattedId, rewardsApiKey),
+      fetchRewards(formattedId, rewardsHeaders),
       fetchTiers(formattedId),
     ]);
 
@@ -150,8 +151,7 @@ function formatUuid(hexId) {
   return `${hexId.slice(0, 8)}-${hexId.slice(8, 12)}-${hexId.slice(12, 16)}-${hexId.slice(16, 20)}-${hexId.slice(20)}`;
 }
 
-async function fetchRewards(formattedId, rewardsApiKey) {
-  const headers = rewardsApiKey ? { Authorization: `Bearer ${rewardsApiKey}` } : undefined;
+async function fetchRewards(formattedId, headers) {
   const result = await fetchJson(
     `${REWARDS_URL}${encodeURIComponent(formattedId)}`,
     'Rewards API',

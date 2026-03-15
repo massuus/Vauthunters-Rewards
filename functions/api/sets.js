@@ -1,15 +1,18 @@
 import { fetchJson } from '../utils/fetch-utils.js';
-import { REWARDS_API_TIMEOUT } from '../utils/config.js';
+import { REWARDS_API_TIMEOUT, getRewardsAuthHeaders } from '../utils/config.js';
 
 const REWARDS_SETS_URL = 'https://rewards.vaulthunters.gg/rewards/sets/all';
 
 export async function onRequest({ env }) {
   try {
-    const headers = env?.REWARDS_API_KEY
-      ? { Authorization: `Bearer ${env.REWARDS_API_KEY}` }
-      : undefined;
+    const headers = getRewardsAuthHeaders(env);
 
-    const result = await fetchJson(REWARDS_SETS_URL, 'Rewards Sets API', REWARDS_API_TIMEOUT, headers);
+    const result = await fetchJson(
+      REWARDS_SETS_URL,
+      'Rewards Sets API',
+      REWARDS_API_TIMEOUT,
+      headers
+    );
 
     if (result.error || !result.data) {
       const err = new Error(result.message || 'Rewards Sets API failed');

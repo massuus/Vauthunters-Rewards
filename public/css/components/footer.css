@@ -3,7 +3,7 @@
 .footer {
   margin-top: 3rem;
   padding: 2.5rem 1.5rem 2.75rem;
-  background: linear-gradient(135deg, rgba(34, 52, 70, 0.25), rgba(26, 31, 44, 0.4));
+  background: linear-gradient(140deg, rgba(38, 43, 49, 0.38), rgba(17, 18, 19, 0.45));
   border-top: 1px solid var(--border);
   color: var(--text-secondary);
   font-size: 0.95rem;

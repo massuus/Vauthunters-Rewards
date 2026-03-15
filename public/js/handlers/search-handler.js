@@ -30,6 +30,10 @@ import { escapeHtml, formatLabel } from '../features/reward-utils.js';
 let submitTimer = null;
 let currentRequestController = null;
 
+function scrollToResults() {
+  resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 /**
  * Initialize search form handling
  */
@@ -84,6 +88,7 @@ async function submitSearch() {
         escapeHtml,
         DEFAULT_FAVICON
       );
+      scrollToResults();
     } catch {
       showFeedback(
         'Unable to load the reward codes right now. Please try again in a moment.',
@@ -118,6 +123,7 @@ async function submitSearch() {
         formatLabel,
         DEFAULT_FAVICON
       );
+      scrollToResults();
     } catch {
       showFeedback('Unable to load all rewards right now. Please try again in a moment.', 'error');
     } finally {
@@ -132,6 +138,7 @@ async function submitSearch() {
     // Reserve space to reduce CLS during loading
     resultContainer.innerHTML = await loadTemplate('loading-skeleton');
     resultContainer.classList.remove('hidden');
+    scrollToResults();
     setFavicon(DEFAULT_FAVICON);
     document.title = defaultTitle;
     const response = await fetch(buildProfileApiUrl(username), {

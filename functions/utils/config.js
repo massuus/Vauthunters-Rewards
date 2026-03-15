@@ -31,3 +31,20 @@ export const REQUEST_HEADERS = {
   'user-agent': 'Vauthunters Rewards/1.0 (+https://vh-rewards.massuus.com)',
   accept: 'application/json',
 };
+
+/**
+ * Build auth headers for Rewards API requests.
+ * Cloudflare Pages provides secrets via env bindings; local shell env is supported as fallback.
+ */
+export function getRewardsAuthHeaders(env = {}) {
+  const apiKey = env?.REWARDS_API_KEY || globalThis?.process?.env?.REWARDS_API_KEY;
+
+  if (!apiKey) {
+    return undefined;
+  }
+
+  return {
+    Authorization: `Bearer ${apiKey}`,
+    'x-api-key': apiKey,
+  };
+}
