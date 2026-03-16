@@ -8,6 +8,7 @@
   overflow: visible;
   border-radius: 0;
   box-shadow: none;
+  cursor: pointer;
 }
 
 .hero::after {
@@ -25,6 +26,7 @@
   align-items: center;
   justify-content: center;
   gap: clamp(0.45rem, 1.2vw, 0.9rem);
+  margin: 15px 0;
 }
 
 .hero__logo {
@@ -60,5 +62,9 @@
 @media (max-width: 640px) {
   .hero__brand {
     --hero-brand-height: clamp(4rem, 22vw, 7.5rem);
+  }
+
+  .hero p {
+    font-size: 0.95rem;
   }
 }

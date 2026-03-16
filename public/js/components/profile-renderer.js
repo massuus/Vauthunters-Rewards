@@ -348,9 +348,9 @@ function renderTiersSection(tiers) {
           const config = tierConfig[tierKey];
 
           if (config) {
-            return `<li style="color: ${config.color}"><img class="tier-badge pixelated-image" src="${config.badge}" alt="${label} badge" width="24" height="24">${label}</li>`;
+            return `<li class="tiers-list__item" style="--tier-accent: ${config.color}"><img class="tier-badge pixelated-image" src="${config.badge}" alt="${label} badge" width="24" height="24"><span class="tiers-list__label">${label}</span></li>`;
           }
-          return `<li>${label}</li>`;
+          return `<li class="tiers-list__item"><span class="tiers-list__label">${label}</span></li>`;
         })
         .join('')
     : '';

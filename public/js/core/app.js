@@ -8,9 +8,23 @@ import { usernameInput } from '../utils/dom-utils.js';
 import { initializeSearch } from '../handlers/search-handler.js';
 import { renderRecentSection } from '../components/recent-section.js';
 import { getUsernameFromQuery } from '../features/url-state.js';
+import { clearFeedback, clearResult } from '../features/ui-feedback.js';
 import { initLazyImages } from '../loaders/image-loader.js';
 import { initPWAInstall } from '../features/pwa-install.js';
 import { initRewardCodesPopup } from '../components/reward-codes-popup.js';
+
+function initializeHeroHomeClick() {
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
+
+  hero.addEventListener('click', () => {
+    usernameInput.value = '';
+    clearFeedback();
+    clearResult();
+    usernameInput.focus();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
 
 /**
  * Initialize the application
@@ -35,6 +49,9 @@ async function initializeApp() {
 
   // Initialize search form handling
   initializeSearch();
+
+  // Make hero click return to home state
+  initializeHeroHomeClick();
 
   // Initialize lazy image loading
   initLazyImages();
