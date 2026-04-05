@@ -51,6 +51,7 @@ export async function renderProfile(data) {
   const originalSets = Array.isArray(data.sets) ? data.sets : [];
   const sets = augmentSets(originalSets);
   const tiers = Array.isArray(data.tier) ? data.tier : [];
+  const iskall85Tiers = Array.isArray(data.iskall85Tier) ? data.iskall85Tier : [];
   const rewards = data.rewards && typeof data.rewards === 'object' ? data.rewards : {};
   const usernameKey = (data && data.name ? String(data.name) : '').trim().toLowerCase();
   const previouslySeen = getSeenSets(usernameKey);
@@ -63,7 +64,7 @@ export async function renderProfile(data) {
 
   const setsSection = renderSetsSection(sets, newSetKeys);
   const missingRewardsSection = renderMissingRewardsSection(sets, setArtStore);
-  const tiersSection = renderTiersSection(tiers);
+  const tiersSection = renderTiersSection(tiers, iskall85Tiers);
   const extraSection = renderExtraSection(rewards);
   const shareUrl = getShareUrl(data.name);
 
@@ -325,42 +326,72 @@ function renderSetCard(setKey, isNew = false) {
 /**
  * Render the patreon tiers section
  */
-function renderTiersSection(tiers) {
-  const title = 'Patreon Tiers Unlocked';
-  const hasTiers = tiers.length > 0;
-
-  const tierConfig = {
+function renderTiersSection(tiers, iskall85Tiers = []) {
+  const vaultHuntersPatreonUrl =
+    'https://patreon.com/VaultHunters?utm_source=massuus.com&utm_medium=massuus.com&utm_campaign=creatorshare_fan&utm_content=join_link';
+  const iskall85PatreonUrl =
+    'https://patreon.com/iskall85?utm_source=massuus.com&utm_medium=massuus.com&utm_campaign=creatorshare_fan&utm_content=join_link';
+  const vaultHuntersTierConfig = {
     'vault legend': { color: '#71ff9e', badge: '/img/badge/legend.webp' },
     'vault champion': { color: '#a2ff00', badge: '/img/badge/champion.webp' },
     'vault goblin': { color: '#00ff6c', badge: '/img/badge/goblin.webp' },
     'vault cheeser': { color: '#f3dc00', badge: '/img/badge/cheeser.webp' },
     'vault dweller': { color: '#dc1717', badge: '/img/badge/dweller.webp' },
   };
-
-  const items = hasTiers
-    ? tiers
-        .map((tier) => {
-          const label =
-            tier && typeof tier === 'object'
-              ? tier.name || formatLabel(tier.id)
-              : formatLabel(tier);
-          const tierKey = label.toLowerCase();
-          const config = tierConfig[tierKey];
-
-          if (config) {
-            return `<li class="tiers-list__item" style="--tier-accent: ${config.color}"><img class="tier-badge pixelated-image" src="${config.badge}" alt="${label} badge" width="24" height="24"><span class="tiers-list__label">${label}</span></li>`;
-          }
-          return `<li class="tiers-list__item"><span class="tiers-list__label">${label}</span></li>`;
-        })
-        .join('')
-    : '';
-
+  const iskall85TierConfig = {
+    iron: { color: '#a7a7a7', badge: '/img/badge/iron.webp' },
+    gold: { color: '#f3dc00', badge: '/img/badge/gold.webp' },
+    diamond: { color: '#59d6ff', badge: '/img/badge/diamond.webp' },
+    'iskallium diamond': { color: '#8fffd7', badge: '/img/badge/iskallium-diamond.webp' },
+    emerald: { color: '#4cff7c', badge: '/img/badge/emerald.webp' },
+  };
   return `
-    <section>
-      <h3 class="section-title">${title}</h3>
-      ${hasTiers ? `<ul class="tiers-list">${items}</ul>` : `<p class="muted">No Patreon tiers unlocked yet.</p>`}
+    <section class="tiers-section">
+      ${renderTierGroup(
+        'Vault Hunter Patreon Tiers',
+        tiers,
+        'Vault Hunters Patreon',
+        vaultHuntersTierConfig,
+        vaultHuntersPatreonUrl
+      )}
+      ${renderTierGroup(
+        'Iskall85 Patreon Tiers',
+        iskall85Tiers,
+        'Iskall85 Patreon',
+        iskall85TierConfig,
+        iskall85PatreonUrl
+      )}
     </section>
   `;
+}
+
+function renderTierGroup(title, tiers, patreonLabel, tierConfig, patreonUrl) {
+  const hasTiers = Array.isArray(tiers) && tiers.length > 0;
+  const items = hasTiers ? tiers.map((tier) => renderTierCard(tier, tierConfig)).join('') : '';
+
+  return `
+    <div class="tiers-group">
+      <h3 class="section-title">${title}</h3>
+      ${
+        hasTiers
+          ? `<ul class="tiers-list">${items}</ul>`
+          : `<p class="muted">No tiers unlocked yet. <a class="external-link" href="${patreonUrl}" target="_blank" rel="noopener">${patreonLabel}</a></p>`
+      }
+    </div>
+  `;
+}
+
+function renderTierCard(tier, tierConfig) {
+  const label =
+    tier && typeof tier === 'object' ? tier.name || formatLabel(tier.id) : formatLabel(tier);
+  const tierKey = label.toLowerCase();
+  const config = tierConfig?.[tierKey];
+
+  if (config) {
+    return `<li class="tiers-list__item" style="--tier-accent: ${config.color}"><img class="tier-badge pixelated-image" src="${config.badge}" alt="${label} badge" width="24" height="24" onerror="this.onerror=null;this.src='${UNKNOWN_ITEM_IMAGE}'"><span class="tiers-list__label">${label}</span></li>`;
+  }
+
+  return `<li class="tiers-list__item"><img class="tier-badge pixelated-image" src="${UNKNOWN_ITEM_IMAGE}" alt="${label} badge" width="24" height="24"><span class="tiers-list__label">${label}</span></li>`;
 }
 
 /**

@@ -4,15 +4,25 @@ import {
   PLAYERDB_PROFILE_URL,
   REWARDS_URL,
   TIER_URL,
+  TIER_LIST_URL,
   UUID_HEX_LENGTH,
   REQUEST_HEADERS,
   PROFILE_API_TIMEOUT,
   REWARDS_API_TIMEOUT,
   TIER_API_TIMEOUT,
+  ISKALL_TIER_API_TIMEOUT,
   getRewardsAuthHeaders,
 } from '../utils/config.js';
 
 const USERNAME_REGEX = /^[A-Za-z0-9_]{3,16}$/;
+const ISKALL_TIER_ORDER = ['Iron', 'Gold', 'Diamond', 'Iskallium Diamond', 'Emerald'];
+const ISKALL_TIER_LIST_CACHE_TTL_MS = 60 * 60 * 1000;
+
+let iskallTierListCache = {
+  data: null,
+  expiresAt: 0,
+  inFlight: null,
+};
 
 function badRequest(message) {
   return json({ error: message }, 400);
@@ -49,6 +59,7 @@ export async function onRequest({ request, env }) {
       rewards: {},
       sets: ['dylan_vip'],
       tier: [],
+      iskall85Tier: [],
     });
   }
 
@@ -67,9 +78,10 @@ export async function onRequest({ request, env }) {
     }
 
     const rewardsHeaders = getRewardsAuthHeaders(env);
-    const [rewardsData, tier] = await Promise.all([
+    const [rewardsData, tier, iskall85Tier] = await Promise.all([
       fetchRewards(formattedId, rewardsHeaders),
       fetchTiers(formattedId),
+      fetchIskall85Tiers(name, normalizedUsername),
     ]);
 
     const { rewards, sets } = rewardsData;
@@ -81,6 +93,7 @@ export async function onRequest({ request, env }) {
       rewards,
       sets,
       tier,
+      iskall85Tier,
     });
   } catch (error) {
     console.error('Profile lookup error', {
@@ -196,6 +209,98 @@ async function fetchTiers(formattedId) {
   }
 
   return Array.isArray(result.data.tier) ? result.data.tier : [];
+}
+
+async function fetchIskall85Tiers(...candidateUsernames) {
+  const tierList = await fetchIskall85TierList();
+  const userEntry = findTierListEntry(tierList, candidateUsernames);
+  const highestTier = typeof userEntry?.iskall85 === 'string' ? userEntry.iskall85.trim() : '';
+
+  return expandTierProgression(highestTier);
+}
+
+async function fetchIskall85TierList() {
+  const now = Date.now();
+
+  if (iskallTierListCache.data && now < iskallTierListCache.expiresAt) {
+    return iskallTierListCache.data;
+  }
+
+  if (iskallTierListCache.inFlight) {
+    return iskallTierListCache.inFlight;
+  }
+
+  iskallTierListCache.inFlight = loadIskall85TierList();
+
+  try {
+    const data = await iskallTierListCache.inFlight;
+    iskallTierListCache = {
+      data,
+      expiresAt: Date.now() + ISKALL_TIER_LIST_CACHE_TTL_MS,
+      inFlight: null,
+    };
+    return data;
+  } catch (error) {
+    iskallTierListCache.inFlight = null;
+    throw error;
+  }
+}
+
+async function loadIskall85TierList() {
+  const result = await fetchJson(TIER_LIST_URL, 'Iskall85 Tier API', ISKALL_TIER_API_TIMEOUT);
+
+  if (result.notFound) {
+    return {};
+  }
+
+  if (result.error || !result.data || typeof result.data !== 'object') {
+    const err = new Error(result.message || 'Iskall85 Tier API failed');
+    err.status = 502;
+    err.details = { timeout: result.isTimeout, status: result.status };
+    throw err;
+  }
+
+  return result.data;
+}
+
+function findTierListEntry(data, candidateUsernames) {
+  const candidateSet = new Set(
+    candidateUsernames
+      .map((value) =>
+        String(value || '')
+          .trim()
+          .toLowerCase()
+      )
+      .filter(Boolean)
+  );
+
+  if (!candidateSet.size) {
+    return null;
+  }
+
+  return (
+    Object.entries(data).find(([key]) =>
+      candidateSet.has(
+        String(key || '')
+          .trim()
+          .toLowerCase()
+      )
+    )?.[1] || null
+  );
+}
+
+function expandTierProgression(highestTier) {
+  const tierIndex = ISKALL_TIER_ORDER.findIndex(
+    (tier) => tier.toLowerCase() === String(highestTier || '').toLowerCase()
+  );
+
+  if (tierIndex === -1) {
+    return [];
+  }
+
+  return ISKALL_TIER_ORDER.slice(0, tierIndex + 1).map((name) => ({
+    name,
+  }));
 }
 
 function json(body, status = 200) {

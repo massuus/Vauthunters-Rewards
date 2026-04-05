@@ -330,7 +330,6 @@ export function renderCodeCard(item, proxiedImageUrl, escapeHtml, isExpired = fa
   const safeCode = escapeHtml(item?.code || '???');
   const safeExpiry = escapeHtml(item?.expires || '');
   const expiredClass = isExpired ? ' codes-card--expired' : '';
-  const buttonDisabled = isExpired ? ' disabled' : '';
 
   return `
     <article class="codes-card${expiredClass}">
@@ -340,7 +339,7 @@ export function renderCodeCard(item, proxiedImageUrl, escapeHtml, isExpired = fa
         ${isExpired ? '<span class="codes-card__expired-badge">Expired</span>' : ''}
       </div>
       <p class="codes-card__description">${safeDescription}</p>
-      <a class="codes-card__vod${buttonDisabled}" href="${safeVodUrl}" target="_blank" rel="noopener"${buttonDisabled ? ' aria-disabled="true"' : ''}>
+      <a class="codes-card__vod" href="${safeVodUrl}" target="_blank" rel="noopener">
         Watch VOD for code
       </a>
       ${safeExpiry ? `<p class="codes-card__expiry">Claimable until ${safeExpiry}</p>` : ''}
@@ -348,7 +347,7 @@ export function renderCodeCard(item, proxiedImageUrl, escapeHtml, isExpired = fa
         Can't find the code in the VOD, or already watched the stream but don't remember it?
       </p>
       <div class="codes-card__reveal-row">
-        <button class="codes-card__reveal" type="button" data-code="${safeCode}"${buttonDisabled}>
+        <button class="codes-card__reveal" type="button" data-code="${safeCode}">
           Reveal code
         </button>
         <span class="codes-card__code" data-code-value hidden aria-live="polite"></span>
