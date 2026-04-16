@@ -191,6 +191,30 @@
     "descriptionObtained": "You got this by reaching level 10 in the second season.",
     "descriptionLocked": "Get this by reaching level 10 in the second season."
   },
+  "nocturn_shield": {
+    "label": "Nocturn Shield",
+    "image": "/img/nocturn_shield.gif",
+    "alt": "Nocturn Shield icon",
+    "obtainable": true,
+    "descriptionObtained": "You got this by reaching level 12 in the season 2 battle pass.",
+    "descriptionLocked": "Get this by reaching level 12 in the season 2 battle pass."
+  },
+  "midnight_thorn": {
+    "label": "Midnight Thorn",
+    "image": "/img/midnight_thorn.gif",
+    "alt": "Midnight Thorn icon",
+    "obtainable": true,
+    "descriptionObtained": "You got this by reaching level 12 in the season 2 battle pass.",
+    "descriptionLocked": "Get this by reaching level 12 in the season 2 battle pass."
+  },
+  "lamenting_mirror": {
+    "label": "Lamenting Mirror",
+    "image": "/img/lamenting_mirror.gif",
+    "alt": "Lamenting Mirror icon",
+    "obtainable": true,
+    "descriptionObtained": "You got this by reaching level 12 in the season 2 battle pass.",
+    "descriptionLocked": "Get this by reaching level 12 in the season 2 battle pass."
+  },
   "carrot": {
     "label": "Carrot Companion",
     "image": "https://wiki.vaulthunters.gg/images/9/94/Invicon_Carrotpet.gif",
