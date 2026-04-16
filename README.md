@@ -139,7 +139,7 @@ You can bypass upstream calls during development:
 
 ## Frontend structure
 
-- `public/index.html` – application shell and search form
+- `public/pages/index.html` – application shell and search form
 - `public/app.js` – Main application initialization and exports for modular functions
 - `public/dom-utils.js` – DOM element caching, utility functions, and image proxying
 - `public/search-handler.js` – Search form submission, API calls, and special page routing (codes, all rewards)

@@ -7,6 +7,7 @@ import {
   form,
   proxiedImageUrl,
   DEFAULT_FAVICON,
+  resultContainer,
 } from '../utils/dom-utils.js';
 import { getRecentUsers } from '../utils/storage-manager.js';
 import { escapeHtml } from '../features/reward-utils.js';
@@ -32,11 +33,24 @@ export async function renderRecentSection() {
       return `<button class="recent-item" type="button" data-name="${safe}"><img src="${img}" alt="${safe}'s head" width="28" height="28"><span style="${nameStyle}">${safe}</span></button>`;
     })
     .join('');
+  const pagesSection = shouldShowPagesSection()
+    ? `
+      <h3 class="recent-title">Pages</h3>
+      <div class="recent-grid">
+        <button class="recent-item" type="button" data-page="all">All Rewards</button>
+        <button class="recent-item" type="button" data-page="codes">Reward Codes</button>
+      </div>
+    `
+    : '';
 
   const template = await loadTemplate('recent-section');
-  recentContainer.innerHTML = renderTemplate(template, { buttons });
+  recentContainer.innerHTML = renderTemplate(template, { buttons, pagesSection });
   recentContainer.classList.remove('hidden');
   bindRecentHandlers();
+}
+
+function shouldShowPagesSection() {
+  return !usernameInput.value.trim() && resultContainer.classList.contains('hidden');
 }
 
 /**
@@ -49,6 +63,15 @@ function bindRecentHandlers() {
       const name = btn.getAttribute('data-name') || '';
       if (!name) return;
       usernameInput.value = name;
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+  });
+
+  recentContainer.querySelectorAll('button.recent-item[data-page]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const page = btn.getAttribute('data-page') || '';
+      if (!page) return;
+      usernameInput.value = page;
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });
   });

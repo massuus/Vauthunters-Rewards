@@ -2,7 +2,7 @@
   "name": "vauthunters-rewards",
   "version": "1.0.0",
   "description": "Vault Hunters rewards lookup tool",
-  "main": "public/index.html",
+  "main": "public/pages/index.html",
   "type": "module",
   "scripts": {
     "start": "npm run build:prod && npx --yes wrangler@4.43.0 pages dev dist --compatibility-date=2024-12-10",

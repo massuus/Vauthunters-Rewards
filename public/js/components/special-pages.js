@@ -630,7 +630,7 @@ export async function renderAllRewardsPage(
         <header class="all-rewards-page__intro">
           <h2 class="all-rewards-page__title">All Vault Hunters Rewards</h2>
           <p class="all-rewards-page__lead">Browse every reward in Vault Hunters.</p>
-          <p class="all-rewards-page__subtext">Total rewards: ${entries.length} (${obtainableRewards.length} obtainable, ${unobtainableRewards.length} legacy)</p>
+          <p class="all-rewards-page__subtext">Total rewards: ${entries.length} (${obtainableRewards.length} obtainable, ${unobtainableRewards.length} unobtainable)</p>
         </header>
         
         <section class="rewards-section rewards-section--obtainable">

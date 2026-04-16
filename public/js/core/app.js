@@ -12,6 +12,7 @@ import { clearFeedback, clearResult } from '../features/ui-feedback.js';
 import { initLazyImages } from '../loaders/image-loader.js';
 import { initPWAInstall } from '../features/pwa-install.js';
 import { initRewardCodesPopup } from '../components/reward-codes-popup.js';
+import { initPressFeedback } from '../features/press-feedback.js';
 
 function initializeHeroHomeClick() {
   const hero = document.querySelector('.hero');
@@ -21,6 +22,7 @@ function initializeHeroHomeClick() {
     usernameInput.value = '';
     clearFeedback();
     clearResult();
+    renderRecentSection().catch(() => {});
     usernameInput.focus();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
@@ -61,6 +63,9 @@ async function initializeApp() {
 
   // Initialize reward codes popup
   initRewardCodesPopup();
+
+  // Mirror pressed-state feedback on touch devices for styled buttons and links
+  initPressFeedback();
 
   // Check for preset username from URL
   const presetUsername = getUsernameFromQuery();

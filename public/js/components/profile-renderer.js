@@ -27,6 +27,39 @@ import { getBestPatreonTier } from '../utils/tier-utils.js';
 let setsHelpTemplate = '';
 let setCardCycleTimers = [];
 
+const ISKALL85_TIER_CONFIG = {
+  iron: { rank: 1, color: '#a7a7a7', badge: '/img/badge/iron.webp' },
+  gold: { rank: 2, color: '#f3dc00', badge: '/img/badge/gold.webp' },
+  diamond: { rank: 3, color: '#59d6ff', badge: '/img/badge/diamond.webp' },
+  'iskallium diamond': { rank: 4, color: '#8fffd7', badge: '/img/badge/iskallium-diamond.webp' },
+  emerald: { rank: 5, color: '#4cff7c', badge: '/img/badge/emerald.webp' },
+};
+
+function getBestTierFromConfig(tiers, tierConfig) {
+  if (!Array.isArray(tiers) || tiers.length === 0) {
+    return null;
+  }
+
+  let bestTier = null;
+  let bestRank = 0;
+
+  tiers.forEach((tier) => {
+    const tierName = typeof tier === 'object' && tier.name ? tier.name : String(tier);
+    const tierKey = tierName.toLowerCase();
+    const config = tierConfig?.[tierKey];
+
+    if (config && config.rank > bestRank) {
+      bestRank = config.rank;
+      bestTier = {
+        name: tierName,
+        ...config,
+      };
+    }
+  });
+
+  return bestTier;
+}
+
 /**
  * Render a player profile with their sets, tiers, and rewards
  */
@@ -68,12 +101,19 @@ export async function renderProfile(data) {
   const extraSection = renderExtraSection(rewards);
   const shareUrl = getShareUrl(data.name);
 
-  // Get best Patreon tier for user badge and name styling
-  const bestTier = getBestPatreonTier(tiers);
-  const nameStyle = bestTier ? `color: ${bestTier.color}; font-weight: 600;` : '';
-  const tierBadge = bestTier
-    ? `<img class="tier-badge pixelated-image" src="${bestTier.badge}" alt="${bestTier.name} badge" title="${bestTier.name}" width="24" height="24">`
+  // Show up to one badge per Patreon group beside the username
+  const bestVaultHuntersTier = getBestPatreonTier(tiers);
+  const bestIskall85Tier = getBestTierFromConfig(iskall85Tiers, ISKALL85_TIER_CONFIG);
+  const nameStyle = bestVaultHuntersTier
+    ? `color: ${bestVaultHuntersTier.color}; font-weight: 600;`
     : '';
+  const tierBadge = [bestVaultHuntersTier, bestIskall85Tier]
+    .filter(Boolean)
+    .map(
+      (tier) =>
+        `<img class="tier-badge pixelated-image" src="${tier.badge}" alt="${tier.name} badge" title="${tier.name}" width="24" height="24">`
+    )
+    .join('');
 
   const playerCard = await loadTemplate('player-card');
   resultContainer.innerHTML =
@@ -338,13 +378,6 @@ function renderTiersSection(tiers, iskall85Tiers = []) {
     'vault cheeser': { color: '#f3dc00', badge: '/img/badge/cheeser.webp' },
     'vault dweller': { color: '#dc1717', badge: '/img/badge/dweller.webp' },
   };
-  const iskall85TierConfig = {
-    iron: { color: '#a7a7a7', badge: '/img/badge/iron.webp' },
-    gold: { color: '#f3dc00', badge: '/img/badge/gold.webp' },
-    diamond: { color: '#59d6ff', badge: '/img/badge/diamond.webp' },
-    'iskallium diamond': { color: '#8fffd7', badge: '/img/badge/iskallium-diamond.webp' },
-    emerald: { color: '#4cff7c', badge: '/img/badge/emerald.webp' },
-  };
   return `
     <section class="tiers-section">
       ${renderTierGroup(
@@ -358,7 +391,7 @@ function renderTiersSection(tiers, iskall85Tiers = []) {
         'Iskall85 Patreon Tiers',
         iskall85Tiers,
         'Iskall85 Patreon',
-        iskall85TierConfig,
+        ISKALL85_TIER_CONFIG,
         iskall85PatreonUrl
       )}
     </section>
@@ -520,12 +553,10 @@ function bindSetCardHandlers() {
 
     const setPeekState = (peek) => card.classList.toggle('set-card--peek', peek);
 
-    if (!isTouchDevice) {
-      card.addEventListener('pointerdown', () => setPeekState(true));
-      card.addEventListener('pointerup', () => setPeekState(false));
-      card.addEventListener('pointerleave', () => setPeekState(false));
-      card.addEventListener('pointercancel', () => setPeekState(false));
-    }
+    card.addEventListener('pointerdown', () => setPeekState(true));
+    card.addEventListener('pointerup', () => setPeekState(false));
+    card.addEventListener('pointerleave', () => setPeekState(false));
+    card.addEventListener('pointercancel', () => setPeekState(false));
     card.addEventListener('blur', () => setPeekState(false));
 
     card.addEventListener('click', () => {

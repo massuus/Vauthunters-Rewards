@@ -85,7 +85,8 @@
   transform: rotate(90deg);
 }
 
-.codes-popup__close:active {
+.codes-popup__close:active,
+.codes-popup__close.is-pressed {
   transform: rotate(90deg) scale(0.9);
 }
 
@@ -144,7 +145,8 @@
   animation: none;
 }
 
-.codes-popup__link:active {
+.codes-popup__link:active,
+.codes-popup__link.is-pressed {
   transform: translateY(0);
 }
 

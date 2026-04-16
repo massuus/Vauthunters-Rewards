@@ -24,7 +24,8 @@
   box-shadow: 0 6px 16px rgba(244, 169, 65, 0.4);
 }
 
-.pwa-install-button:active {
+.pwa-install-button:active,
+.pwa-install-button.is-pressed {
   transform: translateY(0);
   box-shadow: 0 2px 8px rgba(244, 169, 65, 0.3);
 }

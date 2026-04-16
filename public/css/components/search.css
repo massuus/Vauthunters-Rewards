@@ -75,7 +75,8 @@
   );
 }
 
-.search__form > button[type='submit']:active {
+.search__form > button[type='submit']:active,
+.search__form > button[type='submit'].is-pressed {
   transform: translateY(5px);
   box-shadow:
     0 2px 0 color-mix(in srgb, var(--accent) 58%, #8f4200 42%),
