@@ -23,6 +23,7 @@ import { getSeenSets, setSeenSets, addRecentUser } from '../utils/storage-manage
 import { copyShareLink } from '../utils/clipboard-utils.js';
 import { updateShareFeedback } from '../features/ui-feedback.js';
 import { getBestPatreonTier } from '../utils/tier-utils.js';
+import { fetchOfficialServers, findServerByPlayerName } from '../features/official-servers.js';
 
 let setsHelpTemplate = '';
 let setCardCycleTimers = [];
@@ -115,6 +116,19 @@ export async function renderProfile(data) {
     )
     .join('');
 
+  let serverLink = '';
+  try {
+    const servers = await fetchOfficialServers();
+    const matchedServer = findServerByPlayerName(data.name, servers);
+    if (matchedServer?._id && matchedServer?.name) {
+      const serverQuery = escapeHtml(matchedServer.name);
+      const serverName = escapeHtml(matchedServer.name);
+      serverLink = `<button class="player-server-link" type="button" data-server-query="${serverQuery}" title="View ${serverName} players">${serverName}</button>`;
+    }
+  } catch {
+    // Non-blocking: profile rendering should continue even if server lookup fails.
+  }
+
   const playerCard = await loadTemplate('player-card');
   resultContainer.innerHTML =
     renderTemplate(playerCard, {
@@ -123,6 +137,7 @@ export async function renderProfile(data) {
       shareUrl: shareUrl,
       nameStyle: nameStyle,
       tierBadge: tierBadge,
+      serverLink: serverLink,
     }) +
     setsSection +
     missingRewardsSection +
@@ -139,6 +154,7 @@ export async function renderProfile(data) {
   );
 
   bindShareButton();
+  bindServerLinkHandlers();
   bindSetCardHandlers();
   bindCtaButtonHandlers();
   // Update favicon to player's head
@@ -160,6 +176,17 @@ export async function renderProfile(data) {
   // Update recent list with both name and head
   addRecentUser({ name: data.name, head: data.head, tier: tiers });
   await renderRecentSection();
+}
+
+function bindServerLinkHandlers() {
+  resultContainer.querySelectorAll('[data-server-query]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const serverQuery = button.getAttribute('data-server-query') || '';
+      if (!serverQuery) return;
+      usernameInput.value = serverQuery;
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+  });
 }
 
 /**

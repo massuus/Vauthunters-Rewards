@@ -22,10 +22,19 @@ import { renderProfile } from '../components/profile-renderer.js';
 import {
   isCodesQuery,
   isAllQuery,
+  isServersQuery,
+  getServerQueryTarget,
   renderCodesPage,
   renderAllRewardsPage,
+  renderOfficialServersPage,
+  renderOfficialServerDetailPage,
 } from '../components/special-pages.js';
 import { escapeHtml, formatLabel } from '../features/reward-utils.js';
+import {
+  fetchOfficialServers,
+  getVisibleServers,
+  findServerByQuery,
+} from '../features/official-servers.js';
 
 let submitTimer = null;
 let currentRequestController = null;
@@ -132,6 +141,117 @@ async function submitSearch() {
     return;
   }
 
+  if (isServersQuery(username)) {
+    setLoadingState(true);
+    try {
+      await renderOfficialServersPage(
+        resultContainer,
+        setFavicon,
+        setMetaDescription,
+        () => {
+          const modal = document.querySelector('dialog[open]');
+          if (modal) modal.close();
+        },
+        (qs) => {
+          if (!qs) {
+            window.history.replaceState({}, '', window.location.pathname);
+          } else {
+            window.history.replaceState({}, '', `${window.location.pathname}?${qs}`);
+          }
+        },
+        escapeHtml,
+        DEFAULT_FAVICON,
+        usernameInput,
+        form
+      );
+      scrollToResults();
+    } catch {
+      showFeedback(
+        'Unable to load official servers right now. Please try again in a moment.',
+        'error'
+      );
+    } finally {
+      setLoadingState(false);
+    }
+    return;
+  }
+
+  const serverTarget = getServerQueryTarget(username);
+  if (serverTarget) {
+    setLoadingState(true);
+    try {
+      await renderOfficialServerDetailPage(
+        serverTarget,
+        resultContainer,
+        setFavicon,
+        setMetaDescription,
+        () => {
+          const modal = document.querySelector('dialog[open]');
+          if (modal) modal.close();
+        },
+        (qs) => {
+          if (!qs) {
+            window.history.replaceState({}, '', window.location.pathname);
+          } else {
+            window.history.replaceState({}, '', `${window.location.pathname}?${qs}`);
+          }
+        },
+        proxiedImageUrl,
+        escapeHtml,
+        DEFAULT_FAVICON,
+        usernameInput,
+        form
+      );
+      scrollToResults();
+    } catch {
+      showFeedback(
+        'Unable to load server details right now. Please try again in a moment.',
+        'error'
+      );
+    } finally {
+      setLoadingState(false);
+    }
+    return;
+  }
+
+  const matchedServer = await resolveServerFromSearchValue(username);
+  if (matchedServer?._id) {
+    setLoadingState(true);
+    try {
+      await renderOfficialServerDetailPage(
+        matchedServer._id,
+        resultContainer,
+        setFavicon,
+        setMetaDescription,
+        () => {
+          const modal = document.querySelector('dialog[open]');
+          if (modal) modal.close();
+        },
+        (qs) => {
+          if (!qs) {
+            window.history.replaceState({}, '', window.location.pathname);
+          } else {
+            window.history.replaceState({}, '', `${window.location.pathname}?${qs}`);
+          }
+        },
+        proxiedImageUrl,
+        escapeHtml,
+        DEFAULT_FAVICON,
+        usernameInput,
+        form
+      );
+      scrollToResults();
+    } catch {
+      showFeedback(
+        'Unable to load server details right now. Please try again in a moment.',
+        'error'
+      );
+    } finally {
+      setLoadingState(false);
+    }
+    return;
+  }
+
   setLoadingState(true);
 
   try {
@@ -189,4 +309,13 @@ function buildProfileApiUrl(username) {
     });
   } catch {}
   return `${base.pathname}?${base.searchParams.toString()}`;
+}
+
+async function resolveServerFromSearchValue(value) {
+  try {
+    const servers = getVisibleServers(await fetchOfficialServers());
+    return findServerByQuery(value, servers);
+  } catch {
+    return null;
+  }
 }

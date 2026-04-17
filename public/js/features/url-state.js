@@ -20,6 +20,11 @@ export function getUsernameFromQuery() {
 
   // Try standard parameters first
   const params = new URLSearchParams(rawQuery);
+  const serverTarget = params.get('server');
+  if (serverTarget) {
+    return `server:${decode(serverTarget).trim()}`;
+  }
+
   const candidate = params.get('username') || params.get('user') || params.get('name');
 
   const decode = (value) => {

@@ -6,6 +6,7 @@ export const PROFILE_API_TIMEOUT = 8000; // 8 seconds for profile lookup
 export const REWARDS_API_TIMEOUT = 8000; // 8 seconds for rewards API
 export const TIER_API_TIMEOUT = 5000; // 5 seconds for tier API
 export const ISKALL_TIER_API_TIMEOUT = 5000; // 5 seconds for Iskall85 tier API
+export const SERVERS_API_TIMEOUT = 5000; // 5 seconds for official servers API
 
 // Retry settings
 export const MAX_RETRIES = 3;
@@ -25,6 +26,7 @@ export const PLAYERDB_PROFILE_URL = 'https://playerdb.co/api/player/minecraft/';
 export const REWARDS_URL = 'https://rewards.vaulthunters.gg/rewards?minecraft=';
 export const TIER_URL = 'https://api.vaulthunters.gg/users/reward?uuid=';
 export const TIER_LIST_URL = 'https://api.vaulthunters.gg/users/reward/list';
+export const SERVERS_URL = 'https://api.vaulthunters.gg/server';
 
 // Minecraft UUID without dashes is 32 hex characters
 export const UUID_HEX_LENGTH = 32;
