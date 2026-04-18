@@ -45,6 +45,14 @@
   gap: var(--spacing-sm);
 }
 
+.footer__column--explore {
+  gap: var(--spacing-sm);
+}
+
+.footer__column--balanced {
+  gap: var(--spacing-sm);
+}
+
 .footer__label {
   font-weight: 600;
   font-size: 0.85rem;
@@ -71,6 +79,13 @@
 @media (min-width: 768px) {
   .footer__inner {
     grid-template-columns: 1fr;
+  }
+
+  .footer__links {
+    /* Give Explore more room; keep Official and Support closer together. */
+    grid-template-columns: minmax(220px, 1.35fr) max-content max-content;
+    column-gap: clamp(1.25rem, 3vw, 2.25rem);
+    align-items: start;
   }
 
   .footer__brand {
