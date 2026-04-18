@@ -1,0 +1,326 @@
+import { proxiedImageUrl, UNKNOWN_ITEM_IMAGE } from '../utils/dom-utils.js';
+import { escapeHtml, deriveRewardName, formatLabel } from '../features/reward-utils.js';
+import { getSetArtStore } from './set-art-manager.js';
+
+export function renderSetsSection(sets, setsHelpTemplate, newSetKeys = new Set()) {
+  const hasSets = sets.length > 0;
+  const setArtStore = getSetArtStore();
+  const setsContent = hasSets
+    ? sets.map((setKey) => renderSetCard(setKey, setArtStore, newSetKeys.has(setKey))).join('')
+    : '';
+
+  return `
+    <section>
+      <div class="section-title-container">
+        <h3 class='section-title'>Vault Sets</h3>
+      </div>
+      ${setsHelpTemplate}
+      ${hasSets ? `<div class='sets-grid'>${setsContent}</div>` : `<p class='muted'>No sets recorded yet.</p>`}
+      <div class='rewards-cta-container' style="display: none;">
+        <p class='rewards-cta'>
+          <button class="rewards-cta__link" data-search="all" type="button">
+            <span class="rewards-cta__icon" aria-hidden="true">🎁</span>
+            <span>Browse all rewards</span>
+            <span class="rewards-cta__arrow" aria-hidden="true">→</span>
+          </button>
+        </p>
+        <p class='rewards-cta'>
+          <button class="rewards-cta__link" data-search="codes" type="button">
+            <span class="rewards-cta__icon" aria-hidden="true">📜</span>
+            <span>View codes</span>
+            <span class="rewards-cta__arrow" aria-hidden="true">→</span>
+          </button>
+        </p>
+      </div>
+    </section>
+  `;
+}
+
+export function renderMissingRewardsSection(ownedSets, setArtStore) {
+  const ownedSetKeys = new Set(ownedSets);
+  const allRewards = Object.entries(setArtStore);
+
+  const missingObtainable = [];
+  const missingLegacy = [];
+
+  allRewards.forEach(([key, data]) => {
+    if (!ownedSetKeys.has(key)) {
+      if (data.obtainable === false) {
+        missingLegacy.push([key, data]);
+      } else {
+        missingObtainable.push([key, data]);
+      }
+    }
+  });
+
+  const hasMissingObtainable = missingObtainable.length > 0;
+  const hasMissingLegacy = missingLegacy.length > 0;
+
+  if (!hasMissingObtainable && !hasMissingLegacy) {
+    return '';
+  }
+
+  const obtainableContent = hasMissingObtainable
+    ? missingObtainable.map(([key, data]) => renderMissingRewardCard(key, data, false)).join('')
+    : '';
+
+  const legacyContent = hasMissingLegacy
+    ? missingLegacy.map(([key, data]) => renderMissingRewardCard(key, data, true)).join('')
+    : '';
+
+  const obtainableSection = hasMissingObtainable
+    ? `
+    <div class="missing-rewards__obtainable">
+      <button id="missing-obtainable-toggle" class="missing-rewards__toggle" type="button" aria-expanded="false">
+        <span class="missing-rewards__toggle-icon" aria-hidden="true">▶</span>
+        <span>Still Obtainable (${missingObtainable.length})</span>
+      </button>
+      <div id="missing-obtainable-panel" class="missing-rewards__panel" hidden>
+        <p class="missing-rewards__description">These rewards can still be unlocked through gameplay or events.</p>
+        <div class="sets-grid sets-grid--missing">
+          ${obtainableContent}
+        </div>
+      </div>
+    </div>
+  `
+    : '';
+
+  const legacySection = hasMissingLegacy
+    ? `
+    <div class="missing-rewards__legacy">
+      <button id="missing-legacy-toggle" class="missing-rewards__toggle missing-rewards__toggle--legacy" type="button" aria-expanded="false">
+        <span class="missing-rewards__toggle-icon" aria-hidden="true">▶</span>
+        <span>No Longer Obtainable (${missingLegacy.length})</span>
+      </button>
+      <div id="missing-legacy-panel" class="missing-rewards__panel" hidden>
+        <p class="missing-rewards__description missing-rewards__description--legacy">These rewards were available during past events and can no longer be unlocked.</p>
+        <div class="sets-grid sets-grid--missing sets-grid--legacy">
+          ${legacyContent}
+        </div>
+      </div>
+    </div>
+  `
+    : '';
+
+  return `
+    <section class="missing-rewards-section">
+      <h3 class="section-title">Missing Rewards</h3>
+      ${obtainableSection}
+      ${legacySection}
+    </section>
+  `;
+}
+
+function renderMissingRewardCard(setKey, data, isLegacy = false) {
+  const label = data?.label || formatLabel(setKey);
+  const description =
+    data?.descriptionLocked || data?.description || `Unlock this reward by obtaining the ${label}.`;
+  const imageSources =
+    Array.isArray(data?.images) && data.images.length
+      ? data.images
+      : [data?.image || UNKNOWN_ITEM_IMAGE];
+  const altText = data?.alt || label;
+  const imageMarkup = imageSources
+    .map((imageSource, index) => {
+      const isFallbackImage = imageSource === UNKNOWN_ITEM_IMAGE;
+      const proxied = proxiedImageUrl(imageSource);
+      const fallbackClass = isFallbackImage ? ' pixelated-image' : '';
+      const activeClass = index === 0 ? ' is-active' : '';
+      const imgAlt = imageSources.length > 1 ? `${altText} view ${index + 1}` : altText;
+      return `<img class="set-card__media-img${activeClass}${fallbackClass}" src="${proxied}" alt="${escapeHtml(imgAlt)}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
+    })
+    .join('');
+
+  const legacyClass = isLegacy ? ' set-card--legacy' : '';
+
+  return `
+    <button class="set-card set-card--missing${legacyClass}" type="button" data-set-key="${setKey}">
+      <div class="set-card__media">
+        ${imageMarkup}
+      </div>
+      <div class="set-card__content">
+        <span class="set-card__name">${escapeHtml(label)}</span>
+        <p class="set-card__description">${escapeHtml(description)}</p>
+      </div>
+    </button>
+  `;
+}
+
+function renderSetCard(setKey, setArtStore, isNew = false) {
+  const asset = setArtStore?.[setKey];
+  const label = asset?.label || formatLabel(setKey);
+  const description =
+    asset?.descriptionObtained ||
+    asset?.description ||
+    asset?.descriptionLocked ||
+    `You unlocked ${label}.`;
+
+  const imageSources =
+    Array.isArray(asset?.images) && asset.images.length
+      ? asset.images
+      : [asset?.image || UNKNOWN_ITEM_IMAGE];
+  const altText = asset?.alt || label;
+  const imageMarkup = imageSources
+    .map((imageSource, index) => {
+      const isFallbackImage = imageSource === UNKNOWN_ITEM_IMAGE;
+      const proxied = proxiedImageUrl(imageSource);
+      const fallbackClass = isFallbackImage ? ' pixelated-image' : '';
+      const activeClass = index === 0 ? ' is-active' : '';
+      const imgAlt = imageSources.length > 1 ? `${altText} view ${index + 1}` : altText;
+      return `<img class="set-card__media-img${activeClass}${fallbackClass}" src="${proxied}" alt="${escapeHtml(imgAlt)}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
+    })
+    .join('');
+
+  const newBadge = isNew
+    ? `<span class=\"set-card__badge\" aria-label=\"New unlock\">New</span>`
+    : '';
+  const extraClass = isNew ? ' set-card--new' : '';
+
+  return `
+    <button class="set-card${extraClass}" type="button" data-set-key="${setKey}">
+      <div class="set-card__media">
+        ${imageMarkup}
+      </div>
+      <div class="set-card__content">
+        <span class="set-card__name">${escapeHtml(label)}</span>
+        <p class="set-card__description">${escapeHtml(description)}</p>
+      </div>
+      ${newBadge}
+    </button>
+  `;
+}
+
+export function renderTiersSection(tiers, iskall85Tiers = [], iskall85TierConfig = {}) {
+  const vaultHuntersPatreonUrl =
+    'https://patreon.com/VaultHunters?utm_source=massuus.com&utm_medium=massuus.com&utm_campaign=creatorshare_fan&utm_content=join_link';
+  const iskall85PatreonUrl =
+    'https://patreon.com/iskall85?utm_source=massuus.com&utm_medium=massuus.com&utm_campaign=creatorshare_fan&utm_content=join_link';
+  const vaultHuntersTierConfig = {
+    'vault legend': { color: '#71ff9e', badge: '/img/badge/legend.webp' },
+    'vault champion': { color: '#a2ff00', badge: '/img/badge/champion.webp' },
+    'vault goblin': { color: '#00ff6c', badge: '/img/badge/goblin.webp' },
+    'vault cheeser': { color: '#f3dc00', badge: '/img/badge/cheeser.webp' },
+    'vault dweller': { color: '#dc1717', badge: '/img/badge/dweller.webp' },
+  };
+  return `
+    <section class="tiers-section">
+      ${renderTierGroup(
+        'Vault Hunter Patreon Tiers',
+        tiers,
+        'Vault Hunters Patreon',
+        vaultHuntersTierConfig,
+        vaultHuntersPatreonUrl
+      )}
+      ${renderTierGroup(
+        'Iskall85 Patreon Tiers',
+        iskall85Tiers,
+        'Iskall85 Patreon',
+        iskall85TierConfig,
+        iskall85PatreonUrl
+      )}
+    </section>
+  `;
+}
+
+function renderTierGroup(title, tiers, patreonLabel, tierConfig, patreonUrl) {
+  const hasTiers = Array.isArray(tiers) && tiers.length > 0;
+  const items = hasTiers ? tiers.map((tier) => renderTierCard(tier, tierConfig)).join('') : '';
+
+  return `
+    <div class="tiers-group">
+      <h3 class="section-title">${title}</h3>
+      ${
+        hasTiers
+          ? `<ul class="tiers-list">${items}</ul>`
+          : `<p class="muted">No tiers unlocked yet. <a class="external-link" href="${patreonUrl}" target="_blank" rel="noopener">${patreonLabel}</a></p>`
+      }
+    </div>
+  `;
+}
+
+function renderTierCard(tier, tierConfig) {
+  const label =
+    tier && typeof tier === 'object' ? tier.name || formatLabel(tier.id) : formatLabel(tier);
+  const tierKey = label.toLowerCase();
+  const config = tierConfig?.[tierKey];
+
+  if (config) {
+    return `<li class="tiers-list__item" style="--tier-accent: ${config.color}"><img class="tier-badge pixelated-image" src="${config.badge}" alt="${label} badge" width="24" height="24" onerror="this.onerror=null;this.src='${UNKNOWN_ITEM_IMAGE}'"><span class="tiers-list__label">${label}</span></li>`;
+  }
+
+  return `<li class="tiers-list__item"><img class="tier-badge pixelated-image" src="${UNKNOWN_ITEM_IMAGE}" alt="${label} badge" width="24" height="24"><span class="tiers-list__label">${label}</span></li>`;
+}
+
+export function renderExtraSection(rewards) {
+  const hasRewards = Object.keys(rewards).length > 0;
+  const panelContent = hasRewards
+    ? renderRewardsList(rewards)
+    : '<p class="muted">No individual rewards recorded.</p>';
+
+  return `
+    <section>
+      <button id="extra-toggle" class="extra-toggle" type="button" aria-expanded="false">Extra Info</button>
+      <div id="extra-panel" class="rewards-panel hidden">${panelContent}</div>
+    </section>
+  `;
+}
+
+function renderRewardsList(rewards) {
+  return Object.entries(rewards)
+    .map(([group, items]) => {
+      const normalizedItems = Array.isArray(items) ? items : [];
+      const groupLabelRaw = String(group);
+      const groupLabelKey = groupLabelRaw.includes(':')
+        ? groupLabelRaw.split(':').pop()
+        : groupLabelRaw;
+      const groupLabelClean = groupLabelKey.replace(/[_\\/]+/g, ' ');
+      const groupHeading = formatLabel(groupLabelClean);
+
+      const rows = normalizedItems
+        .map((item) => {
+          const raw = String(item).trim();
+          const withoutPrefix = raw.replace(/^\/?img\//i, '');
+          const withoutExt = withoutPrefix.replace(/\.(webp|png|jpg|jpeg|gif)$/i, '');
+          const normalizedPath = withoutExt.replace(/\s+/g, '_').toLowerCase();
+          const path = normalizedPath || withoutExt || raw;
+
+          const segments = normalizedPath.split(/[\\/]/);
+          const lastSegment = segments[segments.length - 1] || normalizedPath;
+          const name = deriveRewardName(lastSegment || raw);
+
+          let displayName = name;
+          const pathParts = normalizedPath.split(/[\/\\:]/);
+          if (['boots', 'helmet', 'leggings', 'chestplate'].includes(lastSegment)) {
+            const armorSetIdx = pathParts.indexOf('armor');
+            if (armorSetIdx >= 0 && armorSetIdx + 1 < pathParts.length) {
+              const armorSet = pathParts[armorSetIdx + 1];
+              displayName = deriveRewardName(armorSet);
+            }
+          }
+          if (normalizedPath.startsWith('the_vault:') && !normalizedPath.includes('/')) {
+            const compName = normalizedPath.replace(/^the_vault:/, '');
+            displayName = deriveRewardName(compName);
+          }
+
+          const safeName = displayName ? escapeHtml(displayName) : '';
+          const safePath = path ? escapeHtml(path) : '';
+          return `<tr><td>${safeName}</td><td><code>${safePath}</code></td></tr>`;
+        })
+        .join('');
+
+      return `
+        <div class="reward-group">
+          <h3>${groupHeading}</h3>
+          <table class="rewards-table">
+            <thead>
+              <tr><th>Name</th><th>Path</th></tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
+        </div>
+      `;
+    })
+    .join('');
+}

@@ -18,6 +18,14 @@ export function getUsernameFromQuery() {
     return '';
   }
 
+  const decode = (value) => {
+    try {
+      return decodeURIComponent(value.replace(/\+/g, ' '));
+    } catch {
+      return value;
+    }
+  };
+
   // Try standard parameters first
   const params = new URLSearchParams(rawQuery);
   const serverTarget = params.get('server');
@@ -26,14 +34,6 @@ export function getUsernameFromQuery() {
   }
 
   const candidate = params.get('username') || params.get('user') || params.get('name');
-
-  const decode = (value) => {
-    try {
-      return decodeURIComponent(value.replace(/\+/g, ' '));
-    } catch {
-      return value;
-    }
-  };
 
   if (candidate) {
     return decode(candidate).trim();

@@ -9,8 +9,6 @@ import {
   DEFAULT_FAVICON,
   defaultTitle,
   setFavicon,
-  setMetaDescription,
-  proxiedImageUrl,
 } from '../utils/dom-utils.js';
 import {
   setLoadingState,
@@ -19,22 +17,7 @@ import {
   clearResult,
 } from '../features/ui-feedback.js';
 import { renderProfile } from '../components/profile-renderer.js';
-import {
-  isCodesQuery,
-  isAllQuery,
-  isServersQuery,
-  getServerQueryTarget,
-  renderCodesPage,
-  renderAllRewardsPage,
-  renderOfficialServersPage,
-  renderOfficialServerDetailPage,
-} from '../components/special-pages.js';
-import { escapeHtml, formatLabel } from '../features/reward-utils.js';
-import {
-  fetchOfficialServers,
-  getVisibleServers,
-  findServerByQuery,
-} from '../features/official-servers.js';
+import { handleSpecialPageSearch } from './search-special-pages.js';
 
 let submitTimer = null;
 let currentRequestController = null;
@@ -75,180 +58,7 @@ async function submitSearch() {
     return;
   }
 
-  if (isCodesQuery(username)) {
-    setLoadingState(true);
-    try {
-      await renderCodesPage(
-        resultContainer,
-        setFavicon,
-        setMetaDescription,
-        () => {
-          const modal = document.querySelector('dialog[open]');
-          if (modal) modal.close();
-        },
-        (qs) => {
-          if (!qs) {
-            window.history.replaceState({}, '', window.location.pathname);
-          } else {
-            window.history.replaceState({}, '', `${window.location.pathname}?${qs}`);
-          }
-        },
-        proxiedImageUrl,
-        escapeHtml,
-        DEFAULT_FAVICON
-      );
-      scrollToResults();
-    } catch {
-      showFeedback(
-        'Unable to load the reward codes right now. Please try again in a moment.',
-        'error'
-      );
-    } finally {
-      setLoadingState(false);
-    }
-    return;
-  }
-
-  if (isAllQuery(username)) {
-    setLoadingState(true);
-    try {
-      await renderAllRewardsPage(
-        resultContainer,
-        setFavicon,
-        setMetaDescription,
-        () => {
-          const modal = document.querySelector('dialog[open]');
-          if (modal) modal.close();
-        },
-        (qs) => {
-          if (!qs) {
-            window.history.replaceState({}, '', window.location.pathname);
-          } else {
-            window.history.replaceState({}, '', `${window.location.pathname}?${qs}`);
-          }
-        },
-        proxiedImageUrl,
-        escapeHtml,
-        formatLabel,
-        DEFAULT_FAVICON
-      );
-      scrollToResults();
-    } catch {
-      showFeedback('Unable to load all rewards right now. Please try again in a moment.', 'error');
-    } finally {
-      setLoadingState(false);
-    }
-    return;
-  }
-
-  if (isServersQuery(username)) {
-    setLoadingState(true);
-    try {
-      await renderOfficialServersPage(
-        resultContainer,
-        setFavicon,
-        setMetaDescription,
-        () => {
-          const modal = document.querySelector('dialog[open]');
-          if (modal) modal.close();
-        },
-        (qs) => {
-          if (!qs) {
-            window.history.replaceState({}, '', window.location.pathname);
-          } else {
-            window.history.replaceState({}, '', `${window.location.pathname}?${qs}`);
-          }
-        },
-        escapeHtml,
-        DEFAULT_FAVICON,
-        usernameInput,
-        form
-      );
-      scrollToResults();
-    } catch {
-      showFeedback(
-        'Unable to load official servers right now. Please try again in a moment.',
-        'error'
-      );
-    } finally {
-      setLoadingState(false);
-    }
-    return;
-  }
-
-  const serverTarget = getServerQueryTarget(username);
-  if (serverTarget) {
-    setLoadingState(true);
-    try {
-      await renderOfficialServerDetailPage(
-        serverTarget,
-        resultContainer,
-        setFavicon,
-        setMetaDescription,
-        () => {
-          const modal = document.querySelector('dialog[open]');
-          if (modal) modal.close();
-        },
-        (qs) => {
-          if (!qs) {
-            window.history.replaceState({}, '', window.location.pathname);
-          } else {
-            window.history.replaceState({}, '', `${window.location.pathname}?${qs}`);
-          }
-        },
-        proxiedImageUrl,
-        escapeHtml,
-        DEFAULT_FAVICON,
-        usernameInput,
-        form
-      );
-      scrollToResults();
-    } catch {
-      showFeedback(
-        'Unable to load server details right now. Please try again in a moment.',
-        'error'
-      );
-    } finally {
-      setLoadingState(false);
-    }
-    return;
-  }
-
-  const matchedServer = await resolveServerFromSearchValue(username);
-  if (matchedServer?._id) {
-    setLoadingState(true);
-    try {
-      await renderOfficialServerDetailPage(
-        matchedServer._id,
-        resultContainer,
-        setFavicon,
-        setMetaDescription,
-        () => {
-          const modal = document.querySelector('dialog[open]');
-          if (modal) modal.close();
-        },
-        (qs) => {
-          if (!qs) {
-            window.history.replaceState({}, '', window.location.pathname);
-          } else {
-            window.history.replaceState({}, '', `${window.location.pathname}?${qs}`);
-          }
-        },
-        proxiedImageUrl,
-        escapeHtml,
-        DEFAULT_FAVICON,
-        usernameInput,
-        form
-      );
-      scrollToResults();
-    } catch {
-      showFeedback(
-        'Unable to load server details right now. Please try again in a moment.',
-        'error'
-      );
-    } finally {
-      setLoadingState(false);
-    }
+  if (await handleSpecialPageSearch(username)) {
     return;
   }
 
@@ -309,13 +119,4 @@ function buildProfileApiUrl(username) {
     });
   } catch {}
   return `${base.pathname}?${base.searchParams.toString()}`;
-}
-
-async function resolveServerFromSearchValue(value) {
-  try {
-    const servers = getVisibleServers(await fetchOfficialServers());
-    return findServerByQuery(value, servers);
-  } catch {
-    return null;
-  }
 }

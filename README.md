@@ -24,7 +24,7 @@ Live site: https://vh-rewards.massuus.com/
 
 ## Prerequisites
 
-- Node.js 18+ (Node 20+ recommended)
+- Node.js 20.x LTS (recommended for Wrangler Pages local dev)
 - npm
 - Internet access for upstream APIs
 
@@ -35,7 +35,7 @@ npm install
 npm start
 ```
 
-This uses `wrangler pages dev public` via `npx` and serves:
+This uses `wrangler pages dev dist` via `npx` (after a production build) and serves:
 
 - Frontend at `http://127.0.0.1:8788/`
 - Functions under `/api/*` and `/img`
@@ -207,7 +207,10 @@ Search for **"all"** or **"rewards"** to browse every unlockable reward:
   - Clear site data and unregister the SW; reload with a new `bust` value.
   - Open DevTools → Application → Storage, then unregister the Service Worker and clear all storage.
 - **`wrangler` not found**:
-  - The start script uses `npx` to run a pinned Wrangler version; no global install required.
+  - The start script uses `npx` to run Wrangler; no global install required.
+- **`std::terminate()` / `The Workers runtime failed to start` on `pages dev`**:
+  - Use Node 20 LTS for local development (`node -v` should show `v20.x`).
+  - This project includes `.nvmrc` with `20` and an `engines.node` range in `package.json` to make this explicit.
 - **Images broken when hotlinking**:
   - Use `/img?url=...` (the app does this automatically for allowed hosts).
 - **Modal or special pages not rendering**:

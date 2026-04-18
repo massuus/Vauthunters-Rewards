@@ -4,14 +4,17 @@
   "description": "Vault Hunters rewards lookup tool",
   "main": "public/pages/index.html",
   "type": "module",
+  "engines": {
+    "node": ">=20 <22"
+  },
   "scripts": {
-    "start": "npm run build:prod && npx --yes wrangler@4.43.0 pages dev dist --compatibility-date=2024-12-10",
-    "dev": "npm run build:prod && npx --yes wrangler@4.43.0 pages dev dist --compatibility-date=2024-12-10",
+    "start": "npm run build:prod && npx --yes wrangler@4.83.0 pages dev dist --compatibility-date=2024-12-10",
+    "dev": "npm run build:prod && npx --yes wrangler@4.83.0 pages dev dist --compatibility-date=2024-12-10",
     "build": "node build.js",
     "build:dev": "node build.js --dev",
     "build:watch": "node build.js --dev --watch",
     "build:prod": "node build.js",
-    "deploy": "npm run build:prod && npx --yes wrangler@4.43.0 pages deploy dist",
+    "deploy": "npm run build:prod && npx --yes wrangler@4.83.0 pages deploy dist",
     "lint": "eslint . --ext .js,.mjs",
     "lint:fix": "eslint . --ext .js,.mjs --fix",
     "format": "prettier --write .",
