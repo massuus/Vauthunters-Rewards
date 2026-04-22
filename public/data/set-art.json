@@ -223,6 +223,22 @@
     "descriptionObtained": "You got this by reaching level 15 in the second season.",
     "descriptionLocked": "Get this by reaching level 15 in the second season."
   },
+  "doomslayer": {
+    "label": "Doomslayer",
+    "image": "/img/doomslayer.gif",
+    "alt": "Doomslayer icon",
+    "obtainable": true,
+    "descriptionObtained": "You got this by reaching level 20 in the Eternal Battle Pass.",
+    "descriptionLocked": "Get this by reaching level 20 in the Eternal Battle Pass."
+  },
+  "arry_axe": {
+    "label": "Arry Axe",
+    "image": "/img/arry_axe.gif",
+    "alt": "Arry Axe icon",
+    "obtainable": true,
+    "descriptionObtained": "You got this by reaching level 20 in the Eternal Battle Pass.",
+    "descriptionLocked": "Get this by reaching level 20 in the Eternal Battle Pass."
+  },
   "golden_bumbo_cactoni": {
     "label": "Golden Bumbo Cactoni",
     "image": "https://wiki.vaulthunters.gg/images/e/ed/Invicon_Golden_BumboCactoni.gif",
@@ -238,6 +254,14 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this set by reaching Ethernal level 40.",
     "descriptionLocked": "Obtain this set by reaching Ethernal level 40."
+  },
+  "forsaken_set": {
+    "label": "Forsaken Set",
+    "image": "/img/forsaken_set.gif",
+    "alt": "Forsaken Set icon",
+    "obtainable": true,
+    "descriptionObtained": "You got this by reaching level 40 in the Eternal Battle Pass.",
+    "descriptionLocked": "Get this by reaching level 40 in the Eternal Battle Pass."
   },
   "essence_of_iskallium": {
     "label": "Essence of Iskallium",
