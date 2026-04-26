@@ -12,11 +12,15 @@ import {
   isCodesQuery,
   isAllQuery,
   isServersQuery,
+  isLeaderboardQuery,
+  getLeaderboardQueryTarget,
   getServerQueryTarget,
   renderCodesPage,
   renderAllRewardsPage,
   renderOfficialServersPage,
   renderOfficialServerDetailPage,
+  renderLeaderboardPage,
+  teardownLeaderboardPage,
 } from '../components/special-pages.js';
 import { escapeHtml, formatLabel } from '../features/reward-utils.js';
 import {
@@ -52,6 +56,8 @@ async function resolveServerFromSearchValue(value) {
 }
 
 export async function handleSpecialPageSearch(username) {
+  teardownLeaderboardPage();
+
   if (isCodesQuery(username)) {
     setLoadingState(true);
     try {
@@ -118,6 +124,35 @@ export async function handleSpecialPageSearch(username) {
     } catch {
       showFeedback(
         'Unable to load official servers right now. Please try again in a moment.',
+        'error'
+      );
+    } finally {
+      setLoadingState(false);
+    }
+    return true;
+  }
+
+  if (isLeaderboardQuery(username)) {
+    const targetPlayer = getLeaderboardQueryTarget(username);
+    setLoadingState(true);
+    try {
+      await renderLeaderboardPage(
+        resultContainer,
+        setFavicon,
+        setMetaDescription,
+        closeOpenModal,
+        updateQueryString,
+        proxiedImageUrl,
+        escapeHtml,
+        DEFAULT_FAVICON,
+        usernameInput,
+        form,
+        targetPlayer
+      );
+      scrollToResults();
+    } catch {
+      showFeedback(
+        'Unable to load the leaderboard right now. Please try again in a moment.',
         'error'
       );
     } finally {

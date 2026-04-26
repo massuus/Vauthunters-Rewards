@@ -14,6 +14,7 @@ Live site: https://vh-rewards.massuus.com/
 - **Share Link**: Copy a direct URL with the username query and share with others.
 - **Reward Codes Page**: Browse all unlockable reward codes with descriptions, VOD links, and reveal buttons (access via search: "codes").
 - **All Rewards Browse**: Browse every unlockable reward in the game with images and descriptions (access via search: "all").
+- **Unlock Leaderboard**: Browse players ranked by total unlocked sets with Vault Hunters + Iskall85 tier columns (access via search: "leaderboard").
 - **Patreon Tier Badges**: Visual badges for each Patreon tier (Dweller, Cheeser, Goblin, Champion, Legend) with color coding.
 - **Service Worker Caching**: Cache‑first images and short‑TTL caching for `/api/profile`.
 - **New Unlock Detection**: Highlights newly obtained sets with a "New" badge per player.
@@ -63,6 +64,31 @@ Notes:
 - `.env` is not used as a Pages Function binding source in this setup.
 - `.dev.vars` is gitignored to avoid leaking secrets.
 
+### Leaderboard DB setup (Cloudflare D1)
+
+The leaderboard uses a D1 binding named `LEADERBOARD_DB`.
+
+1. Create a D1 database:
+
+```bash
+npx wrangler d1 create vh-leaderboard
+```
+
+2. Add the returned binding details to `wrangler.toml`:
+
+```toml
+[[d1_databases]]
+binding = "LEADERBOARD_DB"
+database_name = "vh-leaderboard"
+database_id = "<your-d1-database-id>"
+```
+
+3. (Recommended) protect batch refresh calls with a secret token in Pages environment variables:
+
+- `LEADERBOARD_SYNC_TOKEN` = a long random value
+
+The schema is created automatically by the functions on first leaderboard read/write.
+
 ## Build for Production
 
 For production deployment with optimized assets:
@@ -98,6 +124,7 @@ npm run build:dev
 2. Enter a Minecraft username (3–16 characters) and click Search.
 3. The result shows the player head, unlocked sets (with art), Patreon tiers, and an Extra Info panel for reward items.
 4. Recent Searches appear under the search bar; click any chip to search again.
+5. Search for `leaderboard` to open the unlock leaderboard with infinite scrolling (10 players per page).
 
 ## API
 
@@ -121,6 +148,69 @@ Errors:
 - 400 for missing/invalid username
 - 404 when player cannot be resolved
 - 500 for unexpected upstream failures
+
+### Leaderboard API
+
+Route: `GET /api/leaderboard?limit=10&offset=0`
+
+Ranking notes:
+
+- Players with the same `setsUnlocked` share the same rank position.
+
+Response:
+
+```json
+{
+  "total": 312,
+  "limit": 10,
+  "offset": 0,
+  "nextOffset": 10,
+  "hasMore": true,
+  "players": [
+    {
+      "rank": 1,
+      "playerUUID": "49b6ec8c-d319-4eb0-b9de-a72823abdfd4",
+      "playerNickname": "19Null7",
+      "setsUnlocked": 14,
+      "vaultHuntersTier": "Vault Goblin",
+      "iskall85Tier": "Gold",
+      "updatedAt": "2026-04-26T10:21:43.111Z"
+    }
+  ]
+}
+```
+
+Route: `POST /api/leaderboard-refresh`
+
+Purpose:
+
+- Pull a batch of players from `https://api.vaulthunters.gg/armory/player/search`
+- Fetch unlock/tier data for each player
+- Upsert players with at least 1 unlocked set into D1
+
+Body options:
+
+- `offset` (default `0`)
+- `limit` (default `100`, max `300`)
+- `concurrency` (default `6`, max `20`)
+- `source` (optional label)
+
+Auth:
+
+- If `LEADERBOARD_SYNC_TOKEN` is configured, send either:
+  - header `x-leaderboard-sync-token: <token>`
+  - or `Authorization: Bearer <token>`
+
+Example:
+
+```bash
+curl -X POST https://your-site.example/api/leaderboard-refresh \
+  -H "content-type: application/json" \
+  -H "x-leaderboard-sync-token: $LEADERBOARD_SYNC_TOKEN" \
+  -d '{"offset":0,"limit":200,"concurrency":8}'
+```
+
+Run this multiple times (e.g. offsets `0`, `200`, `400`) to seed ~500 players.
 
 ### Mock mode (local testing)
 
@@ -192,6 +282,14 @@ Search for **"all"** or **"rewards"** to browse every unlockable reward:
 - Grid view of all rewards with images and descriptions
 - Shows total count of available rewards
 - Multi-image support for rewards with multiple items
+
+### Unlock Leaderboard
+
+Search for **"leaderboard"** to view ranked players by unlocked set count:
+
+- Loads players in chunks of 10 as you scroll
+- Uses API + browser caching to reduce repeated requests
+- Clicking a row searches that player profile immediately
 
 ## Customization tips
 

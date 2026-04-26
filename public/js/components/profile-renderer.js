@@ -26,7 +26,9 @@ import {
   bindSetCardHandlers,
   bindCtaButtonHandlers,
   bindDisclosureToggle,
+  bindLeaderboardLevelHandlers,
 } from './profile-interactions.js';
+import { clearLeaderboardCache } from '../features/leaderboard.js';
 
 let setsHelpTemplate = '';
 
@@ -88,6 +90,7 @@ export async function renderProfile(data) {
   const tiers = Array.isArray(data.tier) ? data.tier : [];
   const iskall85Tiers = Array.isArray(data.iskall85Tier) ? data.iskall85Tier : [];
   const rewards = data.rewards && typeof data.rewards === 'object' ? data.rewards : {};
+  const leaderboardPlace = data?.leaderboardPlace || null;
   const usernameKey = (data && data.name ? String(data.name) : '').trim().toLowerCase();
   const previouslySeen = getSeenSets(usernameKey);
 
@@ -116,6 +119,7 @@ export async function renderProfile(data) {
     .join('');
 
   let serverLink = '';
+  let leaderboardBadge = '';
   try {
     const servers = await fetchOfficialServers();
     const matchedServer = findServerByPlayerName(data.name, servers);
@@ -128,6 +132,11 @@ export async function renderProfile(data) {
     // Non-blocking: profile rendering should continue even if server lookup fails.
   }
 
+  if (leaderboardPlace?.rank !== undefined && leaderboardPlace?.rank !== null) {
+    const safeName = escapeHtml(data.name || 'player');
+    leaderboardBadge = `<button class="player-server-link player-level-link" type="button" data-leaderboard-player="${safeName}" title="Open the leaderboard around ${safeName}">Leaderboard #${escapeHtml(String(leaderboardPlace.rank))}</button>`;
+  }
+
   const playerCard = await loadTemplate('player-card');
   resultContainer.innerHTML =
     renderTemplate(playerCard, {
@@ -137,6 +146,7 @@ export async function renderProfile(data) {
       nameStyle: nameStyle,
       tierBadge: tierBadge,
       serverLink: serverLink,
+      levelBadge: leaderboardBadge,
     }) +
     setsSection +
     missingRewardsSection +
@@ -153,6 +163,7 @@ export async function renderProfile(data) {
 
   bindShareButton();
   bindServerLinkHandlers();
+  bindLeaderboardLevelHandlers();
   bindSetCardHandlers();
   bindCtaButtonHandlers();
 
@@ -168,6 +179,9 @@ export async function renderProfile(data) {
   bindDisclosureToggle('missing-legacy-toggle', 'missing-legacy-panel');
 
   setSeenSets(usernameKey, new Set(sets));
+
+  // Profile lookups may update leaderboard rows server-side; clear stale local leaderboard pages.
+  clearLeaderboardCache();
 
   addRecentUser({ name: data.name, head: data.head, tier: tiers });
   await renderRecentSection();

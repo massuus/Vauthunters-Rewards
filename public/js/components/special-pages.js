@@ -21,3 +21,10 @@ export {
   renderOfficialServersPage,
   renderOfficialServerDetailPage,
 } from './special-pages/servers-page.js';
+
+export {
+  isLeaderboardQuery,
+  getLeaderboardQueryTarget,
+  renderLeaderboardPage,
+  teardownLeaderboardPage,
+} from './special-pages/leaderboard-page.js';

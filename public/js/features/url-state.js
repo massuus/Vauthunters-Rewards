@@ -28,6 +28,11 @@ export function getUsernameFromQuery() {
 
   // Try standard parameters first
   const params = new URLSearchParams(rawQuery);
+  const leaderboardTarget = params.get('leaderboard');
+  if (leaderboardTarget) {
+    return `leaderboard:${decode(leaderboardTarget).trim()}`;
+  }
+
   const serverTarget = params.get('server');
   if (serverTarget) {
     return `server:${decode(serverTarget).trim()}`;

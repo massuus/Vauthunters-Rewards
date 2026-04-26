@@ -12,6 +12,19 @@ import {
 import { getRecentUsers } from '../utils/storage-manager.js';
 import { escapeHtml } from '../features/reward-utils.js';
 import { getBestPatreonTier } from '../utils/tier-utils.js';
+import { fetchLeaderboardPage } from '../features/leaderboard.js';
+
+const HOME_LEADERBOARD_LIMIT = 5;
+
+function renderHomeTierBadge(label, modifier) {
+  const safeLabel = String(label || '').trim();
+
+  if (!safeLabel) {
+    return `<span class="leaderboard-tier leaderboard-tier--${modifier} leaderboard-tier--empty">None</span>`;
+  }
+
+  return `<span class="leaderboard-tier leaderboard-tier--${modifier}">${escapeHtml(safeLabel)}</span>`;
+}
 
 /**
  * Render the recent users section
@@ -19,7 +32,11 @@ import { getBestPatreonTier } from '../utils/tier-utils.js';
 export async function renderRecentSection() {
   if (!recentContainer) return;
   const items = getRecentUsers();
-  if (!items.length) {
+
+  const shouldShowHomeBlocks = shouldShowPagesSection();
+  const leaderboardSection = shouldShowHomeBlocks ? await renderHomeLeaderboardSection() : '';
+
+  if (!items.length && !leaderboardSection) {
     recentContainer.classList.add('hidden');
     recentContainer.innerHTML = '';
     return;
@@ -40,14 +57,65 @@ export async function renderRecentSection() {
         <button class="recent-item" type="button" data-page="all">All Rewards</button>
         <button class="recent-item" type="button" data-page="codes">Reward Codes</button>
         <button class="recent-item" type="button" data-page="servers">Official Servers</button>
+        <button class="recent-item" type="button" data-page="leaderboard">Unlock Leaderboard</button>
       </div>
     `
     : '';
 
   const template = await loadTemplate('recent-section');
-  recentContainer.innerHTML = renderTemplate(template, { buttons, pagesSection });
+  recentContainer.innerHTML = renderTemplate(template, {
+    buttons,
+    pagesSection,
+    leaderboardSection,
+  });
   recentContainer.classList.remove('hidden');
   bindRecentHandlers();
+}
+
+async function renderHomeLeaderboardSection() {
+  try {
+    const payload = await fetchLeaderboardPage({
+      offset: 0,
+      limit: HOME_LEADERBOARD_LIMIT,
+      forceRefresh: false,
+    });
+
+    const players = Array.isArray(payload?.players) ? payload.players : [];
+    if (!players.length) {
+      return '';
+    }
+
+    const playerButtons = players
+      .map((player) => {
+        const playerName = escapeHtml(String(player?.playerNickname || 'Unknown Player'));
+        const playerUuid = String(player?.playerUUID || playerName || 'steve').trim();
+        const avatarUrl = proxiedImageUrl(
+          `https://mc-heads.net/avatar/${encodeURIComponent(playerUuid)}/64`
+        );
+        const rank = Math.max(1, Number(player?.rank || 1));
+        const sets = Math.max(0, Number(player?.setsUnlocked || 0));
+        const rankClass =
+          rank === 1
+            ? ' recent-item__rank--top1'
+            : rank === 2
+              ? ' recent-item__rank--top2'
+              : rank === 3
+                ? ' recent-item__rank--top3'
+                : '';
+        return `<button class="recent-item recent-item--leaderboard" type="button" data-name="${playerName}" title="Open ${playerName}"><span class="recent-item__rank${rankClass}">#${rank}</span><span class="recent-item__identity"><img src="${avatarUrl}" alt="${playerName} avatar" width="36" height="36" loading="lazy" decoding="async"><span class="recent-item__name">${playerName}</span></span><span class="recent-item__sets">${sets} set${sets === 1 ? '' : 's'}</span><span class="recent-item__tiers">${renderHomeTierBadge(player?.vaultHuntersTier, 'vh')}${renderHomeTierBadge(player?.iskall85Tier, 'iskall')}</span></button>`;
+      })
+      .join('');
+
+    return `
+      <h3 class="recent-title">Top Unlock Leaderboard</h3>
+      <div class="recent-grid">${playerButtons}</div>
+      <div class="recent-grid recent-grid--leaderboard-link">
+        <button class="recent-item" type="button" data-page="leaderboard">View Full Leaderboard</button>
+      </div>
+    `;
+  } catch {
+    return '';
+  }
 }
 
 function shouldShowPagesSection() {

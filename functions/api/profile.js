@@ -1,6 +1,11 @@
 ﻿import { fetchJson } from '../utils/fetch-utils.js';
 import { apiRateLimiter, getRateLimitKey, rateLimitResponse } from '../utils/rate-limiter.js';
 import {
+  buildLeaderboardRecord,
+  getLeaderboardPlacement,
+  upsertLeaderboardRecord,
+} from '../utils/leaderboard.js';
+import {
   PLAYERDB_PROFILE_URL,
   REWARDS_URL,
   TIER_URL,
@@ -28,7 +33,7 @@ function badRequest(message) {
   return json({ error: message }, 400);
 }
 
-export async function onRequest({ request, env }) {
+export async function onRequest({ request, env, waitUntil }) {
   // Apply rate limiting
   const rateLimitKey = getRateLimitKey(request);
   if (!apiRateLimiter.allow(rateLimitKey)) {
@@ -86,6 +91,21 @@ export async function onRequest({ request, env }) {
 
     const { rewards, sets } = rewardsData;
 
+    await syncLeaderboardEntry({
+      env,
+      waitUntil,
+      playerUUID: formattedId,
+      playerNickname: name,
+      sets,
+      tier,
+      iskall85Tier,
+    });
+
+    const leaderboardPlace = await getLeaderboardPlacement(env, {
+      playerUUID: formattedId,
+      playerNickname: name,
+    });
+
     return json({
       id: rawId,
       name,
@@ -94,6 +114,7 @@ export async function onRequest({ request, env }) {
       sets,
       tier,
       iskall85Tier,
+      leaderboardPlace,
     });
   } catch (error) {
     console.error('Profile lookup error', {
@@ -301,6 +322,47 @@ function expandTierProgression(highestTier) {
   return ISKALL_TIER_ORDER.slice(0, tierIndex + 1).map((name) => ({
     name,
   }));
+}
+
+async function syncLeaderboardEntry({
+  env,
+  waitUntil,
+  playerUUID,
+  playerNickname,
+  sets,
+  tier,
+  iskall85Tier,
+}) {
+  if (!env?.LEADERBOARD_DB) {
+    return;
+  }
+
+  const record = buildLeaderboardRecord({
+    playerUUID,
+    playerNickname,
+    sets,
+    vaultHuntersTiers: tier,
+    iskall85Tiers: iskall85Tier,
+    source: 'profile-search',
+  });
+
+  if (!record) {
+    return;
+  }
+
+  const writePromise = upsertLeaderboardRecord(env, record).catch((error) => {
+    console.error('Leaderboard profile sync error', {
+      playerUUID,
+      playerNickname,
+      message: error instanceof Error ? error.message : String(error),
+    });
+  });
+
+  if (typeof waitUntil === 'function') {
+    waitUntil(writePromise);
+  }
+
+  return writePromise;
 }
 
 function json(body, status = 200) {

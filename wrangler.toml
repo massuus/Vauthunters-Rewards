@@ -1,3 +1,12 @@
 name = "vauthunters-rewards"
 compatibility_date = "2024-12-10"
 pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "LEADERBOARD_DB"
+database_name = "vauthunters_rewards"
+database_id = "96bab8bc-fc46-4788-a351-81e089586e27"
+
+# Optional sync endpoint protection
+# [vars]
+# LEADERBOARD_SYNC_TOKEN = "replace-with-a-strong-random-token"

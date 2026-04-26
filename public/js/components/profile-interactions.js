@@ -15,6 +15,17 @@ export function bindServerLinkHandlers() {
   });
 }
 
+export function bindLeaderboardLevelHandlers() {
+  resultContainer.querySelectorAll('[data-leaderboard-player]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const playerName = button.getAttribute('data-leaderboard-player') || '';
+      if (!playerName) return;
+      usernameInput.value = `leaderboard:${playerName}`;
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+  });
+}
+
 export function bindShareButton() {
   const shareButton = document.getElementById('share-button');
   const shareFeedback = document.getElementById('share-feedback');

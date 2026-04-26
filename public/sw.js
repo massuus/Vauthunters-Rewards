@@ -16,6 +16,7 @@ const MAX_TEMPLATE_CACHE_SIZE = 50;
 
 // Cache TTL
 const API_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const LEADERBOARD_CACHE_TTL_MS = 60 * 1000; // 1 minute
 const DATA_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour (codes/sets data)
 const CACHE_TIMESTAMP_HEADER = 'x-vhr-sw-cached-at';
 
@@ -281,16 +282,27 @@ self.addEventListener('fetch', (event) => {
         return;
       }
 
-      if (url.origin === self.location.origin && url.pathname === '/api/profile') {
+      if (
+        url.origin === self.location.origin &&
+        (url.pathname === '/api/profile' || url.pathname === '/api/leaderboard')
+      ) {
         event.respondWith(
           (async () => {
+            const shouldBypassCache = url.searchParams.has('refresh');
+            const ttlMs =
+              url.pathname === '/api/leaderboard' ? LEADERBOARD_CACHE_TTL_MS : API_CACHE_TTL_MS;
+
+            if (shouldBypassCache) {
+              return fetch(request);
+            }
+
             const cache = await caches.open(RUNTIME_CACHE);
             const cached = await cache.match(request);
             const now = Date.now();
             let cachedAt = 0;
             if (cached) {
               cachedAt = Number(cached.headers.get(CACHE_TIMESTAMP_HEADER) || '0');
-              if (Number.isFinite(cachedAt) && now - cachedAt < API_CACHE_TTL_MS) {
+              if (Number.isFinite(cachedAt) && now - cachedAt < ttlMs) {
                 // Fresh enough; revalidate in background
                 event.waitUntil(
                   (async () => {
