@@ -108,12 +108,14 @@ function renderLeaderboardRow(player, proxiedImageUrl, escapeHtml, focusPlayer =
       <span class="leaderboard-row__rank${rankClass}">#${rank}</span>
       <span class="leaderboard-row__identity">
         <img src="${avatarUrl}" alt="${safeName} avatar" width="40" height="40" loading="lazy" decoding="async">
-        <span class="leaderboard-row__name">${safeName}</span>
+        <span class="leaderboard-row__name" data-rank="${rank}">${safeName}</span>
       </span>
-      <span class="leaderboard-row__sets">${setsLabel}</span>
-      <span class="leaderboard-row__tiers">
-        ${renderTierBadge(player?.vaultHuntersTier, 'vh', escapeHtml)}
-        ${renderTierBadge(player?.iskall85Tier, 'iskall', escapeHtml)}
+      <span class="leaderboard-row__meta">
+        <span class="leaderboard-row__sets">${setsLabel}</span>
+        <span class="leaderboard-row__tiers">
+          ${renderTierBadge(player?.vaultHuntersTier, 'vh', escapeHtml)}
+          ${renderTierBadge(player?.iskall85Tier, 'iskall', escapeHtml)}
+        </span>
       </span>
     </button>
   `;

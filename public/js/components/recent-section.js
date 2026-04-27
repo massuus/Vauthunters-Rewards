@@ -102,12 +102,12 @@ async function renderHomeLeaderboardSection() {
               : rank === 3
                 ? ' recent-item__rank--top3'
                 : '';
-        return `<button class="recent-item recent-item--leaderboard" type="button" data-name="${playerName}" title="Open ${playerName}"><span class="recent-item__rank${rankClass}">#${rank}</span><span class="recent-item__identity"><img src="${avatarUrl}" alt="${playerName} avatar" width="36" height="36" loading="lazy" decoding="async"><span class="recent-item__name">${playerName}</span></span><span class="recent-item__sets">${sets} set${sets === 1 ? '' : 's'}</span><span class="recent-item__tiers">${renderHomeTierBadge(player?.vaultHuntersTier, 'vh')}${renderHomeTierBadge(player?.iskall85Tier, 'iskall')}</span></button>`;
+        return `<button class="recent-item recent-item--leaderboard" type="button" data-name="${playerName}" title="Open ${playerName}"><span class="recent-item__rank${rankClass}">#${rank}</span><span class="recent-item__identity"><img src="${avatarUrl}" alt="${playerName} avatar" width="36" height="36" loading="lazy" decoding="async"><span class="recent-item__name" data-rank="${rank}">${playerName}</span></span><span class="recent-item__meta"><span class="recent-item__sets">${sets} set${sets === 1 ? '' : 's'}</span><span class="recent-item__tiers">${renderHomeTierBadge(player?.vaultHuntersTier, 'vh')}${renderHomeTierBadge(player?.iskall85Tier, 'iskall')}</span></span></button>`;
       })
       .join('');
 
     return `
-      <h3 class="recent-title">Top Unlock Leaderboard</h3>
+      <h3 class="recent-title recent-title--leaderboard">Top Unlock Leaderboard</h3>
       <div class="recent-grid">${playerButtons}</div>
       <div class="recent-grid recent-grid--leaderboard-link">
         <button class="recent-item" type="button" data-page="leaderboard">View Full Leaderboard</button>
