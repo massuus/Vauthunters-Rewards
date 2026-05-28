@@ -407,5 +407,45 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this weapon by using a code that iskall85 unlocked during the vault rush event!",
     "descriptionLocked": "You can obtain this by using a code that iskall85 unlocked during the vault rush event!"
+  },
+  "mini_dweller": {
+    "label": "Mini Dweller",
+    "image": "/img/Mini_Dweller.gif",
+    "alt": "Mini Dweller companion icon",
+    "obtainable": true,
+    "descriptionObtained": "You got this by reaching level 10 in Companion season 3.",
+    "descriptionLocked": "Get this by reaching level 10 in Companion season 3."
+  },
+  "mini_butcher": {
+    "label": "Mini Butcher",
+    "image": "/img/Mini_Butcher.gif",
+    "alt": "Mini Butcher companion icon",
+    "obtainable": true,
+    "descriptionObtained": "You can unlock this in Companion season 3.",
+    "descriptionLocked": "You can unlock this in Companion season 3."
+  },
+  "mini_elite_witherskelly": {
+    "label": "Mini Elite Witherskelly",
+    "image": "/img/Mini_Elite_Witherskelly.gif",
+    "alt": "Mini Elite Witherskelly companion icon",
+    "obtainable": true,
+    "descriptionObtained": "You can unlock this in Companion season 3.",
+    "descriptionLocked": "You can unlock this in Companion season 3."
+  },
+  "mini_goblin": {
+    "label": "Mini Goblin",
+    "image": "/img/Mini_Goblin.gif",
+    "alt": "Mini Goblin companion icon",
+    "obtainable": true,
+    "descriptionObtained": "You can unlock this in Companion season 3.",
+    "descriptionLocked": "You can unlock this in Companion season 3."
+  },
+  "s3_hytale_wand": {
+    "label": "Hytale Wand",
+    "image": "/img/Hytale_Wand.png",
+    "alt": "Hytale Wand icon",
+    "obtainable": true,
+    "descriptionObtained": "You can unlock this in Companion season 3.",
+    "descriptionLocked": "You can unlock this in Companion season 3."
   }
 }
