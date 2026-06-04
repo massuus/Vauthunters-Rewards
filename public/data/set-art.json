@@ -151,262 +151,286 @@
     "descriptionObtained": "You secured this weapon through Iskall85's Horde Rush event.",
     "descriptionLocked": "No longer obtainable. This weapon was unlockable by participating in Iskall85's Horde Rush event."
   },
-  "halloween_pumpkin": {
-    "label": "Bumbo Pumpkini",
-    "image": "https://wiki.vaulthunters.gg/images/d/d4/Invicon_BumboPumpkini.gif",
-    "alt": "Bumbo Pumpkini icon",
-    "obtainable": false,
-    "descriptionObtained": "You obtained this companion during the Halloween Twitch event with Iskall85.",
-    "descriptionLocked": "No longer obtainable. This companion was unlockable during Halloween Twitch events with Iskall85."
-  },
-  "pink_dylan": {
-    "label": "Pink Dylan Companion",
-    "image": "https://wiki.vaulthunters.gg/images/e/ec/Invicon_Dylan_Pink.gif",
-    "alt": "Pink Dylan icon",
+    "halloween_pumpkin": {
+      "label": "Bumbo Pumpkini",
+      "image": "https://wiki.vaulthunters.gg/images/d/d4/Invicon_BumboPumpkini.gif",
+      "alt": "Bumbo Pumpkini icon",
+      "obtainable": false,
+      "descriptionObtained": "You obtained this companion during the Halloween Twitch event with Iskall85.",
+      "descriptionLocked": "No longer obtainable. This companion was unlockable during Halloween Twitch events with Iskall85."
+    },
+    "pink_dylan": {
+      "label": "Pink Dylan Companion",
+      "image": "https://wiki.vaulthunters.gg/images/e/ec/Invicon_Dylan_Pink.gif",
+      "alt": "Pink Dylan icon",
+      "obtainable": true,
+      "descriptionObtained": "You got this by reaching level 5 in the second season.",
+      "descriptionLocked": "Get this by reaching level 5 in the second season."
+    },
+    "forsaken_axe": {
+      "label": "Forsaken Axe",
+      "image": "https://wiki.vaulthunters.gg/images/3/3c/Invicon_ForsakenAxe.gif",
+      "alt": "Forsaken Axe icon",
+      "obtainable": true,
+      "descriptionObtained": "You got this by reaching level 7 in the second season.",
+      "descriptionLocked": "Get this by reaching level 7 in the second season."
+    },
+    "forsaken_sword": {
+      "label": "Forsaken Sword",
+      "image": "https://wiki.vaulthunters.gg/images/7/7f/Invicon_ForsakenSword.gif",
+      "alt": "Forsaken Sword icon",
+      "obtainable": true,
+      "descriptionObtained": "You got this by reaching level 7 in the second season.",
+      "descriptionLocked": "Get this by reaching level 7 in the second season."
+    },
+    "bumbo_cactoni": {
+      "label": "Bumbo Cactoni",
+      "image": "https://wiki.vaulthunters.gg/images/d/db/Invicon_BumboCactoni.gif",
+      "alt": "Bumbo Cactoni icon",
+      "obtainable": true,
+      "descriptionObtained": "You got this by reaching level 10 in the second season.",
+      "descriptionLocked": "Get this by reaching level 10 in the second season."
+    },
+    "nocturn_shield": {
+      "label": "Nocturn Shield",
+      "image": "/img/nocturn_shield.gif",
+      "alt": "Nocturn Shield icon",
+      "obtainable": true,
+      "descriptionObtained": "You got this by reaching level 12 in the season 2 battle pass.",
+      "descriptionLocked": "Get this by reaching level 12 in the season 2 battle pass."
+    },
+    "midnight_thorn": {
+      "label": "Midnight Thorn",
+      "image": "/img/midnight_thorn.gif",
+      "alt": "Midnight Thorn icon",
+      "obtainable": true,
+      "descriptionObtained": "You got this by reaching level 12 in the season 2 battle pass.",
+      "descriptionLocked": "Get this by reaching level 12 in the season 2 battle pass."
+    },
+    "lamenting_mirror": {
+      "label": "Lamenting Mirror",
+      "image": "/img/lamenting_mirror.gif",
+      "alt": "Lamenting Mirror icon",
+      "obtainable": true,
+      "descriptionObtained": "You got this by reaching level 12 in the season 2 battle pass.",
+      "descriptionLocked": "Get this by reaching level 12 in the season 2 battle pass."
+    },
+    "carrot": {
+      "label": "Carrot Companion",
+      "image": "https://wiki.vaulthunters.gg/images/9/94/Invicon_Carrotpet.gif",
+      "alt": "Carrot icon",
+      "obtainable": true,
+      "descriptionObtained": "You got this by reaching level 15 in the second season.",
+      "descriptionLocked": "Get this by reaching level 15 in the second season."
+    },
+    "doomslayer": {
+      "label": "Doomslayer",
+      "image": "/img/doomslayer.gif",
+      "alt": "Doomslayer icon",
+      "obtainable": true,
+      "descriptionObtained": "You got this by reaching level 20 in the Eternal Battle Pass.",
+      "descriptionLocked": "Get this by reaching level 20 in the Eternal Battle Pass."
+    },
+    "arry_axe": {
+      "label": "Arry Axe",
+      "image": "/img/arry_axe.gif",
+      "alt": "Arry Axe icon",
+      "obtainable": true,
+      "descriptionObtained": "You got this by reaching level 20 in the Eternal Battle Pass.",
+      "descriptionLocked": "Get this by reaching level 20 in the Eternal Battle Pass."
+    },
+    "golden_bumbo_cactoni": {
+      "label": "Golden Bumbo Cactoni",
+      "image": "https://wiki.vaulthunters.gg/images/e/ed/Invicon_Golden_BumboCactoni.gif",
+      "alt": "Golden Bumbo Cactoni icon",
+      "obtainable": true,
+      "descriptionObtained": "You got this by reaching level 25 in the second season.",
+      "descriptionLocked": "Get this by reaching level 25 in the second season."
+    },
+    "sculk_set": {
+      "label": "Sculk Set",
+      "image": "/img/sculk_set.gif",
+      "alt": "Sculk Set icon",
+      "obtainable": true,
+      "descriptionObtained": "You obtained this set by reaching Ethernal level 40.",
+      "descriptionLocked": "Obtain this set by reaching Ethernal level 40."
+    },
+    "forsaken_set": {
+      "label": "Forsaken Set",
+      "image": "/img/forsaken_set.gif",
+      "alt": "Forsaken Set icon",
+      "obtainable": true,
+      "descriptionObtained": "You got this by reaching level 40 in the Eternal Battle Pass.",
+      "descriptionLocked": "Get this by reaching level 40 in the Eternal Battle Pass."
+    },
+    "essence_of_iskallium": {
+      "label": "Essence of Iskallium",
+      "image": "https://wiki.vaulthunters.gg/images/3/3a/Invicon_Essence_of_Iskallium.gif",
+      "alt": "Essence of Iskallium icon",
+      "obtainable": true,
+      "descriptionObtained": "You obtained this reward by reaching Ethernal level 60.",
+      "descriptionLocked": "Obtain this reward by reaching Ethernal level 60."
+    },
+    "hypefuse_scepter": {
+      "label": "Hypefuse Scepter",
+      "image": "https://wiki.vaulthunters.gg/images/2/2a/Invicon_Hypefuse_Scepter.gif",
+      "alt": "Hypefuse Scepter icon",
+      "obtainable": true,
+      "descriptionObtained": "You obtained this reward by reaching Ethernal level 60.",
+      "descriptionLocked": "Obtain this reward by reaching Ethernal level 60."
+    },
+    "never_ever": {
+      "label": "NeverEver Shield",
+      "image": "https://wiki.vaulthunters.gg/images/7/7b/Invicon_NeverEver_Shield_Blocking.gif",
+      "alt": "Never Ever icon",
+      "obtainable": true,
+      "descriptionObtained": "You obtained this shield by reaching Ethernal level 60.",
+      "descriptionLocked": "Obtain this shield by reaching Ethernal level 60."
+    },
+    "green_christmas_hat": {
+      "label": "Green Christmas Hat (of Doom)",
+      "image": "/img/green_christmas_hat_thumbnail.png",
+      "alt": "Green Christmas Hat thumbnail",
+      "obtainable": false,
+      "descriptionObtained": "You received this festive hat during Iskall85's first holiday stream event.",
+      "descriptionLocked": "No longer obtainable. This festive hat was awarded during Iskall85's holiday stream events."
+    },
+    "i85_100stream": {
+      "label": "Centennial Blade",
+      "image": "/img/100-steams-blade.png",
+      "alt": "100 Streams Blade icon",
+      "obtainable": false,
+      "descriptionObtained": "You received this reward to celebrate Iskall85's 100th stream since his return.",
+      "descriptionLocked": "No longer obtainable. This reward celebrated Iskall85's special streaming milestones."
+    },
+    "i85_xmas_day3": {
+      "label": "12 Days of Dylan - Day 3",
+      "image": "/img/Santa_Dylan.gif",
+      "images": ["/img/Santa_Dylan.gif", "/img/Lost_Christmas_Sword.gif"],
+      "alt": "Santa Dylan companion",
+      "obtainable": false,
+      "descriptionObtained": "You obtained this reward on the third day of the Dylan Christmas event!",
+      "descriptionLocked": "No longer obtainable. This reward was unlockable on the third day of the Dylan Christmas event."
+    },
+    "xmas_dayfour_chest": {
+      "label": "Gingerbread Chestplate",
+      "image": "/img/Gingerbread_Chestplate.gif",
+      "alt": "Gingerbread Chestplate",
+      "obtainable": false,
+      "descriptionObtained": "You obtained this reward on the fourth day of the Dylan Christmas event!",
+      "descriptionLocked": "No longer obtainable. This reward was unlockable on the fourth day of the Dylan Christmas event."
+    },
+    "gingerbread_man": {
+      "label": "Gingerbread Companion",
+      "image": "/img/Gingerbread_Man.gif",
+      "alt": "Gingerbread Man",
+      "obtainable": false,
+      "descriptionObtained": "You obtained this reward on the fifth day of the Dylan Christmas event!",
+      "descriptionLocked": "No longer obtainable. This reward was unlockable on the fifth day of the Dylan Christmas event."
+    },
+    "nutcracker_wand": {
+      "label": "Nutcracker Wand",
+      "image": "/img/Nutcracker.webp",
+      "alt": "Nutcracker Wand",
+      "obtainable": false,
+      "descriptionObtained": "You obtained this reward on the 6th day of the Dylan Christmas event!",
+      "descriptionLocked": "No longer obtainable. This reward was unlockable on the 6th day of the Dylan Christmas event."
+    },
+    "christmas_fireplace": {
+      "label": "Christmas Fireplace Shield",
+      "image": "/img/Christmas_Fireplace_Shield_Blocking.gif",
+      "alt": "Christmas Fireplace Shield",
+      "obtainable": false,
+      "descriptionObtained": "You obtained this reward on the 8th day of the Dylan Christmas event!",
+      "descriptionLocked": "No longer obtainable. This reward was unlockable on the 8th day of the Dylan Christmas event."
+    },
+    "bumbo_frostoni": {
+      "label": "Bumbo Frostoni",
+      "image": "/img/Bumbo_Frostoni.gif",
+      "alt": "Bumbo Frostoni",
+      "obtainable": false,
+      "descriptionObtained": "You obtained this reward on the 9th day of the Dylan Christmas event!",
+      "descriptionLocked": "No longer obtainable. This reward was unlockable on the 9th day of the Dylan Christmas event."
+    },
+    "snowman_helmet": {
+      "label": "Snowman Helmet",
+      "image": "/img/snowman_helm.gif",
+      "alt": "Snowman Helmet",
+      "obtainable": false,
+      "descriptionObtained": "You obtained this reward on the 10th day of the Dylan Christmas event!",
+      "descriptionLocked": "No longer obtainable. This reward was unlockable on the 10th day of the Dylan Christmas event."
+    },
+    "lost_christmas_axe": {
+      "label": "Lost Christmas",
+      "image": "/img/Lost_Christmas_Axe.gif",
+      "alt": "Christmas Axe",
+      "obtainable": false,
+      "descriptionObtained": "You obtained this reward on the 11th day of the Dylan Christmas event!",
+      "descriptionLocked": "No longer obtainable. This reward was unlockable on the 11th day of the Dylan Christmas event."
+    },
+    "blueberry_turtle": {
+      "label": "Blueberry Turtle",
+      "image": "/img/Sweet_Turtle.gif",
+      "alt": "Sweet Turtle",
+      "obtainable": false,
+      "descriptionObtained": "You obtained this reward on the 12th day of the Dylan Christmas event!",
+      "descriptionLocked": "No longer obtainable. This reward was unlockable on the 12th day of the Dylan Christmas event."
+    },
+    "golden_dylan": {
+      "label": "Golden Dylan Companion",
+      "image": "/img/Golden_Dylan.png",
+      "alt": "Golden Dylan icon",
+      "obtainable": true,
+      "descriptionObtained": "You obtained this companion by reaching level 30 in the Companion Pass.",
+      "descriptionLocked": "Obtain this companion by reaching level 30 in the Companion Pass."
+    },
+    "valentines_teddy": {
+      "label": "Teddy Companion",
+      "image": "/img/Teddy_Bear.gif",
+      "alt": "Teddy bear companion icon",
+      "obtainable": false,
+      "descriptionObtained": "You obtained this companion by using a code that iskall85 unlocked during the Valentine's Day event!",
+      "descriptionLocked": "You can obtain this by using the code that iskall85 unlocked during the Valentine's Day event."
+    },
+    "muddy_elephant": {
+      "label": "Muddy Elephant Companion",
+      "image": "/img/Muddy_Elephant.gif",
+      "alt": "Muddy Elephant companion icon",
+      "obtainable": true,
+      "descriptionObtained": "You obtained this companion by using a code that iskall85 unlocked during the vault rush event!",
+      "descriptionLocked": "You can obtain this by using a code that iskall85 unlocked during the vault rush event!"
+    },
+    "buster_sword": {
+      "label": "Buster Blade",
+      "image": "/img/Buster_Blade.gif",
+      "alt": "Buster Blade icon",
+      "obtainable": true,
+      "descriptionObtained": "You obtained this weapon by using a code that iskall85 unlocked during the vault rush event!",
+      "descriptionLocked": "You can obtain this by using a code that iskall85 unlocked during the vault rush event!"
+    },
+  "flat_terra_shield": {
+    "label": "Flat Terra Shield",
+    "image": "/img/Flat_Terra_Shield.gif",
+    "alt": "Flat Terra Shield icon",
     "obtainable": true,
-    "descriptionObtained": "You got this by reaching level 5 in the second season.",
-    "descriptionLocked": "Get this by reaching level 5 in the second season."
+    "descriptionObtained": "You obtained this reward by reaching level 5 in the Season 3 battle pass.",
+    "descriptionLocked": "Obtain this reward by reaching level 5 in the Season 3 battle pass."
   },
-  "forsaken_axe": {
-    "label": "Forsaken Axe",
-    "image": "https://wiki.vaulthunters.gg/images/3/3c/Invicon_ForsakenAxe.gif",
-    "alt": "Forsaken Axe icon",
+  "terrabinder": {
+    "label": "Terrabinder",
+    "image": "/img/Terrabinder.gif",
+    "alt": "Terrabinder icon",
     "obtainable": true,
-    "descriptionObtained": "You got this by reaching level 7 in the second season.",
-    "descriptionLocked": "Get this by reaching level 7 in the second season."
+    "descriptionObtained": "You obtained this reward by reaching level 5 in the Season 3 battle pass.",
+    "descriptionLocked": "Obtain this reward by reaching level 5 in the Season 3 battle pass."
   },
-  "forsaken_sword": {
-    "label": "Forsaken Sword",
-    "image": "https://wiki.vaulthunters.gg/images/7/7f/Invicon_ForsakenSword.gif",
-    "alt": "Forsaken Sword icon",
+  "terraforce_wand": {
+    "label": "Terraforce Wand",
+    "image": "/img/Terraforce_Wand.gif",
+    "alt": "Terraforce Wand icon",
     "obtainable": true,
-    "descriptionObtained": "You got this by reaching level 7 in the second season.",
-    "descriptionLocked": "Get this by reaching level 7 in the second season."
-  },
-  "bumbo_cactoni": {
-    "label": "Bumbo Cactoni",
-    "image": "https://wiki.vaulthunters.gg/images/d/db/Invicon_BumboCactoni.gif",
-    "alt": "Bumbo Cactoni icon",
-    "obtainable": true,
-    "descriptionObtained": "You got this by reaching level 10 in the second season.",
-    "descriptionLocked": "Get this by reaching level 10 in the second season."
-  },
-  "nocturn_shield": {
-    "label": "Nocturn Shield",
-    "image": "/img/nocturn_shield.gif",
-    "alt": "Nocturn Shield icon",
-    "obtainable": true,
-    "descriptionObtained": "You got this by reaching level 12 in the season 2 battle pass.",
-    "descriptionLocked": "Get this by reaching level 12 in the season 2 battle pass."
-  },
-  "midnight_thorn": {
-    "label": "Midnight Thorn",
-    "image": "/img/midnight_thorn.gif",
-    "alt": "Midnight Thorn icon",
-    "obtainable": true,
-    "descriptionObtained": "You got this by reaching level 12 in the season 2 battle pass.",
-    "descriptionLocked": "Get this by reaching level 12 in the season 2 battle pass."
-  },
-  "lamenting_mirror": {
-    "label": "Lamenting Mirror",
-    "image": "/img/lamenting_mirror.gif",
-    "alt": "Lamenting Mirror icon",
-    "obtainable": true,
-    "descriptionObtained": "You got this by reaching level 12 in the season 2 battle pass.",
-    "descriptionLocked": "Get this by reaching level 12 in the season 2 battle pass."
-  },
-  "carrot": {
-    "label": "Carrot Companion",
-    "image": "https://wiki.vaulthunters.gg/images/9/94/Invicon_Carrotpet.gif",
-    "alt": "Carrot icon",
-    "obtainable": true,
-    "descriptionObtained": "You got this by reaching level 15 in the second season.",
-    "descriptionLocked": "Get this by reaching level 15 in the second season."
-  },
-  "doomslayer": {
-    "label": "Doomslayer",
-    "image": "/img/doomslayer.gif",
-    "alt": "Doomslayer icon",
-    "obtainable": true,
-    "descriptionObtained": "You got this by reaching level 20 in the Eternal Battle Pass.",
-    "descriptionLocked": "Get this by reaching level 20 in the Eternal Battle Pass."
-  },
-  "arry_axe": {
-    "label": "Arry Axe",
-    "image": "/img/arry_axe.gif",
-    "alt": "Arry Axe icon",
-    "obtainable": true,
-    "descriptionObtained": "You got this by reaching level 20 in the Eternal Battle Pass.",
-    "descriptionLocked": "Get this by reaching level 20 in the Eternal Battle Pass."
-  },
-  "golden_bumbo_cactoni": {
-    "label": "Golden Bumbo Cactoni",
-    "image": "https://wiki.vaulthunters.gg/images/e/ed/Invicon_Golden_BumboCactoni.gif",
-    "alt": "Golden Bumbo Cactoni icon",
-    "obtainable": true,
-    "descriptionObtained": "You got this by reaching level 25 in the second season.",
-    "descriptionLocked": "Get this by reaching level 25 in the second season."
-  },
-  "sculk_set": {
-    "label": "Sculk Set",
-    "image": "/img/sculk_set.gif",
-    "alt": "Sculk Set icon",
-    "obtainable": true,
-    "descriptionObtained": "You obtained this set by reaching Ethernal level 40.",
-    "descriptionLocked": "Obtain this set by reaching Ethernal level 40."
-  },
-  "forsaken_set": {
-    "label": "Forsaken Set",
-    "image": "/img/forsaken_set.gif",
-    "alt": "Forsaken Set icon",
-    "obtainable": true,
-    "descriptionObtained": "You got this by reaching level 40 in the Eternal Battle Pass.",
-    "descriptionLocked": "Get this by reaching level 40 in the Eternal Battle Pass."
-  },
-  "essence_of_iskallium": {
-    "label": "Essence of Iskallium",
-    "image": "https://wiki.vaulthunters.gg/images/3/3a/Invicon_Essence_of_Iskallium.gif",
-    "alt": "Essence of Iskallium icon",
-    "obtainable": true,
-    "descriptionObtained": "You obtained this reward by reaching Ethernal level 60.",
-    "descriptionLocked": "Obtain this reward by reaching Ethernal level 60."
-  },
-  "hypefuse_scepter": {
-    "label": "Hypefuse Scepter",
-    "image": "https://wiki.vaulthunters.gg/images/2/2a/Invicon_Hypefuse_Scepter.gif",
-    "alt": "Hypefuse Scepter icon",
-    "obtainable": true,
-    "descriptionObtained": "You obtained this reward by reaching Ethernal level 60.",
-    "descriptionLocked": "Obtain this reward by reaching Ethernal level 60."
-  },
-  "never_ever": {
-    "label": "NeverEver Shield",
-    "image": "https://wiki.vaulthunters.gg/images/7/7b/Invicon_NeverEver_Shield_Blocking.gif",
-    "alt": "Never Ever icon",
-    "obtainable": true,
-    "descriptionObtained": "You obtained this shield by reaching Ethernal level 60.",
-    "descriptionLocked": "Obtain this shield by reaching Ethernal level 60."
-  },
-  "green_christmas_hat": {
-    "label": "Green Christmas Hat (of Doom)",
-    "image": "/img/green_christmas_hat_thumbnail.png",
-    "alt": "Green Christmas Hat thumbnail",
-    "obtainable": false,
-    "descriptionObtained": "You received this festive hat during Iskall85's first holiday stream event.",
-    "descriptionLocked": "No longer obtainable. This festive hat was awarded during Iskall85's holiday stream events."
-  },
-  "i85_100stream": {
-    "label": "Centennial Blade",
-    "image": "/img/100-steams-blade.png",
-    "alt": "100 Streams Blade icon",
-    "obtainable": false,
-    "descriptionObtained": "You received this reward to celebrate Iskall85's 100th stream since his return.",
-    "descriptionLocked": "No longer obtainable. This reward celebrated Iskall85's special streaming milestones."
-  },
-  "i85_xmas_day3": {
-    "label": "12 Days of Dylan - Day 3",
-    "image": "/img/Santa_Dylan.gif",
-    "images": ["/img/Santa_Dylan.gif", "/img/Lost_Christmas_Sword.gif"],
-    "alt": "Santa Dylan companion",
-    "obtainable": false,
-    "descriptionObtained": "You obtained this reward on the third day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the third day of the Dylan Christmas event."
-  },
-  "xmas_dayfour_chest": {
-    "label": "Gingerbread Chestplate",
-    "image": "/img/Gingerbread_Chestplate.gif",
-    "alt": "Gingerbread Chestplate",
-    "obtainable": false,
-    "descriptionObtained": "You obtained this reward on the fourth day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the fourth day of the Dylan Christmas event."
-  },
-  "gingerbread_man": {
-    "label": "Gingerbread Companion",
-    "image": "/img/Gingerbread_Man.gif",
-    "alt": "Gingerbread Man",
-    "obtainable": false,
-    "descriptionObtained": "You obtained this reward on the fifth day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the fifth day of the Dylan Christmas event."
-  },
-  "nutcracker_wand": {
-    "label": "Nutcracker Wand",
-    "image": "/img/Nutcracker.webp",
-    "alt": "Nutcracker Wand",
-    "obtainable": false,
-    "descriptionObtained": "You obtained this reward on the 6th day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 6th day of the Dylan Christmas event."
-  },
-  "christmas_fireplace": {
-    "label": "Christmas Fireplace Shield",
-    "image": "/img/Christmas_Fireplace_Shield_Blocking.gif",
-    "alt": "Christmas Fireplace Shield",
-    "obtainable": false,
-    "descriptionObtained": "You obtained this reward on the 8th day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 8th day of the Dylan Christmas event."
-  },
-  "bumbo_frostoni": {
-    "label": "Bumbo Frostoni",
-    "image": "/img/Bumbo_Frostoni.gif",
-    "alt": "Bumbo Frostoni",
-    "obtainable": false,
-    "descriptionObtained": "You obtained this reward on the 9th day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 9th day of the Dylan Christmas event."
-  },
-  "snowman_helmet": {
-    "label": "Snowman Helmet",
-    "image": "/img/snowman_helm.gif",
-    "alt": "Snowman Helmet",
-    "obtainable": false,
-    "descriptionObtained": "You obtained this reward on the 10th day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 10th day of the Dylan Christmas event."
-  },
-  "lost_christmas_axe": {
-    "label": "Lost Christmas",
-    "image": "/img/Lost_Christmas_Axe.gif",
-    "alt": "Christmas Axe",
-    "obtainable": false,
-    "descriptionObtained": "You obtained this reward on the 11th day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 11th day of the Dylan Christmas event."
-  },
-  "blueberry_turtle": {
-    "label": "Blueberry Turtle",
-    "image": "/img/Sweet_Turtle.gif",
-    "alt": "Sweet Turtle",
-    "obtainable": false,
-    "descriptionObtained": "You obtained this reward on the 12th day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 12th day of the Dylan Christmas event."
-  },
-  "golden_dylan": {
-    "label": "Golden Dylan Companion",
-    "image": "/img/Golden_Dylan.png",
-    "alt": "Golden Dylan icon",
-    "obtainable": true,
-    "descriptionObtained": "You obtained this companion by reaching level 30 in the Companion Pass.",
-    "descriptionLocked": "Obtain this companion by reaching level 30 in the Companion Pass."
-  },
-  "valentines_teddy": {
-    "label": "Teddy Companion",
-    "image": "/img/Teddy_Bear.gif",
-    "alt": "Teddy bear companion icon",
-    "obtainable": false,
-    "descriptionObtained": "You obtained this companion by using a code that iskall85 unlocked during the Valentine's Day event!",
-    "descriptionLocked": "You can obtain this by using the code that iskall85 unlocked during the Valentine's Day event."
-  },
-  "muddy_elephant": {
-    "label": "Muddy Elephant Companion",
-    "image": "/img/Muddy_Elephant.gif",
-    "alt": "Muddy Elephant companion icon",
-    "obtainable": true,
-    "descriptionObtained": "You obtained this companion by using a code that iskall85 unlocked during the vault rush event!",
-    "descriptionLocked": "You can obtain this by using a code that iskall85 unlocked during the vault rush event!"
-  },
-  "buster_sword": {
-    "label": "Buster Blade",
-    "image": "/img/Buster_Blade.gif",
-    "alt": "Buster Blade icon",
-    "obtainable": true,
-    "descriptionObtained": "You obtained this weapon by using a code that iskall85 unlocked during the vault rush event!",
-    "descriptionLocked": "You can obtain this by using a code that iskall85 unlocked during the vault rush event!"
+    "descriptionObtained": "You obtained this reward by reaching level 5 in the Season 3 battle pass.",
+    "descriptionLocked": "Obtain this reward by reaching level 5 in the Season 3 battle pass."
   },
   "mini_dweller": {
     "label": "Mini Dweller",
@@ -416,36 +440,101 @@
     "descriptionObtained": "You got this by reaching level 10 in Companion season 3.",
     "descriptionLocked": "Get this by reaching level 10 in Companion season 3."
   },
+  "strike_helmet_chestplate": {
+    "label": "Strike Helmet & Chestplate",
+    "image": "/img/Strike_Helmet_And_Chestplate.png",
+    "alt": "Strike Helmet and Chestplate",
+    "obtainable": true,
+    "descriptionObtained": "You obtained this armor by reaching level 15 in the Season 3 battle pass.",
+    "descriptionLocked": "Obtain this armor by reaching level 15 in the Season 3 battle pass."
+  },
   "mini_butcher": {
     "label": "Mini Butcher",
     "image": "/img/Mini_Butcher.gif",
     "alt": "Mini Butcher companion icon",
     "obtainable": true,
-    "descriptionObtained": "You can unlock this in Companion season 3.",
-    "descriptionLocked": "You can unlock this in Companion season 3."
+    "descriptionObtained": "You obtained this companion by reaching level 20 in the Season 3 battle pass.",
+    "descriptionLocked": "Obtain this companion by reaching level 20 in the Season 3 battle pass."
+  },
+  "terraxe": {
+    "label": "Terraxe",
+    "image": "/img/Terraxe.gif",
+    "alt": "Terraxe icon",
+    "obtainable": true,
+    "descriptionObtained": "You obtained this reward by reaching level 30 in the Season 3 battle pass.",
+    "descriptionLocked": "Obtain this reward by reaching level 30 in the Season 3 battle pass."
+  },
+  "terras_wrath": {
+    "label": "Terra's Wrath",
+    "image": "/img/Terras_Wrath.gif",
+    "alt": "Terra's Wrath icon",
+    "obtainable": true,
+    "descriptionObtained": "You obtained this reward by reaching level 30 in the Season 3 battle pass.",
+    "descriptionLocked": "Obtain this reward by reaching level 30 in the Season 3 battle pass."
   },
   "mini_elite_witherskelly": {
     "label": "Mini Elite Witherskelly",
     "image": "/img/Mini_Elite_Witherskelly.gif",
     "alt": "Mini Elite Witherskelly companion icon",
     "obtainable": true,
-    "descriptionObtained": "You can unlock this in Companion season 3.",
-    "descriptionLocked": "You can unlock this in Companion season 3."
+    "descriptionObtained": "You obtained this companion by reaching level 40 in the Season 3 battle pass.",
+    "descriptionLocked": "Obtain this companion by reaching level 40 in the Season 3 battle pass."
+  },
+  "girl_boss": {
+    "label": "Girl Boss",
+    "image": "/img/girl_boss.gif",
+    "alt": "Girl Boss icon",
+    "obtainable": true,
+    "descriptionObtained": "You obtained this reward by reaching level 50 in the Season 3 battle pass.",
+    "descriptionLocked": "Obtain this reward by reaching level 50 in the Season 3 battle pass."
   },
   "mini_goblin": {
     "label": "Mini Goblin",
     "image": "/img/Mini_Goblin.gif",
     "alt": "Mini Goblin companion icon",
     "obtainable": true,
-    "descriptionObtained": "You can unlock this in Companion season 3.",
-    "descriptionLocked": "You can unlock this in Companion season 3."
+    "descriptionObtained": "You obtained this companion by reaching level 60 in the Season 3 battle pass.",
+    "descriptionLocked": "Obtain this companion by reaching level 60 in the Season 3 battle pass."
+  },
+  "hellboy_head": {
+    "label": "Hellboy Head",
+    "image": "/img/hellboy_head.gif",
+    "alt": "Hellboy Head icon",
+    "obtainable": true,
+    "descriptionObtained": "You obtained this reward by reaching level 70 in the Season 3 battle pass.",
+    "descriptionLocked": "Obtain this reward by reaching level 70 in the Season 3 battle pass."
+  },
+  "golden_mini_dweller": {
+    "label": "Golden Mini Dweller",
+    "image": "/img/Golden_Mini_Dweller.gif",
+    "alt": "Golden Mini Dweller companion icon",
+    "obtainable": true,
+    "descriptionObtained": "You obtained this companion by reaching level 80 in the Season 3 battle pass.",
+    "descriptionLocked": "Obtain this companion by reaching level 80 in the Season 3 battle pass."
+  },
+  "retirement_armor_set": {
+    "label": "Retirement Armor Set",
+    "image": "/img/Retirement_Armor_Set.gif",
+    "alt": "Retirement Armor Set icon",
+    "obtainable": true,
+    "descriptionObtained": "You obtained this set by reaching level 85 in the Season 3 battle pass.",
+    "descriptionLocked": "Obtain this set by reaching level 85 in the Season 3 battle pass."
+  },
+  "terra_armor": {
+    "label": "Terra Armor",
+    "image": "/img/TerraArmor.gif",
+    "alt": "Terra Armor icon",
+    "obtainable": true,
+    "descriptionObtained": "You obtained this reward by reaching level 90 in the Season 3 battle pass.",
+    "descriptionLocked": "Obtain this reward by reaching level 90 in the Season 3 battle pass."
   },
   "s3_hytale_wand": {
     "label": "Hytale Wand",
     "image": "/img/Hytale_Wand.png",
     "alt": "Hytale Wand icon",
-    "obtainable": true,
-    "descriptionObtained": "You can unlock this in Companion season 3.",
-    "descriptionLocked": "You can unlock this in Companion season 3."
+    "obtainable": false,
+    "descriptionObtained": "This does not exsit and is just Josh math.",
+    "descriptionLocked": "This does not exsit and is just Josh math."
   }
+
 }

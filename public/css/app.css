@@ -1084,8 +1084,9 @@ body {
 }
 
 .footer__column {
-  display: grid;
-  gap: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .footer__label {
@@ -1452,7 +1453,7 @@ body {
   .recent-item.recent-item--leaderboard,
   .search .recent-item.recent-item--leaderboard {
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: 1fr 1fr;
     grid-template-areas:
       'avatar avatar'
       'rank name'
@@ -1501,6 +1502,12 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.35rem;
+  }
+
+  /* Ensure the name spans both columns and is centered under the avatar */
+  .recent-item__name {
+    grid-column: 1 / -1;
+    justify-self: center;
   }
 
   .recent-item__name::before {

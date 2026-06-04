@@ -57,7 +57,7 @@ export async function renderRecentSection() {
         <button class="recent-item" type="button" data-page="all">All Rewards</button>
         <button class="recent-item" type="button" data-page="codes">Reward Codes</button>
         <button class="recent-item" type="button" data-page="servers">Official Servers</button>
-        <button class="recent-item" type="button" data-page="leaderboard">Unlock Leaderboard</button>
+           <button class="recent-item" type="button" data-page="leaderboard">Leaderboard</button>
       </div>
     `
     : '';

@@ -315,12 +315,6 @@ Search for **"leaderboard"** to view ranked players by unlocked set count:
   - Ensure template files exist in `public/templates/`.
   - Check browser console for template loading errors.
 
-## Support
-
-If this project helped you, you can support it here:
-
-- Buy Me a Coffee: https://buymeacoffee.com/massuus
-
 ## License
 
 ISC License. See `package.json` for details.
