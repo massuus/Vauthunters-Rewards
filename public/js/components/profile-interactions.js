@@ -68,7 +68,22 @@ export function bindSetCardHandlers() {
     card.addEventListener('pointercancel', () => setPeekState(false));
     card.addEventListener('blur', () => setPeekState(false));
 
-    card.addEventListener('click', () => {
+    card.addEventListener('keydown', (event) => {
+      if (event.target.closest('a')) {
+        return;
+      }
+
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        card.click();
+      }
+    });
+
+    card.addEventListener('click', (event) => {
+      if (event.target.closest('a')) {
+        return;
+      }
+
       const isExpanded = card.getAttribute('aria-expanded') === 'true';
       const nextExpanded = !isExpanded;
       card.setAttribute('aria-expanded', String(nextExpanded));

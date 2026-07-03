@@ -1,5 +1,10 @@
 import { proxiedImageUrl, UNKNOWN_ITEM_IMAGE } from '../utils/dom-utils.js';
-import { escapeHtml, deriveRewardName, formatLabel } from '../features/reward-utils.js';
+import {
+  buildCodesLinkedHtml,
+  escapeHtml,
+  deriveRewardName,
+  formatLabel,
+} from '../features/reward-utils.js';
 import { getSetArtStore } from './set-art-manager.js';
 
 export function renderSetsSection(sets, setsHelpTemplate, newSetKeys = new Set()) {
@@ -134,15 +139,15 @@ function renderMissingRewardCard(setKey, data, isLegacy = false) {
   const legacyClass = isLegacy ? ' set-card--legacy' : '';
 
   return `
-    <button class="set-card set-card--missing${legacyClass}" type="button" data-set-key="${setKey}">
+    <article class="set-card set-card--missing${legacyClass}" tabindex="0" data-set-key="${setKey}">
       <div class="set-card__media">
         ${imageMarkup}
       </div>
       <div class="set-card__content">
         <span class="set-card__name">${escapeHtml(label)}</span>
-        <p class="set-card__description">${escapeHtml(description)}</p>
+        <p class="set-card__description">${buildCodesLinkedHtml(description)}</p>
       </div>
-    </button>
+    </article>
   `;
 }
 
@@ -177,16 +182,16 @@ function renderSetCard(setKey, setArtStore, isNew = false) {
   const extraClass = isNew ? ' set-card--new' : '';
 
   return `
-    <button class="set-card${extraClass}" type="button" data-set-key="${setKey}">
+    <article class="set-card${extraClass}" tabindex="0" data-set-key="${setKey}">
       <div class="set-card__media">
         ${imageMarkup}
       </div>
       <div class="set-card__content">
         <span class="set-card__name">${escapeHtml(label)}</span>
-        <p class="set-card__description">${escapeHtml(description)}</p>
+        <p class="set-card__description">${buildCodesLinkedHtml(description)}</p>
       </div>
       ${newBadge}
-    </button>
+    </article>
   `;
 }
 
