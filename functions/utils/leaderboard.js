@@ -38,6 +38,11 @@ const ISKALL85_TIER_RANK = {
   emerald: 5,
 };
 
+const SET_ALIASES = {
+  i85_server_bingo: 'i85_server_bingos',
+  i85_servers_bingo: 'i85_server_bingos',
+};
+
 let schemaReadyPromise = null;
 let iskallTierListCache = {
   data: null,
@@ -59,12 +64,15 @@ function uniqueSetCount(sets) {
     return 0;
   }
 
-  return new Set(
-    sets
-      .map((setName) => String(setName || '').trim())
-      .filter(Boolean)
-      .map((setName) => setName.toLowerCase())
-  ).size;
+  return new Set(sets.map(normalizeSetKey).filter(Boolean)).size;
+}
+
+function normalizeSetKey(setName) {
+  const key = String(setName || '')
+    .trim()
+    .toLowerCase();
+
+  return SET_ALIASES[key] || key;
 }
 
 function normalizeUuid(value) {
@@ -509,7 +517,7 @@ async function fetchRewardsSets(formattedId, headers) {
   }
 
   const sets = Array.isArray(result.data?.sets) ? result.data.sets : [];
-  return sets.map((setName) => String(setName || '').trim()).filter(Boolean);
+  return sets.map(normalizeSetKey).filter(Boolean);
 }
 
 async function fetchVaultHuntersTiers(formattedId) {

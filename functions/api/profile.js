@@ -22,6 +22,10 @@ import {
 const USERNAME_REGEX = /^[A-Za-z0-9_]{3,16}$/;
 const ISKALL_TIER_ORDER = ['Iron', 'Gold', 'Diamond', 'Iskallium Diamond', 'Emerald'];
 const ISKALL_TIER_LIST_CACHE_TTL_MS = 60 * 60 * 1000;
+const SET_ALIASES = {
+  i85_server_bingo: 'i85_server_bingos',
+  i85_servers_bingo: 'i85_server_bingos',
+};
 
 let iskallTierListCache = {
   data: null,
@@ -206,9 +210,25 @@ async function fetchRewards(formattedId, headers) {
 
   const data = result.data;
   const rewards = Array.isArray(data.rewards) ? {} : data.rewards || {};
-  const sets = Array.isArray(data.sets) ? data.sets : data.sets || [];
+  const sets = normalizeSets(Array.isArray(data.sets) ? data.sets : data.sets || []);
 
   return { rewards, sets };
+}
+
+function normalizeSetKey(setName) {
+  const key = String(setName || '')
+    .trim()
+    .toLowerCase();
+
+  return SET_ALIASES[key] || key;
+}
+
+function normalizeSets(sets) {
+  if (!Array.isArray(sets)) {
+    return [];
+  }
+
+  return Array.from(new Set(sets.map(normalizeSetKey).filter(Boolean)));
 }
 
 async function fetchTiers(formattedId) {

@@ -76,12 +76,25 @@ export function deriveRewardName(snakeName) {
 /**
  * Augment reward sets with additional metadata
  */
+const SET_ALIASES = {
+  i85_server_bingo: 'i85_server_bingos',
+  i85_servers_bingo: 'i85_server_bingos',
+};
+
+export function normalizeSetKey(setName) {
+  const key = String(setName || '')
+    .trim()
+    .toLowerCase();
+
+  return SET_ALIASES[key] || key;
+}
+
 export function augmentSets(sets) {
   try {
     const list = Array.isArray(sets) ? sets.slice() : [];
-    return Array.from(new Set(list));
+    return Array.from(new Set(list.map(normalizeSetKey).filter(Boolean)));
   } catch {
-    return Array.isArray(sets) ? sets : [];
+    return Array.isArray(sets) ? sets.map(normalizeSetKey).filter(Boolean) : [];
   }
 }
 
