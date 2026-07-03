@@ -535,6 +535,12 @@
     "obtainable": false,
     "descriptionObtained": "This does not exsit and is just Josh math.",
     "descriptionLocked": "This does not exsit and is just Josh math."
-  }
-
+  },
+    "golden_club": {
+      "label": "Golden Club",
+      "alt": "Golden Club icon",
+      "obtainable": true,
+      "descriptionObtained": "You obtained this golf club by using a code that iskall85 shared during the first Golf Course building stream!",
+      "descriptionLocked": "You can obtain this by using a code that iskall85 shared during the first Golf Course building stream!"
+   }
 }
