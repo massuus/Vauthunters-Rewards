@@ -440,7 +440,7 @@
     "descriptionObtained": "You got this by reaching level 10 in Companion season 3.",
     "descriptionLocked": "Get this by reaching level 10 in Companion season 3."
   },
-  "strike_helmet_chestplate": {
+  "striker": {
     "label": "Strike Helmet & Chestplate",
     "image": "/img/Strike_Helmet_And_Chestplate.png",
     "alt": "Strike Helmet and Chestplate",
@@ -512,7 +512,7 @@
     "descriptionObtained": "You obtained this companion by reaching level 80 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this companion by reaching level 80 in the Season 3 battle pass."
   },
-  "retirement_armor_set": {
+  "retirement": {
     "label": "Retirement Armor Set",
     "image": "/img/Retirement_Armor_Set.gif",
     "alt": "Retirement Armor Set icon",
@@ -536,11 +536,12 @@
     "descriptionObtained": "This does not exsit and is just Josh math.",
     "descriptionLocked": "This does not exsit and is just Josh math."
   },
-    "golden_club": {
-      "label": "Golden Club",
-      "alt": "Golden Club icon",
-      "obtainable": true,
-      "descriptionObtained": "You obtained this golf club by using a code that iskall85 shared during the first Golf Course building stream!",
-      "descriptionLocked": "You can obtain this by using a code that iskall85 shared during the first Golf Course building stream!"
-   }
+  "golden_club": {
+    "label": "Golden Club",
+    "image": "/img/golf_club.png",
+    "alt": "Golden Club icon",
+    "obtainable": true,
+    "descriptionObtained": "You obtained this golf club by using a code that iskall85 shared during the first Golf Course building stream!",
+    "descriptionLocked": "You can obtain this by using a code that iskall85 shared during the first Golf Course building stream!"
+  }
 }
