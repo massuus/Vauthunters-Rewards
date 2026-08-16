@@ -22,9 +22,25 @@ import {
 const USERNAME_REGEX = /^[A-Za-z0-9_]{3,16}$/;
 const ISKALL_TIER_ORDER = ['Iron', 'Gold', 'Diamond', 'Iskallium Diamond', 'Emerald'];
 const ISKALL_TIER_LIST_CACHE_TTL_MS = 60 * 60 * 1000;
+const PROFILE_OVERRIDES = {
+  duckfromhell: {
+    rewardKeys: ['duckfromhell_tribute_1', 'duckfromhell_tribute_2'],
+    priorityKeys: ['duckfromhell_tribute_1', 'duckfromhell_tribute_2', 'dylan_vip'],
+  },
+  kingodogo: {
+    rewardKeys: ['kingodogo_tribute'],
+    priorityKeys: ['kingodogo_tribute', 'dylan_vip'],
+  },
+};
 const SET_ALIASES = {
   i85_server_bingo: 'i85_server_bingos',
   i85_servers_bingo: 'i85_server_bingos',
+};
+
+let setArtKeyCache = {
+  data: null,
+  expiresAt: 0,
+  inFlight: null,
 };
 
 let iskallTierListCache = {
@@ -58,6 +74,8 @@ export async function onRequest({ request, env, waitUntil }) {
     return badRequest('Invalid Minecraft username. Use 3-16 letters, numbers, or underscores.');
   }
 
+  const profileOverride = getProfileOverride(normalizedUsername);
+
   // Simple mock mode to aid local testing: /api/profile?username=...&mock=1
   if (url.searchParams.has('mock')) {
     const mockName = username || 'Mock User';
@@ -66,7 +84,9 @@ export async function onRequest({ request, env, waitUntil }) {
       name: mockName,
       head: 'https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf',
       rewards: {},
-      sets: ['dylan_vip'],
+      sets: profileOverride
+        ? prioritizeSets(['dylan_vip', ...profileOverride.rewardKeys], profileOverride.priorityKeys)
+        : ['dylan_vip'],
       tier: [],
       iskall85Tier: [],
     });
@@ -93,14 +113,21 @@ export async function onRequest({ request, env, waitUntil }) {
       fetchIskall85Tiers(name, normalizedUsername),
     ]);
 
+    const allSetKeys = profileOverride ? await fetchAllSetKeys(request) : [];
     const { rewards, sets } = rewardsData;
+    const unlockedSets = profileOverride
+      ? prioritizeSets(
+          mergeUniqueSets(sets, allSetKeys, ...profileOverride.rewardKeys),
+          profileOverride.priorityKeys
+        )
+      : sets;
 
     await syncLeaderboardEntry({
       env,
       waitUntil,
       playerUUID: formattedId,
       playerNickname: name,
-      sets,
+      sets: unlockedSets,
       tier,
       iskall85Tier,
     });
@@ -115,7 +142,7 @@ export async function onRequest({ request, env, waitUntil }) {
       name,
       head,
       rewards,
-      sets,
+      sets: unlockedSets,
       tier,
       iskall85Tier,
       leaderboardPlace,
@@ -187,6 +214,75 @@ function formatUuid(hexId) {
   }
 
   return `${hexId.slice(0, 8)}-${hexId.slice(8, 12)}-${hexId.slice(12, 16)}-${hexId.slice(16, 20)}-${hexId.slice(20)}`;
+}
+
+export function isTributeProfile(username) {
+  return Boolean(getProfileOverride(username));
+}
+
+export function getProfileOverride(username) {
+  const key = String(username || '')
+    .trim()
+    .toLowerCase();
+  return PROFILE_OVERRIDES[key] || null;
+}
+
+async function fetchAllSetKeys(request) {
+  const now = Date.now();
+
+  if (setArtKeyCache.data && now < setArtKeyCache.expiresAt) {
+    return setArtKeyCache.data;
+  }
+
+  if (setArtKeyCache.inFlight) {
+    return setArtKeyCache.inFlight;
+  }
+
+  const setArtUrl = new URL('/data/set-art.json', request.url);
+  setArtKeyCache.inFlight = fetch(setArtUrl)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Set art load failed: ${response.status}`);
+      }
+
+      return response.json();
+    })
+    .then((data) => (data && typeof data === 'object' ? Object.keys(data).filter(Boolean) : []))
+    .catch((error) => {
+      console.error('Failed to load set art keys for tribute profile', {
+        message: error instanceof Error ? error.message : String(error),
+      });
+      return [];
+    });
+
+  const data = await setArtKeyCache.inFlight;
+  setArtKeyCache = {
+    data,
+    expiresAt: Date.now() + ISKALL_TIER_LIST_CACHE_TTL_MS,
+    inFlight: null,
+  };
+  return data;
+}
+
+export function mergeUniqueSets(primarySets, secondarySets, extraSet) {
+  return Array.from(
+    new Set(
+      [
+        ...(Array.isArray(primarySets) ? primarySets : []),
+        ...(Array.isArray(secondarySets) ? secondarySets : []),
+        extraSet,
+      ].filter(Boolean)
+    )
+  );
+}
+
+export function prioritizeSets(sets, priorityKeys) {
+  const uniqueSets = Array.from(new Set(Array.isArray(sets) ? sets.filter(Boolean) : []));
+  const priority = Array.isArray(priorityKeys) ? priorityKeys.filter(Boolean) : [];
+  const orderedPriority = priority.filter((key) => uniqueSets.includes(key));
+  const remaining = uniqueSets.filter((key) => !priority.includes(key));
+
+  return [...orderedPriority, ...remaining];
 }
 
 async function fetchRewards(formattedId, headers) {

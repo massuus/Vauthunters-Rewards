@@ -1,7 +1,7 @@
 // Client-side configuration constants
 
 // Service Worker Cache Settings
-export const CACHE_VERSION = 'v5';
+export const CACHE_VERSION = 'v6';
 export const STATIC_CACHE_NAME = `vhr-static-${CACHE_VERSION}`;
 export const RUNTIME_CACHE_NAME = `vhr-runtime-${CACHE_VERSION}`;
 

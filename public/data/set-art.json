@@ -31,6 +31,33 @@
     "descriptionObtained": "You obtained this set when Iskall85 personally gifted it to you live on Twitch.",
     "descriptionLocked": "This exclusive set can only be obtained when Iskall85 personally gifts it to you live on Twitch."
   },
+  "duckfromhell_tribute_1": {
+    "label": "Your awsome bike",
+    "image": "/img/BikeFromHell.png",
+    "alt": "Bike From Hell tribute artwork",
+    "obtainable": true,
+    "hideOnAllRewardsPage": true,
+    "descriptionObtained": "You may be on an diffrent advanture now, but you will always be a Dylan in our hearts, you crazy Aussie 💚💚🕷️💚💚",
+    "descriptionLocked": "You may be on an diffrent advanture now, but you will always be a Dylan in our hearts, you crazy Aussie 💚💚🕷️💚💚"
+  },
+  "duckfromhell_tribute_2": {
+    "label": "duck denied",
+    "image": "/img/DuckDenied.webp",
+    "alt": "Duck Denied tribute artwork",
+    "obtainable": true,
+    "hideOnAllRewardsPage": true,
+    "descriptionObtained": "Please reach out if you're struggling. Please reach out. Get help. Talk to family, a friend, anyone that you feel comfortable talking to. Please Dylans. Mental health is so important. Visit https://findahelpline.com/ for support.",
+    "descriptionLocked": "Please reach out if you're struggling. Please reach out. Get help. Talk to family, a friend, anyone that you feel comfortable talking to. Please Dylans. Mental health is so important. Visit https://findahelpline.com/ for support."
+  },
+  "kingodogo_tribute": {
+    "label": "Gone but not forgotten",
+    "image": "/img/heart.webp",
+    "alt": "Heart tribute artwork",
+    "obtainable": true,
+    "hideOnAllRewardsPage": true,
+    "descriptionObtained": "Gone but not forgotten. You will always be a dylan in our hearts.",
+    "descriptionLocked": "Gone but not forgotten. You will always be a dylan in our hearts."
+  },
   "companion_leader_s1": {
     "label": "Party Leader Set",
     "image": "https://wiki.vaulthunters.gg/images/d/d5/Invicon_PartyLeader.gif",

@@ -1,6 +1,6 @@
 import { proxiedImageUrl, UNKNOWN_ITEM_IMAGE } from '../utils/dom-utils.js';
 import {
-  buildCodesLinkedHtml,
+  buildLinkedRewardHtml,
   escapeHtml,
   deriveRewardName,
   formatLabel,
@@ -145,7 +145,7 @@ function renderMissingRewardCard(setKey, data, isLegacy = false) {
       </div>
       <div class="set-card__content">
         <span class="set-card__name">${escapeHtml(label)}</span>
-        <p class="set-card__description">${buildCodesLinkedHtml(description)}</p>
+        <p class="set-card__description">${buildLinkedRewardHtml(description)}</p>
       </div>
     </article>
   `;
@@ -188,7 +188,7 @@ function renderSetCard(setKey, setArtStore, isNew = false) {
       </div>
       <div class="set-card__content">
         <span class="set-card__name">${escapeHtml(label)}</span>
-        <p class="set-card__description">${buildCodesLinkedHtml(description)}</p>
+        <p class="set-card__description">${buildLinkedRewardHtml(description)}</p>
       </div>
       ${newBadge}
     </article>
@@ -223,6 +223,51 @@ export function renderTiersSection(tiers, iskall85Tiers = [], iskall85TierConfig
         iskall85TierConfig,
         iskall85PatreonUrl
       )}
+    </section>
+  `;
+}
+
+export function renderTributeSection(tribute) {
+  if (!tribute) {
+    return '';
+  }
+
+  const title = tribute.title || 'In Loving Memory';
+  const images = Array.isArray(tribute.images) ? tribute.images.filter(Boolean) : [];
+  const imageMarkup = (images.length ? images : [tribute.image].filter(Boolean))
+    .map((imageSource, index) => {
+      const isFallbackImage = imageSource === UNKNOWN_ITEM_IMAGE;
+      const proxied = proxiedImageUrl(imageSource);
+      const fallbackClass = isFallbackImage ? ' pixelated-image' : '';
+      const activeClass = index === 0 ? ' is-active' : '';
+      const altText = tribute.alt || title;
+      const imgAlt = images.length > 1 ? `${altText} view ${index + 1}` : altText;
+      return `<img class="tribute-card__image${activeClass}${fallbackClass}" src="${proxied}" alt="${escapeHtml(imgAlt)}" loading="lazy" decoding="async" fetchpriority="low" width="72" height="72" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
+    })
+    .join('');
+
+  const message = tribute.message
+    ? `<p class="tribute-card__message">${escapeHtml(tribute.message)}</p>`
+    : '';
+  const supportUrl = tribute.supportUrl || '';
+  const supportLabel = supportUrl ? escapeHtml(supportUrl.replace(/^https?:\/\//i, '')) : '';
+  const supportMessage = tribute.supportMessage
+    ? `${escapeHtml(tribute.supportMessage)}${supportUrl ? ` <a class="inline-link" href="${escapeHtml(supportUrl)}" target="_blank" rel="noopener">${supportLabel}</a>` : ''}`
+    : '';
+  const support = supportMessage ? `<p class="tribute-card__support">${supportMessage}</p>` : '';
+
+  return `
+    <section class="tribute-section">
+      <h3 class="section-title">${escapeHtml(title)}</h3>
+      <article class="tribute-card">
+        <div class="tribute-card__media">
+          ${imageMarkup}
+        </div>
+        <div class="tribute-card__content">
+          ${message}
+          ${support}
+        </div>
+      </article>
     </section>
   `;
 }

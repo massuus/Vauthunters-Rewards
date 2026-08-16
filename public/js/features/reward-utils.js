@@ -47,6 +47,43 @@ export function buildCodesLinkedHtml(text, linkHref = '?codes') {
     .join('');
 }
 
+function splitUrlsText(text) {
+  const source = String(text ?? '');
+  const parts = [];
+  const regex = /\b(https?:\/\/[^\s<]+|www\.[^\s<]+)\b/gi;
+  let lastIndex = 0;
+  let match = null;
+
+  while ((match = regex.exec(source)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({ type: 'text', value: source.slice(lastIndex, match.index) });
+    }
+    parts.push({ type: 'url', value: match[0] });
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < source.length) {
+    parts.push({ type: 'text', value: source.slice(lastIndex) });
+  }
+
+  return parts;
+}
+
+export function buildLinkedRewardHtml(text) {
+  return splitUrlsText(text)
+    .map((part) => {
+      if (part.type === 'url') {
+        const href = part.value.toLowerCase().startsWith('www.')
+          ? `https://${part.value}`
+          : part.value;
+        return `<a class="inline-link" href="${escapeHtml(href)}" target="_blank" rel="noopener">${escapeHtml(part.value)}</a>`;
+      }
+
+      return buildCodesLinkedHtml(part.value);
+    })
+    .join('');
+}
+
 /**
  * Convert text to snake_case for reward paths
  */
