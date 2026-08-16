@@ -6,7 +6,17 @@ pages_build_output_dir = "public"
 binding = "LEADERBOARD_DB"
 database_name = "vauthunters_rewards"
 database_id = "96bab8bc-fc46-4788-a351-81e089586e27"
+migrations_dir = "migrations"
 
 # Optional sync endpoint protection
 # [vars]
 # LEADERBOARD_SYNC_TOKEN = "replace-with-a-strong-random-token"
+# APP_ORIGIN = "https://your-production-domain.example"
+# TWITCH_CLIENT_ID = "replace-with-your-twitch-client-id"
+# TWITCH_REDIRECT_URI = "https://your-production-domain.example/api/auth/twitch/callback"
+# ADMIN_TWITCH_USER_IDS = "your-numeric-twitch-user-id"
+# DISCORD_APPLICATION_ID = "your-discord-application-id"
+# DISCORD_PUBLIC_KEY = "your-discord-application-public-key"
+# DISCORD_GUILD_ID = "your-private-server-id"
+# DISCORD_CHANNEL_ID = "your-review-channel-id"
+# DISCORD_MODERATOR_ROLE_IDS = "your-moderator-role-id"

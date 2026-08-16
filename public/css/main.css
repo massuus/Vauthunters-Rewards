@@ -7,6 +7,7 @@
 @import './components/search.css';
 @import './components/footer.css';
 @import './components/reward-codes-popup.css';
+@import './components/mining.css';
 
 /* Import the remaining styles from the original styles.css */
 /* These will be split into more components in a future refactor */

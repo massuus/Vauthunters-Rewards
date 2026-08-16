@@ -15,6 +15,7 @@ Live site: https://vh-rewards.massuus.com/
 - **Reward Codes Page**: Browse all unlockable reward codes with descriptions, VOD links, and reveal buttons (access via search: "codes").
 - **All Rewards Browse**: Browse every unlockable reward in the game with images and descriptions (access via search: "all").
 - **Unlock Leaderboard**: Browse players ranked by total unlocked sets with Vault Hunters + Iskall85 tier columns (access via search: "leaderboard").
+- **Mining Clue Database**: Search approved mining clues and answers, submit new evidence while signed in with Twitch, and moderate submissions from Discord or the site (access via search: "mining").
 - **Patreon Tier Badges**: Visual badges for each Patreon tier (Dweller, Cheeser, Goblin, Champion, Legend) with color coding.
 - **Service Worker Caching**: Cache‑first images and short‑TTL caching for `/api/profile`.
 - **New Unlock Detection**: Highlights newly obtained sets with a "New" badge per player.
@@ -89,6 +90,48 @@ database_id = "<your-d1-database-id>"
 
 The schema is created automatically by the functions on first leaderboard read/write.
 
+### Mining clues setup
+
+The mining feature uses the existing `LEADERBOARD_DB` D1 binding. Apply the checked-in migrations before starting the feature locally or deploying it:
+
+```bash
+npm run db:migrate:local
+npm run db:migrate:remote
+```
+
+Copy `.dev.vars.example` to `.dev.vars` for local development. The mining feature needs the following configuration.
+
+#### Twitch login
+
+1. Create a Twitch application in the [Twitch developer console](https://dev.twitch.tv/console/apps).
+2. Add `http://127.0.0.1:8788/api/auth/twitch/callback` as a local OAuth redirect URL and `https://your-domain.example/api/auth/twitch/callback` for production.
+3. Set `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`, and `TWITCH_REDIRECT_URI`.
+4. Generate a long random `TWITCH_TOKEN_ENCRYPTION_KEY` (at least 32 characters). It encrypts stored Twitch tokens.
+5. Set `ADMIN_TWITCH_USER_IDS` to the numeric Twitch user IDs that may edit clues directly. Multiple IDs are comma-separated.
+6. Set `APP_ORIGIN` to the exact public origin, without a trailing slash.
+
+Twitch users who are not in `ADMIN_TWITCH_USER_IDS` may submit suggestions but cannot access the site administration API.
+
+#### Discord moderation
+
+1. Create a Discord application and bot in the [Discord developer portal](https://discord.com/developers/applications).
+2. Add the bot to the private server with permission to view the review channel, send messages, and embed links.
+3. Set the application's Interactions Endpoint URL to `https://your-domain.example/api/discord/interactions`.
+4. Set `DISCORD_APPLICATION_ID`, `DISCORD_PUBLIC_KEY`, `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID`, and `DISCORD_CHANNEL_ID`.
+5. Set `DISCORD_MODERATOR_ROLE_IDS` and/or `DISCORD_MODERATOR_USER_IDS` to comma-separated IDs allowed to use Accept, Decline, and Block.
+
+The bot posts each pending submission with moderation buttons. Discord requests are verified with the application's public key, and the configured guild/channel/moderator allowlists are checked before a decision is applied. A Gateway connection is not required.
+
+Keep `TWITCH_CLIENT_SECRET`, `TWITCH_TOKEN_ENCRYPTION_KEY`, and `DISCORD_BOT_TOKEN` in Cloudflare Pages secrets. The IDs, public key, redirect URI, origin, admin list, and rate-limit settings can be regular environment variables. For example:
+
+```bash
+npx wrangler pages secret put TWITCH_CLIENT_SECRET --project-name vauthunters-rewards
+npx wrangler pages secret put TWITCH_TOKEN_ENCRYPTION_KEY --project-name vauthunters-rewards
+npx wrangler pages secret put DISCORD_BOT_TOKEN --project-name vauthunters-rewards
+```
+
+Optional abuse limits are `MINING_SUBMISSION_COOLDOWN_SECONDS`, `MINING_DAILY_SUBMISSION_LIMIT`, and `MINING_PENDING_SUBMISSION_LIMIT`.
+
 ## Build for Production
 
 For production deployment with optimized assets:
@@ -125,6 +168,7 @@ npm run build:dev
 3. The result shows the player head, unlocked sets (with art), Patreon tiers, and an Extra Info panel for reward items.
 4. Recent Searches appear under the search bar; click any chip to search again.
 5. Search for `leaderboard` to open the unlock leaderboard with infinite scrolling (10 players per page).
+6. Search for `mining`, `mining clues`, `clues`, or `mine` to open the mining clue database.
 
 ## API
 
@@ -212,6 +256,29 @@ curl -X POST https://your-site.example/api/leaderboard-refresh \
 
 Run this multiple times (e.g. offsets `0`, `200`, `400`) to seed ~500 players.
 
+### Mining clues API
+
+Public routes:
+
+- `GET /api/mining/clues?q=&answer=&limit=&offset=` lists approved clues.
+- `GET /api/auth/me` returns the current Twitch session and CSRF token.
+- `GET /api/auth/twitch/login?returnTo=/?mining` starts Twitch login.
+
+Signed-in routes:
+
+- `POST /api/mining/submissions` submits a clue, answer, and optional proof date/time/streamer/VOD or clip URL.
+- `GET /api/mining/submissions/mine` lists the current user's recent submissions.
+- `POST /api/auth/logout` signs out.
+
+Admin routes under `/api/admin/mining/*` support direct clue creation, editing, archival, failed Discord delivery retries, and unblocking users. Mutating authenticated requests require the CSRF token returned by `/api/auth/me` in the `x-csrf-token` header.
+
+Submission behavior:
+
+- An exact clue-and-answer duplicate is rejected immediately.
+- A clue with a different answer is sent for review as an answer change and updates the existing clue when accepted.
+- Similar wording is flagged as a possible duplicate for the moderator.
+- Proof fields are optional, but date, time, time zone, and streamer must be supplied together when proof is included.
+
 ### Mock mode (local testing)
 
 You can bypass upstream calls during development:
@@ -262,6 +329,11 @@ You can bypass upstream calls during development:
 ## Functions
 
 - `functions/api/profile.js` – Aggregates PlayerDB (UUID), Vault Hunters rewards, and Patreon tiers. Supports `mock=1` for local dev.
+- `functions/api/auth/` – Twitch login, callback, session lookup, and logout routes.
+- `functions/api/mining/` – Public clue lookup and authenticated submission routes.
+- `functions/api/admin/mining/` – Twitch-admin clue, submission, and blocked-user management routes.
+- `functions/api/discord/interactions.js` – Verified Discord button interaction handler.
+- `functions/utils/` – Shared authentication, Discord, D1, validation, cryptography, and HTTP helpers.
 - `functions/img.js` – Image proxy for approved hosts to avoid 3rd‑party cookies and enable caching.
 
 ## Special Pages
@@ -290,6 +362,30 @@ Search for **"leaderboard"** to view ranked players by unlocked set count:
 - Loads players in chunks of 10 as you scroll
 - Uses API + browser caching to reduce repeated requests
 - Clicking a row searches that player profile immediately
+
+### Mining Clues
+
+Search for **"mining"** to open the community mining clue database:
+
+- Search and filter approved answers by Surface, Mineshaft, or Cave
+- Sign in with Twitch to submit a clue and optional VOD or clip proof details
+- Track whether your submissions are pending, accepted, declined, or blocked
+- Admins can add, edit, or archive clues immediately after Twitch login
+- Admins can retry failed Discord notifications and unblock submitters
+
+## Verification
+
+```bash
+npm test
+npm run lint
+npm run build:prod
+```
+
+To verify that all Pages Functions compile as a Worker bundle:
+
+```bash
+npx wrangler pages functions build
+```
 
 ## Customization tips
 

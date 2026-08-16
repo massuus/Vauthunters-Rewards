@@ -114,6 +114,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Authentication callbacks and all private/mutating APIs must always bypass
+  // the service worker. In particular, never cache OAuth redirects or a
+  // response that varies by the user's session cookie.
+  if (
+    url.pathname.startsWith('/api/auth/') ||
+    url.pathname.startsWith('/api/admin/') ||
+    url.pathname.startsWith('/api/discord/') ||
+    url.pathname.startsWith('/api/mining/submissions')
+  ) {
+    return;
+  }
+
   // Handle navigation with preload/network-first, fallback to cache
   if (request.mode === 'navigate') {
     event.respondWith(

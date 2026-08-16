@@ -28,3 +28,5 @@ export {
   renderLeaderboardPage,
   teardownLeaderboardPage,
 } from './special-pages/leaderboard-page.js';
+
+export { isMiningQuery, renderMiningPage } from './special-pages/mining-page.js';

@@ -13,6 +13,7 @@ import {
   isAllQuery,
   isServersQuery,
   isLeaderboardQuery,
+  isMiningQuery,
   getLeaderboardQueryTarget,
   getServerQueryTarget,
   renderCodesPage,
@@ -20,6 +21,7 @@ import {
   renderOfficialServersPage,
   renderOfficialServerDetailPage,
   renderLeaderboardPage,
+  renderMiningPage,
   teardownLeaderboardPage,
 } from '../components/special-pages.js';
 import { escapeHtml, formatLabel } from '../features/reward-utils.js';
@@ -155,6 +157,26 @@ export async function handleSpecialPageSearch(username) {
         'Unable to load the leaderboard right now. Please try again in a moment.',
         'error'
       );
+    } finally {
+      setLoadingState(false);
+    }
+    return true;
+  }
+
+  if (isMiningQuery(username)) {
+    setLoadingState(true);
+    try {
+      await renderMiningPage(
+        resultContainer,
+        setFavicon,
+        setMetaDescription,
+        closeOpenModal,
+        updateQueryString,
+        DEFAULT_FAVICON
+      );
+      scrollToResults();
+    } catch {
+      showFeedback('Unable to load mining clues right now. Please try again in a moment.', 'error');
     } finally {
       setLoadingState(false);
     }
