@@ -136,7 +136,7 @@ export async function renderAllRewardsPage(
 
   try {
     const setArtData = await fetchSetArtData();
-    const entries = Object.entries(setArtData).filter(([, data]) => !data?.hideOnAllRewardsPage);
+    const entries = Object.entries(setArtData).filter(([, data]) => !data?.profileOnly);
 
     // Split rewards into obtainable and unobtainable
     const obtainableRewards = [];

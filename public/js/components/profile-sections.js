@@ -43,7 +43,7 @@ export function renderSetsSection(sets, setsHelpTemplate, newSetKeys = new Set()
 
 export function renderMissingRewardsSection(ownedSets, setArtStore) {
   const ownedSetKeys = new Set(ownedSets);
-  const allRewards = Object.entries(setArtStore);
+  const allRewards = Object.entries(setArtStore).filter(([, data]) => !data?.profileOnly);
 
   const missingObtainable = [];
   const missingLegacy = [];
