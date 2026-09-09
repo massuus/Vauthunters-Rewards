@@ -1,4 +1,4 @@
-const LEADERBOARD_CACHE_KEY_PREFIX = 'vh.leaderboard.page.v2';
+const LEADERBOARD_CACHE_KEY_PREFIX = 'vh.leaderboard.page.v3';
 const LEADERBOARD_CACHE_TTL_MS = 2 * 60 * 1000;
 const DEFAULT_PAGE_LIMIT = 10;
 const MAX_PAGE_LIMIT = 50;
@@ -21,8 +21,8 @@ function normalizeText(value, fallback = '') {
   return text || fallback;
 }
 
-function getPageKey(offset, limit) {
-  return `${offset}:${limit}`;
+function getPageKey(offset, limit, metric, streamer, targetPlayer) {
+  return `${metric}:${streamer}:${targetPlayer.toLowerCase()}:${offset}:${limit}`;
 }
 
 function getStorageKey(pageKey) {
@@ -53,7 +53,14 @@ function normalizePlayer(player) {
     rank: Math.max(1, Number(player?.rank || 1)),
     playerUUID: normalizeText(player?.playerUUID),
     playerNickname: normalizeText(player?.playerNickname, 'Unknown Player'),
+    skinName: normalizeText(player?.skinName) || null,
+    minecraftUUID: normalizeText(player?.minecraftUUID) || null,
+    minecraftName: normalizeText(player?.minecraftName) || null,
     setsUnlocked: Math.max(0, Number(player?.setsUnlocked || 0)),
+    twitchName: normalizeText(player?.twitchName) || null,
+    alias: normalizeText(player?.alias) || null,
+    seasonLevel: Math.max(0, Number(player?.seasonLevel || 0)),
+    vaultsJoined: Math.max(0, Number(player?.vaultsJoined || 0)),
     vaultHuntersTier: normalizeText(player?.vaultHuntersTier) || null,
     iskall85Tier: normalizeText(player?.iskall85Tier) || null,
     updatedAt: normalizeText(player?.updatedAt) || null,
@@ -76,11 +83,29 @@ function normalizePayload(payload, offset, limit) {
         rank: Math.max(1, Number(payload.focusPlayer?.rank || 1)),
         playerUUID: normalizeText(payload.focusPlayer?.playerUUID),
         playerNickname: normalizeText(payload.focusPlayer?.playerNickname, 'Unknown Player'),
+        skinName: normalizeText(payload.focusPlayer?.skinName) || null,
+        minecraftUUID: normalizeText(payload.focusPlayer?.minecraftUUID) || null,
+        minecraftName: normalizeText(payload.focusPlayer?.minecraftName) || null,
         setsUnlocked: Math.max(0, Number(payload.focusPlayer?.setsUnlocked || 0)),
+        twitchName: normalizeText(payload.focusPlayer?.twitchName) || null,
+        alias: normalizeText(payload.focusPlayer?.alias) || null,
+        seasonLevel: Math.max(0, Number(payload.focusPlayer?.seasonLevel || 0)),
+        vaultsJoined: Math.max(0, Number(payload.focusPlayer?.vaultsJoined || 0)),
       }
     : null;
 
   return {
+    metric: normalizeText(payload?.metric, 'setsUnlocked'),
+    streamer: normalizeText(payload?.streamer) || null,
+    streamers: Array.isArray(payload?.streamers)
+      ? payload.streamers
+          .map((streamer) => ({
+            login: normalizeText(streamer?.login).toLowerCase(),
+            playerCount: Math.max(0, Number(streamer?.playerCount || 0)),
+            updatedAt: normalizeText(streamer?.updatedAt) || null,
+          }))
+          .filter((streamer) => streamer.login)
+      : [],
     total,
     limit,
     offset: normalizedOffset,
@@ -172,11 +197,17 @@ export async function fetchLeaderboardPage({
   limit = DEFAULT_PAGE_LIMIT,
   forceRefresh = false,
   targetPlayer = '',
+  metric = 'setsUnlocked',
+  streamer = 'iskall85',
 } = {}) {
   const safeOffset = clampInt(offset, 0, 0, MAX_OFFSET);
   const safeLimit = clampInt(limit, DEFAULT_PAGE_LIMIT, 1, MAX_PAGE_LIMIT);
   const safeTargetPlayer = normalizeText(targetPlayer);
-  const pageKey = getPageKey(safeOffset, safeLimit);
+  const safeMetric = ['setsUnlocked', 'seasonLevel', 'vaultsJoined'].includes(metric)
+    ? metric
+    : 'setsUnlocked';
+  const safeStreamer = normalizeText(streamer, 'iskall85').toLowerCase();
+  const pageKey = getPageKey(safeOffset, safeLimit, safeMetric, safeStreamer, safeTargetPlayer);
 
   if (!forceRefresh) {
     const cached = readPageCache(pageKey, safeOffset, safeLimit);
@@ -193,6 +224,10 @@ export async function fetchLeaderboardPage({
     const url = new URL('/api/leaderboard', window.location.origin);
     url.searchParams.set('offset', String(safeOffset));
     url.searchParams.set('limit', String(safeLimit));
+    url.searchParams.set('metric', safeMetric);
+    if (safeMetric !== 'setsUnlocked') {
+      url.searchParams.set('streamer', safeStreamer);
+    }
     if (safeTargetPlayer) {
       url.searchParams.set('player', safeTargetPlayer);
     }

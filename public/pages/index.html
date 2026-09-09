@@ -12,7 +12,7 @@
     <meta name="robots" content="index, follow" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://mc-heads.net https://wiki.vaulthunters.gg https://vaulthunters.gg; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com; base-uri 'self'; manifest-src 'self'"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://mc-heads.net https://wiki.vaulthunters.gg https://vaulthunters.gg; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com wss://ebs.vaulthunters.gg; base-uri 'self'; manifest-src 'self'"
     />
     <meta name="theme-color" content="#ff9a10" />
     <title>Vault Hunters Rewards Lookup</title>
@@ -123,35 +123,60 @@
   </head>
   <body>
     <div class="page">
-      <header class="hero">
-        <div class="hero__content">
-          <h1 class="sr-only">Unofficial Vault Hunters Rewards</h1>
-          <div class="hero__brand">
-            <img
-              class="hero__logo"
-              src="../img/vaulthunters_logo_color.svg?v=20260315"
-              alt="Unofficial Vault Hunters Rewards"
-              width="1200"
-              height="675"
-              loading="eager"
-              decoding="async"
-            />
-            <img
-              class="hero__award-svg"
-              src="../img/reward.png"
-              alt=""
-              width="64"
-              height="64"
-              loading="eager"
-              decoding="async"
-              aria-hidden="true"
-            />
+      <header class="site-header">
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a class="site-nav__brand" href="/" aria-label="Vault Hunters Rewards home">
+            <span class="site-nav__brand-marks" aria-hidden="true">
+              <img
+                class="site-nav__brand-logo"
+                src="../img/vaulthunters_logo_color.svg?v=20260315"
+                alt=""
+                width="1200"
+                height="675"
+              />
+              <img
+                class="site-nav__brand-reward"
+                src="../img/reward.png"
+                alt=""
+                width="64"
+                height="64"
+              />
+            </span>
+            <span class="site-nav__brand-copy">
+              <span class="site-nav__eyebrow">Unofficial</span>
+              <span class="site-nav__brand-name">VH Rewards</span>
+            </span>
+          </a>
+
+          <div class="site-nav__menu" id="primary-navigation">
+            <button
+              class="site-nav__toggle"
+              type="button"
+              aria-label="Open navigation menu"
+              aria-controls="primary-navigation-links"
+              aria-expanded="false"
+            >
+              <span class="site-nav__toggle-lines" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+              <span class="site-nav__toggle-label">Menu</span>
+            </button>
+            <div class="site-nav__links" id="primary-navigation-links">
+              <a href="/" data-nav-route="home">Player Lookup</a>
+              <a href="/?codes" data-nav-route="codes">Reward Codes</a>
+              <a href="/?all" data-nav-route="all">All Rewards</a>
+              <a href="/?leaderboard" data-nav-route="leaderboard">Leaderboard</a>
+              <a href="/?servers" data-nav-route="servers">Servers</a>
+              <a href="/?mining" data-nav-route="mining">Mining Clues</a>
+            </div>
           </div>
-          <p>Unofficial tool to look up Vault Hunters and see their rewards!</p>
-        </div>
+        </nav>
       </header>
 
       <main class="main">
+        <h1 class="sr-only">Vault Hunters Rewards Lookup</h1>
         <section class="search">
           <form id="search-form" class="search__form">
             <label for="username" class="sr-only">Minecraft Username</label>

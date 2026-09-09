@@ -4,6 +4,10 @@ import {
   isLeaderboardEnabled,
   parseLeaderboardPageParams,
 } from '../utils/leaderboard.js';
+import {
+  getCompanionLeaderboardPage,
+  parseCompanionLeaderboardParams,
+} from '../utils/companion-leaderboard.js';
 
 const BROWSER_CACHE_TTL_SECONDS = 15;
 const EDGE_CACHE_TTL_SECONDS = 60;
@@ -48,10 +52,11 @@ export async function onRequest({ request, env, waitUntil }) {
   }
 
   const url = new URL(request.url);
-  const { limit, offset, targetPlayer } = parseLeaderboardPageParams(url, {
+  const standardParams = parseLeaderboardPageParams(url, {
     defaultLimit: 10,
     maxLimit: 50,
   });
+  const requestedMetric = String(url.searchParams.get('metric') || 'setsUnlocked');
 
   const bypassCache =
     url.searchParams.has('refresh') ||
@@ -70,7 +75,16 @@ export async function onRequest({ request, env, waitUntil }) {
   }
 
   try {
-    const payload = await getLeaderboardPage(env, { limit, offset, targetPlayer });
+    const payload =
+      requestedMetric === 'seasonLevel' || requestedMetric === 'vaultsJoined'
+        ? await getCompanionLeaderboardPage(
+            env,
+            parseCompanionLeaderboardParams(url, { defaultLimit: 10, maxLimit: 50 })
+          )
+        : {
+            ...(await getLeaderboardPage(env, standardParams)),
+            metric: 'setsUnlocked',
+          };
 
     const response = json(payload, 200, {
       'cache-control': `public, max-age=${BROWSER_CACHE_TTL_SECONDS}, s-maxage=${EDGE_CACHE_TTL_SECONDS}, stale-while-revalidate=${EDGE_CACHE_TTL_SECONDS}`,

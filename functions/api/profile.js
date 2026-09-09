@@ -6,8 +6,13 @@ import {
   upsertLeaderboardRecord,
 } from '../utils/leaderboard.js';
 import {
+  getCompanionPlayerStats,
+  updateCompanionMinecraftIdentity,
+} from '../utils/companion-leaderboard.js';
+import {
   PLAYERDB_PROFILE_URL,
   REWARDS_URL,
+  REWARDS_TWITCH_URL,
   TIER_URL,
   TIER_LIST_URL,
   UUID_HEX_LENGTH,
@@ -20,6 +25,7 @@ import {
 } from '../utils/config.js';
 
 const USERNAME_REGEX = /^[A-Za-z0-9_]{3,16}$/;
+const TWITCH_USERNAME_REGEX = /^[A-Za-z0-9_]{1,25}$/;
 const ISKALL_TIER_ORDER = ['Iron', 'Gold', 'Diamond', 'Iskallium Diamond', 'Emerald'];
 const ISKALL_TIER_LIST_CACHE_TTL_MS = 60 * 60 * 1000;
 const PROFILE_OVERRIDES = {
@@ -63,40 +69,69 @@ export async function onRequest({ request, env, waitUntil }) {
 
   const url = new URL(request.url);
   const username = (url.searchParams.get('username') || '').trim();
+  const twitchUsername = (url.searchParams.get('twitchUsername') || '').trim();
 
-  if (!username) {
-    return badRequest('Username query parameter is required.');
+  if (!username && !twitchUsername) {
+    return badRequest('A Minecraft or Twitch username is required.');
   }
 
   const normalizedUsername = username.toLowerCase();
+  const normalizedTwitchUsername = twitchUsername.toLowerCase();
 
-  if (!USERNAME_REGEX.test(normalizedUsername)) {
+  if (username && !USERNAME_REGEX.test(normalizedUsername)) {
     return badRequest('Invalid Minecraft username. Use 3-16 letters, numbers, or underscores.');
   }
+  if (twitchUsername && !TWITCH_USERNAME_REGEX.test(normalizedTwitchUsername)) {
+    return badRequest('Invalid Twitch username.');
+  }
 
-  const profileOverride = getProfileOverride(normalizedUsername);
+  const requestedProfileOverride = getProfileOverride(normalizedUsername);
 
   // Simple mock mode to aid local testing: /api/profile?username=...&mock=1
   if (url.searchParams.has('mock')) {
-    const mockName = username || 'Mock User';
+    const mockName = username || twitchUsername || 'Mock User';
     return json({
       id: 'mock',
       name: mockName,
       head: 'https://mc-heads.net/avatar/f00538241a8649c4a5199ba93a40ddcf',
       rewards: {},
-      sets: profileOverride
-        ? prioritizeSets(['dylan_vip', ...profileOverride.rewardKeys], profileOverride.priorityKeys)
+      sets: requestedProfileOverride
+        ? prioritizeSets(
+            ['dylan_vip', ...requestedProfileOverride.rewardKeys],
+            requestedProfileOverride.priorityKeys
+          )
         : ['dylan_vip'],
       tier: [],
       iskall85Tier: [],
+      companionStats: [
+        {
+          streamer: 'iskall85',
+          twitchName: String(twitchUsername || '').toLowerCase() || null,
+          alias: null,
+          seasonLevel: 53,
+          vaultsJoined: 7,
+          updatedAt: null,
+        },
+      ],
     });
   }
 
   try {
-    const profile = await fetchProfile(normalizedUsername);
+    const rewardsHeaders = getRewardsAuthHeaders(env);
+    const linkedRewards = normalizedTwitchUsername
+      ? await fetchRewardsByTwitch(normalizedTwitchUsername, rewardsHeaders)
+      : null;
+    const profile = await fetchProfile(linkedRewards?.minecraftId || normalizedUsername);
 
     if (!profile) {
-      return json({ error: 'Player not found.' }, 404);
+      return json(
+        {
+          error: normalizedTwitchUsername
+            ? 'This Twitch account is not linked to a resolvable Minecraft account.'
+            : 'Player not found.',
+        },
+        404
+      );
     }
 
     const { rawId, name, head } = profile;
@@ -106,13 +141,15 @@ export async function onRequest({ request, env, waitUntil }) {
       return json({ error: 'Unable to resolve player UUID.' }, 502);
     }
 
-    const rewardsHeaders = getRewardsAuthHeaders(env);
     const [rewardsData, tier, iskall85Tier] = await Promise.all([
-      fetchRewards(formattedId, rewardsHeaders),
+      linkedRewards
+        ? normalizeRewardsPayload(linkedRewards)
+        : fetchRewards(formattedId, rewardsHeaders),
       fetchTiers(formattedId),
-      fetchIskall85Tiers(name, normalizedUsername),
+      fetchIskall85Tiers(name, normalizedUsername, normalizedTwitchUsername),
     ]);
 
+    const profileOverride = getProfileOverride(name) || requestedProfileOverride;
     const allSetKeys = profileOverride ? await fetchAllSetKeys(request) : [];
     const { rewards, sets } = rewardsData;
     const unlockedSets = profileOverride
@@ -137,6 +174,31 @@ export async function onRequest({ request, env, waitUntil }) {
       playerNickname: name,
     });
 
+    if (normalizedTwitchUsername) {
+      await updateCompanionMinecraftIdentity(env, {
+        twitchName: normalizedTwitchUsername,
+        minecraftUUID: formattedId,
+        minecraftName: name,
+      }).catch((error) => {
+        console.error('Companion identity sync error', {
+          twitchUsername: normalizedTwitchUsername,
+          message: error instanceof Error ? error.message : String(error),
+        });
+      });
+    }
+
+    const companionStats = await getCompanionPlayerStats(env, {
+      minecraftUUID: formattedId,
+      twitchName: normalizedTwitchUsername,
+    }).catch((error) => {
+      console.error('Companion profile stats lookup error', {
+        minecraftUUID: formattedId,
+        twitchUsername: normalizedTwitchUsername,
+        message: error instanceof Error ? error.message : String(error),
+      });
+      return [];
+    });
+
     return json({
       id: rawId,
       name,
@@ -146,10 +208,12 @@ export async function onRequest({ request, env, waitUntil }) {
       tier,
       iskall85Tier,
       leaderboardPlace,
+      twitchUsername: normalizedTwitchUsername || undefined,
+      companionStats,
     });
   } catch (error) {
     console.error('Profile lookup error', {
-      username: normalizedUsername,
+      username: normalizedTwitchUsername || normalizedUsername,
       message: error instanceof Error ? error.message : String(error),
       status: error?.status,
       stack: error?.stack,
@@ -304,7 +368,32 @@ async function fetchRewards(formattedId, headers) {
     throw err;
   }
 
-  const data = result.data;
+  return normalizeRewardsPayload(result.data);
+}
+
+async function fetchRewardsByTwitch(twitchUsername, headers) {
+  const result = await fetchJson(
+    `${REWARDS_TWITCH_URL}${encodeURIComponent(twitchUsername)}`,
+    'Twitch rewards API',
+    REWARDS_API_TIMEOUT,
+    headers
+  );
+
+  if (result.error) {
+    const error = new Error(result.message || 'Twitch rewards API failed');
+    error.status = 502;
+    throw error;
+  }
+  if (result.notFound || !result.data?.minecraftId) {
+    const error = new Error('This Twitch account is not linked to a Minecraft account.');
+    error.status = 404;
+    throw error;
+  }
+
+  return result.data;
+}
+
+function normalizeRewardsPayload(data) {
   const rewards = Array.isArray(data.rewards) ? {} : data.rewards || {};
   const sets = normalizeSets(Array.isArray(data.sets) ? data.sets : data.sets || []);
 

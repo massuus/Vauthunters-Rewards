@@ -280,6 +280,82 @@ body {
   flex-wrap: wrap;
 }
 
+.companion-profile-section {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.companion-profile-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.companion-profile-card {
+  flex: 0 1 430px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgba(244, 169, 65, 0.35);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(244, 169, 65, 0.12), rgba(12, 15, 21, 0.9));
+}
+
+.companion-profile-card__streamer {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  min-width: 0;
+  margin: 0;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.companion-profile-card__streamer span,
+.companion-profile-card__stat span {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.companion-profile-card__streamer strong {
+  min-width: 0;
+  color: var(--accent);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  line-height: 1.05;
+  letter-spacing: 0.06em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.companion-profile-card__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 0;
+}
+
+.companion-profile-card__stat {
+  display: grid;
+  gap: 0.1rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.35rem 0.55rem;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.companion-profile-card__stat strong {
+  color: var(--text-primary);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
 .share-button {
   border: 2px solid color-mix(in srgb, var(--accent) 75%, #ffd764 25%);
   background: linear-gradient(
@@ -1771,6 +1847,11 @@ body {
 
   .player-name-container {
     justify-content: center;
+  }
+
+  .companion-profile-card {
+    flex-basis: 100%;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .player-actions {

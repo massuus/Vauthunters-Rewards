@@ -25,6 +25,7 @@ export const RETRYABLE_STATUS_CODES = [408, 429, 500, 502, 503, 504];
 // API URLs (keeping them here for easy configuration)
 export const PLAYERDB_PROFILE_URL = 'https://playerdb.co/api/player/minecraft/';
 export const REWARDS_URL = 'https://rewards.vaulthunters.gg/rewards?minecraft=';
+export const REWARDS_TWITCH_URL = 'https://rewards.vaulthunters.gg/rewards?twitchUsername=';
 export const TIER_URL = 'https://api.vaulthunters.gg/users/reward?uuid=';
 export const TIER_LIST_URL = 'https://api.vaulthunters.gg/users/reward/list';
 export const SERVERS_URL = 'https://api.vaulthunters.gg/server';

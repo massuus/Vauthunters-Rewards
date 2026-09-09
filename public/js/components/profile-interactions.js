@@ -20,6 +20,18 @@ export function bindLeaderboardLevelHandlers() {
     button.addEventListener('click', () => {
       const playerName = button.getAttribute('data-leaderboard-player') || '';
       if (!playerName) return;
+
+      const metric = button.getAttribute('data-leaderboard-metric') || '';
+      const streamer = button.getAttribute('data-leaderboard-streamer') || '';
+      if (['seasonLevel', 'vaultsJoined'].includes(metric) && /^[a-z0-9_]{1,25}$/i.test(streamer)) {
+        const params = new URLSearchParams({
+          leaderboard: playerName,
+          metric,
+          streamer: streamer.toLowerCase(),
+        });
+        window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+      }
+
       usernameInput.value = `leaderboard:${playerName}`;
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });

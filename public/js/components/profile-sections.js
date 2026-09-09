@@ -7,6 +7,54 @@ import {
 } from '../features/reward-utils.js';
 import { getSetArtStore } from './set-art-manager.js';
 
+export function renderCompanionStatsSection(companionStats, playerName = '') {
+  const stats = Array.isArray(companionStats) ? companionStats : [];
+  if (!stats.length) return '';
+
+  const cards = stats
+    .map((entry) => {
+      const rawStreamer = String(entry?.streamer || 'Unknown streamer');
+      const rawTargetPlayer = String(entry?.twitchName || playerName || '').trim();
+      const streamer = escapeHtml(rawStreamer);
+      const targetPlayer = escapeHtml(rawTargetPlayer);
+      const seasonLevel = Math.max(0, Number(entry?.seasonLevel || 0));
+      const vaultsJoined = Math.max(0, Number(entry?.vaultsJoined || 0));
+      const renderStatButton = (metric, label, value) => `
+        <button
+          class="companion-profile-card__stat player-level-link"
+          type="button"
+          data-leaderboard-player="${targetPlayer}"
+          data-leaderboard-metric="${metric}"
+          data-leaderboard-streamer="${streamer}"
+          title="Open ${streamer}'s ${label.toLowerCase()} leaderboard around ${targetPlayer}"
+        >
+          <span>${label}</span>
+          <strong>${value}</strong>
+        </button>`;
+
+      return `
+        <article class="companion-profile-card">
+          <p class="companion-profile-card__streamer">
+            <span>Streamer:</span>
+            <strong>${streamer}</strong>
+          </p>
+          <div class="companion-profile-card__stats">
+            ${renderStatButton('seasonLevel', 'Season level', seasonLevel)}
+            ${renderStatButton('vaultsJoined', 'Vaults joined', vaultsJoined)}
+          </div>
+        </article>
+      `;
+    })
+    .join('');
+
+  return `
+    <section class="companion-profile-section" aria-labelledby="companion-profile-title">
+      <h3 class="section-title" id="companion-profile-title">Companion progress</h3>
+      <div class="companion-profile-grid">${cards}</div>
+    </section>
+  `;
+}
+
 export function renderSetsSection(sets, setsHelpTemplate, newSetKeys = new Set()) {
   const hasSets = sets.length > 0;
   const setArtStore = getSetArtStore();

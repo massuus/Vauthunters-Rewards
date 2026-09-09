@@ -77,13 +77,13 @@ async function submitSearch() {
 
     if (!response.ok) {
       if (response.status === 404) {
-        throw new Error('Player not found. Double-check the spelling and try again.');
+        throw new Error(
+          'Player or linked account not found. Double-check the spelling and try again.'
+        );
       }
 
       if (response.status === 400) {
-        throw new Error(
-          'Invalid Minecraft username. Usernames are 3-16 characters without spaces.'
-        );
+        throw new Error('Invalid Minecraft or Twitch username.');
       }
 
       throw new Error('Something went wrong while retrieving the profile.');
@@ -108,7 +108,12 @@ async function submitSearch() {
  */
 function buildProfileApiUrl(username) {
   const base = new URL('/api/profile', window.location.origin);
-  base.searchParams.set('username', username);
+  const twitchMatch = String(username || '').match(/^twitch\s*:\s*(.+)$/i);
+  if (twitchMatch) {
+    base.searchParams.set('twitchUsername', twitchMatch[1].trim());
+  } else {
+    base.searchParams.set('username', username);
+  }
   // Pass through a small allowlist of debug params from the page URL
   try {
     const current = new URL(window.location.href);

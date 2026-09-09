@@ -33,7 +33,8 @@ export async function renderRecentSection() {
   if (!recentContainer) return;
   const items = getRecentUsers();
 
-  const shouldShowHomeBlocks = shouldShowPagesSection();
+  const shouldShowHomeBlocks =
+    !usernameInput.value.trim() && resultContainer.classList.contains('hidden');
   const leaderboardSection = shouldShowHomeBlocks ? await renderHomeLeaderboardSection() : '';
 
   if (!items.length && !leaderboardSection) {
@@ -50,23 +51,9 @@ export async function renderRecentSection() {
       return `<button class="recent-item" type="button" data-name="${safe}"><img src="${img}" alt="${safe}'s head" width="28" height="28"><span style="${nameStyle}">${safe}</span></button>`;
     })
     .join('');
-  const pagesSection = shouldShowPagesSection()
-    ? `
-      <h3 class="recent-title">Pages</h3>
-      <div class="recent-grid">
-        <button class="recent-item" type="button" data-page="mining">Mining Clues</button>
-        <button class="recent-item" type="button" data-page="all">All Rewards</button>
-        <button class="recent-item" type="button" data-page="codes">Reward Codes</button>
-        <button class="recent-item" type="button" data-page="servers">Official Servers</button>
-           <button class="recent-item" type="button" data-page="leaderboard">Leaderboard</button>
-      </div>
-    `
-    : '';
-
   const template = await loadTemplate('recent-section');
   recentContainer.innerHTML = renderTemplate(template, {
     buttons,
-    pagesSection,
     leaderboardSection,
   });
   recentContainer.classList.remove('hidden');
@@ -117,10 +104,6 @@ async function renderHomeLeaderboardSection() {
   } catch {
     return '';
   }
-}
-
-function shouldShowPagesSection() {
-  return !usernameInput.value.trim() && resultContainer.classList.contains('hidden');
 }
 
 /**

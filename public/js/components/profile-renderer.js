@@ -19,6 +19,7 @@ import {
   renderMissingRewardsSection,
   renderTiersSection,
   renderExtraSection,
+  renderCompanionStatsSection,
 } from './profile-sections.js';
 import {
   bindServerLinkHandlers,
@@ -103,6 +104,7 @@ export async function renderProfile(data) {
   const missingRewardsSection = renderMissingRewardsSection(sets, setArtStore);
   const tiersSection = renderTiersSection(tiers, iskall85Tiers, ISKALL85_TIER_CONFIG);
   const extraSection = renderExtraSection(rewards);
+  const companionStatsSection = renderCompanionStatsSection(data?.companionStats, data?.name);
   const shareUrl = getShareUrl(data.name);
 
   const bestVaultHuntersTier = getBestPatreonTier(tiers);
@@ -148,6 +150,7 @@ export async function renderProfile(data) {
       serverLink: serverLink,
       levelBadge: leaderboardBadge,
     }) +
+    companionStatsSection +
     setsSection +
     missingRewardsSection +
     tiersSection +
