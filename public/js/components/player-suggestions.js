@@ -55,7 +55,6 @@ export function initPlayerSuggestions() {
   let revision = 0;
   let players = [];
   let active = -1;
-  let pointerSelecting = false;
   const cache = new Map();
 
   function close() {
@@ -64,7 +63,6 @@ export function initPlayerSuggestions() {
     revision += 1;
     players = [];
     active = -1;
-    pointerSelecting = false;
     list.hidden = true;
     input.setAttribute('aria-expanded', 'false');
     input.removeAttribute('aria-activedescendant');
@@ -85,7 +83,9 @@ export function initPlayerSuggestions() {
     input.removeAttribute('aria-activedescendant');
     list.replaceChildren();
     players.forEach((player, index) => {
-      const option = document.createElement('div');
+      const option = document.createElement('a');
+      option.href = `/?${encodeURIComponent(player.searchValue || player.name)}`;
+      option.tabIndex = -1;
       option.id = `player-suggestion-${index}`;
       option.className = 'search__suggestion';
       option.setAttribute('role', 'option');
@@ -108,47 +108,6 @@ export function initPlayerSuggestions() {
       name.textContent = player.name;
       option.append(head);
       option.append(name);
-      let touchStart = null;
-      let moved = false;
-      option.addEventListener('pointerdown', (event) => {
-        if (event.pointerType === 'mouse') {
-          event.preventDefault();
-          return;
-        }
-        touchStart = { x: event.clientX, y: event.clientY };
-        moved = false;
-        pointerSelecting = true;
-      });
-      option.addEventListener('pointermove', (event) => {
-        if (
-          touchStart &&
-          Math.hypot(event.clientX - touchStart.x, event.clientY - touchStart.y) > 10
-        ) {
-          moved = true;
-        }
-      });
-      option.addEventListener('pointerup', (event) => {
-        if (!touchStart) return;
-        const isTap =
-          !moved && Math.hypot(event.clientX - touchStart.x, event.clientY - touchStart.y) <= 10;
-        touchStart = null;
-        pointerSelecting = false;
-        if (isTap && !list.hidden) {
-          event.preventDefault();
-          choose(index);
-        } else if (document.activeElement !== input) {
-          close();
-        }
-      });
-      option.addEventListener('pointercancel', () => {
-        touchStart = null;
-        moved = true;
-        pointerSelecting = false;
-        if (document.activeElement !== input) close();
-      });
-      option.addEventListener('click', () => {
-        if (!moved && !list.hidden) choose(index);
-      });
       list.append(option);
     });
     list.hidden = !players.length;
@@ -201,13 +160,18 @@ export function initPlayerSuggestions() {
   input.addEventListener('compositionstart', close);
   input.addEventListener('compositionend', update);
   input.addEventListener('focus', update);
-  input.addEventListener('blur', () => {
-    if (!pointerSelecting) close();
-  });
+  // Blur can precede a mobile link activation. Only dismiss when interaction
+  // actually moves outside the field and its suggestions.
+  const dismissOutside = (event) => {
+    const path = event.composedPath();
+    if (!path.includes(input) && !path.includes(list)) close();
+  };
+  document.addEventListener('pointerdown', dismissOutside);
+  document.addEventListener('focusin', dismissOutside);
   form.addEventListener('submit', close);
   input.addEventListener('keydown', (event) => {
     if (event.isComposing) return;
-    if (event.key === 'Escape') {
+    if (event.key === 'Escape' || event.key === 'Tab') {
       close();
       return;
     }

@@ -160,11 +160,11 @@ test('dropdown preserves normal Enter, supports selection, and ignores stale res
     'player-suggestions-status': status,
   };
   const originalDocument = globalThis.document;
-  globalThis.document = {
+  globalThis.document = Object.assign(new EventTarget(), {
     activeElement: input,
     getElementById: (id) => elements[id],
     createElement: () => new Element(),
-  };
+  });
   t.after(() => {
     input.dispatchEvent(new Event('blur'));
     if (originalDocument === undefined) delete globalThis.document;
@@ -217,39 +217,33 @@ test('dropdown preserves normal Enter, supports selection, and ignores stale res
     list.children[0].children[0].src,
     '/proxy-img?url=https%3A%2F%2Fmc-heads.net%2Favatar%2FNewPlayer%2F32'
   );
-  list.children[0].dispatchEvent(new Event('click'));
-  assert.deepEqual(submitted, ['Massuus', 'NewPlayer']);
-
-  const pointer = (target, type, y = 10) => {
-    const event = new Event(type, { cancelable: true });
-    Object.assign(event, { pointerType: 'touch', clientX: 10, clientY: y });
-    target.dispatchEvent(event);
-  };
-  type('touch');
-  await respond(pending.shift(), ['TouchPlayer']);
-  const touchOption = list.children[0];
-  pointer(touchOption, 'pointerdown');
+  assert.equal(list.children[0].href, '/?NewPlayer');
+  const tap = new Event('click', { cancelable: true });
   globalThis.document.activeElement = null;
   input.dispatchEvent(new Event('blur'));
-  assert.equal(list.hidden, false, 'keep suggestion available through touch blur');
-  pointer(touchOption, 'pointerup');
-  touchOption.dispatchEvent(new Event('click'));
-  assert.deepEqual(submitted, ['Massuus', 'NewPlayer', 'TouchPlayer'], 'tap submits exactly once');
-  assert.equal(list.hidden, true);
+  assert.equal(list.hidden, false, 'blur must not remove the native link before mobile activation');
+  list.children[0].dispatchEvent(tap);
+  assert.equal(tap.defaultPrevented, false, 'let the browser navigate normally');
+  assert.deepEqual(submitted, ['Massuus'], 'native links do not also submit the form');
   globalThis.document.activeElement = input;
+  const inside = new Event('pointerdown');
+  inside.composedPath = () => [list.children[0].children[0], list.children[0], list];
+  document.dispatchEvent(inside);
+  assert.equal(list.hidden, false, 'tapping the player head keeps the link available');
+  document.dispatchEvent(new Event('pointerdown'));
+  assert.equal(list.hidden, true, 'outside taps dismiss suggestions');
 
-  type('scroll');
-  await respond(pending.shift(), ['ScrollPlayer']);
-  const scrollOption = list.children[0];
-  pointer(scrollOption, 'pointerdown');
-  pointer(scrollOption, 'pointermove', 50);
-  pointer(scrollOption, 'pointerup', 50);
-  scrollOption.dispatchEvent(new Event('click'));
-  assert.equal(submitted.length, 3, 'scrolling must not select a player');
-  pointer(scrollOption, 'pointerdown');
-  pointer(scrollOption, 'pointercancel');
-  scrollOption.dispatchEvent(new Event('click'));
-  assert.equal(submitted.length, 3, 'cancelled touches must not select a player');
+  type('alias');
+  pending.shift()({
+    ok: true,
+    json: async () => ({
+      players: [{ name: 'Alias', searchValue: 'twitch:player_login', twitchName: 'player_login' }],
+    }),
+  });
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(list.children[0].href, '/?twitch%3Aplayer_login');
 
   type('nobody');
   await respond(pending.shift(), []);

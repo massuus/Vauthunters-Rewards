@@ -68,6 +68,7 @@
   border-radius: 8px;
   color: var(--text-primary);
   overflow-wrap: anywhere;
+  text-decoration: none;
   cursor: pointer;
 }
 
