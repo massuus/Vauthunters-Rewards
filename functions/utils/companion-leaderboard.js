@@ -189,17 +189,21 @@ export async function getCompanionLeaderboardPage(env, params) {
   if (targetPlayer) {
     targetRow = await db
       .prepare(
-        `WITH ranked AS (
-          SELECT RANK() OVER (ORDER BY ${column} DESC) AS rank, *
-          FROM companion_leaderboard_players
-          WHERE streamer_login = ?1
-        )
-        SELECT * FROM ranked
-        WHERE LOWER(twitch_name) = LOWER(?2)
-           OR LOWER(player_name) = LOWER(?2)
-           OR LOWER(COALESCE(minecraft_name, '')) = LOWER(?2)
-           OR LOWER(COALESCE(alias, '')) = LOWER(?2)
-        LIMIT 1`
+        `SELECT
+           target.*,
+           1 + (
+             SELECT COUNT(1)
+             FROM companion_leaderboard_players AS higher
+             WHERE higher.streamer_login = target.streamer_login
+               AND higher.${column} > target.${column}
+           ) AS rank
+         FROM companion_leaderboard_players AS target
+         WHERE target.streamer_login = ?1
+           AND (LOWER(target.twitch_name) = LOWER(?2)
+             OR LOWER(target.player_name) = LOWER(?2)
+             OR LOWER(COALESCE(target.minecraft_name, '')) = LOWER(?2)
+             OR LOWER(COALESCE(target.alias, '')) = LOWER(?2))
+         LIMIT 1`
       )
       .bind(streamer, targetPlayer)
       .first();
@@ -215,13 +219,19 @@ export async function getCompanionLeaderboardPage(env, params) {
     db
       .prepare(
         `SELECT
-          RANK() OVER (ORDER BY ${column} DESC) AS rank,
-          twitch_name, player_name, alias, minecraft_uuid, minecraft_name,
-          season_level, vaults_joined, updated_at
-        FROM companion_leaderboard_players
-        WHERE streamer_login = ?1
-        ORDER BY ${column} DESC, ${secondaryColumn} DESC,
-          COALESCE(alias, twitch_name) COLLATE NOCASE ASC
+          player.twitch_name, player.player_name, player.alias,
+          player.minecraft_uuid, player.minecraft_name,
+          player.season_level, player.vaults_joined, player.updated_at,
+          1 + (
+            SELECT COUNT(1)
+            FROM companion_leaderboard_players AS higher
+            WHERE higher.streamer_login = player.streamer_login
+              AND higher.${column} > player.${column}
+          ) AS rank
+        FROM companion_leaderboard_players AS player
+        WHERE player.streamer_login = ?1
+        ORDER BY player.${column} DESC, player.${secondaryColumn} DESC,
+          COALESCE(player.alias, player.twitch_name) COLLATE NOCASE ASC
         LIMIT ?2 OFFSET ?3`
       )
       .bind(streamer, limit, resolvedOffset),

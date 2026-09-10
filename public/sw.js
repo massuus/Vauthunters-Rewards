@@ -16,7 +16,7 @@ const MAX_TEMPLATE_CACHE_SIZE = 50;
 
 // Cache TTL
 const API_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
-const LEADERBOARD_CACHE_TTL_MS = 60 * 1000; // 1 minute
+const LEADERBOARD_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const DATA_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour (codes/sets data)
 const CACHE_TIMESTAMP_HEADER = 'x-vhr-sw-cached-at';
 
@@ -315,24 +315,7 @@ self.addEventListener('fetch', (event) => {
             if (cached) {
               cachedAt = Number(cached.headers.get(CACHE_TIMESTAMP_HEADER) || '0');
               if (Number.isFinite(cachedAt) && now - cachedAt < ttlMs) {
-                // Fresh enough; revalidate in background
-                event.waitUntil(
-                  (async () => {
-                    try {
-                      const net = await fetch(request);
-                      if (net.ok) {
-                        const headers = new Headers(net.headers);
-                        headers.set(CACHE_TIMESTAMP_HEADER, String(Date.now()));
-                        const toStore = new Response(net.clone().body, {
-                          status: net.status,
-                          statusText: net.statusText,
-                          headers,
-                        });
-                        await cache.put(request, toStore);
-                      }
-                    } catch {}
-                  })()
-                );
+                // Fresh enough; avoid a duplicate network request.
                 return cached;
               }
             }

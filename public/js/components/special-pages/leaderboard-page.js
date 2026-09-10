@@ -256,7 +256,7 @@ async function loadPage(state, direction, { throwOnError = false } = {}) {
     const payload = await fetchLeaderboardPage({
       offset,
       limit: PAGE_SIZE,
-      forceRefresh: initial,
+      forceRefresh: false,
       targetPlayer: initial ? state.targetPlayer : '',
       metric: state.metric,
       streamer: state.streamer,

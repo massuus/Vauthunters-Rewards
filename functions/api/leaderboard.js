@@ -9,8 +9,8 @@ import {
   parseCompanionLeaderboardParams,
 } from '../utils/companion-leaderboard.js';
 
-const BROWSER_CACHE_TTL_SECONDS = 15;
-const EDGE_CACHE_TTL_SECONDS = 60;
+const BROWSER_CACHE_TTL_SECONDS = 60;
+const EDGE_CACHE_TTL_SECONDS = 300;
 
 function getDefaultCache() {
   try {

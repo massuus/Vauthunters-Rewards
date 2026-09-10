@@ -434,21 +434,21 @@ export async function getLeaderboardPage(
     const targetResult = await db
       .prepare(
         `
-          WITH ranked AS (
-            SELECT
-              RANK() OVER (ORDER BY sets_unlocked DESC) AS rank,
-              player_uuid,
-              player_name,
-              sets_unlocked,
-              vault_hunters_tier,
-              iskall85_tier,
-              updated_at
-            FROM leaderboard_players
-            WHERE sets_unlocked > 0
-          )
-          SELECT *
-          FROM ranked
-          WHERE player_uuid = ?1 OR LOWER(player_name) = LOWER(?2)
+          SELECT
+            target.player_uuid,
+            target.player_name,
+            target.sets_unlocked,
+            target.vault_hunters_tier,
+            target.iskall85_tier,
+            target.updated_at,
+            1 + (
+              SELECT COUNT(1)
+              FROM leaderboard_players AS higher
+              WHERE higher.sets_unlocked > target.sets_unlocked
+            ) AS rank
+          FROM leaderboard_players AS target
+          WHERE target.sets_unlocked > 0
+            AND (target.player_uuid = ?1 OR LOWER(target.player_name) = LOWER(?2))
           LIMIT 1
         `
       )
@@ -471,16 +471,21 @@ export async function getLeaderboardPage(
       .prepare(
         `
           SELECT
-            RANK() OVER (ORDER BY sets_unlocked DESC) AS rank,
-            player_uuid,
-            player_name,
-            sets_unlocked,
-            vault_hunters_tier,
-            iskall85_tier,
-            updated_at
-          FROM leaderboard_players
-          WHERE sets_unlocked > 0
-          ORDER BY sets_unlocked DESC, updated_at DESC, player_name COLLATE NOCASE ASC
+            player.player_uuid,
+            player.player_name,
+            player.sets_unlocked,
+            player.vault_hunters_tier,
+            player.iskall85_tier,
+            player.updated_at,
+            1 + (
+              SELECT COUNT(1)
+              FROM leaderboard_players AS higher
+              WHERE higher.sets_unlocked > player.sets_unlocked
+            ) AS rank
+          FROM leaderboard_players AS player
+          WHERE player.sets_unlocked > 0
+          ORDER BY player.sets_unlocked DESC, player.updated_at DESC,
+            player.player_name COLLATE NOCASE ASC
           LIMIT ?1 OFFSET ?2
         `
       )
