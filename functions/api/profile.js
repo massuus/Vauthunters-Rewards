@@ -44,6 +44,7 @@ const SET_ALIASES = {
 };
 const PROFILE_BROWSER_CACHE_TTL_SECONDS = 30;
 const PROFILE_EDGE_CACHE_TTL_SECONDS = 120;
+const D1_READ_RETRY_DELAY_MS = 5 * 60 * 1000;
 
 let setArtKeyCache = {
   data: null,
@@ -56,6 +57,7 @@ let iskallTierListCache = {
   expiresAt: 0,
   inFlight: null,
 };
+let d1ReadsUnavailableUntil = 0;
 
 function badRequest(message) {
   return json({ error: message }, 400);
@@ -197,7 +199,7 @@ export async function onRequest({ request, env, waitUntil }) {
       iskall85Tier,
     });
 
-    const leaderboardPlace = await getLeaderboardPlacement(env, {
+    const leaderboardPlace = await getOptionalLeaderboardPlacement(env, {
       playerUUID: formattedId,
       playerNickname: name,
     });
@@ -215,16 +217,9 @@ export async function onRequest({ request, env, waitUntil }) {
       });
     }
 
-    const companionStats = await getCompanionPlayerStats(env, {
+    const companionStats = await getOptionalCompanionStats(env, {
       minecraftUUID: formattedId,
       twitchName: normalizedTwitchUsername,
-    }).catch((error) => {
-      console.error('Companion profile stats lookup error', {
-        minecraftUUID: formattedId,
-        twitchUsername: normalizedTwitchUsername,
-        message: error instanceof Error ? error.message : String(error),
-      });
-      return [];
     });
 
     const response = json(
@@ -606,6 +601,39 @@ async function syncLeaderboardEntry({
   }
 
   return writePromise;
+}
+
+function canReadD1() {
+  return Date.now() >= d1ReadsUnavailableUntil;
+}
+
+function markD1ReadUnavailable(error, context) {
+  d1ReadsUnavailableUntil = Date.now() + D1_READ_RETRY_DELAY_MS;
+  console.error(context, {
+    message: error instanceof Error ? error.message : String(error),
+  });
+}
+
+async function getOptionalLeaderboardPlacement(env, params) {
+  if (!canReadD1()) return null;
+
+  try {
+    return await getLeaderboardPlacement(env, params);
+  } catch (error) {
+    markD1ReadUnavailable(error, 'Leaderboard placement unavailable');
+    return null;
+  }
+}
+
+async function getOptionalCompanionStats(env, params) {
+  if (!canReadD1()) return [];
+
+  try {
+    return await getCompanionPlayerStats(env, params);
+  } catch (error) {
+    markD1ReadUnavailable(error, 'Companion profile stats unavailable');
+    return [];
+  }
 }
 
 function json(body, status = 200, headers = {}) {

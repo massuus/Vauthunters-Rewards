@@ -69,6 +69,14 @@ export async function onRequest({ request, env }) {
   const body = await readBodyJson(request);
 
   const requiredToken = String(env?.LEADERBOARD_SYNC_TOKEN || '').trim();
+  if (!requiredToken) {
+    return json(
+      { error: 'Leaderboard refresh is disabled until LEADERBOARD_SYNC_TOKEN is configured.' },
+      503,
+      { 'cache-control': 'no-store' }
+    );
+  }
+
   if (requiredToken) {
     const providedToken = readProvidedToken(request, url);
     if (!providedToken || providedToken !== requiredToken) {
@@ -93,9 +101,6 @@ export async function onRequest({ request, env }) {
     return json(
       {
         ...stats,
-        warning: requiredToken
-          ? undefined
-          : 'LEADERBOARD_SYNC_TOKEN is not configured; this endpoint is currently open to the public.',
       },
       200,
       { 'cache-control': 'no-store' }
