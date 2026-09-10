@@ -146,18 +146,8 @@
   outline-offset: 2px;
 }
 
+/* Collapse before the brand and all six links run out of horizontal space. */
 @media (max-width: 900px) {
-  .site-nav {
-    gap: 0.5rem;
-  }
-
-  .site-nav__links a {
-    padding-inline: 0.52rem;
-    font-size: 0.76rem;
-  }
-}
-
-@media (max-width: 760px) {
   .site-header {
     top: 0.5rem;
     padding-top: 0.5rem;
@@ -166,6 +156,7 @@
   .site-nav {
     position: relative;
     min-height: 3.75rem;
+    gap: 0.5rem;
     padding: 0.45rem 0.5rem;
     border-radius: 1rem;
   }
@@ -278,8 +269,7 @@
 }
 
 @media (max-width: 410px) {
-  .site-nav__toggle-label,
-  .site-nav__eyebrow {
+  .site-nav__toggle-label {
     display: none;
   }
 
