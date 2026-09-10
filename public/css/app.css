@@ -2801,7 +2801,7 @@ body {
   text-align: left;
   padding: 0.85rem 1rem;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.75rem;
   cursor: pointer;
@@ -3024,16 +3024,6 @@ body {
   .leaderboard-page__load-more--prev,
   .leaderboard-page__load-more--next {
     justify-self: stretch;
-  }
-
-  .leaderboard-row {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-  }
-
-  .leaderboard-row__tiers {
-    grid-column: 1 / -1;
-    justify-content: flex-start;
-    padding-left: calc(3ch + 0.7rem + 40px);
   }
 }
 

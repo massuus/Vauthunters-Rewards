@@ -86,7 +86,7 @@ async function copyPublicAssets() {
   await processCss();
 
   // Files to copy (non-JS and non-CSS files)
-  const filesToCopy = ['_headers', '_routes.json', 'manifest.json'];
+  const filesToCopy = ['_headers', '_routes.json', 'manifest.json', '404.html'];
 
   // Copy files
   for (const file of filesToCopy) {

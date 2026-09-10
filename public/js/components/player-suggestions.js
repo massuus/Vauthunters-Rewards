@@ -2,7 +2,7 @@ import { getRecentUsers } from '../utils/storage-manager.js';
 
 export function rankPlayerSuggestions(query, players) {
   const needle = query.trim().toLowerCase();
-  const unique = new Map();
+  const candidates = [];
   const terms = (player) =>
     [player.name, player.minecraftName, player.twitchName, player.alias]
       .filter(Boolean)
@@ -10,20 +10,35 @@ export function rankPlayerSuggestions(query, players) {
   for (const player of players) {
     const name = String(player?.name || '').trim();
     const searchValue = String(player?.searchValue || name);
-    const key = searchValue.toLowerCase();
     if (
       /^(?:[a-z0-9_]{3,16}|twitch:[a-z0-9_]{1,25})$/i.test(searchValue) &&
-      terms(player).some((value) => value.includes(needle)) &&
-      !unique.has(key)
+      terms(player).some((value) => value.includes(needle))
     ) {
-      unique.set(key, { ...player, name });
+      candidates.push({ ...player, name });
     }
   }
   const score = (player) =>
     Math.min(
       ...terms(player).map((value) => (value === needle ? 0 : value.startsWith(needle) ? 1 : 2))
     );
-  return [...unique.values()]
+  // Prefer resolved leaderboard identities over unlinked records and recent searches.
+  candidates.sort(
+    (a, b) =>
+      Number(Boolean(b.minecraftName)) - Number(Boolean(a.minecraftName)) ||
+      Number(Boolean(b.searchValue)) - Number(Boolean(a.searchValue))
+  );
+  const seen = new Set();
+  const unique = candidates.filter((player) => {
+    const keys = [
+      `name:${player.name.toLowerCase()}`,
+      `lookup:${(player.searchValue || player.name).toLowerCase()}`,
+    ];
+    if (player.twitchName) keys.push(`twitch:${player.twitchName.toLowerCase()}`);
+    const duplicate = keys.some((key) => seen.has(key));
+    keys.forEach((key) => seen.add(key));
+    return !duplicate;
+  });
+  return unique
     .sort((a, b) => score(a) - score(b) || a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
     .slice(0, 6);
 }
@@ -40,6 +55,7 @@ export function initPlayerSuggestions() {
   let revision = 0;
   let players = [];
   let active = -1;
+  let pointerSelecting = false;
   const cache = new Map();
 
   function close() {
@@ -48,6 +64,7 @@ export function initPlayerSuggestions() {
     revision += 1;
     players = [];
     active = -1;
+    pointerSelecting = false;
     list.hidden = true;
     input.setAttribute('aria-expanded', 'false');
     input.removeAttribute('aria-activedescendant');
@@ -91,8 +108,47 @@ export function initPlayerSuggestions() {
       name.textContent = player.name;
       option.append(head);
       option.append(name);
-      option.addEventListener('pointerdown', (event) => event.preventDefault());
-      option.addEventListener('click', () => choose(index));
+      let touchStart = null;
+      let moved = false;
+      option.addEventListener('pointerdown', (event) => {
+        if (event.pointerType === 'mouse') {
+          event.preventDefault();
+          return;
+        }
+        touchStart = { x: event.clientX, y: event.clientY };
+        moved = false;
+        pointerSelecting = true;
+      });
+      option.addEventListener('pointermove', (event) => {
+        if (
+          touchStart &&
+          Math.hypot(event.clientX - touchStart.x, event.clientY - touchStart.y) > 10
+        ) {
+          moved = true;
+        }
+      });
+      option.addEventListener('pointerup', (event) => {
+        if (!touchStart) return;
+        const isTap =
+          !moved && Math.hypot(event.clientX - touchStart.x, event.clientY - touchStart.y) <= 10;
+        touchStart = null;
+        pointerSelecting = false;
+        if (isTap && !list.hidden) {
+          event.preventDefault();
+          choose(index);
+        } else if (document.activeElement !== input) {
+          close();
+        }
+      });
+      option.addEventListener('pointercancel', () => {
+        touchStart = null;
+        moved = true;
+        pointerSelecting = false;
+        if (document.activeElement !== input) close();
+      });
+      option.addEventListener('click', () => {
+        if (!moved && !list.hidden) choose(index);
+      });
       list.append(option);
     });
     list.hidden = !players.length;
@@ -145,7 +201,9 @@ export function initPlayerSuggestions() {
   input.addEventListener('compositionstart', close);
   input.addEventListener('compositionend', update);
   input.addEventListener('focus', update);
-  input.addEventListener('blur', close);
+  input.addEventListener('blur', () => {
+    if (!pointerSelecting) close();
+  });
   form.addEventListener('submit', close);
   input.addEventListener('keydown', (event) => {
     if (event.isComposing) return;

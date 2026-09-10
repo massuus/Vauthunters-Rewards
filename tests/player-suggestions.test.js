@@ -32,6 +32,29 @@ test('suggestions are bounded and treat underscores literally', () => {
   assert.deepEqual(rankPlayerSuggestions('unknown', [{ name: 'KnownPlayer' }]), []);
 });
 
+test('merges linked and unlinked Twitch records and case variants from recent searches', () => {
+  const linked = {
+    name: 'YoMummaClaire',
+    searchValue: 'YoMummaClaire',
+    minecraftName: 'YoMummaClaire',
+    twitchName: 'yomummaclaire',
+  };
+  const unlinked = {
+    name: 'YoMummaClaire',
+    searchValue: 'twitch:yomummaclaire',
+    twitchName: 'yomummaclaire',
+  };
+  assert.deepEqual(rankPlayerSuggestions('yom', [unlinked, linked, { name: 'YOMUMMACLAIRE' }]), [
+    linked,
+  ]);
+  const twitch = {
+    name: 'masato_gaming',
+    searchValue: 'twitch:masato_gaming',
+    twitchName: 'masato_gaming',
+  };
+  assert.deepEqual(rankPlayerSuggestions('masa', [{ name: 'Masato_Gaming' }, twitch]), [twitch]);
+});
+
 test('matches companion aliases and Twitch names while keeping the correct lookup identity', () => {
   const companion = {
     name: 'Vault Friend',
@@ -196,6 +219,37 @@ test('dropdown preserves normal Enter, supports selection, and ignores stale res
   );
   list.children[0].dispatchEvent(new Event('click'));
   assert.deepEqual(submitted, ['Massuus', 'NewPlayer']);
+
+  const pointer = (target, type, y = 10) => {
+    const event = new Event(type, { cancelable: true });
+    Object.assign(event, { pointerType: 'touch', clientX: 10, clientY: y });
+    target.dispatchEvent(event);
+  };
+  type('touch');
+  await respond(pending.shift(), ['TouchPlayer']);
+  const touchOption = list.children[0];
+  pointer(touchOption, 'pointerdown');
+  globalThis.document.activeElement = null;
+  input.dispatchEvent(new Event('blur'));
+  assert.equal(list.hidden, false, 'keep suggestion available through touch blur');
+  pointer(touchOption, 'pointerup');
+  touchOption.dispatchEvent(new Event('click'));
+  assert.deepEqual(submitted, ['Massuus', 'NewPlayer', 'TouchPlayer'], 'tap submits exactly once');
+  assert.equal(list.hidden, true);
+  globalThis.document.activeElement = input;
+
+  type('scroll');
+  await respond(pending.shift(), ['ScrollPlayer']);
+  const scrollOption = list.children[0];
+  pointer(scrollOption, 'pointerdown');
+  pointer(scrollOption, 'pointermove', 50);
+  pointer(scrollOption, 'pointerup', 50);
+  scrollOption.dispatchEvent(new Event('click'));
+  assert.equal(submitted.length, 3, 'scrolling must not select a player');
+  pointer(scrollOption, 'pointerdown');
+  pointer(scrollOption, 'pointercancel');
+  scrollOption.dispatchEvent(new Event('click'));
+  assert.equal(submitted.length, 3, 'cancelled touches must not select a player');
 
   type('nobody');
   await respond(pending.shift(), []);

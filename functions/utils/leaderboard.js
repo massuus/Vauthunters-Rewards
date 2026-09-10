@@ -381,14 +381,26 @@ export async function searchKnownPlayers(env, query) {
         FROM identities
         WHERE instr(lower(name), ?1) > 0 OR instr(lower(minecraftName), ?1) > 0
           OR instr(lower(twitchName), ?1) > 0 OR instr(lower(alias), ?1) > 0
+      ), twitch_deduplicated AS (
+        SELECT *, ROW_NUMBER() OVER (
+          PARTITION BY lower(CASE WHEN twitchName <> '' THEN 'twitch:' || twitchName ELSE searchValue END)
+          ORDER BY (minecraftName <> '') DESC, score, name COLLATE NOCASE, avatar
+        ) AS twitchRow
+        FROM matched
       ), deduplicated AS (
         SELECT *, ROW_NUMBER() OVER (
           PARTITION BY lower(searchValue) ORDER BY score, name COLLATE NOCASE, avatar
         ) AS identityRow
-        FROM matched
+        FROM twitch_deduplicated WHERE twitchRow = 1
+      ), display_deduplicated AS (
+        SELECT *, ROW_NUMBER() OVER (
+          PARTITION BY lower(name)
+          ORDER BY (minecraftName <> '') DESC, score, searchValue
+        ) AS displayRow
+        FROM deduplicated WHERE identityRow = 1
       )
       SELECT name, searchValue, avatar, minecraftName, twitchName, alias
-      FROM deduplicated WHERE identityRow = 1
+      FROM display_deduplicated WHERE displayRow = 1
       ORDER BY score, name COLLATE NOCASE
       LIMIT 6
     `
