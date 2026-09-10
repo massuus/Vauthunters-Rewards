@@ -2,8 +2,24 @@ import { fetchJson } from '../utils/fetch-utils.js';
 import { REWARDS_API_TIMEOUT, getRewardsAuthHeaders } from '../utils/config.js';
 
 const REWARDS_SETS_URL = 'https://rewards.vaulthunters.gg/rewards/sets/all';
+const SETS_CACHE_TTL_SECONDS = 3600;
 
-export async function onRequest({ env }) {
+function getDefaultCache() {
+  try {
+    return caches.default;
+  } catch {
+    return null;
+  }
+}
+
+export async function onRequest({ request, env }) {
+  const cache = getDefaultCache();
+  const cacheRequest = new Request(new URL(request.url).toString(), { method: 'GET' });
+  if (cache) {
+    const cached = await cache.match(cacheRequest);
+    if (cached) return cached;
+  }
+
   try {
     const headers = getRewardsAuthHeaders(env);
 
@@ -31,7 +47,11 @@ export async function onRequest({ env }) {
       }))
       .filter((item) => typeof item.id === 'string' && item.id.length > 0);
 
-    return json(minimal);
+    const response = json(minimal, 200, {
+      'cache-control': `public, max-age=${SETS_CACHE_TTL_SECONDS}, s-maxage=${SETS_CACHE_TTL_SECONDS}`,
+    });
+    if (cache) await cache.put(cacheRequest, response.clone());
+    return response;
   } catch (error) {
     const status = typeof error?.status === 'number' ? error.status : 500;
     return json(
@@ -47,11 +67,12 @@ export async function onRequest({ env }) {
   }
 }
 
-function json(body, status = 200) {
+function json(body, status = 200, headers = {}) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
       'content-type': 'application/json; charset=utf-8',
+      ...headers,
     },
   });
 }

@@ -42,6 +42,8 @@ const SET_ALIASES = {
   i85_server_bingo: 'i85_server_bingos',
   i85_servers_bingo: 'i85_server_bingos',
 };
+const PROFILE_BROWSER_CACHE_TTL_SECONDS = 30;
+const PROFILE_EDGE_CACHE_TTL_SECONDS = 120;
 
 let setArtKeyCache = {
   data: null,
@@ -57,6 +59,24 @@ let iskallTierListCache = {
 
 function badRequest(message) {
   return json({ error: message }, 400);
+}
+
+function getDefaultCache() {
+  try {
+    return caches.default;
+  } catch {
+    return null;
+  }
+}
+
+function shouldUseProfileCache(request, url) {
+  return (
+    !url.searchParams.has('mock') &&
+    !url.searchParams.has('bust') &&
+    !String(request.headers.get('cache-control') || '')
+      .toLowerCase()
+      .includes('no-cache')
+  );
 }
 
 export async function onRequest({ request, env, waitUntil }) {
@@ -83,6 +103,14 @@ export async function onRequest({ request, env, waitUntil }) {
   }
   if (twitchUsername && !TWITCH_USERNAME_REGEX.test(normalizedTwitchUsername)) {
     return badRequest('Invalid Twitch username.');
+  }
+
+  const useProfileCache = shouldUseProfileCache(request, url);
+  const cache = getDefaultCache();
+  const cacheRequest = new Request(url.toString(), { method: 'GET' });
+  if (useProfileCache && cache) {
+    const cached = await cache.match(cacheRequest);
+    if (cached) return cached;
   }
 
   const requestedProfileOverride = getProfileOverride(normalizedUsername);
@@ -199,18 +227,28 @@ export async function onRequest({ request, env, waitUntil }) {
       return [];
     });
 
-    return json({
-      id: rawId,
-      name,
-      head,
-      rewards,
-      sets: unlockedSets,
-      tier,
-      iskall85Tier,
-      leaderboardPlace,
-      twitchUsername: normalizedTwitchUsername || undefined,
-      companionStats,
-    });
+    const response = json(
+      {
+        id: rawId,
+        name,
+        head,
+        rewards,
+        sets: unlockedSets,
+        tier,
+        iskall85Tier,
+        leaderboardPlace,
+        twitchUsername: normalizedTwitchUsername || undefined,
+        companionStats,
+      },
+      200,
+      {
+        'cache-control': `public, max-age=${PROFILE_BROWSER_CACHE_TTL_SECONDS}, s-maxage=${PROFILE_EDGE_CACHE_TTL_SECONDS}, stale-while-revalidate=${PROFILE_EDGE_CACHE_TTL_SECONDS}`,
+      }
+    );
+    if (useProfileCache && cache) {
+      await cache.put(cacheRequest, response.clone());
+    }
+    return response;
   } catch (error) {
     console.error('Profile lookup error', {
       username: normalizedTwitchUsername || normalizedUsername,
@@ -570,11 +608,12 @@ async function syncLeaderboardEntry({
   return writePromise;
 }
 
-function json(body, status = 200) {
+function json(body, status = 200, headers = {}) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
       'content-type': 'application/json; charset=utf-8',
+      ...headers,
     },
   });
 }

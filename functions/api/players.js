@@ -1,6 +1,17 @@
 import { searchKnownPlayers } from '../utils/leaderboard.js';
 import { apiRateLimiter, getRateLimitKey, rateLimitResponse } from '../utils/rate-limiter.js';
 
+const BROWSER_CACHE_TTL_SECONDS = 60;
+const EDGE_CACHE_TTL_SECONDS = 300;
+
+function getDefaultCache() {
+  try {
+    return caches.default;
+  } catch {
+    return null;
+  }
+}
+
 export async function onRequest({ request, env }) {
   if (request.method !== 'GET') {
     return Response.json(
@@ -18,14 +29,25 @@ export async function onRequest({ request, env }) {
   const key = `player-suggestions:${getRateLimitKey(request)}`;
   if (!apiRateLimiter.allow(key)) return rateLimitResponse(apiRateLimiter.getInfo(key));
 
+  const cache = getDefaultCache();
+  const cacheRequest = new Request(new URL(request.url).toString(), { method: 'GET' });
+  if (cache) {
+    const cached = await cache.match(cacheRequest);
+    if (cached) return cached;
+  }
+
   try {
     const players = await searchKnownPlayers(env, query);
-    return Response.json(
+    const response = Response.json(
       { players },
       {
-        headers: { 'cache-control': 'public, max-age=60' },
+        headers: {
+          'cache-control': `public, max-age=${BROWSER_CACHE_TTL_SECONDS}, s-maxage=${EDGE_CACHE_TTL_SECONDS}, stale-while-revalidate=${EDGE_CACHE_TTL_SECONDS}`,
+        },
       }
     );
+    if (cache) await cache.put(cacheRequest, response.clone());
+    return response;
   } catch (error) {
     console.error('Player suggestions failed', { message: error.message });
     return Response.json(

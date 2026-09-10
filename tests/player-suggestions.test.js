@@ -188,7 +188,7 @@ test('dropdown preserves normal Enter, supports selection, and ignores stale res
   const type = (value) => {
     input.value = value;
     input.dispatchEvent(new Event('input'));
-    t.mock.timers.tick(200);
+    t.mock.timers.tick(350);
   };
   const respond = async (resolve, names) => {
     resolve({ ok: true, json: async () => ({ players: names.map((name) => ({ name })) }) });

@@ -280,22 +280,23 @@ export async function getLeaderboardPlacement(env, { playerUUID, playerNickname 
   const result = await db
     .prepare(
       `
-        WITH ranked AS (
-          SELECT
-            RANK() OVER (ORDER BY sets_unlocked DESC) AS rank,
-            player_uuid,
-            player_name,
-            sets_unlocked,
-            vault_hunters_tier,
-            iskall85_tier,
-            updated_at
+        WITH target AS (
+          SELECT player_uuid, player_name, sets_unlocked
           FROM leaderboard_players
           WHERE sets_unlocked > 0
+            AND (player_uuid = ?1 OR LOWER(player_name) = LOWER(?2))
+          LIMIT 1
         )
-        SELECT *
-        FROM ranked
-        WHERE player_uuid = ?1 OR LOWER(player_name) = LOWER(?2)
-        LIMIT 1
+        SELECT
+          target.player_uuid,
+          target.player_name,
+          target.sets_unlocked,
+          1 + (
+            SELECT COUNT(1)
+            FROM leaderboard_players AS higher
+            WHERE higher.sets_unlocked > target.sets_unlocked
+          ) AS rank
+        FROM target
       `
     )
     .bind(safeUuid || safeName || '__missing__', safeName || safeUuid || '__missing__')

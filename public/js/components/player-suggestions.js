@@ -151,7 +151,7 @@ export function initPlayerSuggestions() {
       } finally {
         clearTimeout(timeout);
       }
-    }, 200);
+    }, 350);
   }
 
   input.addEventListener('input', (event) => {
