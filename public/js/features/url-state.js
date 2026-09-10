@@ -1,5 +1,7 @@
 // URL query string and state management
 
+import { syncActiveNavigation } from '../components/navigation.js';
+
 let lastFocusedElement = null;
 let modalKeydownHandler = null;
 
@@ -75,9 +77,11 @@ export function updateQueryString(username) {
   const path = window.location.pathname === '/' ? '' : window.location.pathname;
   if (!username) {
     window.history.replaceState({}, '', path || '/');
+    syncActiveNavigation();
     return;
   }
   window.history.replaceState({}, '', `${path}?${encodeURIComponent(username)}`);
+  syncActiveNavigation();
 }
 
 /**

@@ -25,6 +25,7 @@ import {
   teardownLeaderboardPage,
 } from '../components/special-pages.js';
 import { escapeHtml, formatLabel } from '../features/reward-utils.js';
+import { syncActiveNavigation } from '../components/navigation.js';
 import {
   fetchOfficialServers,
   getVisibleServers,
@@ -42,6 +43,7 @@ function updateQueryString(qs) {
   } else {
     window.history.replaceState({}, '', `${window.location.pathname}?${qs}`);
   }
+  syncActiveNavigation();
 }
 
 function scrollToResults() {

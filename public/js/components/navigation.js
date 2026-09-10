@@ -18,11 +18,7 @@ function getActiveRoute() {
   return 'home';
 }
 
-export function initNavigation() {
-  const navigation = document.getElementById('primary-navigation');
-  if (!navigation) return;
-
-  const toggle = navigation.querySelector('.site-nav__toggle');
+export function syncActiveNavigation() {
   const activeRoute = getActiveRoute();
   const routeLinks = document.querySelectorAll('[data-nav-route]');
 
@@ -33,6 +29,15 @@ export function initNavigation() {
       link.removeAttribute('aria-current');
     }
   });
+}
+
+export function initNavigation() {
+  const navigation = document.getElementById('primary-navigation');
+  if (!navigation) return;
+
+  const toggle = navigation.querySelector('.site-nav__toggle');
+  syncActiveNavigation();
+  window.addEventListener('popstate', syncActiveNavigation);
 
   const syncToggleState = () => {
     const isOpen = navigation.classList.contains('site-nav__menu--open');

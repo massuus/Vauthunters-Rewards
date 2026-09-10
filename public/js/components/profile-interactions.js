@@ -1,6 +1,7 @@
 import { resultContainer, usernameInput, form } from '../utils/dom-utils.js';
 import { copyShareLink } from '../utils/clipboard-utils.js';
 import { updateShareFeedback } from '../features/ui-feedback.js';
+import { syncActiveNavigation } from './navigation.js';
 
 let setCardCycleTimers = [];
 
@@ -30,6 +31,7 @@ export function bindLeaderboardLevelHandlers() {
           streamer: streamer.toLowerCase(),
         });
         window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+        syncActiveNavigation();
       }
 
       usernameInput.value = `leaderboard:${playerName}`;

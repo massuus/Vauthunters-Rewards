@@ -9,6 +9,7 @@ import {
   setMetaDescription,
   setFavicon,
 } from '../utils/dom-utils.js';
+import { syncActiveNavigation } from '../components/navigation.js';
 
 /**
  * Set the loading state of the search button
@@ -58,6 +59,7 @@ export function clearResult() {
   resultContainer.classList.add('hidden');
   // Clear query string
   window.history.replaceState({}, '', window.location.pathname);
+  syncActiveNavigation();
   // Close modal if open
   const modal = document.querySelector('dialog[open]');
   if (modal) {

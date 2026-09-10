@@ -30,6 +30,7 @@ import {
   bindLeaderboardLevelHandlers,
 } from './profile-interactions.js';
 import { clearLeaderboardCache } from '../features/leaderboard.js';
+import { syncActiveNavigation } from './navigation.js';
 
 let setsHelpTemplate = '';
 
@@ -163,6 +164,7 @@ export async function renderProfile(data) {
     '',
     `${window.location.pathname}?user=${encodeURIComponent(data.name)}`
   );
+  syncActiveNavigation();
 
   bindShareButton();
   bindServerLinkHandlers();
