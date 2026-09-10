@@ -13,6 +13,7 @@ import { initPWAInstall } from '../features/pwa-install.js';
 import { initRewardCodesPopup } from '../components/reward-codes-popup.js';
 import { initPressFeedback } from '../features/press-feedback.js';
 import { initNavigation } from '../components/navigation.js';
+import { initPlayerSuggestions } from '../components/player-suggestions.js';
 
 /**
  * Initialize the application
@@ -20,6 +21,10 @@ import { initNavigation } from '../components/navigation.js';
 async function initializeApp() {
   // Initialize global error handlers first
   initializeErrorHandlers();
+
+  // Search should be usable immediately, even while templates are loading.
+  initializeSearch();
+  initPlayerSuggestions();
 
   // Preload commonly used templates
   try {
@@ -34,9 +39,6 @@ async function initializeApp() {
   } catch (error) {
     logger.error('Error preloading templates', { error: error.message, stack: error.stack });
   }
-
-  // Initialize search form handling
-  initializeSearch();
 
   // Mark the current page and enable the responsive navigation menu
   initNavigation();

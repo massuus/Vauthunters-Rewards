@@ -141,11 +141,6 @@ function renderRow(player, state) {
              ? `<small class="leaderboard-row__minecraft">Minecraft: ${state.escapeHtml(player.minecraftName)}</small>`
              : ''
          }
-         ${
-           player.skinName
-             ? `<small class="leaderboard-row__skin">Selected skin: ${state.escapeHtml(player.skinName)}</small>`
-             : ''
-         }
        </span>`
     : '';
   const stats =

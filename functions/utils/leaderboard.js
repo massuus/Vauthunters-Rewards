@@ -1,4 +1,5 @@
 import { fetchJson, fetchWithRetry } from './fetch-utils.js';
+import { ensureCompanionLeaderboardSchema } from './companion-leaderboard.js';
 import {
   ARMORY_API_TIMEOUT,
   ARMORY_PLAYER_SEARCH_URL,
@@ -351,6 +352,50 @@ export function parseLeaderboardPageParams(
     offset: clampInt(requestedOffset, 0, 0, MAX_OFFSET),
     targetPlayer,
   };
+}
+
+export async function searchKnownPlayers(env, query) {
+  if (!isLeaderboardEnabled(env)) return [];
+  await ensureLeaderboardSchema(env);
+  await ensureCompanionLeaderboardSchema(env);
+  const { results = [] } = await getLeaderboardDb(env)
+    .prepare(
+      `
+      WITH identities AS (
+        SELECT player_name AS name, player_name AS searchValue,
+          player_uuid AS avatar, player_name AS minecraftName,
+          '' AS twitchName, '' AS alias
+        FROM leaderboard_players
+        UNION ALL
+        SELECT COALESCE(NULLIF(alias, ''), NULLIF(minecraft_name, ''), twitch_name),
+          COALESCE(NULLIF(minecraft_name, ''), 'twitch:' || twitch_name),
+          COALESCE(NULLIF(minecraft_uuid, ''), NULLIF(minecraft_name, ''), player_name),
+          COALESCE(minecraft_name, ''), twitch_name, COALESCE(alias, '')
+        FROM companion_leaderboard_players
+      ), matched AS (
+        SELECT *, CASE
+          WHEN ?1 IN (lower(name), lower(minecraftName), lower(twitchName), lower(alias)) THEN 0
+          WHEN instr(lower(name), ?1) = 1 OR instr(lower(minecraftName), ?1) = 1
+            OR instr(lower(twitchName), ?1) = 1 OR instr(lower(alias), ?1) = 1 THEN 1
+          ELSE 2 END AS score
+        FROM identities
+        WHERE instr(lower(name), ?1) > 0 OR instr(lower(minecraftName), ?1) > 0
+          OR instr(lower(twitchName), ?1) > 0 OR instr(lower(alias), ?1) > 0
+      ), deduplicated AS (
+        SELECT *, ROW_NUMBER() OVER (
+          PARTITION BY lower(searchValue) ORDER BY score, name COLLATE NOCASE, avatar
+        ) AS identityRow
+        FROM matched
+      )
+      SELECT name, searchValue, avatar, minecraftName, twitchName, alias
+      FROM deduplicated WHERE identityRow = 1
+      ORDER BY score, name COLLATE NOCASE
+      LIMIT 6
+    `
+    )
+    .bind(query.toLowerCase())
+    .all();
+  return results;
 }
 
 export async function getLeaderboardPage(

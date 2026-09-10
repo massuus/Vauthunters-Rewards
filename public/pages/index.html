@@ -180,16 +180,38 @@
         <section class="search">
           <form id="search-form" class="search__form">
             <label for="username" class="sr-only">Minecraft Username</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              placeholder="Enter Minecraft username"
-              autocomplete="off"
-              required
-            />
+            <div class="search__field">
+              <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter Minecraft username"
+                autocomplete="off"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded="false"
+                aria-controls="player-suggestions"
+                aria-describedby="player-suggestions-status"
+                spellcheck="false"
+                autocapitalize="none"
+                required
+              />
+              <div
+                id="player-suggestions"
+                class="search__suggestions"
+                role="listbox"
+                aria-label="Known players"
+                hidden
+              ></div>
+            </div>
             <button type="submit">Search</button>
           </form>
+          <p
+            id="player-suggestions-status"
+            class="search__suggestions-status"
+            role="status"
+            aria-live="polite"
+          ></p>
           <p id="feedback" class="feedback" role="status" hidden></p>
           <div id="recent" class="recent hidden" aria-label="Recent Searches"></div>
         </section>
