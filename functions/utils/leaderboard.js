@@ -372,6 +372,7 @@ export async function searchKnownPlayers(env, query) {
           COALESCE(NULLIF(minecraft_uuid, ''), NULLIF(minecraft_name, ''), player_name),
           COALESCE(minecraft_name, ''), twitch_name, COALESCE(alias, '')
         FROM companion_leaderboard_players
+        WHERE NULLIF(minecraft_name, '') IS NOT NULL
       ), matched AS (
         SELECT *, CASE
           WHEN ?1 IN (lower(name), lower(minecraftName), lower(twitchName), lower(alias)) THEN 0

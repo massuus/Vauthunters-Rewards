@@ -125,6 +125,7 @@ test('known-player query uses a bound literal and includes players with no unloc
   assert.deepEqual(await searchKnownPlayers(env, 'MASS_'), [{ name: 'Mass_uus' }]);
   assert.equal(bound, 'mass_');
   assert.match(query, /FROM companion_leaderboard_players/);
+  assert.match(query, /WHERE NULLIF\(minecraft_name, ''\) IS NOT NULL/);
   assert.match(query, /instr\(lower\(twitchName\), \?1\)/);
   assert.doesNotMatch(query, /sets_unlocked\s*>/);
 });
