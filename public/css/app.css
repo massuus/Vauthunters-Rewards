@@ -2487,6 +2487,7 @@ body {
   .result {
     padding: 1.5rem;
     overflow-x: clip;
+    scroll-margin-top: 5.5rem;
   }
 
   .codes-grid {
@@ -3246,15 +3247,11 @@ body {
 
   .leaderboard-row {
     display: grid;
-    grid-template-columns: auto auto;
-    grid-template-areas:
-      'avatar avatar'
-      'rank name'
-      'sets tiers';
+    grid-template-columns: minmax(0, 1fr);
     justify-content: center;
     align-items: center;
     justify-items: center;
-    gap: 0.35rem 0.3rem;
+    gap: 0.55rem;
     text-align: center;
     padding: 2.2rem 1rem 1rem;
     border-radius: 22px;
@@ -3267,8 +3264,13 @@ body {
     display: contents;
   }
 
+  .leaderboard-row__identity-copy {
+    display: contents;
+  }
+
   .leaderboard-row__identity img {
-    grid-area: avatar;
+    grid-area: auto;
+    grid-column: 1;
     justify-self: center;
     width: 82px;
     height: 82px;
@@ -3280,7 +3282,6 @@ body {
   }
 
   .leaderboard-row__rank {
-    grid-area: rank;
     justify-self: center;
     min-width: 0;
     padding-left: 0.5rem;
@@ -3288,7 +3289,8 @@ body {
   }
 
   .leaderboard-row__name {
-    grid-area: name;
+    grid-area: auto;
+    grid-column: 1;
     justify-self: center;
     min-width: 0;
     white-space: normal;
@@ -3319,18 +3321,26 @@ body {
   }
 
   .leaderboard-row__sets {
-    grid-area: sets;
     justify-self: center;
     font-size: 0.92rem;
   }
 
   .leaderboard-row__meta {
-    grid-area: tiers;
+    grid-area: auto;
+    grid-column: 1;
     display: flex;
+    flex-direction: column;
     flex-wrap: wrap;
+    align-items: center;
     justify-content: center;
     justify-self: center;
     width: 100%;
+  }
+
+  .leaderboard-row__identity-details {
+    grid-column: 1;
+    justify-content: center;
+    text-align: center;
   }
 
   .leaderboard-row__tiers {

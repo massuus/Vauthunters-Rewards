@@ -252,9 +252,10 @@
   .leaderboard-admin__form--manual .leaderboard-admin__button {
     grid-column: auto;
   }
+}
 
+@media (max-width: 640px) {
   .leaderboard-row--companion .leaderboard-row__meta {
-    grid-area: sets;
-    grid-column: 1 / -1;
+    flex-direction: row;
   }
 }
