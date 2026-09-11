@@ -2,6 +2,7 @@ import {
   form,
   usernameInput,
   resultContainer,
+  recentContainer,
   DEFAULT_FAVICON,
   setFavicon,
   setMetaDescription,
@@ -138,6 +139,10 @@ export async function handleSpecialPageSearch(username) {
 
   if (isLeaderboardQuery(username)) {
     const targetPlayer = getLeaderboardQueryTarget(username);
+    // The home preview contains the same leading rows as the full unlock
+    // leaderboard. Remove it before rendering the full view to avoid duplicates.
+    recentContainer?.classList.add('hidden');
+    if (recentContainer) recentContainer.innerHTML = '';
     setLoadingState(true);
     try {
       await renderLeaderboardPage(
