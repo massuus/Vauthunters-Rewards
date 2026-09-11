@@ -88,7 +88,108 @@ database_id = "<your-d1-database-id>"
 
 - `LEADERBOARD_SYNC_TOKEN` = a long random value
 
-The schema is created automatically by the functions on first leaderboard read/write.
+The base schema is created automatically by the functions on first leaderboard read/write.
+Apply checked-in migrations before deploying updates so the companion identity columns and
+optimized page indexes are present:
+
+```bash
+npm run db:migrate:remote
+npm run deploy
+```
+
+For the initial snapshot rollout, follow the publisher setup below **before** deploying Pages.
+
+Without an R2 snapshot binding, migration `0004_companion_page_indexes.sql` adds indexes for both companion sort orders.
+Companion pages select at most 50 players before calculating ranks, count higher scores once
+per page, and reuse the streamer summary instead of running a separate player count.
+The public leaderboard uses canonical cache keys: extra query parameters, `refresh`, and
+request `Cache-Control: no-cache` do not bypass the shared five-minute edge cache.
+Streamer summaries are also cached for five minutes across pages and metrics. Player updates
+can take five minutes to appear; totals and streamer update timestamps can lag by up to ten
+minutes because summaries can be included in a subsequently cached page. Cache entries are
+local to each Cloudflare data center and may be evicted, so this reduces database usage but
+does not enforce a hard daily read budget.
+
+After deployment, compare D1 `rows_read` for the companion page query and the streamer summary
+over comparable traffic periods. The SQLite query regression test in
+`tests/leaderboard-db-budget.test.js` runs on Node 22+; on Node 20 it is skipped, while the cache
+regression test still runs.
+
+Migration `0005_unlock_page_indexes.sql` applies the same page-first ranking strategy
+to the unlocked-sets leaderboard and indexes case-insensitive placement lookups.
+Unlock totals are cached across pages for five minutes, with the same potential ten-minute
+lag for totals included in cached pages. Search suggestions share cache entries across
+capitalization, surrounding whitespace, and unrelated query parameters. Profiles do the
+same with a two-minute edge cache; `bust` and request `no-cache` no longer bypass it.
+Mock profiles remain separate from the real profile cache.
+
+Repeated imports and profile views no longer rewrite unchanged player stats or Minecraft
+identities. `updated_at` and `source` now describe the last actual data change, rather than
+the last view or identical import. Armory sync reports unchanged records separately from
+`upserted`. The additional SQLite write/ranking checks in
+`tests/extra-db-optimizations.test.js` also require Node 22+.
+
+### Leaderboard snapshots
+
+Production public leaderboard pages use the private `LEADERBOARD_SNAPSHOTS` R2 binding.
+They read a small manifest and the required 250-player chunk(s), with shared edge caching.
+Target-player lookups use a saved name-to-position index and keep the actual player visible
+even inside a large tied rank. Public browsing never queries D1 when this binding is present.
+Profile lookups and autocomplete still use their existing cached D1 paths.
+
+A scheduled publisher runs every 15 minutes and delegates the rebuild to one SQLite-backed
+Durable Object. This coordinates rebuilds and avoids the Workers Free cron CPU limit.
+Migration `0006_leaderboard_snapshot_revision.sql` maintains a one-row revision counter via
+insert/update/delete triggers, including direct SQL imports. Unchanged ticks read only that
+row from D1. Changed ticks export the two player tables once in a transaction and generate
+all rankings in memory. Each changed player write adds a revision-counter update.
+
+New chunks are uploaded before the manifest is replaced using an R2 ETag precondition.
+Failed or overlapping publications cannot replace the last completed version. Cleanup
+removes up to 1,000 obsolete objects older than a day per tick and always preserves the
+active snapshot. Do not add a blanket bucket expiry rule: the last good snapshot must
+survive long periods with no changes or database outages.
+
+The page shows when its data was generated. Normal update visibility is approximately
+15–25 minutes, including caches. During publisher failures it continues showing the last
+successful snapshot, which can be older. Missing snapshots return a retryable 503 rather
+than sending every visitor back to D1. Removing the Pages R2 binding restores the optimized
+SQL path if an explicit rollback is necessary.
+
+Initial production setup (bucket creation is needed only once):
+
+```bash
+npx --yes wrangler@4.131.0 r2 bucket create vauthunters-leaderboard-snapshots
+npm run db:migrate:remote
+npm run snapshots:deploy
+```
+
+Wait for the first scheduled run and verify the manifest exists before deploying Pages:
+
+```bash
+npx --yes wrangler@4.131.0 r2 object get vauthunters-leaderboard-snapshots/leaderboards/v1/current.json --remote --file .wrangler/snapshot-manifest.json
+npm run deploy
+```
+
+The publisher uses Wrangler 4.131.0 for its newer compatibility date. It exposes no public
+HTTP endpoint. Inspect its logs with:
+
+```bash
+npx --yes wrangler@4.131.0 tail --config workers/leaderboard-snapshots/wrangler.jsonc
+```
+
+For local testing, apply migrations with `npm run db:migrate:local`, run `npm run snapshots:dev`,
+and request its local `/__scheduled` URL. Use the same absolute `--persist-to` directory for
+the migration commands, publisher, and Pages dev process when running both together.
+`tests/leaderboard-snapshots.test.js` checks ranking parity, chunk boundaries, focus lookup,
+revision triggers, idle ticks, failed publication, conditional writes, and safe cleanup.
+Its SQLite coverage requires Node 22+; snapshot-reader and R2 failure tests also run on Node 20.
+
+The publisher rejects exports over 50,000 rows per table or 700 output objects, keeping the
+previous snapshot and reporting an error instead of doing unbounded work. Review those
+limits and the 15-minute schedule if the dataset grows substantially. Savings shift work
+from per-visitor D1 reads to periodic export reads, R2 operations, and brief publisher runs;
+these services retain their own usage limits.
 
 ### Mining clues setup
 

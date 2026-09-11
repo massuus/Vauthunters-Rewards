@@ -170,7 +170,7 @@ function getWindowOffset(rank, limit) {
   return Math.max(0, Math.max(1, Number(rank || 1)) - above - 1);
 }
 
-export async function getCompanionLeaderboardPage(env, params) {
+export async function getCompanionLeaderboardPage(env, params, options = {}) {
   const db = requireDb(env);
   await ensureCompanionLeaderboardSchema(env);
 
@@ -210,40 +210,34 @@ export async function getCompanionLeaderboardPage(env, params) {
   }
 
   const resolvedOffset = targetRow ? getWindowOffset(targetRow.rank, limit) : offset;
-  const [totalRow, result, streamersResult] = await db.batch([
+  // Materialize the small page before ranking. Count the rows above its first
+  // score once, then use RANK within the page (including ties across pages).
+  const [result, streamers] = await Promise.all([
     db
       .prepare(
-        'SELECT COUNT(1) AS total FROM companion_leaderboard_players WHERE streamer_login = ?'
+        `WITH page AS MATERIALIZED (
+        SELECT * FROM companion_leaderboard_players
+        WHERE streamer_login = ?1
+        ORDER BY ${column} DESC, ${secondaryColumn} DESC,
+          COALESCE(alias, twitch_name) COLLATE NOCASE ASC, twitch_name ASC
+        LIMIT ?2 OFFSET ?3
       )
-      .bind(streamer),
-    db
-      .prepare(
-        `SELECT
-          player.twitch_name, player.player_name, player.alias,
-          player.minecraft_uuid, player.minecraft_name,
-          player.season_level, player.vaults_joined, player.updated_at,
-          1 + (
-            SELECT COUNT(1)
-            FROM companion_leaderboard_players AS higher
-            WHERE higher.streamer_login = player.streamer_login
-              AND higher.${column} > player.${column}
-          ) AS rank
-        FROM companion_leaderboard_players AS player
-        WHERE player.streamer_login = ?1
-        ORDER BY player.${column} DESC, player.${secondaryColumn} DESC,
-          COALESCE(player.alias, player.twitch_name) COLLATE NOCASE ASC
-        LIMIT ?2 OFFSET ?3`
+      SELECT player.*,
+        CASE WHEN player.${column} = (SELECT MAX(${column}) FROM page) THEN 1 + (
+          SELECT COUNT(1) FROM companion_leaderboard_players AS higher
+          WHERE higher.streamer_login = ?1
+            AND higher.${column} > (SELECT MAX(${column}) FROM page)
+        ) ELSE ?3 + RANK() OVER (ORDER BY player.${column} DESC) END AS rank
+      FROM page AS player
+      ORDER BY player.${column} DESC, player.${secondaryColumn} DESC,
+        COALESCE(player.alias, player.twitch_name) COLLATE NOCASE ASC, player.twitch_name ASC`
       )
-      .bind(streamer, limit, resolvedOffset),
-    db.prepare(
-      `SELECT streamer_login, COUNT(1) AS player_count, MAX(updated_at) AS updated_at
-       FROM companion_leaderboard_players
-       GROUP BY streamer_login
-       ORDER BY streamer_login COLLATE NOCASE ASC`
-    ),
+      .bind(streamer, limit, resolvedOffset)
+      .all(),
+    options.loadStreamers ? options.loadStreamers() : getCompanionLeaderboardStreamers(env),
   ]);
 
-  const total = Number(totalRow?.results?.[0]?.total || 0);
+  const total = streamers.find((entry) => entry.login === streamer)?.playerCount || 0;
   const players = (result?.results || []).map(mapRow);
   const nextOffset = resolvedOffset + players.length;
 
@@ -257,12 +251,25 @@ export async function getCompanionLeaderboardPage(env, params) {
     hasMore: nextOffset < total,
     players,
     focusPlayer: targetRow ? mapRow(targetRow) : null,
-    streamers: (streamersResult?.results || []).map((row) => ({
-      login: String(row.streamer_login || ''),
-      playerCount: Math.max(0, Number(row.player_count || 0)),
-      updatedAt: row.updated_at ? String(row.updated_at) : null,
-    })),
+    streamers,
   };
+}
+
+export async function getCompanionLeaderboardStreamers(env) {
+  await ensureCompanionLeaderboardSchema(env);
+  const result = await requireDb(env)
+    .prepare(
+      `SELECT streamer_login, COUNT(1) AS player_count, MAX(updated_at) AS updated_at
+     FROM companion_leaderboard_players
+     GROUP BY streamer_login
+     ORDER BY streamer_login COLLATE NOCASE ASC`
+    )
+    .all();
+  return (result?.results || []).map((row) => ({
+    login: String(row.streamer_login || ''),
+    playerCount: Math.max(0, Number(row.player_count || 0)),
+    updatedAt: row.updated_at ? String(row.updated_at) : null,
+  }));
 }
 
 function normalizeUuid(value) {
@@ -330,7 +337,8 @@ export async function updateCompanionMinecraftIdentity(
     .prepare(
       `UPDATE companion_leaderboard_players
        SET minecraft_uuid = ?1, minecraft_name = ?2, updated_at = ?3
-       WHERE twitch_name = ?4`
+       WHERE twitch_name = ?4
+         AND (minecraft_uuid IS NOT ?1 OR minecraft_name IS NOT ?2)`
     )
     .bind(minecraftUUID, minecraftName, new Date().toISOString(), twitchName)
     .run();
@@ -442,7 +450,9 @@ export async function resolveCompanionMinecraftIdentities(
   const storedResults = await Promise.all(
     identities.map((identity) => updateCompanionMinecraftIdentity(env, identity))
   );
-  const storedCount = storedResults.filter((result) => result.updated).length;
+  const storedCount = storedResults.filter(
+    (result, index) => result.updated || identities[index].status === 'existing'
+  ).length;
   const existing = identities.filter((identity) => identity.status === 'existing').length;
   const resolved = identities.length - existing;
 
@@ -508,7 +518,11 @@ export async function upsertCompanionPlayers(
           season_level = excluded.season_level,
           vaults_joined = excluded.vaults_joined,
           source = excluded.source,
-          updated_at = excluded.updated_at`
+          updated_at = excluded.updated_at
+        WHERE companion_leaderboard_players.player_name IS NOT excluded.player_name
+           OR companion_leaderboard_players.alias IS NOT excluded.alias
+           OR companion_leaderboard_players.season_level IS NOT excluded.season_level
+           OR companion_leaderboard_players.vaults_joined IS NOT excluded.vaults_joined`
       )
       .bind(
         streamer,

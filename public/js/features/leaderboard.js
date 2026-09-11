@@ -1,4 +1,4 @@
-const LEADERBOARD_CACHE_KEY_PREFIX = 'vh.leaderboard.page.v3';
+const LEADERBOARD_CACHE_KEY_PREFIX = 'vh.leaderboard.page.v4';
 const LEADERBOARD_CACHE_TTL_MS = 5 * 60 * 1000;
 const DEFAULT_PAGE_LIMIT = 10;
 const MAX_PAGE_LIMIT = 50;
@@ -113,6 +113,7 @@ function normalizePayload(payload, offset, limit) {
     hasMore,
     players,
     focusPlayer,
+    snapshotGeneratedAt: normalizeText(payload?.snapshotGeneratedAt) || null,
   };
 }
 

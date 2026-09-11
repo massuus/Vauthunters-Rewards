@@ -225,7 +225,7 @@ export async function upsertLeaderboardRecord(env, record) {
 
   const nowIso = new Date().toISOString();
 
-  await db
+  const result = await db
     .prepare(
       `
         INSERT INTO leaderboard_players (
@@ -246,6 +246,10 @@ export async function upsertLeaderboardRecord(env, record) {
           iskall85_tier = excluded.iskall85_tier,
           source = excluded.source,
           updated_at = excluded.updated_at
+        WHERE leaderboard_players.player_name IS NOT excluded.player_name
+           OR leaderboard_players.sets_unlocked IS NOT excluded.sets_unlocked
+           OR leaderboard_players.vault_hunters_tier IS NOT excluded.vault_hunters_tier
+           OR leaderboard_players.iskall85_tier IS NOT excluded.iskall85_tier
       `
     )
     .bind(
@@ -259,7 +263,8 @@ export async function upsertLeaderboardRecord(env, record) {
     )
     .run();
 
-  return { updated: true, skipped: false };
+  const updated = Number(result?.meta?.changes || 0) > 0;
+  return { updated, skipped: !updated };
 }
 
 export async function getLeaderboardPlacement(env, { playerUUID, playerNickname } = {}) {
@@ -412,9 +417,17 @@ export async function searchKnownPlayers(env, query) {
   return results;
 }
 
+export async function getLeaderboardTotal(env) {
+  await ensureLeaderboardSchema(env);
+  return getLeaderboardDb(env)
+    .prepare('SELECT COUNT(1) AS total FROM leaderboard_players WHERE sets_unlocked > 0')
+    .first();
+}
+
 export async function getLeaderboardPage(
   env,
-  { limit = DEFAULT_PAGE_LIMIT, offset = 0, targetPlayer = '' } = {}
+  { limit = DEFAULT_PAGE_LIMIT, offset = 0, targetPlayer = '' } = {},
+  options = {}
 ) {
   const db = getLeaderboardDb(env);
 
@@ -466,27 +479,28 @@ export async function getLeaderboardPage(
     : safeOffset;
 
   const [totalRow, pageResult] = await Promise.all([
-    db.prepare('SELECT COUNT(1) AS total FROM leaderboard_players WHERE sets_unlocked > 0').first(),
+    options.loadTotal ? options.loadTotal() : getLeaderboardTotal(env),
     db
       .prepare(
         `
-          SELECT
-            player.player_uuid,
-            player.player_name,
-            player.sets_unlocked,
-            player.vault_hunters_tier,
-            player.iskall85_tier,
-            player.updated_at,
-            1 + (
-              SELECT COUNT(1)
-              FROM leaderboard_players AS higher
-              WHERE higher.sets_unlocked > player.sets_unlocked
-            ) AS rank
-          FROM leaderboard_players AS player
-          WHERE player.sets_unlocked > 0
+          WITH page AS MATERIALIZED (
+            SELECT * FROM leaderboard_players
+            WHERE sets_unlocked > 0
+            ORDER BY sets_unlocked DESC, updated_at DESC,
+              player_name COLLATE NOCASE ASC, player_uuid ASC
+            LIMIT ?1 OFFSET ?2
+          )
+          SELECT player.*,
+            CASE WHEN player.sets_unlocked = (SELECT MAX(sets_unlocked) FROM page)
+              THEN 1 + (
+                SELECT COUNT(1) FROM leaderboard_players AS higher
+                WHERE higher.sets_unlocked > (SELECT MAX(sets_unlocked) FROM page)
+              )
+              ELSE ?2 + RANK() OVER (ORDER BY player.sets_unlocked DESC)
+            END AS rank
+          FROM page AS player
           ORDER BY player.sets_unlocked DESC, player.updated_at DESC,
-            player.player_name COLLATE NOCASE ASC
-          LIMIT ?1 OFFSET ?2
+            player.player_name COLLATE NOCASE ASC, player.player_uuid ASC
         `
       )
       .bind(resolvedLimit, resolvedOffset)
@@ -725,6 +739,7 @@ export async function syncArmoryBatch(
       hasMore: false,
       fetchedPlayers: 0,
       upserted: 0,
+      unchanged: 0,
       skippedNoUnlocks: 0,
       failed: 0,
       durationMs: Date.now() - startedAt,
@@ -741,6 +756,7 @@ export async function syncArmoryBatch(
     hasMore: players.length === safeLimit,
     fetchedPlayers: players.length,
     upserted: 0,
+    unchanged: 0,
     skippedNoUnlocks: 0,
     failed: 0,
     failedPlayers: [],
@@ -774,8 +790,9 @@ export async function syncArmoryBatch(
         return;
       }
 
-      await upsertLeaderboardRecord(env, record);
-      stats.upserted += 1;
+      const result = await upsertLeaderboardRecord(env, record);
+      if (result.updated) stats.upserted += 1;
+      else stats.unchanged += 1;
     } catch (error) {
       stats.failed += 1;
       if (stats.failedPlayers.length < 10) {

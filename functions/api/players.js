@@ -20,7 +20,8 @@ export async function onRequest({ request, env }) {
     );
   }
 
-  const query = (new URL(request.url).searchParams.get('q') || '').trim();
+  const url = new URL(request.url);
+  const query = (url.searchParams.get('q') || '').trim().toLowerCase();
   if (!/^[a-z0-9_ ]{2,32}$/i.test(query)) {
     return Response.json({ players: [] });
   }
@@ -30,7 +31,9 @@ export async function onRequest({ request, env }) {
   if (!apiRateLimiter.allow(key)) return rateLimitResponse(apiRateLimiter.getInfo(key));
 
   const cache = getDefaultCache();
-  const cacheRequest = new Request(new URL(request.url).toString(), { method: 'GET' });
+  const cacheUrl = new URL('/api/players', url.origin);
+  cacheUrl.searchParams.set('q', query);
+  const cacheRequest = new Request(cacheUrl, { method: 'GET' });
   if (cache) {
     const cached = await cache.match(cacheRequest);
     if (cached) return cached;
@@ -42,7 +45,7 @@ export async function onRequest({ request, env }) {
       { players },
       {
         headers: {
-          'cache-control': `public, max-age=${BROWSER_CACHE_TTL_SECONDS}, s-maxage=${EDGE_CACHE_TTL_SECONDS}, stale-while-revalidate=${EDGE_CACHE_TTL_SECONDS}`,
+          'cache-control': `public, max-age=${BROWSER_CACHE_TTL_SECONDS}, s-maxage=${EDGE_CACHE_TTL_SECONDS}`,
         },
       }
     );

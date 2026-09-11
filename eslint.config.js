@@ -45,7 +45,7 @@ export default [
     rules: baseRules,
   },
   {
-    files: ['functions/**/*.js', 'build.js'],
+    files: ['functions/**/*.js', 'workers/**/*.js', 'build.js'],
     languageOptions: {
       globals: {
         ...globals.node,

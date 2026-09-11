@@ -8,6 +8,10 @@ database_name = "vauthunters_rewards"
 database_id = "96bab8bc-fc46-4788-a351-81e089586e27"
 migrations_dir = "migrations"
 
+[[r2_buckets]]
+binding = "LEADERBOARD_SNAPSHOTS"
+bucket_name = "vauthunters-leaderboard-snapshots"
+
 # Optional sync endpoint protection
 # [vars]
 # LEADERBOARD_SYNC_TOKEN = "replace-with-a-strong-random-token"

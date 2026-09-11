@@ -71,16 +71,6 @@ function getDefaultCache() {
   }
 }
 
-function shouldUseProfileCache(request, url) {
-  return (
-    !url.searchParams.has('mock') &&
-    !url.searchParams.has('bust') &&
-    !String(request.headers.get('cache-control') || '')
-      .toLowerCase()
-      .includes('no-cache')
-  );
-}
-
 export async function onRequest({ request, env, waitUntil }) {
   // Apply rate limiting
   const rateLimitKey = getRateLimitKey(request);
@@ -107,9 +97,13 @@ export async function onRequest({ request, env, waitUntil }) {
     return badRequest('Invalid Twitch username.');
   }
 
-  const useProfileCache = shouldUseProfileCache(request, url);
+  const useProfileCache = !url.searchParams.has('mock');
   const cache = getDefaultCache();
-  const cacheRequest = new Request(url.toString(), { method: 'GET' });
+  const cacheUrl = new URL('/api/profile', url.origin);
+  if (normalizedUsername) cacheUrl.searchParams.set('username', normalizedUsername);
+  if (normalizedTwitchUsername)
+    cacheUrl.searchParams.set('twitchUsername', normalizedTwitchUsername);
+  const cacheRequest = new Request(cacheUrl, { method: 'GET' });
   if (useProfileCache && cache) {
     const cached = await cache.match(cacheRequest);
     if (cached) return cached;
@@ -237,7 +231,7 @@ export async function onRequest({ request, env, waitUntil }) {
       },
       200,
       {
-        'cache-control': `public, max-age=${PROFILE_BROWSER_CACHE_TTL_SECONDS}, s-maxage=${PROFILE_EDGE_CACHE_TTL_SECONDS}, stale-while-revalidate=${PROFILE_EDGE_CACHE_TTL_SECONDS}`,
+        'cache-control': `public, max-age=${PROFILE_BROWSER_CACHE_TTL_SECONDS}, s-maxage=${PROFILE_EDGE_CACHE_TTL_SECONDS}`,
       }
     );
     if (useProfileCache && cache) {
