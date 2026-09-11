@@ -142,6 +142,8 @@ test('snapshot pages handle chunk boundaries, tied focus, unknown names, and zer
   assert.equal(profile.leaderboardPlace.rank, 1);
   assert.equal(profile.companionStats[0].streamer, 'iskall85');
   assert.equal(profile.companionStats[0].twitchName, 'player500');
+  assert.ok(profile.companionStats[0].seasonLevelRank > 0);
+  assert.ok(profile.companionStats[0].vaultsJoinedRank > 0);
   const suggestions = await searchSnapshotPlayers(env, 'mc500', 'https://example.test');
   assert.equal(suggestions[0].searchValue, 'mc500');
   const suggestionResponse = await getSuggestions({

@@ -213,7 +213,7 @@ test('dropdown preserves normal Enter, supports selection, and ignores stale res
   type('new');
   await respond(pending.shift(), ['NewPlayer']);
   await respond(old, ['OldPlayer']);
-  assert.equal(list.children[0].children[1].textContent, 'NewPlayer');
+  assert.equal(list.children[0].children[1].children[0].textContent, 'NewPlayer');
   assert.equal(
     list.children[0].children[0].src,
     '/proxy-img?url=https%3A%2F%2Fmc-heads.net%2Favatar%2FNewPlayer%2F32'

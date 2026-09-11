@@ -19,7 +19,12 @@ export function renderCompanionStatsSection(companionStats, playerName = '') {
       const targetPlayer = escapeHtml(rawTargetPlayer);
       const seasonLevel = Math.max(0, Number(entry?.seasonLevel || 0));
       const vaultsJoined = Math.max(0, Number(entry?.vaultsJoined || 0));
-      const renderStatButton = (metric, label, value) => `
+      const renderStatButton = (metric, label, value, rank) => {
+        const safeRank =
+          Number.isFinite(Number(rank)) && Number(rank) > 0
+            ? ` <small aria-label="rank ${Math.floor(Number(rank))}">#${Math.floor(Number(rank))}</small>`
+            : '';
+        return `
         <button
           class="companion-profile-card__stat player-level-link"
           type="button"
@@ -29,8 +34,9 @@ export function renderCompanionStatsSection(companionStats, playerName = '') {
           title="Open ${streamer}'s ${label.toLowerCase()} leaderboard around ${targetPlayer}"
         >
           <span>${label}</span>
-          <strong>${value}</strong>
+          <strong>${value}${safeRank}</strong>
         </button>`;
+      };
 
       return `
         <article class="companion-profile-card">
@@ -39,8 +45,8 @@ export function renderCompanionStatsSection(companionStats, playerName = '') {
             <strong>${streamer}</strong>
           </p>
           <div class="companion-profile-card__stats">
-            ${renderStatButton('seasonLevel', 'Season level', seasonLevel)}
-            ${renderStatButton('vaultsJoined', 'Vaults joined', vaultsJoined)}
+            ${renderStatButton('seasonLevel', 'Season level', seasonLevel, entry?.seasonLevelRank)}
+            ${renderStatButton('vaultsJoined', 'Vaults joined', vaultsJoined, entry?.vaultsJoinedRank)}
           </div>
         </article>
       `;

@@ -124,20 +124,33 @@ export async function getSnapshotProfileData(
   );
   const companionStats = [];
   for (const streamer of manifest.streamers || []) {
-    const player = await findSnapshotPlayer(
-      env,
-      manifest,
-      snapshotBoardKey('seasonLevel', streamer.login),
-      [twitchName, minecraftUUID, minecraftName],
-      origin
-    );
+    const identifiers = [twitchName, minecraftUUID, minecraftName];
+    const [seasonPlayer, vaultsPlayer] = await Promise.all([
+      findSnapshotPlayer(
+        env,
+        manifest,
+        snapshotBoardKey('seasonLevel', streamer.login),
+        identifiers,
+        origin
+      ),
+      findSnapshotPlayer(
+        env,
+        manifest,
+        snapshotBoardKey('vaultsJoined', streamer.login),
+        identifiers,
+        origin
+      ),
+    ]);
+    const player = seasonPlayer || vaultsPlayer;
     if (!player) continue;
     companionStats.push({
       streamer: streamer.login,
       twitchName: player.twitchName || null,
       alias: player.alias || null,
       seasonLevel: player.seasonLevel || 0,
+      seasonLevelRank: seasonPlayer?.rank || null,
       vaultsJoined: player.vaultsJoined || 0,
+      vaultsJoinedRank: vaultsPlayer?.rank || null,
       updatedAt: player.updatedAt || null,
     });
   }

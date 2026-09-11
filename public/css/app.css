@@ -245,6 +245,20 @@ body {
   margin: 0;
 }
 
+.player-alternate-names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.8rem;
+  margin-top: 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.player-alternate-names strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 .player-server-link,
 .player-level-link {
   border: 1px solid rgba(244, 169, 65, 0.5);
@@ -353,6 +367,13 @@ body {
   color: var(--text-primary);
   font-family: 'Rajdhani', sans-serif;
   font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.companion-profile-card__stat small {
+  margin-left: 0.35rem;
+  color: var(--accent);
+  font-size: 0.72em;
   font-weight: 700;
 }
 

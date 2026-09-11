@@ -104,10 +104,34 @@ export function initPlayerSuggestions() {
         },
         { once: true }
       );
-      const name = document.createElement('span');
+      const identity = document.createElement('span');
+      identity.className = 'search__suggestion-identity';
+      const name = document.createElement('strong');
       name.textContent = player.name;
+      identity.append(name);
+      const primaryKey = String(player.name || '')
+        .trim()
+        .toLowerCase();
+      const seenNames = new Set(primaryKey ? [primaryKey] : []);
+      const alternateNames = [];
+      for (const [label, value] of [
+        ['Minecraft', player.minecraftName],
+        ['Twitch', player.twitchName],
+        ['Alias', player.alias],
+      ]) {
+        const alternate = String(value || '').trim();
+        const key = alternate.toLowerCase();
+        if (!alternate || seenNames.has(key)) continue;
+        seenNames.add(key);
+        alternateNames.push(`${label}: ${alternate}`);
+      }
+      if (alternateNames.length) {
+        const otherNames = document.createElement('small');
+        otherNames.textContent = alternateNames.join(' · ');
+        identity.append(otherNames);
+      }
       option.append(head);
-      option.append(name);
+      option.append(identity);
       list.append(option);
     });
     list.hidden = !players.length;

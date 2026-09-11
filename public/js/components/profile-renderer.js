@@ -67,6 +67,31 @@ function getBestTierFromConfig(tiers, tierConfig) {
   return bestTier;
 }
 
+export function renderAlternateNames(data) {
+  const minecraftName = String(data?.name || '').trim();
+  const seen = new Set(minecraftName ? [minecraftName.toLowerCase()] : []);
+  const names = [];
+  const addName = (label, value) => {
+    const name = String(value || '').trim();
+    const key = name.toLowerCase();
+    if (!name || seen.has(key)) return;
+    seen.add(key);
+    names.push(`<span><strong>${label}:</strong> ${escapeHtml(name)}</span>`);
+  };
+
+  addName('Twitch', data?.twitchUsername);
+  for (const entry of Array.isArray(data?.companionStats) ? data.companionStats : []) {
+    addName('Twitch', entry?.twitchName);
+  }
+  for (const entry of Array.isArray(data?.companionStats) ? data.companionStats : []) {
+    addName('Alias', entry?.alias);
+  }
+
+  return names.length
+    ? `<div class="player-alternate-names" aria-label="Other player names">${names.join('')}</div>`
+    : '';
+}
+
 /**
  * Render a player profile with their sets, tiers, and rewards
  */
@@ -150,6 +175,7 @@ export async function renderProfile(data) {
       tierBadge: tierBadge,
       serverLink: serverLink,
       levelBadge: leaderboardBadge,
+      alternateNames: renderAlternateNames(data),
     }) +
     companionStatsSection +
     setsSection +

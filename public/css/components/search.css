@@ -81,6 +81,21 @@
   image-rendering: pixelated;
 }
 
+.search__suggestion-identity {
+  display: grid;
+  min-width: 0;
+  gap: 0.1rem;
+}
+
+.search__suggestion-identity strong {
+  font-weight: 600;
+}
+
+.search__suggestion-identity small {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+}
+
 .search__suggestion:hover,
 .search__suggestion[aria-selected='true'] {
   color: var(--accent);
