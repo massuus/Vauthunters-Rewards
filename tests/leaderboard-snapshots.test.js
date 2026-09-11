@@ -144,6 +144,16 @@ test('snapshot pages handle chunk boundaries, tied focus, unknown names, and zer
   assert.equal(profile.companionStats[0].twitchName, 'player500');
   assert.ok(profile.companionStats[0].seasonLevelRank > 0);
   assert.ok(profile.companionStats[0].vaultsJoinedRank > 0);
+  const borrowedSkinProfile = await getSnapshotProfileData(
+    env,
+    { minecraftName: 'skin500' },
+    'https://example.test'
+  );
+  assert.deepEqual(
+    borrowedSkinProfile.companionStats,
+    [],
+    'a cosmetic skin name must not establish ownership of the companion Twitch account'
+  );
   const suggestions = await searchSnapshotPlayers(env, 'mc500', 'https://example.test');
   assert.equal(suggestions[0].searchValue, 'mc500');
   const suggestionResponse = await getSuggestions({
@@ -212,7 +222,7 @@ test(
       assert.equal(published.changed, true);
       assert.equal(
         JSON.parse(env.LEADERBOARD_SNAPSHOTS.entries.get(SNAPSHOT_MANIFEST_KEY).body).format,
-        2
+        3
       );
       assert.equal(fullExports, 1);
       for (const [metric, primary, secondary] of [

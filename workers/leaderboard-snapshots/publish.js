@@ -146,7 +146,7 @@ export function buildSnapshot(unlockRows, companionRows, revision, now = new Dat
   streamers.sort((a, b) => compareText(a.login, b.login, true));
   const manifest = {
     schema: 1,
-    format: 2,
+    format: 3,
     revision,
     generatedAt: now.toISOString(),
     prefix,
@@ -158,6 +158,7 @@ export function buildSnapshot(unlockRows, companionRows, revision, now = new Dat
   for (const [key, players] of boards) {
     manifest.boards[key] = { total: players.length };
     const names = Object.create(null);
+    const profileNames = Object.create(null);
     players.forEach((player, index) => {
       const identifiers =
         key === 'setsUnlocked'
@@ -166,8 +167,18 @@ export function buildSnapshot(unlockRows, companionRows, revision, now = new Dat
       for (const name of identifiers) {
         if (name && !Object.hasOwn(names, name.toLowerCase())) names[name.toLowerCase()] = index;
       }
+      if (key !== 'setsUnlocked') {
+        for (const name of [player.twitchName, player.minecraftUUID, player.minecraftName]) {
+          if (name && !Object.hasOwn(profileNames, name.toLowerCase())) {
+            profileNames[name.toLowerCase()] = index;
+          }
+        }
+      }
     });
     objects.push({ key: `${prefix}${key}/names.json`, data: names });
+    if (key !== 'setsUnlocked') {
+      objects.push({ key: `${prefix}${key}/profile-names.json`, data: profileNames });
+    }
     for (let offset = 0; offset < players.length; offset += SNAPSHOT_CHUNK_SIZE) {
       objects.push({
         key: `${prefix}${key}/${offset / SNAPSHOT_CHUNK_SIZE}.json`,
@@ -184,7 +195,7 @@ export async function publishSnapshots(env) {
   const previous = previousObject ? await previousObject.json() : null;
   const current = await env.LEADERBOARD_DB.prepare(REVISION_SQL).first();
   if (!current) throw new Error('Apply snapshot migration 0006 before publishing.');
-  if (previous?.schema === 1 && previous.format === 2 && previous.revision === current.revision) {
+  if (previous?.schema === 1 && previous.format === 3 && previous.revision === current.revision) {
     return { changed: false, revision: current.revision };
   }
   // D1 batch executes these reads in one transaction. The revision therefore

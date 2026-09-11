@@ -109,6 +109,39 @@ async function findSnapshotPlayer(env, manifest, boardKey, identifiers, origin) 
   return null;
 }
 
+async function findSnapshotProfilePlayer(env, manifest, boardKey, identifiers, origin) {
+  if (!manifest.boards[boardKey]) return null;
+  if (manifest.format >= 3) {
+    const names = await readObject(
+      env,
+      `${manifest.prefix}${boardKey}/profile-names.json`,
+      origin,
+      true
+    );
+    for (const identifier of identifiers) {
+      const key = String(identifier || '')
+        .trim()
+        .toLowerCase();
+      if (key && Object.hasOwn(names, key)) {
+        return readPlayerAt(env, manifest, boardKey, names[key], origin);
+      }
+    }
+    return null;
+  }
+
+  // Older snapshots included cosmetic skin selections in their general name
+  // index. Validate the returned account identity so a borrowed skin cannot
+  // attach another player's Twitch account to this profile.
+  const player = await findSnapshotPlayer(env, manifest, boardKey, identifiers, origin);
+  if (!player) return null;
+  const expected = new Set(identifiers.filter(Boolean).map((value) => String(value).toLowerCase()));
+  return [player.twitchName, player.minecraftUUID, player.minecraftName].some(
+    (value) => value && expected.has(String(value).toLowerCase())
+  )
+    ? player
+    : null;
+}
+
 export async function getSnapshotProfileData(
   env,
   { minecraftUUID = '', minecraftName = '', twitchName = '' } = {},
@@ -126,14 +159,14 @@ export async function getSnapshotProfileData(
   for (const streamer of manifest.streamers || []) {
     const identifiers = [twitchName, minecraftUUID, minecraftName];
     const [seasonPlayer, vaultsPlayer] = await Promise.all([
-      findSnapshotPlayer(
+      findSnapshotProfilePlayer(
         env,
         manifest,
         snapshotBoardKey('seasonLevel', streamer.login),
         identifiers,
         origin
       ),
-      findSnapshotPlayer(
+      findSnapshotProfilePlayer(
         env,
         manifest,
         snapshotBoardKey('vaultsJoined', streamer.login),
