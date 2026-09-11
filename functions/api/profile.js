@@ -9,6 +9,7 @@ import {
   getCompanionPlayerStats,
   updateCompanionMinecraftIdentity,
 } from '../utils/companion-leaderboard.js';
+import { getSnapshotProfileData } from '../utils/leaderboard-snapshots.js';
 import {
   PLAYERDB_PROFILE_URL,
   REWARDS_URL,
@@ -193,11 +194,6 @@ export async function onRequest({ request, env, waitUntil }) {
       iskall85Tier,
     });
 
-    const leaderboardPlace = await getOptionalLeaderboardPlacement(env, {
-      playerUUID: formattedId,
-      playerNickname: name,
-    });
-
     if (normalizedTwitchUsername) {
       await updateCompanionMinecraftIdentity(env, {
         twitchName: normalizedTwitchUsername,
@@ -211,10 +207,35 @@ export async function onRequest({ request, env, waitUntil }) {
       });
     }
 
-    const companionStats = await getOptionalCompanionStats(env, {
-      minecraftUUID: formattedId,
-      twitchName: normalizedTwitchUsername,
-    });
+    const usesSnapshots = Boolean(env.LEADERBOARD_SNAPSHOTS);
+    const snapshotProfile = usesSnapshots
+      ? await getSnapshotProfileData(
+          env,
+          {
+            minecraftUUID: formattedId,
+            minecraftName: name,
+            twitchName: normalizedTwitchUsername,
+          },
+          url.origin
+        ).catch((error) => {
+          console.error('Snapshot profile data unavailable', {
+            message: error instanceof Error ? error.message : String(error),
+          });
+          return { leaderboardPlace: null, companionStats: [] };
+        })
+      : null;
+    const leaderboardPlace = usesSnapshots
+      ? snapshotProfile.leaderboardPlace
+      : await getOptionalLeaderboardPlacement(env, {
+          playerUUID: formattedId,
+          playerNickname: name,
+        });
+    const companionStats = usesSnapshots
+      ? snapshotProfile.companionStats
+      : await getOptionalCompanionStats(env, {
+          minecraftUUID: formattedId,
+          twitchName: normalizedTwitchUsername,
+        });
 
     const response = json(
       {

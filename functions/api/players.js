@@ -1,4 +1,5 @@
 import { searchKnownPlayers } from '../utils/leaderboard.js';
+import { searchSnapshotPlayers } from '../utils/leaderboard-snapshots.js';
 import { apiRateLimiter, getRateLimitKey, rateLimitResponse } from '../utils/rate-limiter.js';
 
 const BROWSER_CACHE_TTL_SECONDS = 60;
@@ -40,7 +41,9 @@ export async function onRequest({ request, env }) {
   }
 
   try {
-    const players = await searchKnownPlayers(env, query);
+    const players = env.LEADERBOARD_SNAPSHOTS
+      ? await searchSnapshotPlayers(env, query, url.origin)
+      : await searchKnownPlayers(env, query);
     const response = Response.json(
       { players },
       {

@@ -26,8 +26,6 @@ const METRICS = {
   },
 };
 
-let schemaReadyPromise = null;
-
 function clampInt(value, fallback, min, max) {
   const parsed = Number.parseInt(value, 10);
   if (!Number.isFinite(parsed)) return fallback;
@@ -108,46 +106,9 @@ export function parseCompanionLeaderboardParams(url, options = {}) {
 }
 
 export async function ensureCompanionLeaderboardSchema(env) {
-  const db = requireDb(env);
-  if (!schemaReadyPromise) {
-    schemaReadyPromise = (async () => {
-      const statements = [
-        `CREATE TABLE IF NOT EXISTS companion_leaderboard_players (
-          streamer_login TEXT NOT NULL,
-          twitch_name TEXT NOT NULL,
-          player_name TEXT NOT NULL,
-          alias TEXT,
-          season_level INTEGER NOT NULL DEFAULT 0,
-          vaults_joined INTEGER NOT NULL DEFAULT 0,
-          minecraft_uuid TEXT,
-          minecraft_name TEXT,
-          source TEXT NOT NULL DEFAULT 'unknown',
-          created_at TEXT NOT NULL,
-          updated_at TEXT NOT NULL,
-          PRIMARY KEY (streamer_login, twitch_name)
-        )`,
-        `CREATE INDEX IF NOT EXISTS idx_companion_leaderboard_season
-          ON companion_leaderboard_players (streamer_login, season_level DESC, vaults_joined DESC)`,
-        `CREATE INDEX IF NOT EXISTS idx_companion_leaderboard_vaults
-          ON companion_leaderboard_players (streamer_login, vaults_joined DESC, season_level DESC)`,
-        `CREATE INDEX IF NOT EXISTS idx_companion_leaderboard_player
-          ON companion_leaderboard_players (streamer_login, player_name COLLATE NOCASE)`,
-        `CREATE INDEX IF NOT EXISTS idx_companion_leaderboard_minecraft_uuid
-          ON companion_leaderboard_players (minecraft_uuid)`,
-        `CREATE INDEX IF NOT EXISTS idx_companion_leaderboard_twitch_name
-          ON companion_leaderboard_players (twitch_name)`,
-      ];
-
-      for (const statement of statements) await db.prepare(statement).run();
-    })();
-  }
-
-  try {
-    await schemaReadyPromise;
-  } catch (error) {
-    schemaReadyPromise = null;
-    throw error;
-  }
+  // Schema changes belong in migrations. Runtime DDL caused every newly
+  // started Worker isolate to issue avoidable D1 queries.
+  requireDb(env);
 }
 
 function mapRow(row) {

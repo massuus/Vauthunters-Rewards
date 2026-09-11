@@ -237,8 +237,6 @@ function resetList(state) {
   state.loading = false;
   state.loadPrevButtonEl.hidden = true;
   state.loadMoreButtonEl.hidden = true;
-  const freshness = state.root.querySelector('[data-leaderboard-freshness]');
-  if (freshness) freshness.hidden = true;
 }
 
 async function loadPage(state, direction, { throwOnError = false } = {}) {
@@ -266,12 +264,6 @@ async function loadPage(state, direction, { throwOnError = false } = {}) {
     if (state.sessionId !== activeSessionId || loadGeneration !== state.loadGeneration) return;
 
     const players = Array.isArray(payload.players) ? payload.players : [];
-    const freshness = state.root.querySelector('[data-leaderboard-freshness]');
-    const generatedAt = new Date(payload.snapshotGeneratedAt || '');
-    if (freshness && Number.isFinite(generatedAt.getTime())) {
-      freshness.textContent = `Data as of ${generatedAt.toLocaleString()}. Changes usually appear within 25 minutes.`;
-      freshness.hidden = false;
-    }
     state.total = Number(payload.total || 0);
     state.focusPlayer = payload.focusPlayer || state.focusPlayer;
     if (Array.isArray(payload.streamers) && payload.streamers.length) {
@@ -770,7 +762,6 @@ export async function renderLeaderboardPage(
         <label><span>Streamer</span><select name="streamer" data-leaderboard-streamer-select required><option value="${escapeHtml(initial.streamer)}">${escapeHtml(initial.streamer)}</option></select></label>
       </div>
       <div data-leaderboard-admin-slot></div>
-      <p class="leaderboard-page__status leaderboard-page__status--muted" data-leaderboard-freshness hidden></p>
       <div class="leaderboard-list" data-leaderboard-list></div>
       <div class="leaderboard-page__sentinel" data-leaderboard-sentinel aria-hidden="true"></div>
       <div class="leaderboard-page__controls">

@@ -40,7 +40,13 @@ test(
     };
     const env = { LEADERBOARD_DB: db };
     try {
-      await getCompanionLeaderboardPage(env, {});
+      for (const migration of [
+        '0001_companion_leaderboard.sql',
+        '0002_companion_minecraft_identity.sql',
+        '0003_companion_profile_lookup.sql',
+      ]) {
+        database.exec(readFileSync(new URL(`../migrations/${migration}`, import.meta.url), 'utf8'));
+      }
       database.exec(
         readFileSync(
           new URL('../migrations/0004_companion_page_indexes.sql', import.meta.url),

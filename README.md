@@ -88,9 +88,8 @@ database_id = "<your-d1-database-id>"
 
 - `LEADERBOARD_SYNC_TOKEN` = a long random value
 
-The base schema is created automatically by the functions on first leaderboard read/write.
-Apply checked-in migrations before deploying updates so the companion identity columns and
-optimized page indexes are present:
+The schema is managed exclusively through checked-in migrations. Apply them before deploying
+updates so tables, companion identity columns, triggers, and indexes are present:
 
 ```bash
 npm run db:migrate:remote
@@ -135,7 +134,10 @@ Production public leaderboard pages use the private `LEADERBOARD_SNAPSHOTS` R2 b
 They read a small manifest and the required 250-player chunk(s), with shared edge caching.
 Target-player lookups use a saved name-to-position index and keep the actual player visible
 even inside a large tied rank. Public browsing never queries D1 when this binding is present.
-Profile lookups and autocomplete still use their existing cached D1 paths.
+Autocomplete and the leaderboard rank/companion-progress portions of profile lookups use
+the same snapshot. Their public read paths do not query D1 when the R2 binding is present.
+Profile refreshes may still perform small indexed, idempotent writes when newly fetched
+upstream data differs from the stored leaderboard record.
 
 A scheduled publisher runs every 15 minutes and delegates the rebuild to one SQLite-backed
 Durable Object. This coordinates rebuilds and avoids the Workers Free cron CPU limit.
@@ -190,6 +192,10 @@ previous snapshot and reporting an error instead of doing unbounded work. Review
 limits and the 15-minute schedule if the dataset grows substantially. Savings shift work
 from per-visitor D1 reads to periodic export reads, R2 operations, and brief publisher runs;
 these services retain their own usage limits.
+
+Runtime functions intentionally do not execute `CREATE TABLE` or `CREATE INDEX`. This avoids
+schema queries each time Cloudflare starts a new isolate and makes applying migrations a
+required deployment step.
 
 ### Mining clues setup
 

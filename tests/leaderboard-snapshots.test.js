@@ -8,9 +8,12 @@ import {
 } from '../workers/leaderboard-snapshots/publish.js';
 import {
   getSnapshotLeaderboardPage,
+  getSnapshotProfileData,
+  searchSnapshotPlayers,
   SNAPSHOT_MANIFEST_KEY,
 } from '../functions/utils/leaderboard-snapshots.js';
 import { onRequest } from '../functions/api/leaderboard.js';
+import { onRequest as getSuggestions } from '../functions/api/players.js';
 
 function bucketFake() {
   const entries = new Map();
@@ -73,7 +76,16 @@ const companion = (i) => ({
 
 test('snapshot pages handle chunk boundaries, tied focus, unknown names, and zero D1 reads', async () => {
   const snapshot = buildSnapshot(
-    [],
+    [
+      {
+        player_uuid: 'uuid500',
+        player_name: 'mc500',
+        sets_unlocked: 12,
+        vault_hunters_tier: 'Gold',
+        iskall85_tier: null,
+        updated_at: '2026-09-11T00:00:00Z',
+      },
+    ],
     Array.from({ length: 1000 }, (_, i) => companion(i)),
     7
   );
@@ -120,13 +132,24 @@ test('snapshot pages handle chunk boundaries, tied focus, unknown names, and zer
   );
   assert.deepEqual(missing.players, []);
   assert.equal(missing.focusPlayer, null);
-  const emptyUnlocks = await getSnapshotLeaderboardPage(
+  const unlocks = await getSnapshotLeaderboardPage(env, {}, 'setsUnlocked', 'https://example.test');
+  assert.equal(unlocks.total, 1);
+  const profile = await getSnapshotProfileData(
     env,
-    {},
-    'setsUnlocked',
+    { minecraftUUID: 'uuid500', minecraftName: 'mc500', twitchName: 'player500' },
     'https://example.test'
   );
-  assert.equal(emptyUnlocks.total, 0);
+  assert.equal(profile.leaderboardPlace.rank, 1);
+  assert.equal(profile.companionStats[0].streamer, 'iskall85');
+  assert.equal(profile.companionStats[0].twitchName, 'player500');
+  const suggestions = await searchSnapshotPlayers(env, 'mc500', 'https://example.test');
+  assert.equal(suggestions[0].searchValue, 'mc500');
+  const suggestionResponse = await getSuggestions({
+    env,
+    request: new Request('https://example.test/api/players?q=MC500'),
+  });
+  assert.equal(suggestionResponse.status, 200);
+  assert.equal((await suggestionResponse.json()).players[0].searchValue, 'mc500');
   const response = await onRequest({
     env,
     request: new Request('https://example.test/api/leaderboard?metric=seasonLevel'),
@@ -185,6 +208,10 @@ test(
     try {
       const published = await publishSnapshots(env);
       assert.equal(published.changed, true);
+      assert.equal(
+        JSON.parse(env.LEADERBOARD_SNAPSHOTS.entries.get(SNAPSHOT_MANIFEST_KEY).body).format,
+        2
+      );
       assert.equal(fullExports, 1);
       for (const [metric, primary, secondary] of [
         ['seasonLevel', 'season_level', 'vaults_joined'],

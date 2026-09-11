@@ -22,6 +22,7 @@ export default [
       'build/**',
       'coverage/**',
       '.wrangler/**',
+      '**/.wrangler/**',
       '.git/**',
       'public/data/**',
       'public/css/**',

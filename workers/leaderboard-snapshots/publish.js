@@ -33,6 +33,46 @@ function rankPlayers(players, metric, compare) {
   });
 }
 
+function buildSearchIndex(unlockRows, companionRows) {
+  const candidates = [
+    ...unlockRows.map((row) => ({
+      name: row.player_name,
+      searchValue: row.player_name,
+      avatar: row.player_uuid,
+      minecraftName: row.player_name,
+      twitchName: '',
+      alias: '',
+    })),
+    ...companionRows
+      .filter((row) => row.minecraft_name)
+      .map((row) => ({
+        name: row.alias || row.minecraft_name || row.twitch_name,
+        searchValue: row.minecraft_name || `twitch:${row.twitch_name}`,
+        avatar: row.minecraft_uuid || row.minecraft_name || row.player_name,
+        minecraftName: row.minecraft_name || '',
+        twitchName: row.twitch_name,
+        alias: row.alias || '',
+      })),
+  ];
+  // Collapse records that represent the same lookup identity. Query-specific
+  // display-name deduplication still happens when suggestions are requested.
+  const identities = new Map();
+  for (const candidate of candidates) {
+    const key = (
+      candidate.twitchName ? `twitch:${candidate.twitchName}` : candidate.searchValue
+    ).toLowerCase();
+    const existing = identities.get(key);
+    if (
+      !existing ||
+      Number(Boolean(candidate.minecraftName)) > Number(Boolean(existing.minecraftName)) ||
+      compareText(candidate.name, existing.name, true) < 0
+    ) {
+      identities.set(key, candidate);
+    }
+  }
+  return [...identities.values()].sort((a, b) => compareText(a.name, b.name, true));
+}
+
 export function buildSnapshot(unlockRows, companionRows, revision, now = new Date()) {
   if (unlockRows.length > MAX_ROWS_PER_TABLE || companionRows.length > MAX_ROWS_PER_TABLE) {
     throw new Error('Snapshot row limit exceeded; keep serving the previous snapshot.');
@@ -106,13 +146,15 @@ export function buildSnapshot(unlockRows, companionRows, revision, now = new Dat
   streamers.sort((a, b) => compareText(a.login, b.login, true));
   const manifest = {
     schema: 1,
+    format: 2,
     revision,
     generatedAt: now.toISOString(),
     prefix,
     streamers,
     boards: {},
+    searchKey: `${prefix}search.json`,
   };
-  const objects = [];
+  const objects = [{ key: manifest.searchKey, data: buildSearchIndex(unlockRows, companionRows) }];
   for (const [key, players] of boards) {
     manifest.boards[key] = { total: players.length };
     const names = Object.create(null);
@@ -142,7 +184,7 @@ export async function publishSnapshots(env) {
   const previous = previousObject ? await previousObject.json() : null;
   const current = await env.LEADERBOARD_DB.prepare(REVISION_SQL).first();
   if (!current) throw new Error('Apply snapshot migration 0006 before publishing.');
-  if (previous?.schema === 1 && previous.revision === current.revision) {
+  if (previous?.schema === 1 && previous.format === 2 && previous.revision === current.revision) {
     return { changed: false, revision: current.revision };
   }
   // D1 batch executes these reads in one transaction. The revision therefore

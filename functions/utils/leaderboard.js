@@ -44,7 +44,6 @@ const SET_ALIASES = {
   i85_servers_bingo: 'i85_server_bingos',
 };
 
-let schemaReadyPromise = null;
 let iskallTierListCache = {
   data: null,
   expiresAt: 0,
@@ -145,43 +144,9 @@ async function ensureLeaderboardSchema(env) {
     throw new Error('Leaderboard DB binding is not configured.');
   }
 
-  if (!schemaReadyPromise) {
-    schemaReadyPromise = (async () => {
-      const statements = [
-        `
-          CREATE TABLE IF NOT EXISTS leaderboard_players (
-            player_uuid TEXT PRIMARY KEY,
-            player_name TEXT NOT NULL,
-            sets_unlocked INTEGER NOT NULL DEFAULT 0,
-            vault_hunters_tier TEXT,
-            iskall85_tier TEXT,
-            source TEXT NOT NULL DEFAULT 'unknown',
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL
-          )
-        `,
-        `
-          CREATE INDEX IF NOT EXISTS idx_leaderboard_sets_updated
-          ON leaderboard_players (sets_unlocked DESC, updated_at DESC)
-        `,
-        `
-          CREATE INDEX IF NOT EXISTS idx_leaderboard_name
-          ON leaderboard_players (player_name)
-        `,
-      ];
-
-      for (const statement of statements) {
-        await db.prepare(statement).run();
-      }
-    })();
-  }
-
-  try {
-    await schemaReadyPromise;
-  } catch (error) {
-    schemaReadyPromise = null;
-    throw error;
-  }
+  // Production schema is managed exclusively through migrations. Running DDL
+  // here repeated CREATE checks on each Worker isolate's first request.
+  return db;
 }
 
 export function buildLeaderboardRecord({

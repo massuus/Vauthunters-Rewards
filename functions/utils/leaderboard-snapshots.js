@@ -42,11 +42,120 @@ async function readObject(env, key, origin, immutable = false) {
   return data;
 }
 
-export async function getSnapshotLeaderboardPage(env, params, metric, origin) {
+async function readManifest(env, origin) {
   const manifest = await readObject(env, SNAPSHOT_MANIFEST_KEY, origin);
   if (manifest.schema !== 1 || !manifest.prefix?.startsWith(SNAPSHOT_DATA_PREFIX)) {
     throw new Error('Unsupported leaderboard snapshot.');
   }
+  return manifest;
+}
+
+function suggestionTerms(player) {
+  return [player.name, player.minecraftName, player.twitchName, player.alias]
+    .filter(Boolean)
+    .map((value) => String(value).toLowerCase());
+}
+
+export async function searchSnapshotPlayers(env, query, origin) {
+  const manifest = await readManifest(env, origin);
+  if (!manifest.searchKey?.startsWith(manifest.prefix)) return [];
+  const needle = String(query || '')
+    .trim()
+    .toLowerCase();
+  const index = await readObject(env, manifest.searchKey, origin, true);
+  const candidates = index
+    .filter((player) => suggestionTerms(player).some((value) => value.includes(needle)))
+    .sort((left, right) => {
+      const score = (player) =>
+        Math.min(
+          ...suggestionTerms(player).map((value) =>
+            value === needle ? 0 : value.startsWith(needle) ? 1 : 2
+          )
+        );
+      return (
+        score(left) - score(right) ||
+        left.name.toLowerCase().localeCompare(right.name.toLowerCase())
+      );
+    });
+  const seenNames = new Set();
+  return candidates
+    .filter((player) => {
+      const name = player.name.toLowerCase();
+      if (seenNames.has(name)) return false;
+      seenNames.add(name);
+      return true;
+    })
+    .slice(0, 6);
+}
+
+async function readPlayerAt(env, manifest, boardKey, position, origin) {
+  if (!Number.isInteger(position) || position < 0) return null;
+  const chunk = Math.floor(position / SNAPSHOT_CHUNK_SIZE);
+  const rows = await readObject(env, `${manifest.prefix}${boardKey}/${chunk}.json`, origin, true);
+  return rows[position % SNAPSHOT_CHUNK_SIZE] || null;
+}
+
+async function findSnapshotPlayer(env, manifest, boardKey, identifiers, origin) {
+  if (!manifest.boards[boardKey]) return null;
+  const names = await readObject(env, `${manifest.prefix}${boardKey}/names.json`, origin, true);
+  for (const identifier of identifiers) {
+    const key = String(identifier || '')
+      .trim()
+      .toLowerCase();
+    if (key && Object.hasOwn(names, key)) {
+      return readPlayerAt(env, manifest, boardKey, names[key], origin);
+    }
+  }
+  return null;
+}
+
+export async function getSnapshotProfileData(
+  env,
+  { minecraftUUID = '', minecraftName = '', twitchName = '' } = {},
+  origin
+) {
+  const manifest = await readManifest(env, origin);
+  const leaderboardPlace = await findSnapshotPlayer(
+    env,
+    manifest,
+    'setsUnlocked',
+    [minecraftUUID, minecraftName],
+    origin
+  );
+  const companionStats = [];
+  for (const streamer of manifest.streamers || []) {
+    const player = await findSnapshotPlayer(
+      env,
+      manifest,
+      snapshotBoardKey('seasonLevel', streamer.login),
+      [twitchName, minecraftUUID, minecraftName],
+      origin
+    );
+    if (!player) continue;
+    companionStats.push({
+      streamer: streamer.login,
+      twitchName: player.twitchName || null,
+      alias: player.alias || null,
+      seasonLevel: player.seasonLevel || 0,
+      vaultsJoined: player.vaultsJoined || 0,
+      updatedAt: player.updatedAt || null,
+    });
+  }
+  return {
+    leaderboardPlace: leaderboardPlace
+      ? {
+          rank: leaderboardPlace.rank,
+          playerUUID: leaderboardPlace.playerUUID,
+          playerNickname: leaderboardPlace.playerNickname,
+          setsUnlocked: leaderboardPlace.setsUnlocked,
+        }
+      : null,
+    companionStats,
+  };
+}
+
+export async function getSnapshotLeaderboardPage(env, params, metric, origin) {
+  const manifest = await readManifest(env, origin);
   const key = snapshotBoardKey(metric, params.streamer);
   const board = manifest.boards[key];
   const total = board?.total || 0;
