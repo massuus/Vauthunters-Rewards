@@ -118,7 +118,11 @@ export async function renderProfile(data) {
   const iskall85Tiers = Array.isArray(data.iskall85Tier) ? data.iskall85Tier : [];
   const rewards = data.rewards && typeof data.rewards === 'object' ? data.rewards : {};
   const leaderboardPlace = data?.leaderboardPlace || null;
-  const usernameKey = (data && data.name ? String(data.name) : '').trim().toLowerCase();
+  const isUnlinked = data.minecraftLinked === false;
+  const searchName = isUnlinked ? `twitch:${data.twitchUsername}` : data.name;
+  const usernameKey = String(searchName || '')
+    .trim()
+    .toLowerCase();
   const previouslySeen = getSeenSets(usernameKey);
 
   const isReturningPlayer = previouslySeen.size > 0;
@@ -131,7 +135,7 @@ export async function renderProfile(data) {
   const tiersSection = renderTiersSection(tiers, iskall85Tiers, ISKALL85_TIER_CONFIG);
   const extraSection = renderExtraSection(rewards);
   const companionStatsSection = renderCompanionStatsSection(data?.companionStats, data?.name);
-  const shareUrl = getShareUrl(data.name);
+  const shareUrl = getShareUrl(searchName);
 
   const bestVaultHuntersTier = getBestPatreonTier(tiers);
   const bestIskall85Tier = getBestTierFromConfig(iskall85Tiers, ISKALL85_TIER_CONFIG);
@@ -149,7 +153,7 @@ export async function renderProfile(data) {
   let serverLink = '';
   let leaderboardBadge = '';
   try {
-    const servers = await fetchOfficialServers();
+    const servers = isUnlinked ? [] : await fetchOfficialServers();
     const matchedServer = findServerByPlayerName(data.name, servers);
     if (matchedServer?._id && matchedServer?.name) {
       const serverQuery = escapeHtml(matchedServer.name);
@@ -176,6 +180,10 @@ export async function renderProfile(data) {
       serverLink: serverLink,
       levelBadge: leaderboardBadge,
       alternateNames: renderAlternateNames(data),
+      avatarAlt: isUnlinked ? 'Vault Hunters rewards' : `${escapeHtml(data.name)}'s Minecraft head`,
+      accountNotice: isUnlinked
+        ? `<aside class="player-link-notice" aria-label="Minecraft account linking"><div class="player-link-notice__copy"><strong>Minecraft account not linked yet</strong><p>Your companion and rewards are shown below. Is this your Twitch account? Link Minecraft to use your rewards in game.</p></div><a href="https://rewards.vaulthunters.gg/connect/link" class="player-link-notice__action">Link Minecraft account <span aria-hidden="true">&rarr;</span></a></aside>`
+        : '',
     }) +
     companionStatsSection +
     setsSection +
@@ -188,7 +196,7 @@ export async function renderProfile(data) {
   window.history.replaceState(
     {},
     '',
-    `${window.location.pathname}?user=${encodeURIComponent(data.name)}`
+    `${window.location.pathname}?user=${encodeURIComponent(searchName)}`
   );
   syncActiveNavigation();
 
@@ -214,6 +222,6 @@ export async function renderProfile(data) {
   // Profile lookups may update leaderboard rows server-side; clear stale local leaderboard pages.
   clearLeaderboardCache();
 
-  addRecentUser({ name: data.name, head: data.head, tier: tiers });
+  addRecentUser({ name: searchName, head: data.head, tier: tiers });
   await renderRecentSection();
 }

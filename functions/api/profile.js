@@ -146,6 +146,38 @@ export async function onRequest({ request, env, waitUntil }) {
     const linkedRewards = normalizedTwitchUsername
       ? await fetchRewardsByTwitch(normalizedTwitchUsername, rewardsHeaders)
       : null;
+    if (linkedRewards && !linkedRewards.minecraftId) {
+      const [iskall85Tier, snapshotProfile] = await Promise.all([
+        fetchIskall85Tiers('', '', normalizedTwitchUsername),
+        env.LEADERBOARD_SNAPSHOTS
+          ? getSnapshotProfileData(env, { twitchName: normalizedTwitchUsername }, url.origin).catch(
+              () => ({ companionStats: [] })
+            )
+          : getOptionalCompanionStats(env, { twitchName: normalizedTwitchUsername }).then(
+              (companionStats) => ({ companionStats })
+            ),
+      ]);
+      const response = json(
+        {
+          id: null,
+          name: normalizedTwitchUsername,
+          twitchUsername: normalizedTwitchUsername,
+          minecraftLinked: false,
+          head: '/img/reward.png',
+          ...normalizeRewardsPayload(linkedRewards),
+          tier: [],
+          iskall85Tier,
+          leaderboardPlace: null,
+          companionStats: snapshotProfile.companionStats,
+        },
+        200,
+        {
+          'cache-control': `public, max-age=${PROFILE_BROWSER_CACHE_TTL_SECONDS}, s-maxage=${PROFILE_EDGE_CACHE_TTL_SECONDS}`,
+        }
+      );
+      if (useProfileCache && cache) await cache.put(cacheRequest, response.clone());
+      return response;
+    }
     const profile = await fetchProfile(linkedRewards?.minecraftId || normalizedUsername);
 
     if (!profile) {
@@ -240,6 +272,7 @@ export async function onRequest({ request, env, waitUntil }) {
     const response = json(
       {
         id: rawId,
+        minecraftLinked: true,
         name,
         head,
         rewards,
@@ -432,8 +465,8 @@ async function fetchRewardsByTwitch(twitchUsername, headers) {
     error.status = 502;
     throw error;
   }
-  if (result.notFound || !result.data?.minecraftId) {
-    const error = new Error('This Twitch account is not linked to a Minecraft account.');
+  if (result.notFound || !result.data || typeof result.data !== 'object') {
+    const error = new Error('Twitch account not found.');
     error.status = 404;
     throw error;
   }

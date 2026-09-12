@@ -30,6 +30,8 @@ export function getUsernameFromQuery() {
 
   // Try standard parameters first
   const params = new URLSearchParams(rawQuery);
+  const twitchUsername = params.get('twitchUsername');
+  if (twitchUsername) return `twitch:${twitchUsername.trim()}`;
   const leaderboardTarget = params.get('leaderboard');
   if (leaderboardTarget) {
     return `leaderboard:${decode(leaderboardTarget).trim()}`;
