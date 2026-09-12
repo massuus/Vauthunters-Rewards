@@ -31,6 +31,7 @@ import {
 } from './profile-interactions.js';
 import { clearLeaderboardCache } from '../features/leaderboard.js';
 import { syncActiveNavigation } from './navigation.js';
+import { showSupportPopupForProfile } from './support-popup.js';
 
 let setsHelpTemplate = '';
 
@@ -192,6 +193,7 @@ export async function renderProfile(data) {
     extraSection;
 
   resultContainer.classList.remove('hidden');
+  showSupportPopupForProfile(data);
 
   window.history.replaceState(
     {},

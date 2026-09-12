@@ -29,7 +29,7 @@ export class SupportPopup {
     popup.setAttribute('aria-labelledby', 'support-popup-title');
     popup.innerHTML = `
       <div class="support-popup__header">
-        <p class="support-popup__eyebrow">September &middot; Suicide Prevention Month</p>
+        <p class="support-popup__eyebrow">${this.enabled ? 'September &middot; Suicide Prevention Month' : 'Community support'}</p>
         <button type="button" class="support-popup__close" aria-label="Dismiss support message">&times;</button>
       </div>
       <h3 id="support-popup-title" class="support-popup__title">You don't have to face it alone</h3>
@@ -50,11 +50,15 @@ export class SupportPopup {
     return popup;
   }
 
-  show() {
-    if (!this.enabled || this.dismissed || this.popup || this.timer !== null) return;
+  show({ force = false } = {}) {
+    if ((!force && (!this.enabled || this.dismissed)) || this.popup) return;
+    if (this.timer !== null) {
+      if (!force) return;
+      clearTimeout(this.timer);
+    }
     this.timer = setTimeout(() => {
       this.timer = null;
-      if (this.dismissed) return;
+      if (!force && this.dismissed) return;
       this.popup = this.createPopup();
       document.body.appendChild(this.popup);
     }, POPUP_DELAY);
@@ -79,7 +83,24 @@ export class SupportPopup {
   }
 }
 
+let supportPopup = null;
+
 export function initSupportPopup() {
-  const popup = new SupportPopup();
-  popup.init();
+  if (supportPopup) return;
+  supportPopup = new SupportPopup();
+  supportPopup.init();
+}
+
+export function showSupportPopupForProfile(profile) {
+  const names = [profile?.name, profile?.twitchUsername];
+  const isTributeProfile = names.some((name) =>
+    ['hellpiegamin', 'duckfromhell'].includes(
+      String(name || '')
+        .trim()
+        .toLowerCase()
+    )
+  );
+  if (!isTributeProfile) return;
+  if (!supportPopup) supportPopup = new SupportPopup();
+  supportPopup.show({ force: true });
 }
