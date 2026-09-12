@@ -9,8 +9,6 @@ const PRESSABLE_SELECTOR = [
   '.codes-card__vod',
   '.codes-card__reveal',
   '.codes-page__redeem-btn',
-  '.codes-popup__close',
-  '.codes-popup__link',
   '.pwa-install-button',
 ].join(', ');
 

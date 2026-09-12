@@ -1,0 +1,125 @@
+/* September community support message */
+.support-popup {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  box-sizing: border-box;
+  width: min(420px, calc(100vw - 32px));
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  padding: 24px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-top: 3px solid #9bcfc6;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.support-popup__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.support-popup__eyebrow {
+  flex: 1;
+  margin: 0 0 12px;
+  color: #9bcfc6;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.support-popup__close {
+  flex: 0 0 44px;
+  min-height: 44px;
+  margin: -12px -12px 0 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  box-shadow: none;
+  color: var(--text-secondary);
+  font-size: 26px;
+  cursor: pointer;
+}
+
+.support-popup__close:hover {
+  background: rgba(155, 207, 198, 0.1);
+  color: var(--text-primary);
+}
+
+.support-popup__title {
+  margin: 0 0 12px;
+  color: var(--text-primary);
+  font-size: 22px;
+  line-height: 1.3;
+}
+
+.support-popup__tribute,
+.support-popup__text {
+  margin: 0 0 16px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.support-popup__tribute {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-primary);
+}
+
+.support-popup__tribute img {
+  flex: 0 0 64px;
+  object-fit: contain;
+}
+
+.support-popup__tribute p {
+  margin: 0;
+}
+
+.support-popup__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 10px 16px;
+  background: #9bcfc6;
+  color: #142824;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.support-popup__link:hover {
+  background: #b8e3dc;
+}
+
+.support-popup__link:focus-visible,
+.support-popup__close:focus-visible {
+  outline: 2px solid #9bcfc6;
+  outline-offset: 4px;
+}
+
+.support-popup__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .support-popup {
+    bottom: 16px;
+    right: 16px;
+    padding: 20px;
+  }
+}

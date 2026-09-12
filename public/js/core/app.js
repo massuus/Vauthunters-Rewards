@@ -10,7 +10,7 @@ import { renderRecentSection } from '../components/recent-section.js';
 import { getUsernameFromQuery } from '../features/url-state.js';
 import { initLazyImages } from '../loaders/image-loader.js';
 import { initPWAInstall } from '../features/pwa-install.js';
-import { initRewardCodesPopup } from '../components/reward-codes-popup.js';
+import { initSupportPopup } from '../components/support-popup.js';
 import { initPressFeedback } from '../features/press-feedback.js';
 import { initNavigation } from '../components/navigation.js';
 import { initPlayerSuggestions } from '../components/player-suggestions.js';
@@ -49,8 +49,8 @@ async function initializeApp() {
   // Initialize PWA install prompt
   initPWAInstall();
 
-  // Initialize reward codes popup
-  initRewardCodesPopup();
+  // Initialize September support popup
+  initSupportPopup();
 
   // Mirror pressed-state feedback on touch devices for styled buttons and links
   initPressFeedback();
