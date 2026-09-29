@@ -199,6 +199,23 @@ function updateHeading(state) {
     state.metric === 'setsUnlocked';
 }
 
+function updateSnapshotTime(state, value) {
+  const element = state.snapshotTimeEl;
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) {
+    element.hidden = true;
+    element.replaceChildren();
+    return;
+  }
+
+  const time = document.createElement('time');
+  time.dateTime = date.toISOString();
+  time.title = date.toISOString();
+  time.textContent = date.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+  element.replaceChildren('Leaderboard last updated: ', time);
+  element.hidden = false;
+}
+
 function updateStreamerMenus(state) {
   const streamers = new Map((state.streamers || []).map((streamer) => [streamer.login, streamer]));
   if (!streamers.has(state.streamer)) {
@@ -228,6 +245,7 @@ function resetList(state) {
   disconnectObserver();
   state.loadGeneration += 1;
   state.listEl.innerHTML = '';
+  updateSnapshotTime(state, null);
   state.firstOffset = null;
   state.lastOffsetExclusive = 0;
   state.total = 0;
@@ -264,6 +282,7 @@ async function loadPage(state, direction, { throwOnError = false } = {}) {
     if (state.sessionId !== activeSessionId || loadGeneration !== state.loadGeneration) return;
 
     const players = Array.isArray(payload.players) ? payload.players : [];
+    updateSnapshotTime(state, payload.snapshotGeneratedAt);
     state.total = Number(payload.total || 0);
     state.focusPlayer = payload.focusPlayer || state.focusPlayer;
     if (Array.isArray(payload.streamers) && payload.streamers.length) {
@@ -749,6 +768,7 @@ export async function renderLeaderboardPage(
       <header class="leaderboard-page__intro">
         <h2 class="leaderboard-page__title" data-leaderboard-title>Leaderboard</h2>
         <p class="leaderboard-page__lead" data-leaderboard-description></p>
+        <p class="leaderboard-page__updated" data-leaderboard-updated hidden></p>
       </header>
       <div class="leaderboard-page__tabs" role="tablist" aria-label="Leaderboard type">
         ${Object.entries(METRICS)
@@ -783,6 +803,7 @@ export async function renderLeaderboardPage(
     sessionId,
     root,
     listEl: root.querySelector('[data-leaderboard-list]'),
+    snapshotTimeEl: root.querySelector('[data-leaderboard-updated]'),
     statusEl: root.querySelector('[data-leaderboard-status]'),
     loadPrevButtonEl: root.querySelector('[data-leaderboard-load-prev]'),
     loadMoreButtonEl: root.querySelector('[data-leaderboard-load-more]'),
