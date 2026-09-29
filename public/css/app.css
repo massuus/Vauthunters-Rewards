@@ -2846,6 +2846,12 @@ body {
   color: var(--text-secondary);
 }
 
+.leaderboard-page__updated {
+  margin: 0.35rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
 .leaderboard-page__subtext {
   margin-top: 0.2rem;
   color: var(--accent);
