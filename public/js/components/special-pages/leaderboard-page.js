@@ -216,6 +216,15 @@ function updateSnapshotTime(state, value) {
   element.hidden = false;
 }
 
+function getLeaderboardUpdatedAt(state, payload) {
+  if (state.metric === 'setsUnlocked') return payload.snapshotGeneratedAt;
+  return (
+    state.streamers.find(
+      (streamer) => String(streamer?.login || '').toLowerCase() === state.streamer
+    )?.updatedAt || null
+  );
+}
+
 function updateStreamerMenus(state) {
   const streamers = new Map((state.streamers || []).map((streamer) => [streamer.login, streamer]));
   if (!streamers.has(state.streamer)) {
@@ -282,13 +291,13 @@ async function loadPage(state, direction, { throwOnError = false } = {}) {
     if (state.sessionId !== activeSessionId || loadGeneration !== state.loadGeneration) return;
 
     const players = Array.isArray(payload.players) ? payload.players : [];
-    updateSnapshotTime(state, payload.snapshotGeneratedAt);
     state.total = Number(payload.total || 0);
     state.focusPlayer = payload.focusPlayer || state.focusPlayer;
     if (Array.isArray(payload.streamers) && payload.streamers.length) {
       state.streamers = payload.streamers;
       updateStreamerMenus(state);
     }
+    updateSnapshotTime(state, getLeaderboardUpdatedAt(state, payload));
 
     if (!players.length) {
       if (!state.listEl.childElementCount) {
