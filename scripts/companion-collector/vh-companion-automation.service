@@ -1,0 +1,35 @@
+[Unit]
+Description=Bounded Vault Hunters companion leaderboard collector
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/companion-collector-test
+ExecStart=/home/ubuntu/.nvm/versions/node/v24.17.0/bin/node /home/ubuntu/companion-collector-test/automation.mjs
+Environment=PATH=/home/ubuntu/.nvm/versions/node/v24.17.0/bin:/usr/bin:/bin
+Environment=PLAYWRIGHT_BROWSERS_PATH=/home/ubuntu/companion-collector-test/browsers
+Environment=LD_LIBRARY_PATH=/home/ubuntu/companion-collector-test/libs/usr/lib/aarch64-linux-gnu
+Environment=FONTCONFIG_FILE=/home/ubuntu/companion-collector-test/fonts.conf
+UMask=0077
+MemoryMax=1G
+CPUQuota=50%
+TasksMax=128
+Nice=10
+ProtectSystem=strict
+ReadWritePaths=/home/ubuntu/companion-collector-test
+ReadOnlyPaths=/home/ubuntu/vault-pinger
+PrivateTmp=yes
+NoNewPrivileges=yes
+KillMode=control-group
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=900
+LogRateLimitIntervalSec=60
+LogRateLimitBurst=20
+
+[Install]
+WantedBy=multi-user.target

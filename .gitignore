@@ -8,6 +8,7 @@ meta.json
 # Node modules
 node_modules/
 package-lock.json
+!scripts/companion-collector/package-lock.json
 
 # Environment variables
 .env
@@ -44,3 +45,4 @@ coverage/
 .turbo/
 dist-ssr/
 *.pem
+scripts/companion-collector/renew-login.ps1

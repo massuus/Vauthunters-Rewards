@@ -1,0 +1,81 @@
+import process from 'node:process';
+import { readFile, writeFile, mkdir, rename, appendFile, readdir, unlink } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { parseEnv } from 'node:util';
+import { setTimeout as delay } from 'node:timers/promises';
+import { createLiveChecker } from './live-status.mjs';
+import { STREAMERS, automationTick, validateState } from './automation-core.mjs';
+import { collectChannel, uploadSnapshot } from './automation-io.mjs';
+
+const directory = dirname(fileURLToPath(import.meta.url));
+const results = join(directory, 'results', 'automation');
+const controller = new AbortController();
+process.once('SIGTERM', () => controller.abort());
+process.once('SIGINT', () => controller.abort());
+async function atomic(path, data) {
+  await writeFile(`${path}.tmp`, JSON.stringify(data, null, 2), { mode: 0o600 });
+  await rename(`${path}.tmp`, path);
+}
+try {
+  await mkdir(results, { recursive: true, mode: 0o700 });
+  const config = JSON.parse(await readFile(join(directory, '.auth/sync.json'), 'utf8'));
+  if (!/^[a-f0-9]{64}$/.test(config.token)) throw new Error('Missing sync token.');
+  const bot = parseEnv(await readFile('/home/ubuntu/vault-pinger/.env', 'utf8'));
+  const checkLive = createLiveChecker({
+    clientId: bot.TWITCH_CLIENT_ID,
+    clientSecret: bot.TWITCH_CLIENT_SECRET,
+    signal: controller.signal,
+  });
+  const statePath = join(results, 'state.json');
+  let state;
+  try {
+    state = JSON.parse(await readFile(statePath, 'utf8'));
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw new Error('Invalid budget state; refusing to reset.');
+    state = { channels: {} };
+  }
+  validateState(state);
+  const report = async (result) => {
+    const summary = { ...result, time: new Date().toISOString() };
+    await atomic(join(results, 'status.json'), summary);
+    await appendFile(
+      join(results, `history-${summary.time.slice(0, 10)}.jsonl`),
+      `${JSON.stringify(summary)}\n`,
+      { mode: 0o600 }
+    );
+    // Keep 14 daily logs, seven latest snapshots and one state file; no unbounded growth.
+    const histories = (await readdir(results))
+      .filter((name) => /^history-\d{4}-\d{2}-\d{2}\.jsonl$/.test(name))
+      .sort();
+    for (const name of histories.slice(0, -14)) await unlink(join(results, name));
+    process.stdout.write(`${JSON.stringify(summary)}\n`);
+  };
+  while (!controller.signal.aborted) {
+    let live = [];
+    try {
+      live = await checkLive(STREAMERS);
+    } catch {
+      await report({ status: 'waiting', code: 'live-check-failed' });
+    }
+    if (controller.signal.aborted) break;
+    await automationTick({
+      state,
+      live,
+      signal: controller.signal,
+      collect: (streamer) => collectChannel(directory, results, streamer, controller.signal),
+      upload: (streamer) =>
+        uploadSnapshot({ results, streamer, token: config.token, endpoint: config.endpoint }),
+      save: (value) => atomic(statePath, value),
+      report,
+    });
+    await report({ status: 'waiting', live, attemptsToday: state.attempts || 0 });
+    if (process.argv.includes('--once')) break;
+    await delay(15 * 60_000, undefined, { signal: controller.signal }).catch(() => {});
+  }
+} catch {
+  process.stderr.write(
+    'Companion automation stopped; check saved state and private configuration.\n'
+  );
+  process.exitCode = 1;
+}
