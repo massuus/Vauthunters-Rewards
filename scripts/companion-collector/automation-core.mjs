@@ -8,6 +8,7 @@ export const STREAMERS = [
   'stressmonstah',
 ];
 const HOUR = 3600_000;
+const UPLOAD_INTERVAL = 3 * HOUR;
 
 export function validateState(state) {
   if (
@@ -86,6 +87,7 @@ export async function automationTick({
       if (['imported', 'already-imported'].includes(outcome.status)) {
         channel.pending = false;
         channel.lastUploadedAt = new Date(now()).toISOString();
+        channel.uploadAfter = 0;
       } else if (channel.uploadAttempts >= 3 || outcome.permanent) {
         channel.pending = false;
         channel.nextAttempt = Math.max(channel.nextAttempt || 0, now() + 12 * HOUR);
@@ -97,7 +99,6 @@ export async function automationTick({
     dailyState(state, now());
     if (
       !live.includes(streamer) ||
-      channel.pending ||
       now() < (channel.nextAttempt || 0) ||
       state.attempts >= 14 ||
       (state.byStreamer[streamer] || 0) >= 6
@@ -114,9 +115,11 @@ export async function automationTick({
       outcome = { status: 'failed', code: 'collector-failed' };
     }
     if (outcome.status === 'collected') {
+      const wasPending = channel.pending === true;
       channel.pending = true;
-      channel.uploadAttempts = 0;
-      channel.uploadAfter = 0;
+      if (!wasPending) channel.uploadAttempts = 0;
+      const lastUploaded = Date.parse(channel.lastUploadedAt || '') || 0;
+      channel.uploadAfter = Math.max(channel.uploadAfter || 0, lastUploaded + UPLOAD_INTERVAL);
     } else if (outcome.code === 'empty-result') channel.nextAttempt = now() + 12 * HOUR;
     else if (outcome.code === 'login-or-extension-access-required')
       channel.nextAttempt = now() + 24 * HOUR;

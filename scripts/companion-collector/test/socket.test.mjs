@@ -87,6 +87,26 @@ test('collects all pages, ignores unrelated acks, deduplicates and removes extra
   );
 });
 
+test('adds the signed-in owner companion to the collected leaderboard', async () => {
+  const companion = { skin: 'Massuus', seasonLevel: 42, vaultsJoined: 9, secret: 'omit' };
+  const { Socket } = fakeSocket((socket, message) => {
+    const page = Number(message.match(/^42\/extension,(\d+)/)?.[1]);
+    socket.receive(
+      `43/extension,${page}${JSON.stringify([{ data: [player], pagination: { totalPages: 1 } }])}`
+    );
+  }, companion);
+  const result = await retrievePlayers(url, 'hoy_82', { WebSocketImpl: Socket });
+  const owner = result.players.find((row) => row.name === 'massuus');
+  assert.deepEqual(owner, {
+    name: 'massuus',
+    skin: 'Massuus',
+    alias: 'Massuus',
+    seasonLevel: 42,
+    vaultsJoined: 9,
+  });
+  assert.equal(owner.secret, undefined);
+});
+
 test('bad or incomplete pages fail instead of producing a partial snapshot', async (t) => {
   for (const [name, payload, code] of [
     ['missing data', { pagination: { totalPages: 1 } }, 'invalid-pagination'],

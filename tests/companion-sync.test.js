@@ -111,7 +111,7 @@ test('body size is enforced while streaming without trusting Content-Length', as
 });
 
 test(
-  'import is atomic, keeps identities and absent players, saves exact backup, and retry is idempotent',
+  'import is atomic, keeps identities and absent players, backs up changes, and retry is idempotent',
   { skip: !sqlite },
   async () => {
     const { sql, env } = fixture();
@@ -135,7 +135,10 @@ test(
     assert.equal(viewer.minecraft_name, 'ActualName');
     assert.equal(sql.prepare('SELECT count(*) n FROM companion_leaderboard_players').get().n, 2);
     const backup = sql.prepare('SELECT * FROM companion_sync_backup ORDER BY twitch_name').all();
-    assert.deepEqual(backup, before);
+    assert.deepEqual(
+      backup,
+      before.filter((row) => row.twitch_name === 'viewer')
+    );
     assert.equal((await importCompanionSnapshot(env, payload)).status, 'already-imported');
     await assert.rejects(
       importCompanionSnapshot(env, {
@@ -254,7 +257,7 @@ test(
 );
 
 test(
-  '10000 players import and back up in one transaction without D1 parameter-per-player limits',
+  '10000 players import and identical snapshots produce no backup writes',
   { skip: !sqlite },
   async () => {
     const { sql, env } = fixture();
@@ -267,7 +270,7 @@ test(
     const first = snapshot({ players, collectedAt: new Date(Date.now() - 1000).toISOString() });
     assert.equal((await importCompanionSnapshot(env, first)).changed, 10000);
     assert.equal((await importCompanionSnapshot(env, snapshot({ players }))).changed, 0);
-    assert.equal(sql.prepare('SELECT count(*) n FROM companion_sync_backup').get().n, 10000);
+    assert.equal(sql.prepare('SELECT count(*) n FROM companion_sync_backup').get().n, 0);
     sql.close();
   }
 );

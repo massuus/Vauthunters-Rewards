@@ -165,6 +165,13 @@ export function retrievePlayers(
         if (!companion || typeof companion !== 'object' || Array.isArray(companion))
           return finish('invalid-companion-response');
         companionState = 'present';
+        const owner = playerRecord({
+          ...companion,
+          name: 'massuus',
+          skin: /^[a-z0-9_]{1,16}$/i.test(companion.skin || '') ? companion.skin : 'Massuus',
+          alias: 'Massuus',
+        });
+        if (owner) players.set(owner.name, owner);
         requestPage();
         return;
       }

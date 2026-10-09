@@ -10,12 +10,13 @@ It starts at boot and restarts after a crash with a 15-minute delay. The existin
    reusing its own app token. Offline checks launch no browser.
 2. Live channels are collected sequentially with the saved Twitch browser session.
    Video is blocked. The extension supplies fresh connection credentials in memory.
-3. Completed snapshots are saved under `results/automation/<streamer>.json`.
-4. On the next check, the snapshot is POSTed over HTTPS to
+3. Completed snapshots are saved under `results/automation/<streamer>.json`. Collection can
+   continue hourly while delivery waits, so this file always contains the newest complete result.
+4. At most once per streamer every three hours, the newest snapshot is POSTed over HTTPS to
    `https://vh-rewards.massuus.com/api/companion-sync`. A dedicated random secret
    authenticates this endpoint; it does not use an admin cookie or chat user token.
-5. The endpoint validates the whole snapshot, backs up the previous channel rows,
-   then upserts the new stats and import watermark in one D1 transaction. Empty,
+5. The endpoint validates the whole snapshot, skips identical data, backs up only rows that
+   will change, then upserts the new stats and import watermark in one D1 transaction. Empty,
    malformed, expired, conflicting and older snapshots are rejected. Retries of an
    identical import are idempotent. Existing Minecraft account links and players
    absent from a collection are preserved; newer manual edits take precedence.
@@ -26,12 +27,13 @@ It starts at boot and restarts after a crash with a 15-minute delay. The existin
 
 ## Limits
 
-- At most two browser attempts per channel per UTC calendar day, 14 total.
-- At least six hours between attempts for a channel. Empty results wait 12 hours;
+- At most six browser attempts per channel per UTC calendar day, 14 total.
+- At least one hour between attempts for a channel. Empty results wait 12 hours;
   a login/extension-permission error waits 24 hours. No immediate browser retries.
 - Budgets are saved before opening a browser and survive service restarts.
-- Upload retries are independent of collection: at most three attempts per snapshot,
-  one hour apart after a failure. Permanent HTTP errors stop delivery retries.
+- Normal successful uploads are at least three hours apart per streamer. Upload retries are
+  independent of collection: at most three attempts, one hour apart after a failure.
+  Permanent HTTP errors stop delivery retries.
 - One browser at a time; aggregate 1 GB RAM, 50% of one CPU, 128 tasks.
 - Each browser has a two-minute internal deadline and 150-second external timeout
   with five seconds to kill. Up to 800 browser requests and a 30 MiB response-data
@@ -39,7 +41,8 @@ It starts at boot and restarts after a crash with a 15-minute delay. The existin
   (10,000 players), 8 MiB or 90 seconds. No partial snapshot is imported.
 - Upload body maximum 2 MiB; only the seven configured channels are accepted.
 - Keeps 14 daily log files, one current snapshot per channel, and budget/status files.
-  D1 retains one pre-import backup per channel. It does not accumulate all imports.
+  D1 retains only the changed pre-import rows needed to reverse the latest import per channel.
+  It does not accumulate all imports.
 - Uses the existing Oracle VM/disk and existing Cloudflare resources. No VM resize,
   extra volumes, browser services, or new paid resources. Usage still counts toward
   the account's normal network/database allowances; billing has not been inspected.

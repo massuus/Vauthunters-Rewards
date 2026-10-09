@@ -117,7 +117,7 @@ export async function importCompanionSnapshot(env, payload) {
   const { streamer, collectedAt, players } = snapshot;
   const digestBytes = await crypto.subtle.digest(
     'SHA-256',
-    new TextEncoder().encode(JSON.stringify(snapshot))
+    new TextEncoder().encode(JSON.stringify(players))
   );
   const digest = Array.from(new Uint8Array(digestBytes), (n) =>
     n.toString(16).padStart(2, '0')
@@ -127,9 +127,11 @@ export async function importCompanionSnapshot(env, payload) {
     .bind(streamer)
     .first();
   if (previous?.collected_at === collectedAt && previous.digest === digest)
-    return { status: 'already-imported', streamer, players: players.length };
+    return { status: 'already-imported', streamer, players: players.length, changed: 0 };
   if (previous?.collected_at >= collectedAt)
     throw new ApiError(409, 'A newer or conflicting collection is already stored.');
+  if (previous?.digest === digest)
+    return { status: 'already-imported', streamer, players: players.length, changed: 0 };
   if (payload.dryRun === true) return { status: 'validated', streamer, players: players.length };
   const importedAt = new Date().toISOString();
   // D1 batch is transactional. Backup, upsert, and watermark either all commit or all roll back.
@@ -147,10 +149,17 @@ export async function importCompanionSnapshot(env, payload) {
     db
       .prepare(
         `INSERT INTO companion_sync_backup
-      SELECT * FROM companion_leaderboard_players WHERE streamer_login = ?1
-      AND (SELECT collected_at FROM companion_sync_state WHERE streamer_login = ?1) < ?2`
+      SELECT current.* FROM companion_leaderboard_players AS current
+      JOIN json_each(?3) AS incoming
+        ON current.twitch_name = json_extract(incoming.value, '$.name')
+      WHERE current.streamer_login = ?1
+        AND (SELECT collected_at FROM companion_sync_state WHERE streamer_login = ?1) < ?2
+        AND (current.player_name IS NOT json_extract(incoming.value, '$.skin')
+          OR current.alias IS NOT json_extract(incoming.value, '$.alias')
+          OR current.season_level IS NOT json_extract(incoming.value, '$.seasonLevel')
+          OR current.vaults_joined IS NOT json_extract(incoming.value, '$.vaultsJoined'))`
       )
-      .bind(streamer, collectedAt),
+      .bind(streamer, collectedAt, JSON.stringify(players)),
     db
       .prepare(
         `INSERT INTO companion_leaderboard_players

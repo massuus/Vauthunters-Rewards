@@ -15,6 +15,7 @@ export function companionRollbackStatements(db, streamer, collectedAt) {
       .prepare(
         `DELETE FROM companion_leaderboard_players
       WHERE streamer_login = ?1 AND ${guard}
+      AND updated_at = ?2
       AND NOT EXISTS (SELECT 1 FROM companion_sync_backup b WHERE b.streamer_login = ?1
         AND b.twitch_name = companion_leaderboard_players.twitch_name)`
       )

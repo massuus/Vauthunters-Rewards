@@ -41,7 +41,7 @@ test('offline channels do not open browsers; daily budget survives restart and r
   assert.equal(calls, 21);
 });
 
-test('successful collection queues upload, retries delivery without another browser, then stops after three failures', async () => {
+test('pending uploads retry while newer local collections stay fresh', async () => {
   const state = {};
   let clock = Date.now();
   let browsers = 0;
@@ -70,7 +70,7 @@ test('successful collection queues upload, retries delivery without another brow
     await run();
   }
   assert.equal(uploads, 3);
-  assert.equal(browsers, 1);
+  assert.equal(browsers, 3);
   assert.equal(state.channels.mayaicefire.pending, false);
 });
 
