@@ -22,12 +22,23 @@ function duration(from, now) {
   const minutes = Math.floor(ms / 60000);
   return minutes < 60 ? `${minutes}m` : `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
 }
+function clockTime(value) {
+  const date = new Date(value || '');
+  if (!Number.isFinite(date.getTime())) return '';
+  return new Intl.DateTimeFormat([], { hour: '2-digit', minute: '2-digit' }).format(date);
+}
 function activity(streamer, stale, now) {
   if (stale) return { label: 'Lost in the fog', detail: 'Status unavailable' };
   if (!streamer.live) return { label: 'Taking a break', detail: 'Offline' };
   if (streamer.inVault) {
     const elapsed = duration(streamer.vaultStartedAt, now);
-    return { label: 'Running a vault', detail: elapsed ? `In vault · ${elapsed}` : 'In vault' };
+    const started = clockTime(streamer.vaultStartedAt);
+    return {
+      label: 'Running a vault',
+      detail: started
+        ? `Started around ${started}${elapsed ? ` · ${elapsed} ago` : ''}`
+        : 'In vault',
+    };
   }
   if (streamer.joinWindowOpen)
     return { label: 'Preparing the next vault', detail: 'Join window open' };

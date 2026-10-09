@@ -26,6 +26,7 @@ export class PresenceConnection {
     this.nextId = 1;
     this.requestTimeout = requestTimeout;
     this.onClose = onClose;
+    this.onCompanion = onCompanion;
     this.socket = new WebSocketImpl(validateSocketUrl(url, streamer));
     this.timer = setTimeout(() => this.close('connection-timeout'), 25_000);
     this.socket.addEventListener('error', () => this.close('socket-disconnected'));
@@ -70,7 +71,7 @@ export class PresenceConnection {
         if (name === 'updateCompanion' && value && typeof value === 'object') {
           const previous = this.companion;
           this.companion = { ...this.companion, ...value };
-          onCompanion(this.companion, previous);
+          this.onCompanion(this.companion, previous);
         }
         if (name === 'resetCompanion') this.companion = null;
       } catch {
@@ -118,7 +119,9 @@ export class PresenceConnection {
       typeof value.state !== 'string'
     )
       throw new JoinError('invalid-companion');
+    const previous = this.companion;
     this.companion = value;
+    this.onCompanion(this.companion, previous);
     return value;
   }
   close(code = 'socket-disconnected') {

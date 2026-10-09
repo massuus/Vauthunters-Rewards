@@ -46,6 +46,28 @@ test('presence connection exposes vault state and companion XP without allowing 
   connection.close();
 });
 
+test('reading a companion publishes its active-vault state', async () => {
+  let socket;
+  const companions = [];
+  const connection = new PresenceConnection(socketUrl('mayaicefire'), 'mayaicefire', {
+    WebSocketImpl: class extends FakeSocket {
+      constructor() {
+        super();
+        socket = this;
+      }
+    },
+    onCompanion: (current, previous) => companions.push({ current, previous }),
+  });
+  socket.receive('42/extension,["authenticated"]');
+  const pending = connection.readCompanion();
+  socket.receive('43/extension,1[{"activeThisVault":true,"state":"AWAKE","totalXp":20}]');
+  await pending;
+  assert.equal(companions.length, 1);
+  assert.equal(companions[0].current.activeThisVault, true);
+  assert.equal(companions[0].previous, null);
+  connection.close();
+});
+
 test('socket join is persisted before sending and confirmed by reading companion state', async () => {
   const saved = [];
   const notices = [];
@@ -125,4 +147,34 @@ test('uncertain socket writes are not repeated through chat', async () => {
   await coordinator.chat('hoy_82');
   assert.equal(state.channels.hoy_82.lastAction.outcome, 'unconfirmed');
   assert.equal(chats, 0);
+});
+
+test('a reconnect preserves a recent socket outcome instead of repeating its write', async () => {
+  let writes = 0;
+  const now = 100_000;
+  const state = {
+    channels: {
+      hoy_82: {
+        open: false,
+        lastAction: { at: now - 1_000, method: 'socket', outcome: 'unconfirmed' },
+      },
+    },
+  };
+  const coordinator = new JoinCoordinator({
+    state,
+    now: () => now,
+    save: () => {},
+    getConnection: () => ({
+      ready: true,
+      presence: true,
+      online: true,
+      readCompanion: async () => ({ activeThisVault: false, state: 'AWAKE' }),
+      request: async () => writes++,
+    }),
+    sendChat: async () => {},
+    notify: async () => {},
+  });
+  await coordinator.presence('hoy_82', true);
+  assert.equal(state.channels.hoy_82.window.outcome, 'unconfirmed');
+  assert.equal(writes, 0);
 });

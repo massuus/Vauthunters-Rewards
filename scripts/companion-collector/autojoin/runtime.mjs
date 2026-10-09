@@ -92,6 +92,26 @@ export function startAutoJoin({
     notify,
     getConnection: (c) => connections.get(c),
   });
+  // These values describe a particular socket session. Rebuild them from the
+  // server after every process start instead of reusing a stale open window.
+  for (const streamer of channels) {
+    const c = coordinator.channel(streamer);
+    c.open = false;
+    c.vaultRunning = false;
+    c.vaultStartedAt = null;
+  }
+  save();
+  const updateVaultState = (streamer, running) => {
+    const c = coordinator.channel(streamer);
+    if (running && c.vaultRunning !== true) c.vaultStartedAt = Date.now();
+    if (c.vaultRunning === true && !running) {
+      c.collectionRequestedAt = Date.now();
+      c.lastVaultEndedAt = Date.now();
+      c.vaultStartedAt = null;
+    }
+    c.vaultRunning = running;
+    save();
+  };
   const run = (promise) => void Promise.resolve(promise).catch(() => failClosed());
   const status = () => {
     const now = new Date().toISOString();
@@ -175,17 +195,12 @@ export function startAutoJoin({
         if (!stopped) run(coordinator.presence(streamer, open));
       },
       onVaultState(running) {
-        const c = coordinator.channel(streamer);
-        if (running && c.vaultRunning !== true) c.vaultStartedAt = Date.now();
-        if (c.vaultRunning === true && !running) {
-          c.collectionRequestedAt = Date.now();
-          c.lastVaultEndedAt = Date.now();
-          c.vaultStartedAt = null;
-        }
-        c.vaultRunning = running;
-        save();
+        updateVaultState(streamer, running);
       },
       onCompanion(current, previous) {
+        if (current.activeThisVault === true) updateVaultState(streamer, true);
+        else if (previous?.activeThisVault === true && current.activeThisVault === false)
+          updateVaultState(streamer, false);
         if (!previous) return;
         const increased = ['vaultsJoined', 'totalXp', 'seasonLevel'].some(
           (key) =>

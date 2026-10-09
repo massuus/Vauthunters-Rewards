@@ -37,10 +37,13 @@ export class JoinCoordinator {
   presence(name, open) {
     const c = this.channel(name);
     if (open && !c.open) {
-      // A chat send just before the socket arrived belongs to this window.
-      const recentChat =
-        c.lastAction?.method === 'chat' && this.now() - c.lastAction.at < this.cooldownMs;
-      c.window = { openedAt: this.now(), outcome: recentChat ? 'chat-sent' : 'waiting' };
+      // A recent write belongs to this window after a reconnect. Preserve its
+      // result so an uncertain socket write can never be sent a second time.
+      const recentAction = c.lastAction && this.now() - c.lastAction.at < this.cooldownMs;
+      c.window = {
+        openedAt: this.now(),
+        outcome: recentAction ? c.lastAction.outcome : 'waiting',
+      };
     }
     c.open = open;
     this.persist();
