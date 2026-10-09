@@ -6,46 +6,40 @@ const PHRASES = [
   'Planning the next vault',
   'Definitely not distracted',
 ];
-
 let refreshTimer;
-
 export function isLiveQuery(value) {
   return value.toLowerCase() === 'live';
 }
-
 function phraseFor(login, now) {
-  const bucket = Math.floor(now / (15 * 60_000));
+  const bucket = Math.floor(now / 900000);
   let value = bucket;
   for (const character of login) value = (value * 31 + character.charCodeAt(0)) >>> 0;
   return PHRASES[value % PHRASES.length];
 }
-
 function duration(from, now) {
-  const milliseconds = now - Date.parse(from || '');
-  if (!Number.isFinite(milliseconds) || milliseconds < 0) return '';
-  const minutes = Math.floor(milliseconds / 60_000);
-  if (minutes < 60) return `${minutes}m`;
-  return `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
+  const ms = now - Date.parse(from || '');
+  if (!Number.isFinite(ms) || ms < 0) return '';
+  const minutes = Math.floor(ms / 60000);
+  return minutes < 60 ? `${minutes}m` : `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
 }
-
 function activity(streamer, stale, now) {
-  if (stale) return { icon: '◇', label: 'Lost in the fog', detail: 'Status unavailable' };
-  if (!streamer.live) return { icon: '☾', label: 'Taking a break', detail: 'Offline' };
+  if (stale) return { label: 'Lost in the fog', detail: 'Status unavailable' };
+  if (!streamer.live) return { label: 'Taking a break', detail: 'Offline' };
   if (streamer.inVault) {
     const elapsed = duration(streamer.vaultStartedAt, now);
-    return {
-      icon: '◆',
-      label: 'Running a vault',
-      detail: elapsed ? `In vault · ${elapsed}` : 'In vault',
-    };
+    return { label: 'Running a vault', detail: elapsed ? `In vault · ${elapsed}` : 'In vault' };
   }
   if (streamer.joinWindowOpen)
-    return { icon: '✦', label: 'Preparing the next vault', detail: 'Join window open' };
+    return { label: 'Preparing the next vault', detail: 'Join window open' };
   if (!streamer.connected)
-    return { icon: '◌', label: 'Up to something', detail: 'Live · vault status unavailable' };
-  return { icon: '⌂', label: phraseFor(streamer.login, now), detail: 'Live · outside a vault' };
+    return { label: 'Up to something', detail: 'Live · vault status unavailable' };
+  return { label: phraseFor(streamer.login, now), detail: 'Live · outside a vault' };
 }
-
+function avatar(streamer, escapeHtml) {
+  return streamer.profileImageUrl
+    ? `<img class="live-card__avatar" src="${escapeHtml(streamer.profileImageUrl)}" alt="" width="44" height="44" loading="lazy" decoding="async">`
+    : `<span class="live-card__avatar" aria-hidden="true">${escapeHtml(streamer.displayName.slice(0, 1))}</span>`;
+}
 function renderCards(container, payload, escapeHtml) {
   const now = Date.now();
   const sorted = [...payload.streamers].sort(
@@ -57,20 +51,10 @@ function renderCards(container, payload, escapeHtml) {
   container.innerHTML = sorted
     .map((streamer) => {
       const state = activity(streamer, payload.stale, now);
-      return `<a class="live-card${streamer.live ? ' is-live' : ''}${streamer.inVault ? ' is-vault' : ''}"
-      href="https://www.twitch.tv/${encodeURIComponent(streamer.login)}" target="_blank" rel="noopener">
-      <span class="live-card__avatar" aria-hidden="true">${escapeHtml(streamer.displayName.slice(0, 1))}</span>
-      <span class="live-card__body">
-        <span class="live-card__name">${escapeHtml(streamer.displayName)}${streamer.live ? '<span class="live-card__badge">LIVE</span>' : ''}</span>
-        <strong class="live-card__activity"><span aria-hidden="true">${state.icon}</span> ${escapeHtml(state.label)}</strong>
-        <span class="live-card__detail" data-vault-start="${escapeHtml(streamer.vaultStartedAt || '')}">${escapeHtml(state.detail)}</span>
-      </span>
-      <span class="live-card__arrow" aria-hidden="true">↗</span>
-    </a>`;
+      return `<a class="live-card${streamer.live ? ' is-live' : ''}${streamer.inVault ? ' is-vault' : ''}" href="https://www.twitch.tv/${encodeURIComponent(streamer.login)}" target="_blank" rel="noopener">${avatar(streamer, escapeHtml)}<span class="live-card__body"><span class="live-card__name">${escapeHtml(streamer.displayName)}${streamer.live ? '<span class="live-card__badge">LIVE</span>' : ''}</span><strong class="live-card__activity">${escapeHtml(state.label)}</strong><span class="live-card__detail" data-vault-start="${escapeHtml(streamer.vaultStartedAt || '')}">${escapeHtml(state.detail)}</span></span><span class="live-card__arrow" aria-hidden="true">↗</span></a>`;
     })
     .join('');
 }
-
 async function load(container, status, escapeHtml) {
   try {
     const response = await fetch('/api/live-status', { headers: { accept: 'application/json' } });
@@ -87,7 +71,6 @@ async function load(container, status, escapeHtml) {
     status.textContent = 'Live status unavailable';
   }
 }
-
 export async function renderLivePage(
   container,
   setFavicon,
@@ -105,22 +88,13 @@ export async function renderLivePage(
     'See which Vault Hunters are live and whether they are currently running a vault.'
   );
   setFavicon(defaultFavicon);
-  container.innerHTML = `<section class="live-page">
-    <header class="live-page__intro">
-      <h2 class="live-page__title">Vault Hunters Live</h2>
-      <p>See who is streaming and who has disappeared into a vault.</p>
-      <div class="live-page__status" role="status">Checking the overworld…</div>
-    </header>
-    <div class="live-grid" aria-live="polite"></div>
-    <p class="live-page__note">Vault activity comes from the live extension connection. Status may briefly be unavailable when a connection moves or reconnects.</p>
-  </section>`;
+  container.innerHTML = `<section class="live-page"><header class="live-page__intro"><h2 class="live-page__title">Vault Hunters Live</h2><p>See who is streaming and who has disappeared into a vault.</p><div class="live-page__status" role="status">Checking the overworld…</div></header><div class="live-grid" aria-live="polite"></div><p class="live-page__note">Vault activity comes from the live extension connection. Status may briefly be unavailable when a connection moves or reconnects.</p></section>`;
   const grid = container.querySelector('.live-grid');
   const status = container.querySelector('.live-page__status');
   await load(grid, status, escapeHtml);
   clearInterval(refreshTimer);
-  refreshTimer = setInterval(() => load(grid, status, escapeHtml), 60_000);
+  refreshTimer = setInterval(() => load(grid, status, escapeHtml), 60000);
 }
-
 export function teardownLivePage() {
   clearInterval(refreshTimer);
   refreshTimer = undefined;
