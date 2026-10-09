@@ -78,8 +78,9 @@ It shows the last Oracle check-in, current problems, saved cookie expiry, per-ch
 collection/upload results, and when data last reached the website. It refreshes every
 minute while the page is visible and has a manual refresh button.
 
-Oracle sends a small authenticated health report after each normal collection/check
-cycle (roughly 15 minutes), using the existing upload secret. Only allowlisted dates,
+Oracle sends a small authenticated health report when live, connection, join-window or
+vault state changes, with a five-minute fallback heartbeat, using the existing upload secret.
+Leaderboard collection keeps its separate bounded schedule. Only allowlisted dates,
 counts, status values and error codes are sent; no cookies, credentials or raw logs.
 The latest report occupies one D1 row, independent of public leaderboard snapshots.
 

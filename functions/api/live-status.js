@@ -6,7 +6,7 @@ const NAMES = {
   iskall85: 'Iskall85',
   therealhellfirem4ge: 'Hellfirem4ge',
   linahun: 'Lina',
-  master_cwg: 'Master_CWG',
+  mastercwg: 'MasterCWG',
   mayaicefire: 'Maya',
   stressmonstah: 'Stressmonster',
 };

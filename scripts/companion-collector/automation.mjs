@@ -8,6 +8,7 @@ import { createLiveChecker } from './live-status.mjs';
 import { STREAMERS, automationTick, validateState } from './automation-core.mjs';
 import { collectChannel, uploadSnapshot } from './automation-io.mjs';
 import { createHealthReport, sendHealth } from './health.mjs';
+import { healthEventFingerprint } from './health-events.mjs';
 
 const directory = dirname(fileURLToPath(import.meta.url));
 const results = join(directory, 'results', 'automation');
@@ -20,12 +21,17 @@ async function atomic(path, data) {
 }
 let config;
 let state;
+let healthQueue = Promise.resolve();
 async function heartbeat(details) {
   try {
     await sendHealth(config, await createHealthReport(directory, state, details));
   } catch {
     process.stderr.write('Collector health report could not be delivered.\n');
   }
+}
+function queuedHeartbeat(details = {}) {
+  healthQueue = healthQueue.then(() => heartbeat(details));
+  return healthQueue;
 }
 try {
   await mkdir(results, { recursive: true, mode: 0o700 });
@@ -45,6 +51,34 @@ try {
     state = { channels: {} };
   }
   validateState(state);
+  const autoJoinStatusPath = join(results, '..', 'autojoin', 'status.json');
+  let lastHealthFingerprint = null;
+  let healthDebounce = null;
+  const inspectAutoJoinStatus = async () => {
+    try {
+      const status = JSON.parse(await readFile(autoJoinStatusPath, 'utf8'));
+      const fingerprint = healthEventFingerprint(status);
+      if (!fingerprint || fingerprint === lastHealthFingerprint) return;
+      lastHealthFingerprint = fingerprint;
+      clearTimeout(healthDebounce);
+      healthDebounce = setTimeout(() => void queuedHeartbeat(), 5_000);
+    } catch (error) {
+      if (error.code !== 'ENOENT')
+        process.stderr.write('Auto-join live status could not be read.\n');
+    }
+  };
+  await inspectAutoJoinStatus();
+  const healthEvents = setInterval(() => void inspectAutoJoinStatus(), 5_000);
+  const healthFallback = setInterval(() => void queuedHeartbeat(), 5 * 60_000);
+  controller.signal.addEventListener(
+    'abort',
+    () => {
+      clearInterval(healthEvents);
+      clearInterval(healthFallback);
+      clearTimeout(healthDebounce);
+    },
+    { once: true }
+  );
   const report = async (result) => {
     const summary = { ...result, time: new Date().toISOString() };
     await atomic(join(results, 'status.json'), summary);
@@ -104,12 +138,12 @@ try {
       report,
     });
     await report({ status: 'waiting', live, attemptsToday: state.attempts || 0 });
-    await heartbeat({ live, liveCheck });
+    await queuedHeartbeat({ live, liveCheck });
     if (process.argv.includes('--once')) break;
     await delay(15 * 60_000, undefined, { signal: controller.signal }).catch(() => {});
   }
 } catch {
-  if (config) await heartbeat({ collectorState: 'stopped' });
+  if (config) await queuedHeartbeat({ collectorState: 'stopped' });
   process.stderr.write(
     'Companion automation stopped; check saved state and private configuration.\n'
   );

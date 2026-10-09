@@ -18,7 +18,7 @@ const streamers = [
   'iskall85',
   'therealhellfirem4ge',
   'linahun',
-  'master_cwg',
+  'mastercwg',
   'mayaicefire',
   'stressmonstah',
 ];

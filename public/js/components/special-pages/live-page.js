@@ -88,7 +88,7 @@ export async function renderLivePage(
     'See which Vault Hunters are live and whether they are currently running a vault.'
   );
   setFavicon(defaultFavicon);
-  container.innerHTML = `<section class="live-page"><header class="live-page__intro"><h2 class="live-page__title">Vault Hunters Live</h2><p>See who is streaming and who has disappeared into a vault.</p><div class="live-page__status" role="status">Checking the overworld…</div></header><div class="live-grid" aria-live="polite"></div><p class="live-page__note">Vault activity comes from the live extension connection. Status may briefly be unavailable when a connection moves or reconnects.</p></section>`;
+  container.innerHTML = `<section class="live-page"><header class="live-page__intro"><h2 class="live-page__title">Vault Hunters Live</h2><p>See who is streaming and who has disappeared into a vault.</p><div class="live-page__status" role="status">Checking the overworld…</div></header><div class="live-grid" aria-live="polite"></div></section>`;
   const grid = container.querySelector('.live-grid');
   const status = container.querySelector('.live-page__status');
   await load(grid, status, escapeHtml);

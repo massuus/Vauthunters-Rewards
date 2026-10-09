@@ -398,7 +398,7 @@ function renderAdminPanel(state) {
   const slot = state.root.querySelector('[data-leaderboard-admin-slot]');
   if (!slot) return;
   if (!state.auth?.authenticated) {
-    slot.innerHTML = `
+    state.root.innerHTML = `
       <section class="leaderboard-admin leaderboard-admin--login">
         <h3>Administrator sign in</h3>
         <p>Sign in with the configured administrator Twitch account to view automation health and manage companion data.</p>
@@ -407,7 +407,7 @@ function renderAdminPanel(state) {
     return;
   }
   if (!state.auth.user?.isAdmin) {
-    slot.innerHTML = `
+    state.root.innerHTML = `
       <section class="leaderboard-admin leaderboard-admin--login">
         <h3>Administrator access required</h3>
         <p>You are signed in, but this Twitch account is not configured as a site administrator.</p>
@@ -808,7 +808,7 @@ export async function renderLeaderboardPage(
         <p class="leaderboard-page__lead" data-leaderboard-description>${adminMode ? 'Monitor automation and manage companion leaderboard data.' : ''}</p>
         <p class="leaderboard-page__updated" data-leaderboard-updated hidden></p>
       </header>
-      <div class="leaderboard-page__tabs" role="tablist" aria-label="Leaderboard type">
+      <div class="leaderboard-page__tabs" role="tablist" aria-label="Leaderboard type" data-admin-content${adminMode ? ' hidden' : ''}>
         ${Object.entries(METRICS)
           .map(
             ([metric, config]) =>
@@ -820,9 +820,9 @@ export async function renderLeaderboardPage(
         <label><span>Streamer</span><select name="streamer" data-leaderboard-streamer-select required><option value="${escapeHtml(initial.streamer)}">${escapeHtml(initial.streamer)}</option></select></label>
       </div>
       ${adminMode ? '<div data-leaderboard-admin-slot></div>' : ''}
-      <div class="leaderboard-list" data-leaderboard-list></div>
-      <div class="leaderboard-page__sentinel" data-leaderboard-sentinel aria-hidden="true"></div>
-      <div class="leaderboard-page__controls">
+      <div class="leaderboard-list" data-leaderboard-list data-admin-content${adminMode ? ' hidden' : ''}></div>
+      <div class="leaderboard-page__sentinel" data-leaderboard-sentinel data-admin-content${adminMode ? ' hidden' : ''} aria-hidden="true"></div>
+      <div class="leaderboard-page__controls" data-admin-content${adminMode ? ' hidden' : ''}>
         <button class="leaderboard-page__load-more leaderboard-page__load-more--prev" type="button" data-leaderboard-load-prev hidden>Load 10 previous</button>
         <p class="leaderboard-page__status leaderboard-page__status--muted" data-leaderboard-status>Loading leaderboard…</p>
         <button class="leaderboard-page__load-more leaderboard-page__load-more--next" type="button" data-leaderboard-load-more hidden>Load 10 more</button>
@@ -873,21 +873,21 @@ export async function renderLeaderboardPage(
   updateHeading(state);
   updateUrl(state);
 
-  const authPromise = adminMode
-    ? apiRequest('/api/auth/me')
-        .then((auth) => {
-          if (sessionId !== activeSessionId) return;
-          state.auth = auth;
-          renderAdminPanel(state);
-        })
-        .catch(() => {
-          if (sessionId !== activeSessionId) return;
-          renderAdminPanel(state);
-        })
-    : Promise.resolve();
-
   try {
-    await Promise.all([loadPage(state, 'down', { throwOnError: true }), authPromise]);
+    if (adminMode) {
+      try {
+        state.auth = await apiRequest('/api/auth/me');
+      } catch {
+        state.auth = null;
+      }
+      if (sessionId !== activeSessionId) return;
+      renderAdminPanel(state);
+      if (!state.auth?.authenticated || !state.auth.user?.isAdmin) return;
+      state.root.querySelectorAll('[data-admin-content]').forEach((element) => {
+        element.hidden = false;
+      });
+    }
+    await loadPage(state, 'down', { throwOnError: true });
   } catch (error) {
     if (!state.listEl.childElementCount) {
       state.listEl.innerHTML =
