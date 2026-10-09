@@ -45,10 +45,62 @@ It starts at boot and restarts after a crash with a 15-minute delay. The existin
   the account's normal network/database allowances; billing has not been inspected.
 
 The browser session can eventually expire and require the manual login helper again.
+Use the desktop shortcut **Renew VH Twitch Login** on this PC:
+
+1. Double-click it. The helper checks the Oracle connection first.
+2. Sign in in the dedicated Edge window (complete Twitch verification if asked).
+3. Close that Edge window and press Enter in the renewal window.
+4. Wait for the green completion message, then press Enter to close.
+
+The shortcut runs `renew-login.ps1`. It saves a separate candidate session, sends it
+over SSH, and checks Twitch on Oracle with one bounded browser (video blocked).
+Only an accepted session replaces the current login. The previous local and Oracle
+sessions are kept as `.auth/state.previous.json`. If restarting the collector fails,
+the remote helper restores the previous session. Existing daily budgets remain in
+place, and a deliberately disabled collector stays disabled. No WSS copy/paste or
+assistant involvement is needed. Don't close the renewal window before completion.
+
+A password/session is never embedded in the shortcut. SSH still uses the existing
+private key in the user's `.ssh` directory. The desktop shortcut depends on this
+repository staying at its current location. Renewal does not test a full leaderboard
+when all streamers are offline; it verifies Twitch login and collector startup.
+
 A missing companion currently produces empty results for Linahun; the old website
 data is preserved in this case. Other channels continue independently.
 
 ## Status and stop
+
+### Admin website panel
+
+Sign in as an administrator and open the leaderboard (`/?leaderboard`). The
+**Automatic leaderboard updates** panel appears above the manual import controls.
+It shows the last Oracle check-in, current problems, saved cookie expiry, per-channel
+collection/upload results, and when data last reached the website. It refreshes every
+minute while the page is visible and has a manual refresh button.
+
+Oracle sends a small authenticated health report after each normal collection/check
+cycle (roughly 15 minutes), using the existing upload secret. Only allowlisted dates,
+counts, status values and error codes are sent; no cookies, credentials or raw logs.
+The latest report occupies one D1 row, independent of public leaderboard snapshots.
+
+The panel warns when no heartbeat has arrived for 45 minutes, even if Oracle has
+stopped or cannot authenticate with the website. It also warns seven days before the
+saved cookie's expiry. That date is not a guarantee that Twitch still accepts the
+session: actual login/extension-access failures are shown separately. Only logged-in
+administrators can read the health endpoint; responses are never cached.
+
+Collection and delivery errors remain visible until a later result replaces them.
+Live-check failures clear on the next successful live check. The dashboard does not
+send email/Discord notifications or run additional browser probes. A fatal collector
+error sends a best-effort stopped report; if reporting also fails, the stale-heartbeat
+warning is the fallback. A renewed session does not reset collection budgets.
+
+Monitoring rollback: stop the collector, restore code from
+`backups/20261008T094627Z-before-health.tar.gz`, then restart it. The previous Pages
+deployment was `91771b14-5a9c-496f-91ea-a3747a8ee7df`. Migration 0010 is additive;
+leaving its one-row table in place is safe when rolling back code.
+
+### Server commands
 
 ```bash
 systemctl status vh-companion-automation.service --no-pager
@@ -125,3 +177,12 @@ and refuses to overwrite later edits.
   781 rows because imports preserve previously stored players absent from the new
   780-player collection.
 - Bot retained PID 817737, zero restarts, and matching source/config hashes.
+
+# WebSocket auto-joining
+
+The chat bot now opens authenticated Vault Hunters extension sockets for live channels. It uses
+`showPresenceCheck` as the join-window signal, sends only `requestTriggerPresence`, and confirms
+`activeThisVault` before recording success. Chat thresholds remain the fallback. If opening the
+extension displaces a socket, it reconnects after ten minutes. Vault-end or companion XP changes
+request a leaderboard refresh, subject to the one-hour interval, six-per-streamer and fourteen-total
+daily browser limits.

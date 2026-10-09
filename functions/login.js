@@ -7,7 +7,7 @@ export function onRequest({ request }) {
   }
 
   const url = new URL(request.url);
-  const returnTo = String(url.searchParams.get('returnTo') || '/?leaderboard').trim();
+  const returnTo = String(url.searchParams.get('returnTo') || '/admin').trim();
   const loginUrl = new URL('/api/auth/twitch/login', url.origin);
   loginUrl.searchParams.set('returnTo', returnTo);
 

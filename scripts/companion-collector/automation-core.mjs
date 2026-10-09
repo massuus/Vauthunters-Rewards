@@ -64,6 +64,15 @@ export async function automationTick({
   for (const streamer of STREAMERS) {
     if (signal?.aborted) break;
     const channel = (state.channels[streamer] ??= {});
+    const lastSuccessfulCollection =
+      channel.lastCollection?.status === 'collected'
+        ? Date.parse(channel.lastCollection.time || '')
+        : NaN;
+    if (Number.isFinite(lastSuccessfulCollection) && channel.lastUpload?.status !== 'failed')
+      channel.nextAttempt = Math.min(
+        channel.nextAttempt || Infinity,
+        lastSuccessfulCollection + HOUR
+      );
     if (channel.pending && now() >= (channel.uploadAfter || 0)) {
       channel.uploadAttempts = (channel.uploadAttempts || 0) + 1;
       channel.uploadAfter = now() + HOUR;
@@ -81,7 +90,7 @@ export async function automationTick({
         channel.pending = false;
         channel.nextAttempt = Math.max(channel.nextAttempt || 0, now() + 12 * HOUR);
       }
-      channel.lastUpload = outcome;
+      channel.lastUpload = { ...outcome, time: new Date(now()).toISOString() };
       await save(state);
       await report({ streamer, ...outcome, phase: 'upload' });
     }
@@ -91,12 +100,12 @@ export async function automationTick({
       channel.pending ||
       now() < (channel.nextAttempt || 0) ||
       state.attempts >= 14 ||
-      (state.byStreamer[streamer] || 0) >= 2
+      (state.byStreamer[streamer] || 0) >= 6
     )
       continue;
     state.attempts++;
     state.byStreamer[streamer] = (state.byStreamer[streamer] || 0) + 1;
-    channel.nextAttempt = now() + 6 * HOUR;
+    channel.nextAttempt = now() + HOUR;
     await save(state);
     let outcome;
     try {

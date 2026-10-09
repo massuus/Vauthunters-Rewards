@@ -25,7 +25,7 @@ function errorPage(request, message, status = 400) {
   });
   headers.append('Set-Cookie', clearOauthStateCookie(request));
   return new Response(
-    `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Twitch login</title><body style="font-family:system-ui;background:#171a1d;color:#fff;padding:2rem"><h1>Twitch login failed</h1><p>${safeMessage}</p><p><a style="color:#ff9a10" href="/?mining">Return to Mining Clues</a></p></body></html>`,
+    `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Twitch login</title><body style="font-family:system-ui;background:#171a1d;color:#fff;padding:2rem"><h1>Twitch login failed</h1><p>${safeMessage}</p><p><a style="color:#ff9a10" href="/admin">Return to Admin</a></p></body></html>`,
     { status, headers }
   );
 }

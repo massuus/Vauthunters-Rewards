@@ -9,6 +9,7 @@ let modalKeydownHandler = null;
  * Get the username or query from the query string
  */
 export function getUsernameFromQuery() {
+  if (/^\/admin\/?$/i.test(window.location.pathname)) return 'admin';
   const { search } = window.location;
 
   if (!search || search.length <= 1) {

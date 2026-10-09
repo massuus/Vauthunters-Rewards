@@ -1,0 +1,145 @@
+.live-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.live-page__intro {
+  text-align: center;
+}
+.live-page__title,
+.live-page__intro p {
+  margin: 0;
+}
+.live-page__title {
+  color: color-mix(in srgb, var(--accent) 92%, #fff 8%);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(1.75rem, 2.8vw, 2.35rem);
+  letter-spacing: 0.08em;
+  text-shadow: 0 8px 24px rgba(244, 169, 65, 0.18);
+  text-transform: uppercase;
+}
+.live-page__intro p {
+  margin-top: 0.4rem;
+  color: var(--text-secondary);
+}
+.live-page__status {
+  margin-top: 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+.live-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+.live-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(244, 169, 65, 0.1), transparent 38%),
+    linear-gradient(180deg, rgba(29, 37, 50, 0.94) 0%, rgba(15, 20, 29, 0.92) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 22px rgba(0, 0, 0, 0.18);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.live-card:hover,
+.live-card:focus-visible {
+  border-color: rgba(244, 169, 65, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 14px 28px rgba(244, 169, 65, 0.16);
+  outline: none;
+  transform: translateY(-3px);
+}
+.live-card.is-vault {
+  border-color: rgba(244, 169, 65, 0.75);
+  background:
+    radial-gradient(circle at top left, rgba(255, 214, 138, 0.18), transparent 42%),
+    linear-gradient(90deg, rgba(244, 169, 65, 0.14), rgba(18, 25, 36, 0.94));
+}
+.live-card__avatar {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgba(244, 169, 65, 0.22);
+  border-radius: 10px;
+  background: rgba(244, 169, 65, 0.12);
+  color: var(--accent);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.live-card__body {
+  display: grid;
+  min-width: 0;
+  gap: 0.1rem;
+}
+.live-card__name {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.98rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.live-card__badge {
+  padding: 0.16rem 0.42rem;
+  border: 1px solid rgba(255, 107, 107, 0.4);
+  border-radius: 999px;
+  background: rgba(255, 107, 107, 0.12);
+  color: #ff8d8d;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+}
+.live-card__activity {
+  overflow: hidden;
+  color: color-mix(in srgb, var(--accent) 80%, #fff 20%);
+  font-size: 0.92rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.live-card__detail {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+.live-card__arrow {
+  color: var(--accent);
+}
+.live-page__note {
+  margin: 0.25rem auto 0;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  text-align: center;
+}
+.live-page__empty {
+  grid-column: 1 / -1;
+  padding: 2rem 1rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+@media (max-width: 720px) {
+  .live-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-card {
+    transition: none;
+  }
+}

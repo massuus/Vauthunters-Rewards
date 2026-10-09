@@ -8,6 +8,7 @@ import subprocess
 import sys
 import time
 import fcntl
+import signal
 
 DIRECTORY = Path('/home/ubuntu/companion-collector-test')
 UNIT = 'vh-companion-automation.service'
@@ -45,6 +46,11 @@ def install_session(candidate, current, previous, restart):
 
 
 def main():
+    def interrupted(_signum, _frame):
+        raise RuntimeError('Renewal interrupted')
+
+    for signum in (signal.SIGHUP, signal.SIGTERM, signal.SIGINT):
+        signal.signal(signum, interrupted)
     if len(sys.argv) != 2 or not re.fullmatch(r'renewal-[a-f0-9]{32}\.json', sys.argv[1]):
         raise ValueError('Invalid renewal filename')
     auth = DIRECTORY / '.auth'
@@ -52,7 +58,11 @@ def main():
     os.umask(0o077)
     with (auth / 'renew.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        validate_candidate(candidate)
+        try:
+            validate_candidate(candidate)
+        except Exception:
+            candidate.unlink(missing_ok=True)
+            raise
         candidate.chmod(0o600)
         active = subprocess.run(['systemctl', 'is-active', '--quiet', UNIT]).returncode == 0
         enabled = subprocess.run(['systemctl', 'is-enabled', '--quiet', UNIT], capture_output=True).returncode == 0
@@ -89,9 +99,13 @@ def main():
             print('Collector is running.' if resume else 'Collector was disabled and remains stopped.')
             print('Existing daily collection limits were preserved.')
         finally:
-            if resume and subprocess.run(['systemctl', 'is-active', '--quiet', UNIT]).returncode != 0:
-                restart()
-            candidate.unlink(missing_ok=True)
+            try:
+                # Also stop a verification unit whose waiting SSH client was interrupted.
+                subprocess.run(['sudo', '-n', 'systemctl', 'stop', 'vh-companion-renew-check.service'], capture_output=True, timeout=15)
+                if resume and subprocess.run(['systemctl', 'is-active', '--quiet', UNIT]).returncode != 0:
+                    restart()
+            finally:
+                candidate.unlink(missing_ok=True)
 
 
 if __name__ == '__main__':

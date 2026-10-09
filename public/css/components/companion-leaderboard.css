@@ -1,3 +1,66 @@
+.companion-health {
+  padding: 1rem;
+  text-align: left;
+}
+.companion-health__heading,
+.companion-health__channel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.companion-health__heading h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.companion-health p {
+  margin: 0.55rem 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.companion-health__summary {
+  font-weight: 750;
+  color: #9ce6b1;
+}
+.companion-health__summary--warning,
+.companion-health__alert {
+  color: #ffd08a;
+}
+.companion-health__alert {
+  border-left: 3px solid #e6a23c;
+  padding-left: 0.7rem;
+}
+.companion-health__channels {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+  gap: 0.75rem;
+}
+.companion-health__channel {
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 0.85rem;
+  background: rgba(0, 0, 0, 0.15);
+}
+.companion-health__channel p,
+.companion-health__footnote {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.companion-health__channel .companion-health__alert {
+  color: #ffd08a;
+}
+.companion-health__channel-heading span {
+  font-size: 0.8rem;
+}
+.companion-health__help summary {
+  cursor: pointer;
+  color: var(--accent);
+}
+
 .leaderboard-page__tabs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -146,6 +209,35 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   background: rgba(8, 10, 12, 0.52);
+}
+
+.leaderboard-admin--login {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  padding: 1.25rem;
+}
+
+.leaderboard-admin--login h3,
+.leaderboard-admin--login p {
+  margin: 0;
+}
+
+.leaderboard-admin__login {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  border-radius: 0.75rem;
+  background: #9146ff;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.leaderboard-admin__login:hover,
+.leaderboard-admin__login:focus-visible {
+  background: #a970ff;
 }
 
 .leaderboard-admin > summary {

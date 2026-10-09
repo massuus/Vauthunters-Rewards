@@ -1,4 +1,5 @@
 import { clearLeaderboardCache, fetchLeaderboardPage } from '../../features/leaderboard.js';
+import { mountCollectorHealth } from '../companion-health.js';
 
 const LEADERBOARD_QUERY_KEYWORDS = ['leaderboard', 'leader board', 'lb'];
 const PAGE_SIZE = 10;
@@ -25,6 +26,7 @@ const METRICS = {
 
 let activeSessionId = 0;
 let activeObserver = null;
+let disposeCollectorHealth;
 
 function normalizeQuery(value) {
   return String(value || '')
@@ -71,6 +73,8 @@ function disconnectObserver() {
 }
 
 export function teardownLeaderboardPage() {
+  disposeCollectorHealth?.();
+  disposeCollectorHealth = null;
   activeSessionId += 1;
   disconnectObserver();
 }
@@ -175,19 +179,24 @@ function renderRow(player, state) {
 
 function updateUrl(state) {
   const params = new URLSearchParams();
-  params.set('leaderboard', state.targetPlayer || '');
+  if (!state.adminMode) params.set('leaderboard', state.targetPlayer || '');
   if (state.metric !== 'setsUnlocked') {
     params.set('metric', state.metric);
     params.set('streamer', state.streamer);
   }
-  state.updateQueryString(params.toString().replace(/^leaderboard=$/, 'leaderboard'));
+  state.updateQueryString(
+    state.adminMode ? params.toString() : params.toString().replace(/^leaderboard=$/, 'leaderboard')
+  );
 }
 
 function updateHeading(state) {
   const config = METRICS[state.metric];
-  state.root.querySelector('[data-leaderboard-title]').textContent = config.title;
-  state.root.querySelector('[data-leaderboard-description]').textContent =
-    state.metric === 'setsUnlocked'
+  state.root.querySelector('[data-leaderboard-title]').textContent = state.adminMode
+    ? 'Admin dashboard'
+    : config.title;
+  state.root.querySelector('[data-leaderboard-description]').textContent = state.adminMode
+    ? 'Monitor automation, manage companion data, and review the current leaderboard.'
+    : state.metric === 'setsUnlocked'
       ? config.description
       : `${config.description} Showing ${state.streamer}'s community.`;
   state.root.querySelectorAll('[data-leaderboard-metric]').forEach((button) => {
@@ -385,15 +394,29 @@ function setAdminFeedback(state, message, type = 'success') {
 }
 
 function renderAdminPanel(state) {
+  disposeCollectorHealth?.();
   const slot = state.root.querySelector('[data-leaderboard-admin-slot]');
   if (!slot) return;
   if (!state.auth?.authenticated) {
-    slot.replaceChildren();
+    slot.innerHTML = `
+      <section class="leaderboard-admin leaderboard-admin--login">
+        <h3>Administrator sign in</h3>
+        <p>Sign in with the configured administrator Twitch account to view automation health and manage companion data.</p>
+        <a class="leaderboard-admin__login" href="/login?returnTo=/admin">Sign in with Twitch</a>
+      </section>`;
     return;
   }
-  if (!state.auth.user?.isAdmin) return;
+  if (!state.auth.user?.isAdmin) {
+    slot.innerHTML = `
+      <section class="leaderboard-admin leaderboard-admin--login">
+        <h3>Administrator access required</h3>
+        <p>You are signed in, but this Twitch account is not configured as a site administrator.</p>
+      </section>`;
+    return;
+  }
 
   slot.innerHTML = `
+    <section class="leaderboard-admin companion-health" data-collector-health></section>
     <details class="leaderboard-admin">
       <summary>Update companion leaderboards</summary>
       <div class="leaderboard-admin__body">
@@ -419,6 +442,11 @@ function renderAdminPanel(state) {
       </div>
     </details>`;
   updateStreamerMenus(state);
+  disposeCollectorHealth = mountCollectorHealth(slot.querySelector('[data-collector-health]'), {
+    apiRequest,
+    escapeHtml: state.escapeHtml,
+    isActive: () => state.sessionId === activeSessionId,
+  });
 }
 
 function cleanWssUrl(value) {
@@ -764,7 +792,8 @@ export async function renderLeaderboardPage(
   DEFAULT_FAVICON,
   usernameInput,
   form,
-  targetPlayer = ''
+  targetPlayer = '',
+  adminMode = false
 ) {
   teardownLeaderboardPage();
   activeSessionId += 1;
@@ -775,8 +804,8 @@ export async function renderLeaderboardPage(
   resultContainer.innerHTML = `
     <section class="leaderboard-page" aria-live="polite">
       <header class="leaderboard-page__intro">
-        <h2 class="leaderboard-page__title" data-leaderboard-title>Leaderboard</h2>
-        <p class="leaderboard-page__lead" data-leaderboard-description></p>
+        <h2 class="leaderboard-page__title" data-leaderboard-title>${adminMode ? 'Admin dashboard' : 'Leaderboard'}</h2>
+        <p class="leaderboard-page__lead" data-leaderboard-description>${adminMode ? 'Monitor automation and manage companion leaderboard data.' : ''}</p>
         <p class="leaderboard-page__updated" data-leaderboard-updated hidden></p>
       </header>
       <div class="leaderboard-page__tabs" role="tablist" aria-label="Leaderboard type">
@@ -790,7 +819,7 @@ export async function renderLeaderboardPage(
       <div class="leaderboard-page__streamer" data-leaderboard-streamer-wrap hidden>
         <label><span>Streamer</span><select name="streamer" data-leaderboard-streamer-select required><option value="${escapeHtml(initial.streamer)}">${escapeHtml(initial.streamer)}</option></select></label>
       </div>
-      <div data-leaderboard-admin-slot></div>
+      ${adminMode ? '<div data-leaderboard-admin-slot></div>' : ''}
       <div class="leaderboard-list" data-leaderboard-list></div>
       <div class="leaderboard-page__sentinel" data-leaderboard-sentinel aria-hidden="true"></div>
       <div class="leaderboard-page__controls">
@@ -801,9 +830,11 @@ export async function renderLeaderboardPage(
     </section>`;
 
   setFavicon(DEFAULT_FAVICON);
-  document.title = 'Vault Hunters Leaderboards';
+  document.title = adminMode ? 'VH Rewards Admin' : 'Vault Hunters Leaderboards';
   setMetaDescription(
-    'Compare Vault Hunters unlocked sets, companion season levels, and vaults joined.'
+    adminMode
+      ? 'Administrator dashboard for Vault Hunters Rewards automation.'
+      : 'Compare Vault Hunters unlocked sets, companion season levels, and vaults joined.'
   );
   closeSetDetailModal();
 
@@ -830,6 +861,7 @@ export async function renderLeaderboardPage(
     loading: false,
     loadGeneration: 0,
     auth: null,
+    adminMode,
     proxiedImageUrl,
     escapeHtml,
     updateQueryString,
@@ -841,13 +873,18 @@ export async function renderLeaderboardPage(
   updateHeading(state);
   updateUrl(state);
 
-  const authPromise = apiRequest('/api/auth/me')
-    .then((auth) => {
-      if (sessionId !== activeSessionId) return;
-      state.auth = auth;
-      renderAdminPanel(state);
-    })
-    .catch(() => {});
+  const authPromise = adminMode
+    ? apiRequest('/api/auth/me')
+        .then((auth) => {
+          if (sessionId !== activeSessionId) return;
+          state.auth = auth;
+          renderAdminPanel(state);
+        })
+        .catch(() => {
+          if (sessionId !== activeSessionId) return;
+          renderAdminPanel(state);
+        })
+    : Promise.resolve();
 
   try {
     await Promise.all([loadPage(state, 'down', { throwOnError: true }), authPromise]);
@@ -858,4 +895,16 @@ export async function renderLeaderboardPage(
     }
     throw error;
   }
+}
+
+export function isAdminQuery(value) {
+  return (
+    String(value || '')
+      .trim()
+      .toLowerCase() === 'admin'
+  );
+}
+
+export function renderAdminPage(...args) {
+  return renderLeaderboardPage(...args, '', true);
 }

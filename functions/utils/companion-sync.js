@@ -31,10 +31,10 @@ export async function authorizeCompanionSync(request, env) {
     throw new ApiError(401, 'Unauthorized.');
 }
 
-export async function readSyncBody(request) {
+export async function readSyncBody(request, maxBytes = MAX_SYNC_BYTES) {
   if (!request.headers.get('content-type')?.toLowerCase().startsWith('application/json'))
     throw new ApiError(415, 'Use application/json.');
-  if (Number(request.headers.get('content-length')) > MAX_SYNC_BYTES)
+  if (Number(request.headers.get('content-length')) > maxBytes)
     throw new ApiError(413, 'Import is too large.');
   const reader = request.body?.getReader();
   if (!reader) throw new ApiError(400, 'Missing import.');
@@ -44,7 +44,7 @@ export async function readSyncBody(request) {
     const { done, value } = await reader.read();
     if (done) break;
     size += value.byteLength;
-    if (size > MAX_SYNC_BYTES) {
+    if (size > maxBytes) {
       await reader.cancel();
       throw new ApiError(413, 'Import is too large.');
     }

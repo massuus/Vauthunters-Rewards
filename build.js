@@ -141,6 +141,9 @@ async function updateHtmlReferences() {
   );
 
   await fs.writeFile(htmlPath, html);
+  const adminDir = path.join(__dirname, 'dist', 'admin');
+  await fs.mkdir(adminDir, { recursive: true });
+  await fs.writeFile(path.join(adminDir, 'index.html'), html);
   console.log('Updated HTML references');
 }
 

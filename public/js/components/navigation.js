@@ -1,6 +1,15 @@
-const SPECIAL_ROUTES = new Set(['codes', 'all', 'servers', 'leaderboard', 'mining']);
+const SPECIAL_ROUTES = new Set([
+  'codes',
+  'all',
+  'servers',
+  'leaderboard',
+  'mining',
+  'admin',
+  'live',
+]);
 
 function getActiveRoute() {
+  if (/^\/admin\/?$/i.test(window.location.pathname)) return 'admin';
   const rawQuery = window.location.search.slice(1);
   if (!rawQuery) return 'home';
 

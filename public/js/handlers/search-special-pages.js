@@ -15,6 +15,7 @@ import {
   isServersQuery,
   isLeaderboardQuery,
   isMiningQuery,
+  isLiveQuery,
   getLeaderboardQueryTarget,
   getServerQueryTarget,
   renderCodesPage,
@@ -22,7 +23,11 @@ import {
   renderOfficialServersPage,
   renderOfficialServerDetailPage,
   renderLeaderboardPage,
+  isAdminQuery,
+  renderAdminPage,
   renderMiningPage,
+  renderLivePage,
+  teardownLivePage,
   teardownLeaderboardPage,
 } from '../components/special-pages.js';
 import { escapeHtml, formatLabel } from '../features/reward-utils.js';
@@ -62,6 +67,29 @@ async function resolveServerFromSearchValue(value) {
 
 export async function handleSpecialPageSearch(username) {
   teardownLeaderboardPage();
+  teardownLivePage();
+
+  if (isLiveQuery(username)) {
+    recentContainer?.classList.add('hidden');
+    if (recentContainer) recentContainer.innerHTML = '';
+    setLoadingState(true);
+    try {
+      await renderLivePage(
+        resultContainer,
+        setFavicon,
+        setMetaDescription,
+        closeOpenModal,
+        updateQueryString,
+        escapeHtml,
+        DEFAULT_FAVICON
+      );
+    } catch {
+      showFeedback('Unable to load live Vault Hunters right now. Please try again soon.', 'error');
+    } finally {
+      setLoadingState(false);
+    }
+    return true;
+  }
 
   if (isCodesQuery(username)) {
     setLoadingState(true);
@@ -162,6 +190,35 @@ export async function handleSpecialPageSearch(username) {
     } catch {
       showFeedback(
         'Unable to load the leaderboard right now. Please try again in a moment.',
+        'error'
+      );
+    } finally {
+      setLoadingState(false);
+    }
+    return true;
+  }
+
+  if (isAdminQuery(username)) {
+    recentContainer?.classList.add('hidden');
+    if (recentContainer) recentContainer.innerHTML = '';
+    setLoadingState(true);
+    try {
+      await renderAdminPage(
+        resultContainer,
+        setFavicon,
+        setMetaDescription,
+        closeOpenModal,
+        updateQueryString,
+        proxiedImageUrl,
+        escapeHtml,
+        DEFAULT_FAVICON,
+        usernameInput,
+        form
+      );
+      scrollToResults();
+    } catch {
+      showFeedback(
+        'Unable to load the admin page right now. Please try again in a moment.',
         'error'
       );
     } finally {

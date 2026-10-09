@@ -128,3 +128,51 @@ test('permanent delivery errors stop retries and shutdown starts no browser', as
   assert.equal(uploads, 1);
   await automationTick({ ...options, live: ['hoy_82'], signal: AbortSignal.abort() });
 });
+
+test('successful live collections become eligible again after one hour, within daily caps', async () => {
+  const state = {};
+  let clock = Date.parse('2026-10-08T00:00:00Z');
+  let browsers = 0;
+  const run = () =>
+    automationTick({
+      state,
+      live: ['mayaicefire'],
+      now: () => clock,
+      save: async () => {},
+      report: async () => {},
+      collect: async () => {
+        browsers++;
+        return { status: 'failed' };
+      },
+      upload: async () => ({ status: 'imported' }),
+    });
+  await run();
+  clock += 59 * 60_000;
+  await run();
+  assert.equal(browsers, 1);
+  clock += 60_000;
+  await run();
+  assert.equal(browsers, 2);
+});
+
+test('existing successful six-hour schedules are migrated to one hour', async () => {
+  const collected = Date.parse('2026-10-08T10:00:00Z');
+  const state = {
+    channels: {
+      mayaicefire: {
+        nextAttempt: collected + 6 * 3600_000,
+        lastCollection: { status: 'collected', time: new Date(collected).toISOString() },
+      },
+    },
+  };
+  await automationTick({
+    state,
+    live: [],
+    now: () => collected,
+    save: async () => {},
+    report: async () => {},
+    collect: async () => assert.fail(),
+    upload: async () => assert.fail(),
+  });
+  assert.equal(state.channels.mayaicefire.nextAttempt, collected + 3600_000);
+});

@@ -26,7 +26,11 @@ export {
   isLeaderboardQuery,
   getLeaderboardQueryTarget,
   renderLeaderboardPage,
+  isAdminQuery,
+  renderAdminPage,
   teardownLeaderboardPage,
 } from './special-pages/leaderboard-page.js';
 
 export { isMiningQuery, renderMiningPage } from './special-pages/mining-page.js';
+
+export { isLiveQuery, renderLivePage, teardownLivePage } from './special-pages/live-page.js';
