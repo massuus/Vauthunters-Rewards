@@ -18,6 +18,7 @@ import {
 } from '../features/ui-feedback.js';
 import { renderProfile } from '../components/profile-renderer.js';
 import { handleSpecialPageSearch } from './search-special-pages.js';
+import { maybeShowSpiderSurprise } from '../features/seasonal-themes.js';
 
 let submitTimer = null;
 let currentRequestController = null;
@@ -91,6 +92,7 @@ async function submitSearch() {
 
     const data = await response.json();
     await renderProfile(data);
+    maybeShowSpiderSurprise({ force: username.toLowerCase() === 'damnsecci' });
   } catch (error) {
     if (error?.name === 'AbortError') {
       // Ignore aborted requests triggered by a newer search

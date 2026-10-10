@@ -122,6 +122,7 @@
     </script>
   </head>
   <body>
+    <div class="seasonal-decor" data-seasonal-decor aria-hidden="true"></div>
     <div class="page">
       <header class="site-header">
         <nav class="site-nav" aria-label="Primary navigation">
@@ -300,6 +301,21 @@
                 aria-label="Vault Hunters addon on CurseForge"
                 >Vault Hunters addon on CurseForge</a
               >
+            </div>
+            <div class="footer__column footer__column--balanced footer__column--appearance">
+              <p class="footer__label">Appearance</p>
+              <div class="theme-control">
+                <label for="theme-select">Seasonal theme</label>
+                <select id="theme-select" data-theme-select aria-label="Website theme">
+                  <option value="auto">Automatic</option>
+                  <option value="standard">Standard</option>
+                  <option value="halloween">Halloween</option>
+                  <option value="winter">Winter</option>
+                  <option value="pride">Pride</option>
+                </select>
+                <button type="button" data-theme-effects aria-pressed="true">Effects on</button>
+                <button type="button" data-spider-preview hidden>oh what does this do?</button>
+              </div>
             </div>
           </div>
         </div>

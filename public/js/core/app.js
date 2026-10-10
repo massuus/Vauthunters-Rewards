@@ -14,6 +14,7 @@ import { initSupportPopup } from '../components/support-popup.js';
 import { initPressFeedback } from '../features/press-feedback.js';
 import { initNavigation } from '../components/navigation.js';
 import { initPlayerSuggestions } from '../components/player-suggestions.js';
+import { initSeasonalThemes } from '../features/seasonal-themes.js';
 
 /**
  * Initialize the application
@@ -21,6 +22,7 @@ import { initPlayerSuggestions } from '../components/player-suggestions.js';
 async function initializeApp() {
   // Initialize global error handlers first
   initializeErrorHandlers();
+  initSeasonalThemes();
 
   // Search should be usable immediately, even while templates are loading.
   initializeSearch();
