@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { communityStreamRows } from '../functions/api/community-live.js';
+import {
+  addLinkedMinecraftAccounts,
+  communityStreamRows,
+} from '../functions/api/community-live.js';
 
 test('community discovery accepts Vault Hunters tags and titles while excluding official channels', () => {
   const rows = communityStreamRows([
@@ -36,4 +39,46 @@ test('community discovery rejects unsafe preview image hosts', () => {
     },
   ]);
   assert.equal(row.previewImageUrl, null);
+});
+
+test('community discovery accepts a directly checked known channel by its title', () => {
+  const rows = communityStreamRows([
+    {
+      user_login: 'drgcsg',
+      user_name: 'DRGCSG',
+      title: 'Minecraft vault hunters with the gremlins',
+      tags: ['English'],
+    },
+  ]);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].login, 'drgcsg');
+});
+
+test('community streams mark only verified Minecraft links', async () => {
+  const calls = [];
+  const rows = await addLinkedMinecraftAccounts(
+    [{ login: 'linked' }, { login: 'unlinked' }],
+    { REWARDS_API_KEY: 'test-key' },
+    async (url) => {
+      calls.push(url);
+      return url.endsWith('twitchUsername=linked')
+        ? { data: { minecraftId: '0123456789abcdef0123456789abcdef' } }
+        : { data: {} };
+    }
+  );
+  assert.deepEqual(
+    rows.map((row) => row.hasLinkedMinecraftAccount),
+    [true, false]
+  );
+  assert.equal(calls.length, 2);
+});
+
+test('community Minecraft link checks are skipped without rewards auth', async () => {
+  let called = false;
+  const input = [{ login: 'community_player' }];
+  const rows = await addLinkedMinecraftAccounts(input, {}, async () => {
+    called = true;
+  });
+  assert.equal(rows, input);
+  assert.equal(called, false);
 });

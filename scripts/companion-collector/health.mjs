@@ -33,6 +33,14 @@ export async function createHealthReport(
   } catch {
     /* A missing status is reported as unavailable, without exposing raw files. */
   }
+  let communityDiscovery = null;
+  try {
+    const path = join(directory, 'results/automation/community-discovery.json');
+    if ((await stat(path)).size <= 32 * 1024)
+      communityDiscovery = JSON.parse(await readFile(path, 'utf8'));
+  } catch {
+    /* A missing catalogue is reported as unavailable. */
+  }
   return sanitizeHealth({
     reportedAt: new Date().toISOString(),
     collectorState,
@@ -42,6 +50,7 @@ export async function createHealthReport(
     sessionSavedAt,
     attemptsToday: state?.day === new Date().toISOString().slice(0, 10) ? state.attempts : 0,
     autoJoin,
+    communityDiscovery,
     channels: STREAMERS.map((streamer) => {
       const c = state?.channels?.[streamer] || {};
       return {

@@ -45,6 +45,11 @@ test('health contract discards credentials, raw errors, and unknown channels', (
           { streamer: 'SECRET', issue: 'login-required' },
         ],
       },
+      communityDiscovery: {
+        checkedAt: new Date(now).toISOString(),
+        scanComplete: true,
+        candidates: [{ login: 'drgcsg', token: 'SECRET' }, { login: 'bad login' }],
+      },
       channels: [
         {
           streamer: 'mayaicefire',
@@ -63,6 +68,7 @@ test('health contract discards credentials, raw errors, and unknown channels', (
   assert.equal(JSON.stringify(safe).includes('SECRET'), false);
   assert.equal(safe.channels.length, 7);
   assert.equal(safe.autoJoin.channels.length, 7);
+  assert.deepEqual(safe.communityDiscovery.channels, ['drgcsg']);
   assert.equal(safe.autoJoin.channels.find((c) => c.streamer === 'mayaicefire').issue, null);
   assert.equal(
     safe.channels.find((c) => c.streamer === 'mayaicefire').lastCollection.code,

@@ -123,6 +123,19 @@ function outcome(value) {
     players: count(value.players),
   };
 }
+function communityDiscovery(value) {
+  if (!value || !date(value.checkedAt)) return null;
+  const channels = Array.isArray(value.candidates)
+    ? value.candidates
+        .map((candidate) => String(candidate?.login || '').toLowerCase())
+        .filter((login) => /^[a-z0-9_]{1,25}$/.test(login))
+    : [];
+  return {
+    checkedAt: date(value.checkedAt),
+    scanComplete: value.scanComplete === true,
+    channels: [...new Set(channels)].slice(0, 80),
+  };
+}
 export function sanitizeHealth(value) {
   if (!value || !date(value.reportedAt) || !['running', 'stopped'].includes(value.collectorState))
     throw new Error('Invalid health report.');
@@ -135,6 +148,7 @@ export function sanitizeHealth(value) {
     sessionSavedAt: date(value.sessionSavedAt),
     attemptsToday: count(value.attemptsToday),
     autoJoin: autoJoin(value.autoJoin),
+    communityDiscovery: communityDiscovery(value.communityDiscovery),
     channels: STREAMERS.map((streamer) => {
       const c = Array.isArray(value.channels)
         ? value.channels.find((row) => row?.streamer === streamer)

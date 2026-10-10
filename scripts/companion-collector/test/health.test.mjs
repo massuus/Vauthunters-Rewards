@@ -33,6 +33,15 @@ test('report reads only session metadata and strips state secrets before transmi
         channels: [{ streamer: 'mayaicefire', connected: true, status: 'connected' }],
       })
     );
+    await mkdir(join(directory, 'results/automation'), { recursive: true });
+    await writeFile(
+      join(directory, 'results/automation/community-discovery.json'),
+      JSON.stringify({
+        checkedAt: new Date().toISOString(),
+        scanComplete: true,
+        candidates: [{ login: 'drgcsg', rawToken: 'PRIVATECOMMUNITY' }],
+      })
+    );
     const report = await createHealthReport(
       directory,
       {
@@ -51,6 +60,7 @@ test('report reads only session metadata and strips state secrets before transmi
       report.autoJoin.channels.find((c) => c.streamer === 'mayaicefire').connected,
       true
     );
+    assert.deepEqual(report.communityDiscovery.channels, ['drgcsg']);
     assert.equal(JSON.stringify(report).includes('PRIVATE'), false);
     let called = false;
     await sendHealth(

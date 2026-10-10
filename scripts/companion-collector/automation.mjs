@@ -9,6 +9,7 @@ import { STREAMERS, automationTick, validateState } from './automation-core.mjs'
 import { collectChannel, uploadSnapshot } from './automation-io.mjs';
 import { createHealthReport, sendHealth } from './health.mjs';
 import { healthEventFingerprint } from './health-events.mjs';
+import { createCommunityDiscoverer } from './community-discovery.mjs';
 
 const directory = dirname(fileURLToPath(import.meta.url));
 const results = join(directory, 'results', 'automation');
@@ -41,6 +42,12 @@ try {
   const checkLive = createLiveChecker({
     clientId: bot.TWITCH_CLIENT_ID,
     clientSecret: bot.TWITCH_CLIENT_SECRET,
+    signal: controller.signal,
+  });
+  const discoverCommunity = createCommunityDiscoverer({
+    clientId: bot.TWITCH_CLIENT_ID,
+    clientSecret: bot.TWITCH_CLIENT_SECRET,
+    statePath: join(results, 'community-discovery.json'),
     signal: controller.signal,
   });
   const statePath = join(results, 'state.json');
@@ -95,6 +102,19 @@ try {
     process.stdout.write(`${JSON.stringify(summary)}\n`);
   };
   while (!controller.signal.aborted) {
+    try {
+      const discovery = await discoverCommunity();
+      process.stdout.write(
+        `${JSON.stringify({
+          status: 'community-discovery',
+          time: discovery.checkedAt,
+          pages: discovery.pages,
+          candidates: discovery.candidates.length,
+        })}\n`
+      );
+    } catch {
+      process.stderr.write('Community stream discovery failed; the saved catalogue was kept.\n');
+    }
     let live = [];
     let liveCheck = 'ok';
     try {

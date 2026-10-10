@@ -1,4 +1,7 @@
 import { json, methodNotAllowed, noStoreJson } from '../utils/http.js';
+import { loadHealth } from '../utils/companion-health.js';
+import { REWARDS_API_TIMEOUT, REWARDS_TWITCH_URL, getRewardsAuthHeaders } from '../utils/config.js';
+import { fetchJson } from '../utils/fetch-utils.js';
 
 const OFFICIAL_LOGINS = new Set([
   'hoy_82',
@@ -12,6 +15,7 @@ const OFFICIAL_LOGINS = new Set([
 const COMMUNITY_TAGS = new Set(['vaulthunters', 'vaulthunter', 'vh', 'vh3', 'vh4', 'vh5']);
 const COMMUNITY_TITLE = /\bvault\s*hunters?\b|\bvh(?:3|4|5)\b/i;
 const CACHE_SECONDS = 300;
+const LINK_CHECK_CONCURRENCY = 4;
 
 function normalizedTag(value) {
   return String(value || '')
@@ -57,13 +61,43 @@ export function communityStreamRows(rows) {
     }));
 }
 
+export async function addLinkedMinecraftAccounts(streamers, env, fetchJsonFn = fetchJson) {
+  const rows = Array.isArray(streamers) ? streamers : [];
+  const headers = getRewardsAuthHeaders(env);
+  if (!headers || rows.length === 0) return rows;
+
+  const enriched = new Array(rows.length);
+  let nextIndex = 0;
+  async function worker() {
+    while (nextIndex < rows.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      const streamer = rows[index];
+      const result = await fetchJsonFn(
+        `${REWARDS_TWITCH_URL}${encodeURIComponent(streamer.login)}`,
+        'Community Minecraft link',
+        REWARDS_API_TIMEOUT,
+        headers
+      );
+      enriched[index] = {
+        ...streamer,
+        hasLinkedMinecraftAccount: Boolean(result?.data?.minecraftId),
+      };
+    }
+  }
+  await Promise.all(
+    Array.from({ length: Math.min(LINK_CHECK_CONCURRENCY, rows.length) }, () => worker())
+  );
+  return enriched;
+}
+
 async function twitchJson(url, options, message) {
   const response = await fetch(url, { ...options, signal: AbortSignal.timeout(8_000) });
   if (!response.ok) throw new Error(message);
   return response.json();
 }
 
-async function discoverStreams(env) {
+async function discoverStreams(env, discoveredLogins = []) {
   if (!env.TWITCH_CLIENT_ID || !env.TWITCH_CLIENT_SECRET) {
     throw new Error('Twitch is not configured.');
   }
@@ -103,7 +137,20 @@ async function discoverStreams(env) {
     cursor = String(payload?.pagination?.cursor || '');
     if (!cursor) break;
   }
-  return communityStreamRows(rows);
+
+  const knownUrl = new URL('https://api.twitch.tv/helix/streams');
+  const knownLogins = [...new Set(discoveredLogins)].slice(0, 100);
+  for (const login of knownLogins) knownUrl.searchParams.append('user_login', login);
+  const known = knownLogins.length
+    ? await twitchJson(knownUrl, { headers }, 'Known community streams unavailable.')
+    : { data: [] };
+  const uniqueRows = new Map(
+    [...rows, ...(Array.isArray(known?.data) ? known.data : [])].map((row) => [
+      String(row?.user_login || '').toLowerCase(),
+      row,
+    ])
+  );
+  return communityStreamRows([...uniqueRows.values()]);
 }
 
 function responseFor(streamers) {
@@ -115,11 +162,16 @@ function responseFor(streamers) {
 export async function onRequest(context) {
   const { request, env } = context;
   if (request.method !== 'GET') return methodNotAllowed('GET');
-  const cacheKey = new Request(new URL('/api/community-live?v=1', request.url));
+  const cacheKey = new Request(new URL('/api/community-live?v=2', request.url));
   try {
     const cached = await caches.default.match(cacheKey);
     if (cached) return cached;
-    const response = responseFor(await discoverStreams(env));
+    const health = await loadHealth(env).catch(() => null);
+    const discoveredLogins = Array.isArray(health?.report?.communityDiscovery?.channels)
+      ? health.report.communityDiscovery.channels
+      : [];
+    const streamers = await discoverStreams(env, discoveredLogins);
+    const response = responseFor(await addLinkedMinecraftAccounts(streamers, env));
     context.waitUntil(caches.default.put(cacheKey, response.clone()));
     return response;
   } catch (error) {

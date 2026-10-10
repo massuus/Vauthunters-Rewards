@@ -190,7 +190,7 @@
     border-color 0.2s ease;
 }
 .community-card:hover,
-.community-card:focus-visible {
+.community-card:focus-within {
   border-color: var(--accent);
   outline: none;
   transform: translateY(-3px);
@@ -223,6 +223,28 @@
 .community-card__detail {
   color: color-mix(in srgb, var(--accent) 72%, #fff 28%);
   font-size: 0.7rem;
+}
+.community-card__actions {
+  display: flex;
+  gap: 0.45rem;
+  margin-top: 0.35rem;
+}
+.community-card__actions a {
+  flex: 1;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 58%, transparent);
+  border-radius: 9px;
+  color: var(--text-primary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+.community-card__actions a:hover,
+.community-card__actions a:focus-visible {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  outline: none;
 }
 .live-page__note {
   margin: 0.25rem auto 0;

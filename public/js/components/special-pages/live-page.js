@@ -93,7 +93,11 @@ function renderCommunityCards(container, payload, escapeHtml) {
         streamer.language ? String(streamer.language).toUpperCase() : '',
         liveFor ? `Live ${liveFor}` : '',
       ].filter(Boolean);
-      return `<a class="community-card" href="https://www.twitch.tv/${encodeURIComponent(streamer.login)}" target="_blank" rel="noopener">${preview}<span class="community-card__body"><span class="community-card__name">${escapeHtml(streamer.displayName)}<span class="live-card__badge">LIVE</span></span><span class="community-card__title">${escapeHtml(streamer.title || 'Vault Hunters')}</span><span class="community-card__detail">${escapeHtml(details.join(' · '))}</span></span></a>`;
+      const login = encodeURIComponent(streamer.login);
+      const rewards = streamer.hasLinkedMinecraftAccount
+        ? `<a href="?twitch:${login}">Rewards</a>`
+        : '';
+      return `<article class="community-card">${preview}<span class="community-card__body"><span class="community-card__name">${escapeHtml(streamer.displayName)}<span class="live-card__badge">LIVE</span></span><span class="community-card__title">${escapeHtml(streamer.title || 'Vault Hunters')}</span><span class="community-card__detail">${escapeHtml(details.join(' · '))}</span><span class="community-card__actions"><a href="https://www.twitch.tv/${login}" target="_blank" rel="noopener">Watch</a>${rewards}</span></span></article>`;
     })
     .join('');
 }
