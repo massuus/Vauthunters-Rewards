@@ -4,6 +4,34 @@ import { publicLiveStatus } from '../functions/api/live-status.js';
 
 const now = Date.parse('2026-10-09T12:00:00.000Z');
 
+test('disconnected channels do not publish a retained vault or join window', () => {
+  const payload = publicLiveStatus(
+    {
+      report: {
+        autoJoin: {
+          checkedAt: new Date(now).toISOString(),
+          channels: [
+            {
+              streamer: 'iskall85',
+              live: true,
+              connected: false,
+              vaultRunning: true,
+              windowOpen: true,
+              vaultStartedAt: new Date(now).toISOString(),
+            },
+          ],
+        },
+      },
+    },
+    now
+  );
+  const iskall = payload.streamers.find((row) => row.login === 'iskall85');
+  assert.equal(iskall.live, true);
+  assert.equal(iskall.inVault, false);
+  assert.equal(iskall.joinWindowOpen, false);
+  assert.equal(iskall.vaultStartedAt, null);
+});
+
 test('public live status exposes vault activity without private join details', () => {
   const payload = publicLiveStatus(
     {

@@ -85,10 +85,12 @@ export function publicLiveStatus(health, now = Date.now(), profileImages = {}) {
           channel.companionExpMultiplier <= 1_000_000
             ? channel.companionExpMultiplier
             : null,
-        joinWindowOpen: live && channel?.windowOpen === true,
-        inVault: live && channel?.vaultRunning === true,
+        joinWindowOpen: live && channel?.connected === true && channel?.windowOpen === true,
+        inVault: live && channel?.connected === true && channel?.vaultRunning === true,
         vaultStartedAt:
-          live && channel?.vaultRunning === true ? channel?.vaultStartedAt || null : null,
+          live && channel?.connected === true && channel?.vaultRunning === true
+            ? channel?.vaultStartedAt || null
+            : null,
       };
     }),
   };

@@ -206,6 +206,9 @@ export function startAutoJoin({
   }
   function connect(streamer, auth) {
     const r = runtime.get(streamer);
+    const channel = coordinator.channel(streamer);
+    channel.vaultRunning = false;
+    channel.vaultStartedAt = null;
     budget().connections++;
     save();
     r.nextAttempt = Date.now() + 60_000;
@@ -231,8 +234,7 @@ export function startAutoJoin({
       },
       onCompanion(current, previous) {
         if (current.activeThisVault === true) updateVaultState(streamer, true);
-        else if (previous?.activeThisVault === true && current.activeThisVault === false)
-          updateVaultState(streamer, false);
+        else if (current.activeThisVault === false) updateVaultState(streamer, false);
         if (!previous) return;
         const increased = ['vaultsJoined', 'totalXp', 'seasonLevel'].some(
           (key) =>
