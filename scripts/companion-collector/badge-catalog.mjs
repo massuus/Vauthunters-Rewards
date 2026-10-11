@@ -39,21 +39,24 @@ export function catalogBadge(badge) {
   const { display } = badge;
   const season = display.description.match(/season\s+([123])/i);
   const text = `${badge.id} ${display.displayName} ${display.description} ${display.texture}`;
-  const category = /jackpot/i.test(text)
-    ? 'jackpot'
-    : /\b\d+(?:[.,]\d+)?\s*k\s+companions\b/i.test(display.displayName)
-      ? 'companion-milestones'
-      : /halloween|christmas|valentine|hallo_bomb/i.test(text)
-        ? 'seasonal'
-        : season
-          ? `season-${season[1]}`
-          : /tier_|patreon/i.test(text)
-            ? 'patreon'
-            : /streak/i.test(text)
-              ? 'streaks'
-              : /event|hytale|pubg|corrupted|chicken_dinner|100th|treasure.train/i.test(text)
-                ? 'events'
-                : 'special';
+  const category =
+    badge.id === 'vhcompanions:hallo_bomb'
+      ? 'special'
+      : /jackpot/i.test(text)
+        ? 'jackpot'
+        : /\b\d+(?:[.,]\d+)?\s*k\s+companions\b/i.test(display.displayName)
+          ? 'companion-milestones'
+          : /halloween|christmas|valentine/i.test(text)
+            ? 'seasonal'
+            : season
+              ? `season-${season[1]}`
+              : /tier_|patreon/i.test(text)
+                ? 'patreon'
+                : /streak/i.test(text)
+                  ? 'streaks'
+                  : /event|hytale|pubg|corrupted|chicken_dinner|100th|treasure.train/i.test(text)
+                    ? 'events'
+                    : 'special';
   return {
     id: badge.id,
     name: display.displayName,
