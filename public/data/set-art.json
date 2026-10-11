@@ -563,6 +563,30 @@
     "descriptionObtained": "This does not exsit and is just Josh math.",
     "descriptionLocked": "This does not exsit and is just Josh math."
   },
+  "halloween_magnet": {
+    "label": "Halloween Magnet",
+    "image": "/img/halloween_magnet.png",
+    "alt": "Halloween Magnet icon",
+    "obtainable": true,
+    "descriptionObtained": "You purchased this magnet from the companion shop for 2,500 gems during Halloween 2026.",
+    "descriptionLocked": "Purchase this magnet from the companion shop for 2,500 gems during Halloween 2026."
+  },
+  "bat_chestplate_transmog": {
+    "label": "Bat Chestplate",
+    "image": "/img/bat_chestplate_transmog.png",
+    "alt": "Bat Chestplate icon",
+    "obtainable": true,
+    "descriptionObtained": "You obtained this chestplate as a Soul Stolen reward or purchased it from the companion shop for 8,500 gems during Halloween 2026.",
+    "descriptionLocked": "Obtain this chestplate as a Soul Stolen reward or purchase it from the companion shop for 8,500 gems during Halloween 2026."
+  },
+  "bat_axe_transmog": {
+    "label": "Bat Axe",
+    "image": "/img/bat_axe_transmog.png",
+    "alt": "Bat Axe icon",
+    "obtainable": true,
+    "descriptionObtained": "You obtained this axe as a Soul Champion arena reward or purchased it from the companion shop for 25,000 gems during Halloween 2026.",
+    "descriptionLocked": "Obtain this axe as a Soul Champion arena reward or purchase it from the companion shop for 25,000 gems during Halloween 2026."
+  },
   "golden_club": {
     "label": "Golden Club",
     "image": "/img/golf_club.png",
