@@ -46,6 +46,27 @@ test('presence connection exposes vault state and companion XP without allowing 
   connection.close();
 });
 
+test('companion boost refreshes and clears inactive or invalid multipliers', async () => {
+  let socket;
+  const connection = new PresenceConnection(socketUrl('iskall85'), 'iskall85', {
+    WebSocketImpl: class extends FakeSocket {
+      constructor() {
+        super();
+        socket = this;
+      }
+    },
+  });
+  socket.receive('42/extension,["authenticated"]');
+  for (const [index, value] of [2.5, 0, -1, 'PRIVATE', 1_000_001].entries()) {
+    const pending = connection.readCompanionBoost();
+    assert.equal(socket.sent.at(-1), `42/extension,${index + 1}["requestCompanionBoost"]`);
+    socket.receive(`43/extension,${index + 1}${JSON.stringify([value])}`);
+    await pending;
+    assert.equal(connection.companionExpMultiplier, index === 0 ? 2.5 : null);
+  }
+  connection.close();
+});
+
 test('reading a companion publishes its active-vault state', async () => {
   let socket;
   const companions = [];

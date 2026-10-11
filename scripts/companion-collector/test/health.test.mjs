@@ -30,7 +30,14 @@ test('report reads only session metadata and strips state secrets before transmi
         state: 'running',
         mode: 'active',
         token: 'PRIVATEJOIN',
-        channels: [{ streamer: 'mayaicefire', connected: true, status: 'connected' }],
+        channels: [
+          {
+            streamer: 'mayaicefire',
+            connected: true,
+            status: 'connected',
+            companionExpMultiplier: 2.5,
+          },
+        ],
       })
     );
     await mkdir(join(directory, 'results/automation'), { recursive: true });
@@ -61,6 +68,10 @@ test('report reads only session metadata and strips state secrets before transmi
       true
     );
     assert.deepEqual(report.communityDiscovery.channels, ['drgcsg']);
+    assert.equal(
+      report.autoJoin.channels.find((c) => c.streamer === 'mayaicefire').companionExpMultiplier,
+      2.5
+    );
     assert.equal(JSON.stringify(report).includes('PRIVATE'), false);
     let called = false;
     await sendHealth(

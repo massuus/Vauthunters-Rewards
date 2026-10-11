@@ -119,6 +119,11 @@
   color: var(--text-secondary);
   font-size: 0.75rem;
 }
+.live-card__boost {
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
 .live-card__arrow {
   color: var(--accent);
 }

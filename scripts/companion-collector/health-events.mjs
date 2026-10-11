@@ -2,6 +2,7 @@ const CHANNEL_FIELDS = [
   'streamer',
   'live',
   'connected',
+  'companionExpMultiplier',
   'status',
   'issue',
   'windowOpen',

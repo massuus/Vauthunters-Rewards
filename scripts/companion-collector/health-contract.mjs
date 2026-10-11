@@ -88,6 +88,14 @@ function autoJoin(value) {
         streamer,
         live: c?.live === true,
         connected: c?.connected === true,
+        companionExpMultiplier:
+          c?.connected === true &&
+          typeof c?.companionExpMultiplier === 'number' &&
+          Number.isFinite(c.companionExpMultiplier) &&
+          c.companionExpMultiplier > 0 &&
+          c.companionExpMultiplier <= 1_000_000
+            ? c.companionExpMultiplier
+            : null,
         status: ['waiting', 'connecting', 'connected', 'offline', 'fallback'].includes(c?.status)
           ? c.status
           : 'waiting',

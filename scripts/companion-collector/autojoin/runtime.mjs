@@ -130,6 +130,9 @@ export function startAutoJoin({
           streamer,
           live: live.has(streamer),
           connected: connections.get(streamer)?.ready === true,
+          companionExpMultiplier: connections.get(streamer)?.ready
+            ? (connections.get(streamer).companionExpMultiplier ?? null)
+            : null,
           status: r.status,
           issue: c.issue || r.issue || null,
           windowOpen: connections.get(streamer)?.presence === true,
@@ -228,6 +231,7 @@ export function startAutoJoin({
                 : null;
             save();
             await coordinator.join(streamer);
+            await connection.readCompanionBoost();
           })().catch(() => connection.close('invalid-socket-data'))
         );
       },
@@ -296,7 +300,10 @@ export function startAutoJoin({
         }
         if (Date.now() < r.nextAttempt) continue;
         let auth = tokens.get(streamer);
-        if (connection && auth?.expiresAt > Date.now() + 120_000) continue;
+        if (connection && auth?.expiresAt > Date.now() + 120_000) {
+          if (connection.ready) await connection.readCompanionBoost();
+          continue;
+        }
         if (!auth || auth.expiresAt <= Date.now() + 120_000) {
           if (state.budget.tokens >= 256) {
             r.issue = 'resource-limit';

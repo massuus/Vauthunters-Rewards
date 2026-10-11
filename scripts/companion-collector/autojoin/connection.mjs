@@ -2,7 +2,7 @@ import { validateSocketUrl } from '../socket.mjs';
 import { JoinError } from './auth.mjs';
 
 // Only presence registration is writable. No spells, purchases, votes or other actions.
-const REQUESTS = new Set(['requestCompanion', 'requestTriggerPresence']);
+const REQUESTS = new Set(['requestCompanion', 'requestTriggerPresence', 'requestCompanionBoost']);
 export class PresenceConnection {
   constructor(
     url,
@@ -22,6 +22,7 @@ export class PresenceConnection {
     this.presence = null;
     this.online = null;
     this.companion = null;
+    this.companionExpMultiplier = null;
     this.pending = new Map();
     this.nextId = 1;
     this.requestTimeout = requestTimeout;
@@ -105,6 +106,17 @@ export class PresenceConnection {
         reject(error);
       }
     });
+  }
+  async readCompanionBoost() {
+    try {
+      const value = await this.request('requestCompanionBoost');
+      this.companionExpMultiplier =
+        typeof value === 'number' && Number.isFinite(value) && value > 0 && value <= 1_000_000
+          ? value
+          : null;
+    } catch {
+      this.companionExpMultiplier = null;
+    }
   }
   async readCompanion() {
     const value = await this.request('requestCompanion');

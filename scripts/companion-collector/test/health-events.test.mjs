@@ -33,6 +33,7 @@ test('heartbeat fingerprint changes for public live and vault activity', () => {
   for (const change of [
     { live: false },
     { connected: false },
+    { companionExpMultiplier: 2.5 },
     { windowOpen: true },
     { vaultRunning: true, vaultStartedAt: '2026-10-09T12:01:00.000Z' },
     { issue: 'socket-disconnected' },

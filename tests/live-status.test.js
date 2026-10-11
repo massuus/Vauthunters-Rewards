@@ -18,6 +18,7 @@ test('public live status exposes vault activity without private join details', (
               streamer: 'therealhellfirem4ge',
               live: true,
               connected: true,
+              companionExpMultiplier: 2.5,
               windowOpen: false,
               vaultRunning: true,
               vaultStartedAt: new Date(now - 12 * 60_000).toISOString(),
@@ -39,6 +40,7 @@ test('public live status exposes vault activity without private join details', (
     profileImageUrl: 'https://static-cdn.jtvnw.net/jtv_user_pictures/example.png',
     live: true,
     connected: true,
+    companionExpMultiplier: 2.5,
     joinWindowOpen: false,
     inVault: true,
     vaultStartedAt: new Date(now - 12 * 60_000).toISOString(),
@@ -54,6 +56,42 @@ test('public live status rejects profile images outside the Twitch CDN', () => {
   assert.equal(payload.streamers.find((row) => row.login === 'iskall85').profileImageUrl, null);
 });
 
+test('multipliers are hidden for offline, disconnected, stale, or invalid signals', () => {
+  for (const change of [
+    { live: false },
+    { connected: false },
+    { companionExpMultiplier: 0 },
+    { companionExpMultiplier: '2.5' },
+    { companionExpMultiplier: Infinity },
+    { companionExpMultiplier: -1 },
+    { companionExpMultiplier: 1_000_001 },
+  ]) {
+    const payload = publicLiveStatus(
+      {
+        report: {
+          autoJoin: {
+            checkedAt: new Date(now).toISOString(),
+            channels: [
+              {
+                streamer: 'iskall85',
+                live: true,
+                connected: true,
+                companionExpMultiplier: 2.5,
+                ...change,
+              },
+            ],
+          },
+        },
+      },
+      now
+    );
+    assert.equal(
+      payload.streamers.find((row) => row.login === 'iskall85').companionExpMultiplier,
+      null
+    );
+  }
+});
+
 test('stale reports fail closed instead of showing old live states', () => {
   const payload = publicLiveStatus(
     {
@@ -61,7 +99,15 @@ test('stale reports fail closed instead of showing old live states', () => {
       report: {
         autoJoin: {
           checkedAt: new Date(now - 21 * 60_000).toISOString(),
-          channels: [{ streamer: 'iskall85', live: true, vaultRunning: true }],
+          channels: [
+            {
+              streamer: 'iskall85',
+              live: true,
+              connected: true,
+              vaultRunning: true,
+              companionExpMultiplier: 2.5,
+            },
+          ],
         },
       },
     },
@@ -69,4 +115,8 @@ test('stale reports fail closed instead of showing old live states', () => {
   );
   assert.equal(payload.stale, true);
   assert.equal(payload.streamers.find((row) => row.login === 'iskall85').live, false);
+  assert.equal(
+    payload.streamers.find((row) => row.login === 'iskall85').companionExpMultiplier,
+    null
+  );
 });

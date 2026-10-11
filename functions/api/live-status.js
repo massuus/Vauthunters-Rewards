@@ -76,6 +76,15 @@ export function publicLiveStatus(health, now = Date.now(), profileImages = {}) {
         profileImageUrl: safeProfileImage(profileImages[login]),
         live,
         connected: live && channel?.connected === true,
+        companionExpMultiplier:
+          live &&
+          channel?.connected === true &&
+          typeof channel?.companionExpMultiplier === 'number' &&
+          Number.isFinite(channel.companionExpMultiplier) &&
+          channel.companionExpMultiplier > 0 &&
+          channel.companionExpMultiplier <= 1_000_000
+            ? channel.companionExpMultiplier
+            : null,
         joinWindowOpen: live && channel?.windowOpen === true,
         inVault: live && channel?.vaultRunning === true,
         vaultStartedAt:
