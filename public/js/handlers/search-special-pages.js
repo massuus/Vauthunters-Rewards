@@ -16,6 +16,8 @@ import {
   isLeaderboardQuery,
   isMiningQuery,
   isLiveQuery,
+  isBadgesQuery,
+  renderBadgesPage,
   getLeaderboardQueryTarget,
   getServerQueryTarget,
   renderCodesPage,
@@ -68,6 +70,29 @@ async function resolveServerFromSearchValue(value) {
 export async function handleSpecialPageSearch(username) {
   teardownLeaderboardPage();
   teardownLivePage();
+
+  if (isBadgesQuery(username)) {
+    recentContainer?.classList.add('hidden');
+    if (recentContainer) recentContainer.innerHTML = '';
+    setLoadingState(true);
+    try {
+      await renderBadgesPage(
+        resultContainer,
+        setFavicon,
+        setMetaDescription,
+        closeOpenModal,
+        updateQueryString,
+        escapeHtml,
+        DEFAULT_FAVICON
+      );
+      resultContainer
+        .querySelector('.badges-page')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } finally {
+      setLoadingState(false);
+    }
+    return true;
+  }
 
   if (isLiveQuery(username)) {
     recentContainer?.classList.add('hidden');

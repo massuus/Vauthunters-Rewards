@@ -30,6 +30,20 @@ test('report reads only session metadata and strips state secrets before transmi
         state: 'running',
         mode: 'active',
         token: 'PRIVATEJOIN',
+        badgeCatalog: {
+          checkedAt: new Date().toISOString(),
+          badges: [
+            {
+              id: 'vhcompanions:streak_100',
+              display: {
+                displayName: 'x100 Streak!',
+                description: 'Present for a x100 streak',
+                texture: 'vhcompanions:gui/badges/streak_100',
+              },
+              token: 'PRIVATEBADGE',
+            },
+          ],
+        },
         channels: [
           {
             streamer: 'mayaicefire',
@@ -68,6 +82,7 @@ test('report reads only session metadata and strips state secrets before transmi
       true
     );
     assert.deepEqual(report.communityDiscovery.channels, ['drgcsg']);
+    assert.equal(report.badgeCatalog.badges[0].id, 'vhcompanions:streak_100');
     assert.equal(
       report.autoJoin.channels.find((c) => c.streamer === 'mayaicefire').companionExpMultiplier,
       2.5
@@ -87,6 +102,19 @@ test('report reads only session metadata and strips state secrets before transmi
       }
     );
     assert.ok(called);
+    const deliveries = [];
+    await sendHealth(
+      { endpoint: 'https://example.test/api/companion-sync', token: 'fake-token' },
+      report,
+      async (url, options) => {
+        deliveries.push(JSON.parse(options.body));
+        return new Response('{}', { status: deliveries.length === 1 ? 413 : 200 });
+      }
+    );
+    assert.equal(deliveries.length, 2);
+    assert.ok(deliveries[0].badgeCatalog);
+    assert.equal(deliveries[1].badgeCatalog, null);
+    assert.deepEqual(deliveries[1].autoJoin, deliveries[0].autoJoin);
     await assert.rejects(sendHealth({ endpoint: 'http://example.test', token: 'fake' }, report));
     await assert.rejects(
       sendHealth(

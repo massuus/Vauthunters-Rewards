@@ -1,0 +1,99 @@
+.badges-page {
+  scroll-margin-top: 110px;
+  display: grid;
+  gap: 1.25rem;
+}
+.badges-page__intro {
+  text-align: center;
+}
+.badges-page__intro h2 {
+  margin: 0;
+  color: var(--accent);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 2rem;
+}
+.badges-page__intro p,
+.badges-page__count {
+  color: var(--text-secondary);
+}
+.badges-page__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.badges-page__filters label {
+  display: grid;
+  gap: 0.4rem;
+  flex: 1 1 220px;
+  font-size: 0.85rem;
+}
+.badges-page__filters input,
+.badges-page__filters select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  color: var(--text-primary);
+  background: var(--bg-secondary, #18202c);
+  font: inherit;
+}
+.badges-page__filters input:focus-visible,
+.badges-page__filters select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.badges-page__count {
+  margin: 0;
+  font-size: 0.85rem;
+}
+.badges-page__group {
+  margin-bottom: 1.75rem;
+}
+.badges-page__group h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.2rem;
+}
+.badges-page__group h3 span {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 0.8rem;
+}
+.badge-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(29, 37, 50, 0.95), rgba(15, 20, 29, 0.95));
+}
+.badge-card img {
+  flex: 0 0 64px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.badge-card h4 {
+  margin: 0 0 0.35rem;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+.badge-card p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.badges-page__empty {
+  padding: 1.5rem;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: var(--text-secondary);
+}

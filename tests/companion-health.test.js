@@ -77,7 +77,7 @@ test('health contract discards credentials, raw errors, and unknown channels', (
   assert.deepEqual(sanitizeHealth(safe).communityDiscovery.channels, ['drgcsg']);
 });
 
-test('ingestion requires the secret and limits health reports to 16 KiB', async () => {
+test('ingestion requires the secret and limits health reports with badge metadata to 256 KiB', async () => {
   const env = { COMPANION_SYNC_TOKEN: 'a'.repeat(64) };
   assert.equal(
     (
@@ -96,7 +96,7 @@ test('ingestion requires the secret and limits health reports to 16 KiB', async 
         authorization: `Bearer ${env.COMPANION_SYNC_TOKEN}`,
         'content-type': 'application/json',
       },
-      body: ' '.repeat(17000),
+      body: ' '.repeat(256 * 1024 + 1),
     }),
   });
   assert.equal(response.status, 413);

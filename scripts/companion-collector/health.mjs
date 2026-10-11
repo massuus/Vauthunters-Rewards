@@ -29,7 +29,7 @@ export async function createHealthReport(
   let autoJoin = null;
   try {
     const path = join(directory, 'results/autojoin/status.json');
-    if ((await stat(path)).size <= 128 * 1024) autoJoin = JSON.parse(await readFile(path, 'utf8'));
+    if ((await stat(path)).size <= 256 * 1024) autoJoin = JSON.parse(await readFile(path, 'utf8'));
   } catch {
     /* A missing status is reported as unavailable, without exposing raw files. */
   }
@@ -50,6 +50,7 @@ export async function createHealthReport(
     sessionSavedAt,
     attemptsToday: state?.day === new Date().toISOString().slice(0, 10) ? state.attempts : 0,
     autoJoin,
+    badgeCatalog: autoJoin?.badgeCatalog,
     communityDiscovery,
     channels: STREAMERS.map((streamer) => {
       const c = state?.channels?.[streamer] || {};
@@ -76,13 +77,23 @@ export async function sendHealth(config, report, fetchImpl = fetch) {
   )
     throw new Error('Invalid endpoint.');
   endpoint.pathname = '/api/companion-health';
-  const response = await fetchImpl(endpoint, {
+  const options = {
     method: 'POST',
     redirect: 'error',
     signal: AbortSignal.timeout(10_000),
     headers: { 'content-type': 'application/json', authorization: `Bearer ${config.token}` },
     body: JSON.stringify(sanitizeHealth(report)),
-  });
+  };
+  let response = await fetchImpl(endpoint, options);
+  if (response.status === 413 && report.badgeCatalog) {
+    await response.body?.cancel();
+    // Keep live status flowing while the website still runs the older body limit.
+    response = await fetchImpl(endpoint, {
+      ...options,
+      signal: AbortSignal.timeout(10_000),
+      body: JSON.stringify(sanitizeHealth({ ...report, badgeCatalog: null })),
+    });
+  }
   await response.body?.cancel();
   if (!response.ok) throw new Error('Health delivery failed.');
 }

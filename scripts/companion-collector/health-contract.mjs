@@ -1,3 +1,4 @@
+import { sanitizeBadgeCatalog } from './badge-catalog.mjs';
 // Shared wire contract: explicitly allowlisted metadata only, never raw logs/cookies/URLs.
 const STREAMERS = [
   'hoy_82',
@@ -163,6 +164,7 @@ export function sanitizeHealth(value) {
     sessionSavedAt: date(value.sessionSavedAt),
     attemptsToday: count(value.attemptsToday),
     autoJoin: autoJoin(value.autoJoin),
+    badgeCatalog: sanitizeBadgeCatalog(value.badgeCatalog),
     communityDiscovery: communityDiscovery(value.communityDiscovery),
     channels: STREAMERS.map((streamer) => {
       const c = Array.isArray(value.channels)

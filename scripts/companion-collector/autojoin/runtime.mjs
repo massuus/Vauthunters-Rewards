@@ -5,6 +5,7 @@ import { createTokenProvider } from './auth.mjs';
 import { PresenceConnection } from './connection.mjs';
 import { JoinCoordinator } from './coordinator.mjs';
 import { createLiveChecker } from '../live-status.mjs';
+import { sanitizeBadgeCatalog } from '../badge-catalog.mjs';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const SAFE_CODES = new Set([
@@ -47,7 +48,7 @@ export function startAutoJoin({
   const statusPath = join(results, 'status.json');
   let state;
   try {
-    if (statSync(statePath).size > 128 * 1024) throw new Error();
+    if (statSync(statePath).size > 256 * 1024) throw new Error();
     state = JSON.parse(readFileSync(statePath, 'utf8'));
     if (
       state.version !== 1 ||
@@ -69,6 +70,33 @@ export function startAutoJoin({
     renameSync(`${path}.tmp`, path);
   };
   const save = () => atomic(statePath, state);
+  state.badgeCatalog = sanitizeBadgeCatalog(state.badgeCatalog);
+  let badgeRefreshPending = false;
+  let lastBadgeAttempt = 0;
+  const refreshBadges = async (connection) => {
+    if (
+      badgeRefreshPending ||
+      Date.now() - lastBadgeAttempt < 15 * 60_000 ||
+      (state.badgeCatalog && Date.now() - Date.parse(state.badgeCatalog.checkedAt) < 60 * 60_000)
+    )
+      return;
+    badgeRefreshPending = true;
+    lastBadgeAttempt = Date.now();
+    try {
+      const catalog = sanitizeBadgeCatalog({
+        checkedAt: new Date().toISOString(),
+        badges: await connection.request('requestBadges'),
+      });
+      if (catalog) {
+        state.badgeCatalog = catalog;
+        save();
+      }
+    } catch {
+      /* Keep the last successful catalog during upstream failures. */
+    } finally {
+      badgeRefreshPending = false;
+    }
+  };
   const connections = new Map();
   const tokens = new Map(); // Credential-bearing URLs stay in memory only.
   const runtime = new Map(
@@ -120,6 +148,7 @@ export function startAutoJoin({
       mode: passive ? 'passive' : 'active',
       state: stopped ? 'stopped' : 'running',
       liveCheck,
+      badgeCatalog: state.badgeCatalog,
       tokensToday: state.budget.tokens,
       connectionsToday: state.budget.connections,
       socketBytesToday: state.budget.bytes,
@@ -232,6 +261,7 @@ export function startAutoJoin({
             save();
             await coordinator.join(streamer);
             await connection.readCompanionBoost();
+            await refreshBadges(connection);
           })().catch(() => connection.close('invalid-socket-data'))
         );
       },
@@ -302,6 +332,7 @@ export function startAutoJoin({
         let auth = tokens.get(streamer);
         if (connection && auth?.expiresAt > Date.now() + 120_000) {
           if (connection.ready) await connection.readCompanionBoost();
+          if (connection.ready) await refreshBadges(connection);
           continue;
         }
         if (!auth || auth.expiresAt <= Date.now() + 120_000) {

@@ -2,7 +2,12 @@ import { validateSocketUrl } from '../socket.mjs';
 import { JoinError } from './auth.mjs';
 
 // Only presence registration is writable. No spells, purchases, votes or other actions.
-const REQUESTS = new Set(['requestCompanion', 'requestTriggerPresence', 'requestCompanionBoost']);
+const REQUESTS = new Set([
+  'requestCompanion',
+  'requestTriggerPresence',
+  'requestCompanionBoost',
+  'requestBadges',
+]);
 export class PresenceConnection {
   constructor(
     url,
@@ -63,6 +68,7 @@ export class PresenceConnection {
           onReady();
         }
         if (name === 'vhsmpStatus') this.online = value === true || value === 1;
+        if (name === 'companionBoost') this.setCompanionBoost(value);
         if (name === 'showPresenceCheck' && [0, 1].includes(value)) {
           this.presence = value === 1;
           onPresence(this.presence);
@@ -107,13 +113,16 @@ export class PresenceConnection {
       }
     });
   }
+  setCompanionBoost(value) {
+    this.companionExpMultiplier =
+      typeof value === 'number' && Number.isFinite(value) && value > 0 && value <= 1_000_000
+        ? value
+        : null;
+  }
   async readCompanionBoost() {
     try {
       const value = await this.request('requestCompanionBoost');
-      this.companionExpMultiplier =
-        typeof value === 'number' && Number.isFinite(value) && value > 0 && value <= 1_000_000
-          ? value
-          : null;
+      this.setCompanionBoost(value);
     } catch {
       this.companionExpMultiplier = null;
     }

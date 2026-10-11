@@ -6,6 +6,7 @@ const SPECIAL_ROUTES = new Set([
   'mining',
   'admin',
   'live',
+  'badges',
 ]);
 
 function getActiveRoute() {

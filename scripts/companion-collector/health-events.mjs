@@ -18,6 +18,7 @@ export function healthEventFingerprint(value) {
     state: value.state,
     mode: value.mode,
     liveCheck: value.liveCheck,
+    badgeCatalogCheckedAt: value.badgeCatalog?.checkedAt ?? null,
     channels: value.channels.map((channel) =>
       Object.fromEntries(CHANNEL_FIELDS.map((field) => [field, channel?.[field] ?? null]))
     ),

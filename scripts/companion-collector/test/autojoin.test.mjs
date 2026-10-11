@@ -64,6 +64,10 @@ test('companion boost refreshes and clears inactive or invalid multipliers', asy
     await pending;
     assert.equal(connection.companionExpMultiplier, index === 0 ? 2.5 : null);
   }
+  socket.receive('42/extension,["companionBoost",3]');
+  assert.equal(connection.companionExpMultiplier, 3);
+  socket.receive('42/extension,["companionBoost",0]');
+  assert.equal(connection.companionExpMultiplier, null);
   connection.close();
 });
 

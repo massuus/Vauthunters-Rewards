@@ -73,6 +73,17 @@ data is preserved in this case. Other channels continue independently.
 
 ## Status and stop
 
+### Dynamic badge catalog
+
+The existing authenticated companion socket reads `requestBadges` at most hourly
+while a channel is connected. Only badge IDs, names, descriptions and validated
+texture paths are retained in the collector's replaceable cache and sent with its
+health report. The website exposes this cache through `/api/badges`; icons load
+directly from the official EBS sprite URLs. No badge definitions or icons are
+stored in the repository. Failed refreshes retain the last successful cache, so
+the catalog remains available while streamers are offline. Both the collector
+and website must be updated before the first catalog can reach the website.
+
 ### Admin website panel
 
 Sign in as an administrator and open the leaderboard (`/?leaderboard`). The
