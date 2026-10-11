@@ -115,7 +115,7 @@ export function renderCollectorHealth(data, escapeHtml) {
     if (c.outcome === 'chat-failed') return 'Chat fallback failed';
     if (c.live && c.connected) return c.windowOpen ? 'Join window detected' : 'WebSocket connected';
     if (c.live && c.status === 'connecting') return 'Connecting';
-    if (c.live) return 'Chat fallback available; socket retries after ten minutes';
+    if (c.live) return 'Chat fallback available; socket retries after one minute';
     return 'Offline';
   };
   const joinRows = join

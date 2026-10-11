@@ -198,6 +198,6 @@ and refuses to overwrite later edits.
 The chat bot now opens authenticated Vault Hunters extension sockets for live channels. It uses
 `showPresenceCheck` as the join-window signal, sends only `requestTriggerPresence`, and confirms
 `activeThisVault` before recording success. Chat thresholds remain the fallback. If opening the
-extension displaces a socket, it reconnects after ten minutes. Vault-end or companion XP changes
+extension displaces a socket, it reconnects after one minute. Vault-end or companion XP changes
 request a leaderboard refresh, subject to the one-hour interval, six-per-streamer and fourteen-total
 daily browser limits.

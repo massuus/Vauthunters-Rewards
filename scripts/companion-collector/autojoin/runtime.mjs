@@ -275,7 +275,7 @@ export function startAutoJoin({
         r.issue = safeCode(code);
         r.failures++;
         // Opening the extension yourself can replace this viewer connection. Retry later.
-        r.nextAttempt = Date.now() + 10 * 60_000;
+        r.nextAttempt = Date.now() + 60_000;
         if (code === 'extension-access-required') {
           tokens.delete(streamer);
           r.nextAttempt = Date.now() + 5 * 60_000;
