@@ -125,9 +125,16 @@ function outcome(value) {
 }
 function communityDiscovery(value) {
   if (!value || !date(value.checkedAt)) return null;
-  const channels = Array.isArray(value.candidates)
+  const source = Array.isArray(value.candidates)
     ? value.candidates
-        .map((candidate) => String(candidate?.login || '').toLowerCase())
+    : Array.isArray(value.channels)
+      ? value.channels
+      : [];
+  const channels = source.length
+    ? source
+        .map((candidate) =>
+          String(typeof candidate === 'string' ? candidate : candidate?.login || '').toLowerCase()
+        )
         .filter((login) => /^[a-z0-9_]{1,25}$/.test(login))
     : [];
   return {

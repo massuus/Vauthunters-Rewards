@@ -74,6 +74,7 @@ test('health contract discards credentials, raw errors, and unknown channels', (
     safe.channels.find((c) => c.streamer === 'mayaicefire').lastCollection.code,
     'unknown-error'
   );
+  assert.deepEqual(sanitizeHealth(safe).communityDiscovery.channels, ['drgcsg']);
 });
 
 test('ingestion requires the secret and limits health reports to 16 KiB', async () => {
