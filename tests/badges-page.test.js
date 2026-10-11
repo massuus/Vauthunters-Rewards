@@ -71,7 +71,7 @@ test('search combines category with case-insensitive names and acquisition descr
     filterBadges(badges, 'season-1', 'level').every((badge) => badge.category === 'season-1')
   );
   assert.equal(
-    filterBadges(badges, 'events', 'SOUL STOLEN')[0].id,
+    filterBadges(badges, 'seasonal', 'SOUL STOLEN')[0].id,
     'vhcompanions:halloween_soul_2026'
   );
   assert.equal(filterBadges(badges, 'streaks', 'x100')[0].id, 'vhcompanions:streak_100');
