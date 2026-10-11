@@ -2,7 +2,7 @@
 
 .site-nav__live-dot {
   position: absolute;
-  top: 0.35rem;
+  top: 0.6rem;
   right: 0.3rem;
   width: 0.4rem;
   height: 0.4rem;
@@ -287,6 +287,12 @@
     font-size: 0.83rem;
     text-align: left;
     white-space: normal;
+  }
+
+  .site-nav__live-dot {
+    position: static;
+    flex-shrink: 0;
+    margin-left: 0.65rem;
   }
 
   .site-nav__links a[aria-current='page']::after {
