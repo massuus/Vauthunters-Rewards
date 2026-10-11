@@ -45,6 +45,8 @@ export function initNavigation() {
   const navigation = document.getElementById('primary-navigation');
   if (!navigation) return;
 
+  initLiveIndicator(navigation);
+
   const toggle = navigation.querySelector('.site-nav__toggle');
   syncActiveNavigation();
   window.addEventListener('popstate', syncActiveNavigation);
@@ -80,4 +82,42 @@ export function initNavigation() {
   });
 
   syncToggleState();
+}
+
+function initLiveIndicator(navigation) {
+  const link = navigation.querySelector('[data-nav-route="live"]');
+  if (!link) return;
+  const dot = document.createElement('span');
+  dot.className = 'site-nav__live-dot';
+  dot.hidden = true;
+  dot.setAttribute('aria-hidden', 'true');
+  link.append(dot);
+  let checking = false;
+  const refresh = async () => {
+    if (document.hidden || checking) return;
+    checking = true;
+    try {
+      const results = await Promise.allSettled(
+        ['/api/live-status', '/api/community-live'].map(async (url) => {
+          const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+          if (!response.ok) throw new Error('Live status unavailable');
+          const payload = await response.json();
+          return (
+            !payload.stale &&
+            Array.isArray(payload.streamers) &&
+            payload.streamers.some((streamer) => url === '/api/community-live' || streamer.live)
+          );
+        })
+      );
+      const live = results.some((result) => result.status === 'fulfilled' && result.value);
+      dot.hidden = !live;
+      link.setAttribute('aria-label', live ? 'Live — someone is streaming' : 'Live');
+      link.title = live ? 'Someone is live now' : '';
+    } finally {
+      checking = false;
+    }
+  };
+  void refresh();
+  window.setInterval(refresh, 60000);
+  document.addEventListener('visibilitychange', refresh);
 }
