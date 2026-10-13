@@ -74,6 +74,61 @@ const companion = (i) => ({
   updated_at: '2026-09-11T00:00:00Z',
 });
 
+test('cold profile lookup keeps all companion ranks without per-object cache subrequests', async () => {
+  const logins = [
+    'iskall85',
+    'hoy_82',
+    'linahun',
+    'mastercwg',
+    'mayaicefire',
+    'stressmonstah',
+    'therealhellfirem4ge',
+    'davy_dvde',
+  ];
+  const snapshot = buildSnapshot(
+    [],
+    logins.map((streamer_login) => ({
+      ...companion(1),
+      streamer_login,
+    })),
+    7
+  );
+  const bucket = await seedBucket(snapshot);
+  let reads = 0;
+  const originalGet = bucket.get.bind(bucket);
+  bucket.get = (key) => {
+    reads++;
+    return originalGet(key);
+  };
+  const originalCaches = globalThis.caches;
+  let cacheCalls = 0;
+  globalThis.caches = {
+    default: {
+      async match() {
+        cacheCalls++;
+        return null;
+      },
+      async put() {
+        cacheCalls++;
+      },
+    },
+  };
+  try {
+    const profile = await getSnapshotProfileData(
+      { LEADERBOARD_SNAPSHOTS: bucket },
+      { twitchName: 'player1' },
+      'https://cold-cache.test'
+    );
+    assert.equal(profile.companionStats.length, logins.length);
+    assert.ok(profile.companionStats.every((row) => row.seasonLevelRank && row.vaultsJoinedRank));
+    assert.equal(cacheCalls, 0);
+    assert.ok(reads <= 35, `Expected at most 35 R2 reads, got ${reads}`);
+  } finally {
+    if (originalCaches === undefined) delete globalThis.caches;
+    else globalThis.caches = originalCaches;
+  }
+});
+
 test('snapshot pages handle chunk boundaries, tied focus, unknown names, and zero D1 reads', async () => {
   const snapshot = buildSnapshot(
     [

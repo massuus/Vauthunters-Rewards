@@ -43,3 +43,34 @@ test('unknown Twitch accounts still return 404', async (t) => {
   });
   assert.equal(response.status, 404);
 });
+
+test('a failed cache write does not turn valid profile data into a 500', async (t) => {
+  const originalCaches = globalThis.caches;
+  globalThis.caches = {
+    default: {
+      async match() {
+        return null;
+      },
+      async put() {
+        throw new Error('Too many subrequests by single Worker invocation');
+      },
+    },
+  };
+  t.mock.method(globalThis, 'fetch', async (url) => {
+    if (String(url).includes('/rewards?twitchUsername='))
+      return Response.json({ sets: ['companion10'], rewards: {} });
+    if (String(url).includes('/users/reward/list')) return Response.json({});
+    throw new Error(`Unexpected request: ${url}`);
+  });
+  try {
+    const response = await onRequest({
+      request: new Request('https://example.com/api/profile?twitchUsername=cache_failure_test'),
+      env: {},
+    });
+    assert.equal(response.status, 200);
+    assert.deepEqual((await response.json()).sets, ['companion10']);
+  } finally {
+    if (originalCaches === undefined) delete globalThis.caches;
+    else globalThis.caches = originalCaches;
+  }
+});

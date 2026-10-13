@@ -11,10 +11,10 @@ export function snapshotBoardKey(metric, streamer = '') {
 
 // This cache is shared by all page offsets and focus lookups at a data center.
 // No request state or cross-request promises are kept in the isolate.
-async function readObject(env, key, origin, immutable = false) {
+async function readObject(env, key, origin, immutable = false, useCache = true) {
   let cache;
   try {
-    cache = caches.default;
+    cache = useCache ? caches.default : null;
   } catch {
     /* Local tests have no Cache API. */
   }
@@ -42,8 +42,8 @@ async function readObject(env, key, origin, immutable = false) {
   return data;
 }
 
-async function readManifest(env, origin) {
-  const manifest = await readObject(env, SNAPSHOT_MANIFEST_KEY, origin);
+async function readManifest(env, origin, useCache = true) {
+  const manifest = await readObject(env, SNAPSHOT_MANIFEST_KEY, origin, false, useCache);
   if (manifest.schema !== 1 || !manifest.prefix?.startsWith(SNAPSHOT_DATA_PREFIX)) {
     throw new Error('Unsupported leaderboard snapshot.');
   }
@@ -88,42 +88,62 @@ export async function searchSnapshotPlayers(env, query, origin) {
     .slice(0, 6);
 }
 
-async function readPlayerAt(env, manifest, boardKey, position, origin) {
+async function readPlayerAt(env, manifest, boardKey, position, origin, useCache = true) {
   if (!Number.isInteger(position) || position < 0) return null;
   const chunk = Math.floor(position / SNAPSHOT_CHUNK_SIZE);
-  const rows = await readObject(env, `${manifest.prefix}${boardKey}/${chunk}.json`, origin, true);
+  const rows = await readObject(
+    env,
+    `${manifest.prefix}${boardKey}/${chunk}.json`,
+    origin,
+    true,
+    useCache
+  );
   return rows[position % SNAPSHOT_CHUNK_SIZE] || null;
 }
 
-async function findSnapshotPlayer(env, manifest, boardKey, identifiers, origin) {
+async function findSnapshotPlayer(env, manifest, boardKey, identifiers, origin, useCache = true) {
   if (!manifest.boards[boardKey]) return null;
-  const names = await readObject(env, `${manifest.prefix}${boardKey}/names.json`, origin, true);
+  const names = await readObject(
+    env,
+    `${manifest.prefix}${boardKey}/names.json`,
+    origin,
+    true,
+    useCache
+  );
   for (const identifier of identifiers) {
     const key = String(identifier || '')
       .trim()
       .toLowerCase();
     if (key && Object.hasOwn(names, key)) {
-      return readPlayerAt(env, manifest, boardKey, names[key], origin);
+      return readPlayerAt(env, manifest, boardKey, names[key], origin, useCache);
     }
   }
   return null;
 }
 
-async function findSnapshotProfilePlayer(env, manifest, boardKey, identifiers, origin) {
+async function findSnapshotProfilePlayer(
+  env,
+  manifest,
+  boardKey,
+  identifiers,
+  origin,
+  useCache = true
+) {
   if (!manifest.boards[boardKey]) return null;
   if (manifest.format >= 3) {
     const names = await readObject(
       env,
       `${manifest.prefix}${boardKey}/profile-names.json`,
       origin,
-      true
+      true,
+      useCache
     );
     for (const identifier of identifiers) {
       const key = String(identifier || '')
         .trim()
         .toLowerCase();
       if (key && Object.hasOwn(names, key)) {
-        return readPlayerAt(env, manifest, boardKey, names[key], origin);
+        return readPlayerAt(env, manifest, boardKey, names[key], origin, useCache);
       }
     }
     return null;
@@ -132,7 +152,7 @@ async function findSnapshotProfilePlayer(env, manifest, boardKey, identifiers, o
   // Older snapshots included cosmetic skin selections in their general name
   // index. Validate the returned account identity so a borrowed skin cannot
   // attach another player's Twitch account to this profile.
-  const player = await findSnapshotPlayer(env, manifest, boardKey, identifiers, origin);
+  const player = await findSnapshotPlayer(env, manifest, boardKey, identifiers, origin, useCache);
   if (!player) return null;
   const expected = new Set(identifiers.filter(Boolean).map((value) => String(value).toLowerCase()));
   return [player.twitchName, player.minecraftUUID, player.minecraftName].some(
@@ -147,13 +167,17 @@ export async function getSnapshotProfileData(
   { minecraftUUID = '', minecraftName = '', twitchName = '' } = {},
   origin
 ) {
-  const manifest = await readManifest(env, origin);
+  // A profile reads many boards. Per-object cache match/put calls can exhaust
+  // the invocation's subrequest budget on a cold cache. Read R2 directly here;
+  // the profile endpoint already caches the assembled result.
+  const manifest = await readManifest(env, origin, false);
   const leaderboardPlace = await findSnapshotPlayer(
     env,
     manifest,
     'setsUnlocked',
     [minecraftUUID, minecraftName],
-    origin
+    origin,
+    false
   );
   const companionStats = [];
   for (const streamer of manifest.streamers || []) {
@@ -164,14 +188,16 @@ export async function getSnapshotProfileData(
         manifest,
         snapshotBoardKey('seasonLevel', streamer.login),
         identifiers,
-        origin
+        origin,
+        false
       ),
       findSnapshotProfilePlayer(
         env,
         manifest,
         snapshotBoardKey('vaultsJoined', streamer.login),
         identifiers,
-        origin
+        origin,
+        false
       ),
     ]);
     const player = seasonPlayer || vaultsPlayer;

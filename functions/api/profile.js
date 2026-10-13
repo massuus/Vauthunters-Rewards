@@ -175,7 +175,7 @@ export async function onRequest({ request, env, waitUntil }) {
           'cache-control': `public, max-age=${PROFILE_BROWSER_CACHE_TTL_SECONDS}, s-maxage=${PROFILE_EDGE_CACHE_TTL_SECONDS}`,
         }
       );
-      if (useProfileCache && cache) await cache.put(cacheRequest, response.clone());
+      if (useProfileCache && cache) await cacheProfileResponse(cache, cacheRequest, response);
       return response;
     }
     const profile = await fetchProfile(linkedRewards?.minecraftId || normalizedUsername);
@@ -289,7 +289,7 @@ export async function onRequest({ request, env, waitUntil }) {
       }
     );
     if (useProfileCache && cache) {
-      await cache.put(cacheRequest, response.clone());
+      await cacheProfileResponse(cache, cacheRequest, response);
     }
     return response;
   } catch (error) {
@@ -311,6 +311,16 @@ export async function onRequest({ request, env, waitUntil }) {
       },
       status
     );
+  }
+}
+
+async function cacheProfileResponse(cache, request, response) {
+  try {
+    await cache.put(request, response.clone());
+  } catch (error) {
+    console.error('Profile cache write failed', {
+      message: error instanceof Error ? error.message : String(error),
+    });
   }
 }
 
