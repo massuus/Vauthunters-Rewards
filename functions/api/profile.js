@@ -89,7 +89,7 @@ export async function onRequest({ request, env, waitUntil }) {
   }
 
   const normalizedUsername = username.toLowerCase();
-  const normalizedTwitchUsername = twitchUsername.toLowerCase();
+  let normalizedTwitchUsername = twitchUsername.toLowerCase();
 
   if (username && !USERNAME_REGEX.test(normalizedUsername)) {
     return badRequest('Invalid Minecraft username. Use 3-16 letters, numbers, or underscores.');
@@ -143,9 +143,30 @@ export async function onRequest({ request, env, waitUntil }) {
 
   try {
     const rewardsHeaders = getRewardsAuthHeaders(env);
-    const linkedRewards = normalizedTwitchUsername
+    let linkedRewards = normalizedTwitchUsername
       ? await fetchRewardsByTwitch(normalizedTwitchUsername, rewardsHeaders)
       : null;
+    let profile = null;
+    if (!normalizedTwitchUsername) {
+      profile = await fetchProfile(normalizedUsername);
+      // A Minecraft account always takes priority. Only interpret a missing
+      // name as Twitch when the rewards service supplies a linked Minecraft ID.
+      if (!profile) {
+        try {
+          const twitchRewards = await fetchRewardsByTwitch(normalizedUsername, rewardsHeaders);
+          if (twitchRewards.minecraftId) {
+            linkedRewards = twitchRewards;
+            normalizedTwitchUsername = normalizedUsername;
+          }
+        } catch (error) {
+          if (error.status !== 404) {
+            console.error('Linked Twitch fallback unavailable', {
+              message: error instanceof Error ? error.message : String(error),
+            });
+          }
+        }
+      }
+    }
     if (linkedRewards && !linkedRewards.minecraftId) {
       const [iskall85Tier, snapshotProfile] = await Promise.all([
         fetchIskall85Tiers('', '', normalizedTwitchUsername),
@@ -178,7 +199,7 @@ export async function onRequest({ request, env, waitUntil }) {
       if (useProfileCache && cache) await cacheProfileResponse(cache, cacheRequest, response);
       return response;
     }
-    const profile = await fetchProfile(linkedRewards?.minecraftId || normalizedUsername);
+    if (linkedRewards) profile = await fetchProfile(linkedRewards.minecraftId);
 
     if (!profile) {
       return json(
