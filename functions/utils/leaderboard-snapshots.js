@@ -50,6 +50,15 @@ async function readManifest(env, origin, useCache = true) {
   return manifest;
 }
 
+export async function getSnapshotStreamerStats(env, origin) {
+  const manifest = await readManifest(env, origin);
+  if (!manifest.statsKey?.startsWith(manifest.prefix))
+    throw new ApiError(503, 'Streamer statistics are being prepared. Please try again shortly.');
+  const stats = await readObject(env, manifest.statsKey, origin, true);
+  if (stats.schema !== 1 || !stats.filters) throw new Error('Unsupported streamer statistics.');
+  return stats;
+}
+
 function suggestionTerms(player) {
   return [player.name, player.minecraftName, player.twitchName, player.alias]
     .filter(Boolean)

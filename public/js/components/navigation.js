@@ -7,6 +7,7 @@ const SPECIAL_ROUTES = new Set([
   'admin',
   'live',
   'badges',
+  'stats',
 ]);
 
 function getActiveRoute() {

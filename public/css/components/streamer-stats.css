@@ -1,0 +1,301 @@
+.result:has(.streamer-stats) {
+  content-visibility: visible;
+  contain-intrinsic-size: none;
+}
+
+.streamer-stats {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  color: var(--text-primary);
+}
+.streamer-stats__intro {
+  max-width: 46rem;
+  margin-bottom: 1.8rem;
+}
+.streamer-stats__eyebrow {
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.streamer-stats h2 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  margin: 0.4rem 0 0.7rem;
+}
+.streamer-stats p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.streamer-stats a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.streamer-stats a:hover {
+  text-decoration: underline;
+}
+.streamer-stats button,
+.streamer-stats select {
+  font: inherit;
+  color: var(--text-primary);
+  border: 1px solid #ffffff26;
+  background: #202326;
+  border-radius: 0.65rem;
+  padding: 0.65rem 0.8rem;
+  min-height: 44px;
+}
+.streamer-stats button {
+  cursor: pointer;
+}
+.streamer-stats select {
+  color-scheme: dark;
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 2rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #ccc 50%),
+    linear-gradient(135deg, #ccc 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 9px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+.streamer-stats button[aria-pressed='true'] {
+  color: #fff3de;
+  background: #623c15;
+  border-color: var(--accent);
+}
+.streamer-stats button:focus-visible,
+.streamer-stats select:focus-visible,
+.streamer-stats a:focus-visible,
+.streamer-stats__scroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.streamer-stats__controls,
+.streamer-stats__groups,
+.streamer-stats__sort {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+}
+.streamer-stats__controls {
+  justify-content: space-between;
+  gap: 1rem;
+}
+.streamer-stats__sort label {
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+.streamer-stats__sort {
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+.streamer-stats__sort select,
+.streamer-stats__sort button {
+  height: 44px;
+}
+.streamer-stats__status {
+  font-size: 0.85rem;
+  margin: 1rem 0;
+}
+.streamer-stats__cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+.streamer-stats__card {
+  border: 1px solid #ffffff20;
+  border-radius: 1rem;
+  padding: 1.2rem;
+  background: linear-gradient(145deg, #392b1c88, #1e2429);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.streamer-stats__card > span {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+.streamer-stats__card > strong {
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  line-height: 1.2;
+}
+.streamer-stats__card small {
+  color: var(--text-secondary);
+}
+.streamer-stats__section {
+  margin-top: 2rem;
+}
+.streamer-stats h3,
+.streamer-stats summary {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.streamer-stats summary {
+  cursor: pointer;
+  padding: 1rem 0;
+}
+.streamer-stats__scroll {
+  min-width: 0;
+  overflow-x: auto;
+  max-width: 100%;
+  border: 1px solid #ffffff20;
+  border-radius: 0.8rem;
+}
+.streamer-stats table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+}
+.streamer-stats caption {
+  text-align: left;
+  padding: 0.8rem 1rem;
+  color: var(--text-secondary);
+}
+.streamer-stats th,
+.streamer-stats td {
+  padding: 0.85rem 1rem;
+  text-align: right;
+  border-top: 1px solid #ffffff14;
+  white-space: nowrap;
+}
+.streamer-stats th:first-child {
+  text-align: left;
+}
+.streamer-stats thead th {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  background: #ffffff05;
+}
+.streamer-stats tbody tr:hover {
+  background: #ffffff05;
+}
+.streamer-stats td small,
+.streamer-stats th small,
+.streamer-stats__detail {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+.streamer-stats__diagonal {
+  background: #ffffff08;
+  color: var(--text-secondary);
+}
+.streamer-stats__distributions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.streamer-stats__distribution {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid #ffffff20;
+  border-radius: 0.8rem;
+  background: #ffffff03;
+}
+.streamer-stats__distribution > div:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: center;
+}
+.streamer-stats__distribution > div > span {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+.streamer-stats__bar {
+  display: flex;
+  height: 1.2rem;
+  border-radius: 0.35rem;
+  overflow: hidden;
+  background: #ffffff08;
+  margin-top: 0.9rem;
+  gap: 2px;
+}
+.streamer-stats__bar span {
+  flex-basis: 0;
+  min-width: 1px;
+}
+.streamer-stats [data-bucket='0'] {
+  background: #697386;
+}
+.streamer-stats [data-bucket='1'] {
+  background: #54a6b1;
+}
+.streamer-stats [data-bucket='2'] {
+  background: #87b66b;
+}
+.streamer-stats [data-bucket='3'] {
+  background: #e4bc57;
+}
+.streamer-stats [data-bucket='4'] {
+  background: #ef883b;
+}
+.streamer-stats [data-bucket='5'] {
+  background: #c88cdd;
+}
+.streamer-stats__distribution p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.8rem;
+  font-size: 0.72rem;
+  margin-bottom: 0;
+}
+.streamer-stats__distribution i {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  margin-right: 0.25rem;
+}
+.streamer-stats__footnote {
+  border-top: 1px solid #ffffff20;
+  padding-top: 1.2rem;
+  margin-top: 2rem;
+  font-size: 0.78rem;
+}
+.streamer-stats__empty {
+  padding: 2rem;
+  text-align: center;
+}
+@media (max-width: 900px) {
+  .streamer-stats__cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 550px) {
+  .streamer-stats__distributions {
+    grid-template-columns: 1fr;
+  }
+  .streamer-stats__groups {
+    display: grid;
+    width: 100%;
+  }
+  .streamer-stats__sort {
+    width: 100%;
+  }
+  .streamer-stats__sort label {
+    flex: 1;
+    flex-wrap: wrap;
+  }
+  .streamer-stats__sort select {
+    width: 100%;
+  }
+  .streamer-stats__card {
+    padding: 0.85rem;
+  }
+  .streamer-stats__cards {
+    gap: 0.6rem;
+  }
+}

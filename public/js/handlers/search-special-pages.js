@@ -17,6 +17,8 @@ import {
   isMiningQuery,
   isLiveQuery,
   isBadgesQuery,
+  isStreamerStatsQuery,
+  renderStreamerStatsPage,
   renderBadgesPage,
   getLeaderboardQueryTarget,
   getServerQueryTarget,
@@ -73,6 +75,26 @@ async function resolveServerFromSearchValue(value, cachedOnly) {
 export async function handleSpecialPageSearch(username, { cachedServersOnly = false } = {}) {
   teardownLeaderboardPage();
   teardownLivePage();
+
+  if (isStreamerStatsQuery(username)) {
+    recentContainer?.classList.add('hidden');
+    if (recentContainer) recentContainer.innerHTML = '';
+    setLoadingState(true);
+    try {
+      await renderStreamerStatsPage(
+        resultContainer,
+        setFavicon,
+        setMetaDescription,
+        closeOpenModal,
+        updateQueryString,
+        escapeHtml,
+        DEFAULT_FAVICON
+      );
+    } finally {
+      setLoadingState(false);
+    }
+    return true;
+  }
 
   if (isBadgesQuery(username)) {
     recentContainer?.classList.add('hidden');

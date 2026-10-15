@@ -4,6 +4,7 @@ import {
   SNAPSHOT_CHUNK_SIZE,
   snapshotBoardKey,
 } from '../../functions/utils/leaderboard-snapshots.js';
+import { buildStreamerStats } from '../../functions/utils/streamer-stats.js';
 
 const MAX_ROWS_PER_TABLE = 50_000;
 const REVISION_SQL = 'SELECT revision FROM leaderboard_snapshot_revision WHERE id = 1';
@@ -153,8 +154,14 @@ export function buildSnapshot(unlockRows, companionRows, revision, now = new Dat
     streamers,
     boards: {},
     searchKey: `${prefix}search.json`,
+    statsKey: `${prefix}streamer-stats.json`,
+    statsVersion: 2,
   };
   const objects = [{ key: manifest.searchKey, data: buildSearchIndex(unlockRows, companionRows) }];
+  objects.push({
+    key: manifest.statsKey,
+    data: buildStreamerStats(companionRows, manifest.generatedAt),
+  });
   for (const [key, players] of boards) {
     manifest.boards[key] = { total: players.length };
     const names = Object.create(null);
@@ -195,7 +202,13 @@ export async function publishSnapshots(env) {
   const previous = previousObject ? await previousObject.json() : null;
   const current = await env.LEADERBOARD_DB.prepare(REVISION_SQL).first();
   if (!current) throw new Error('Apply snapshot migration 0006 before publishing.');
-  if (previous?.schema === 1 && previous.format === 3 && previous.revision === current.revision) {
+  if (
+    previous?.schema === 1 &&
+    previous.format === 3 &&
+    previous.statsKey &&
+    previous.statsVersion === 2 &&
+    previous.revision === current.revision
+  ) {
     return { changed: false, revision: current.revision };
   }
   // D1 batch executes these reads in one transaction. The revision therefore

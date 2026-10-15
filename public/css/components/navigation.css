@@ -178,7 +178,7 @@
 }
 
 /* Collapse before the brand and all six links run out of horizontal space. */
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .site-header {
     top: 0.5rem;
     padding-top: 0.5rem;

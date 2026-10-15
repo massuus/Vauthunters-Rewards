@@ -35,3 +35,7 @@ export { isMiningQuery, renderMiningPage } from './special-pages/mining-page.js'
 
 export { isLiveQuery, renderLivePage, teardownLivePage } from './special-pages/live-page.js';
 export { isBadgesQuery, renderBadgesPage } from './special-pages/badges-page.js';
+export {
+  isStreamerStatsQuery,
+  renderStreamerStatsPage,
+} from './special-pages/streamer-stats-page.js';
