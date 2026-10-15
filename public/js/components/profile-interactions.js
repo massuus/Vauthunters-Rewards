@@ -5,8 +5,8 @@ import { syncActiveNavigation } from './navigation.js';
 
 let setCardCycleTimers = [];
 
-export function bindServerLinkHandlers() {
-  resultContainer.querySelectorAll('[data-server-query]').forEach((button) => {
+export function bindServerLinkHandlers(root = resultContainer) {
+  root.querySelectorAll('[data-server-query]').forEach((button) => {
     button.addEventListener('click', () => {
       const serverQuery = button.getAttribute('data-server-query') || '';
       if (!serverQuery) return;

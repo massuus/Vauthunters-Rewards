@@ -198,12 +198,31 @@ export async function onRequest({ request, env, waitUntil }) {
       return json({ error: 'Unable to resolve player UUID.' }, 502);
     }
 
-    const [rewardsData, tier, iskall85Tier] = await Promise.all([
+    const usesSnapshots = Boolean(env.LEADERBOARD_SNAPSHOTS);
+    const snapshotProfilePromise = usesSnapshots
+      ? getSnapshotProfileData(
+          env,
+          {
+            minecraftUUID: formattedId,
+            minecraftName: name,
+            twitchName: normalizedTwitchUsername,
+          },
+          url.origin
+        ).catch((error) => {
+          console.error('Snapshot profile data unavailable', {
+            message: error instanceof Error ? error.message : String(error),
+          });
+          return { leaderboardPlace: null, companionStats: [] };
+        })
+      : null;
+
+    const [rewardsData, tier, iskall85Tier, snapshotProfile] = await Promise.all([
       linkedRewards
         ? normalizeRewardsPayload(linkedRewards)
         : fetchRewards(formattedId, rewardsHeaders),
       fetchTiers(formattedId),
       fetchIskall85Tiers(name, normalizedUsername, normalizedTwitchUsername),
+      snapshotProfilePromise,
     ]);
 
     const profileOverride = getProfileOverride(name) || requestedProfileOverride;
@@ -239,23 +258,6 @@ export async function onRequest({ request, env, waitUntil }) {
       });
     }
 
-    const usesSnapshots = Boolean(env.LEADERBOARD_SNAPSHOTS);
-    const snapshotProfile = usesSnapshots
-      ? await getSnapshotProfileData(
-          env,
-          {
-            minecraftUUID: formattedId,
-            minecraftName: name,
-            twitchName: normalizedTwitchUsername,
-          },
-          url.origin
-        ).catch((error) => {
-          console.error('Snapshot profile data unavailable', {
-            message: error instanceof Error ? error.message : String(error),
-          });
-          return { leaderboardPlace: null, companionStats: [] };
-        })
-      : null;
     const leaderboardPlace = usesSnapshots
       ? snapshotProfile.leaderboardPlace
       : await getOptionalLeaderboardPlacement(env, {
@@ -656,6 +658,7 @@ async function syncLeaderboardEntry({
 
   if (typeof waitUntil === 'function') {
     waitUntil(writePromise);
+    return;
   }
 
   return writePromise;

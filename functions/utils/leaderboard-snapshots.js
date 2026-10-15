@@ -179,8 +179,12 @@ export async function getSnapshotProfileData(
     origin,
     false
   );
-  const companionStats = [];
-  for (const streamer of manifest.streamers || []) {
+  const streamers = manifest.streamers || [];
+  const companionStats = new Array(streamers.length);
+  let nextStreamer = 0;
+  // Two streamer lookups at a time: at most four R2 reads in flight.
+  // Keep output ordered and leave room for the other profile APIs.
+  const readStreamer = async (streamer) => {
     const identifiers = [twitchName, minecraftUUID, minecraftName];
     const [seasonPlayer, vaultsPlayer] = await Promise.all([
       findSnapshotProfilePlayer(
@@ -201,8 +205,8 @@ export async function getSnapshotProfileData(
       ),
     ]);
     const player = seasonPlayer || vaultsPlayer;
-    if (!player) continue;
-    companionStats.push({
+    if (!player) return null;
+    return {
       streamer: streamer.login,
       twitchName: player.twitchName || null,
       alias: player.alias || null,
@@ -211,8 +215,16 @@ export async function getSnapshotProfileData(
       vaultsJoined: player.vaultsJoined || 0,
       vaultsJoinedRank: vaultsPlayer?.rank || null,
       updatedAt: player.updatedAt || null,
-    });
-  }
+    };
+  };
+  await Promise.all(
+    Array.from({ length: Math.min(2, streamers.length) }, async () => {
+      while (nextStreamer < streamers.length) {
+        const index = nextStreamer++;
+        companionStats[index] = await readStreamer(streamers[index]);
+      }
+    })
+  );
   return {
     leaderboardPlace: leaderboardPlace
       ? {
@@ -222,7 +234,7 @@ export async function getSnapshotProfileData(
           setsUnlocked: leaderboardPlace.setsUnlocked,
         }
       : null,
-    companionStats,
+    companionStats: companionStats.filter(Boolean),
   };
 }
 

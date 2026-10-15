@@ -34,8 +34,9 @@ export function getUsernameFromQuery() {
   const twitchUsername = params.get('twitchUsername');
   if (twitchUsername) return `twitch:${twitchUsername.trim()}`;
   const leaderboardTarget = params.get('leaderboard');
-  if (leaderboardTarget) {
-    return `leaderboard:${decode(leaderboardTarget).trim()}`;
+  if (params.has('leaderboard')) {
+    const target = decode(leaderboardTarget || '').trim();
+    return target ? `leaderboard:${target}` : 'leaderboard';
   }
 
   const serverTarget = params.get('server');

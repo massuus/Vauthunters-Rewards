@@ -95,10 +95,19 @@ test('cold profile lookup keeps all companion ranks without per-object cache sub
   );
   const bucket = await seedBucket(snapshot);
   let reads = 0;
+  let activeReads = 0;
+  let peakReads = 0;
   const originalGet = bucket.get.bind(bucket);
-  bucket.get = (key) => {
+  bucket.get = async (key) => {
     reads++;
-    return originalGet(key);
+    activeReads++;
+    peakReads = Math.max(peakReads, activeReads);
+    try {
+      await new Promise(setImmediate);
+      return await originalGet(key);
+    } finally {
+      activeReads--;
+    }
   };
   const originalCaches = globalThis.caches;
   let cacheCalls = 0;
@@ -123,6 +132,11 @@ test('cold profile lookup keeps all companion ranks without per-object cache sub
     assert.ok(profile.companionStats.every((row) => row.seasonLevelRank && row.vaultsJoinedRank));
     assert.equal(cacheCalls, 0);
     assert.ok(reads <= 35, `Expected at most 35 R2 reads, got ${reads}`);
+    assert.equal(peakReads, 4, 'Read two streamer boards concurrently without unbounded fan-out');
+    assert.deepEqual(
+      profile.companionStats.map((row) => row.streamer),
+      snapshot.manifest.streamers.map((row) => row.login)
+    );
   } finally {
     if (originalCaches === undefined) delete globalThis.caches;
     else globalThis.caches = originalCaches;

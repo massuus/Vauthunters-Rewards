@@ -114,6 +114,12 @@ function sortServers(a, b) {
   return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
 }
 
+export function getCachedOfficialServers() {
+  if (serversInMemory && Date.now() < serversInMemoryExpiresAt) return serversInMemory;
+  const stored = readServersCache();
+  return stored ? stored.data : [];
+}
+
 export async function fetchOfficialServers({ forceRefresh = false } = {}) {
   const now = Date.now();
 

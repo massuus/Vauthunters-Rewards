@@ -36,6 +36,7 @@ import { escapeHtml, formatLabel } from '../features/reward-utils.js';
 import { syncActiveNavigation } from '../components/navigation.js';
 import {
   fetchOfficialServers,
+  getCachedOfficialServers,
   getVisibleServers,
   findServerByQuery,
 } from '../features/official-servers.js';
@@ -58,16 +59,18 @@ function scrollToResults() {
   resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-async function resolveServerFromSearchValue(value) {
+async function resolveServerFromSearchValue(value, cachedOnly) {
   try {
-    const servers = getVisibleServers(await fetchOfficialServers());
+    const servers = getVisibleServers(
+      cachedOnly ? getCachedOfficialServers() : await fetchOfficialServers()
+    );
     return findServerByQuery(value, servers);
   } catch {
     return null;
   }
 }
 
-export async function handleSpecialPageSearch(username) {
+export async function handleSpecialPageSearch(username, { cachedServersOnly = false } = {}) {
   teardownLeaderboardPage();
   teardownLivePage();
 
@@ -301,7 +304,7 @@ export async function handleSpecialPageSearch(username) {
     return true;
   }
 
-  const matchedServer = await resolveServerFromSearchValue(username);
+  const matchedServer = await resolveServerFromSearchValue(username, cachedServersOnly);
   if (matchedServer?._id) {
     setLoadingState(true);
     try {

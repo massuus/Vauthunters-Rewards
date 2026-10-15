@@ -96,7 +96,7 @@ export function renderAlternateNames(data) {
 /**
  * Render a player profile with their sets, tiers, and rewards
  */
-export async function renderProfile(data) {
+export async function renderProfile(data, { signal } = {}) {
   // Import renderRecentSection here to avoid circular dependency
   const { renderRecentSection } = await import('./recent-section.js');
 
@@ -151,19 +151,8 @@ export async function renderProfile(data) {
     )
     .join('');
 
-  let serverLink = '';
+  const serverLink = '<span data-profile-server></span>';
   let leaderboardBadge = '';
-  try {
-    const servers = isUnlinked ? [] : await fetchOfficialServers();
-    const matchedServer = findServerByPlayerName(data.name, servers);
-    if (matchedServer?._id && matchedServer?.name) {
-      const serverQuery = escapeHtml(matchedServer.name);
-      const serverName = escapeHtml(matchedServer.name);
-      serverLink = `<button class="player-server-link" type="button" data-server-query="${serverQuery}" title="View ${serverName} players">${serverName}</button>`;
-    }
-  } catch {
-    // Non-blocking: profile rendering should continue even if server lookup fails.
-  }
 
   if (leaderboardPlace?.rank !== undefined && leaderboardPlace?.rank !== null) {
     const safeName = escapeHtml(data.name || 'player');
@@ -171,6 +160,7 @@ export async function renderProfile(data) {
   }
 
   const playerCard = await loadTemplate('player-card');
+  if (signal?.aborted) return;
   resultContainer.innerHTML =
     renderTemplate(playerCard, {
       head: proxiedImageUrl(data.head),
@@ -202,8 +192,23 @@ export async function renderProfile(data) {
   );
   syncActiveNavigation();
 
+  // Server membership is optional enrichment, never a prerequisite to show a player.
+  // Keep this exact node so a late response cannot modify a newer search.
+  const serverSlot = resultContainer.querySelector('[data-profile-server]');
+  if (!isUnlinked && serverSlot) {
+    void fetchOfficialServers()
+      .then((servers) => {
+        if (!serverSlot.isConnected) return;
+        const server = findServerByPlayerName(data.name, servers);
+        if (!server?._id || !server.name) return;
+        const safeName = escapeHtml(server.name);
+        serverSlot.innerHTML = `<button class="player-server-link" type="button" data-server-query="${safeName}" title="View ${safeName} players">${safeName}</button>`;
+        bindServerLinkHandlers(serverSlot);
+      })
+      .catch(() => {});
+  }
+
   bindShareButton();
-  bindServerLinkHandlers();
   bindLeaderboardLevelHandlers();
   bindSetCardHandlers();
   bindCtaButtonHandlers();

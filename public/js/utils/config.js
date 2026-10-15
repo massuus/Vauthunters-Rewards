@@ -13,7 +13,6 @@ export const MAX_IMAGE_CACHE_SIZE = 200;
 export const API_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 // UI Interaction Settings
-export const SEARCH_DEBOUNCE_MS = 250; // Debounce search form submission
 export const ERROR_AUTO_HIDE_MS = 5000; // Auto-hide error messages after 5 seconds
 
 // Static assets to cache

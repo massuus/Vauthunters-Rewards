@@ -1,6 +1,5 @@
 // Search form handling and API interaction
 
-import { SEARCH_DEBOUNCE_MS } from '../utils/config.js';
 import { loadTemplate } from '../loaders/template-loader.js';
 import {
   form,
@@ -19,8 +18,9 @@ import {
 import { renderProfile } from '../components/profile-renderer.js';
 import { handleSpecialPageSearch } from './search-special-pages.js';
 import { maybeShowSpiderSurprise } from '../features/seasonal-themes.js';
+import { renderRecentSection } from '../components/recent-section.js';
+import { teardownLivePage, teardownLeaderboardPage } from '../components/special-pages.js';
 
-let submitTimer = null;
 let currentRequestController = null;
 
 function scrollToResults() {
@@ -31,12 +31,29 @@ function scrollToResults() {
  * Initialize search form handling
  */
 export function initializeSearch() {
+  const homeLink = document.querySelector('.site-nav__brand');
+  homeLink?.addEventListener('click', (event) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return;
+    // Admin has its own pathname; retain the native link there.
+    if (window.location.pathname !== '/') return;
+    event.preventDefault();
+    currentRequestController?.abort();
+    teardownLivePage();
+    teardownLeaderboardPage();
+    usernameInput.value = '';
+    clearFeedback();
+    clearResult();
+    setLoadingState(false);
+    document.querySelector('.site-nav__menu')?.classList.remove('site-nav__menu--open');
+    document.querySelector('.site-nav__toggle')?.setAttribute('aria-expanded', 'false');
+    document.querySelector('.site-nav__toggle')?.setAttribute('aria-label', 'Open navigation menu');
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    void renderRecentSection().catch(() => {});
+  });
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    if (submitTimer) clearTimeout(submitTimer);
-    submitTimer = setTimeout(() => {
-      submitSearch().catch(() => {});
-    }, SEARCH_DEBOUNCE_MS);
+    submitSearch().catch(() => {});
   });
 }
 
@@ -53,31 +70,37 @@ async function submitSearch() {
     currentRequestController.abort();
   }
   currentRequestController = new AbortController();
+  const controller = currentRequestController;
 
   if (!username) {
     showFeedback('Please enter a Minecraft username.', 'error');
     return;
   }
 
-  if (await handleSpecialPageSearch(username)) {
+  const playerLookup = /^[A-Za-z0-9_]{3,16}$/.test(username) || /^twitch\s*:/i.test(username);
+  if (await handleSpecialPageSearch(username, { cachedServersOnly: playerLookup })) {
     return;
   }
+  if (controller.signal.aborted) return;
 
   setLoadingState(true);
 
   try {
     // Reserve space to reduce CLS during loading
     resultContainer.innerHTML = await loadTemplate('loading-skeleton');
+    if (controller.signal.aborted) return;
     resultContainer.classList.remove('hidden');
     scrollToResults();
     setFavicon(DEFAULT_FAVICON);
     document.title = defaultTitle;
     const response = await fetch(buildProfileApiUrl(username), {
-      signal: currentRequestController.signal,
+      signal: controller.signal,
     });
 
     if (!response.ok) {
       if (response.status === 404) {
+        // An uncached server name may also look like a Minecraft username.
+        if (playerLookup && (await handleSpecialPageSearch(username))) return;
         throw new Error(
           'Player or linked account not found. Double-check the spelling and try again.'
         );
@@ -91,7 +114,9 @@ async function submitSearch() {
     }
 
     const data = await response.json();
-    await renderProfile(data);
+    if (controller.signal.aborted) return;
+    await renderProfile(data, { signal: controller.signal });
+    if (controller.signal.aborted) return;
     maybeShowSpiderSurprise({ force: username.toLowerCase() === 'damnsecci' });
   } catch (error) {
     if (error?.name === 'AbortError') {
@@ -101,7 +126,7 @@ async function submitSearch() {
     clearResult();
     showFeedback(error.message, 'error');
   } finally {
-    setLoadingState(false);
+    if (controller === currentRequestController) setLoadingState(false);
   }
 }
 
