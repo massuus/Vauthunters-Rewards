@@ -6,6 +6,7 @@ import {
   exchangeTwitchCode,
   getTwitchIdentity,
   sessionCookie,
+  sanitizeReturnPath,
 } from '../../../utils/auth.js';
 import {
   ApiError,
@@ -50,7 +51,10 @@ export async function onRequest({ request, env }) {
     const tokens = await exchangeTwitchCode(request, env, code);
     const identity = await getTwitchIdentity(env, tokens.access_token);
     const session = await createAuthSession(env, identity, tokens);
-    const location = new URL(flow.returnPath, getExpectedOrigin(request, env)).toString();
+    const location = new URL(
+      sanitizeReturnPath(flow.returnPath),
+      getExpectedOrigin(request, env)
+    ).toString();
     const headers = new Headers({ Location: location, 'cache-control': 'no-store' });
     headers.append('Set-Cookie', sessionCookie(request, session.sessionToken));
     headers.append('Set-Cookie', clearOauthStateCookie(request));
@@ -59,6 +63,10 @@ export async function onRequest({ request, env }) {
     console.error('Twitch callback failed', {
       message: error instanceof Error ? error.message : String(error),
     });
-    return errorPage(request, error instanceof ApiError ? error.message : 'Twitch login failed.');
+    return errorPage(
+      request,
+      error instanceof ApiError ? error.message : 'Twitch login failed.',
+      error instanceof ApiError ? error.status : 500
+    );
   }
 }

@@ -103,6 +103,7 @@ test('ingestion requires the secret and limits health reports with badge metadat
 });
 
 test('status read rejects anonymous and ordinary users, permits admins, and is never cached', async () => {
+  let revoked = false;
   const env = {
     ADMIN_TWITCH_USER_IDS: 'admin',
     LEADERBOARD_DB: {
@@ -110,6 +111,10 @@ test('status read rejects anonymous and ordinary users, permits admins, and is n
         return {
           bind() {
             return this;
+          },
+          async run() {
+            assert.match(sql, /DELETE FROM auth_sessions/);
+            revoked = true;
           },
           async first() {
             if (sql.includes('auth_sessions'))
@@ -133,8 +138,9 @@ test('status read rejects anonymous and ordinary users, permits admins, and is n
         request: new Request(url, { headers: { cookie: 'vhr_session=test' } }),
       })
     ).status,
-    403
+    401
   );
+  assert.equal(revoked, true);
   env.ADMIN_TWITCH_USER_IDS = 'viewer';
   env.LEADERBOARD_DB.prepare = (sql) => ({
     bind() {

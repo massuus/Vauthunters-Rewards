@@ -1,4 +1,5 @@
 // Special pages barrel exports
+export { isPrivacyQuery, renderPrivacyPage } from './special-pages/privacy-page.js';
 
 export {
   isCodesQuery,

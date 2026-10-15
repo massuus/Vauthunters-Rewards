@@ -21,6 +21,12 @@
   margin-bottom: var(--spacing-md);
 }
 
+.footer__legal {
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
 .footer__title {
   font-size: 1.05rem;
   font-weight: 600;

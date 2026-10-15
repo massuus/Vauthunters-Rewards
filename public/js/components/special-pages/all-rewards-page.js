@@ -171,7 +171,7 @@ export async function renderAllRewardsPage(
       <section class="rewards-section rewards-section--unavailable">
         <header class="rewards-section__header">
           <h3 class="rewards-section__title">No Longer Obtainable</h3>
-          <p class="rewards-section__description">These rewards were available during past events and can no longer be unlocked.</p>
+          <p class="rewards-section__description">These rewards were available during past seasons or events and can no longer be unlocked.</p>
           <p class="rewards-section__count">${unobtainableRewards.length} reward${unobtainableRewards.length !== 1 ? 's' : ''}</p>
         </header>
         <div class="rewards-grid rewards-grid--unavailable">

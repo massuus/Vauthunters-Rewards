@@ -190,7 +190,7 @@
       "label": "Pink Dylan Companion",
       "image": "https://wiki.vaulthunters.gg/images/e/ec/Invicon_Dylan_Pink.gif",
       "alt": "Pink Dylan icon",
-      "obtainable": true,
+      "obtainable": false,
       "descriptionObtained": "You got this by reaching level 5 in the second season.",
       "descriptionLocked": "Get this by reaching level 5 in the second season."
     },
@@ -198,7 +198,7 @@
       "label": "Forsaken Axe",
       "image": "https://wiki.vaulthunters.gg/images/3/3c/Invicon_ForsakenAxe.gif",
       "alt": "Forsaken Axe icon",
-      "obtainable": true,
+      "obtainable": false,
       "descriptionObtained": "You got this by reaching level 7 in the second season.",
       "descriptionLocked": "Get this by reaching level 7 in the second season."
     },
@@ -206,7 +206,7 @@
       "label": "Forsaken Sword",
       "image": "https://wiki.vaulthunters.gg/images/7/7f/Invicon_ForsakenSword.gif",
       "alt": "Forsaken Sword icon",
-      "obtainable": true,
+      "obtainable": false,
       "descriptionObtained": "You got this by reaching level 7 in the second season.",
       "descriptionLocked": "Get this by reaching level 7 in the second season."
     },
@@ -214,7 +214,7 @@
       "label": "Bumbo Cactoni",
       "image": "https://wiki.vaulthunters.gg/images/d/db/Invicon_BumboCactoni.gif",
       "alt": "Bumbo Cactoni icon",
-      "obtainable": true,
+      "obtainable": false,
       "descriptionObtained": "You got this by reaching level 10 in the second season.",
       "descriptionLocked": "Get this by reaching level 10 in the second season."
     },
@@ -222,7 +222,7 @@
       "label": "Nocturn Shield",
       "image": "/img/nocturn_shield.gif",
       "alt": "Nocturn Shield icon",
-      "obtainable": true,
+      "obtainable": false,
       "descriptionObtained": "You got this by reaching level 12 in the season 2 battle pass.",
       "descriptionLocked": "Get this by reaching level 12 in the season 2 battle pass."
     },
@@ -230,7 +230,7 @@
       "label": "Midnight Thorn",
       "image": "/img/midnight_thorn.gif",
       "alt": "Midnight Thorn icon",
-      "obtainable": true,
+      "obtainable": false,
       "descriptionObtained": "You got this by reaching level 12 in the season 2 battle pass.",
       "descriptionLocked": "Get this by reaching level 12 in the season 2 battle pass."
     },
@@ -238,7 +238,7 @@
       "label": "Lamenting Mirror",
       "image": "/img/lamenting_mirror.gif",
       "alt": "Lamenting Mirror icon",
-      "obtainable": true,
+      "obtainable": false,
       "descriptionObtained": "You got this by reaching level 12 in the season 2 battle pass.",
       "descriptionLocked": "Get this by reaching level 12 in the season 2 battle pass."
     },
@@ -246,7 +246,7 @@
       "label": "Carrot Companion",
       "image": "https://wiki.vaulthunters.gg/images/9/94/Invicon_Carrotpet.gif",
       "alt": "Carrot icon",
-      "obtainable": true,
+      "obtainable": false,
       "descriptionObtained": "You got this by reaching level 15 in the second season.",
       "descriptionLocked": "Get this by reaching level 15 in the second season."
     },
@@ -270,7 +270,7 @@
       "label": "Golden Bumbo Cactoni",
       "image": "https://wiki.vaulthunters.gg/images/e/ed/Invicon_Golden_BumboCactoni.gif",
       "alt": "Golden Bumbo Cactoni icon",
-      "obtainable": true,
+      "obtainable": false,
       "descriptionObtained": "You got this by reaching level 25 in the second season.",
       "descriptionLocked": "Get this by reaching level 25 in the second season."
     },

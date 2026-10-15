@@ -35,9 +35,9 @@ export function getTwitchRedirectUri(request, env) {
 }
 
 export function sanitizeReturnPath(value) {
-  const candidate = String(value || '/?mining').trim();
-  if (!candidate.startsWith('/') || candidate.startsWith('//') || candidate.includes('\n')) {
-    return '/?mining';
+  const candidate = String(value || '/admin').trim();
+  if (!/^\/admin\/?(?:\?[^#]*)?$/.test(candidate) || /[\r\n]/.test(candidate)) {
+    return '/admin';
   }
   return candidate.slice(0, 300);
 }
@@ -189,6 +189,9 @@ export async function getTwitchIdentity(env, accessToken) {
 }
 
 export async function createAuthSession(env, identity, tokens) {
+  if (!isAdminUser(env, identity?.twitchUserId)) {
+    throw new ApiError(403, 'Twitch sign-in is only available to the site administrator.');
+  }
   const db = requireMiningDb(env);
   const config = requireTwitchConfig(env);
   const sessionToken = randomToken(32);
@@ -360,6 +363,11 @@ export async function getAuthSession(request, env) {
     .bind(sessionHash)
     .first();
   if (!row) return null;
+
+  if (!isAdminUser(env, row.twitch_user_id)) {
+    await db.prepare('DELETE FROM auth_sessions WHERE session_hash = ?').bind(sessionHash).run();
+    return null;
+  }
 
   if (Date.parse(row.expires_at) <= Date.now()) {
     await db.prepare('DELETE FROM auth_sessions WHERE session_hash = ?').bind(sessionHash).run();

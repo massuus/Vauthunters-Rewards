@@ -142,6 +142,7 @@
   {
     "id": "golden_club",
     "name": "Golden Golf Club",
+    "images": ["/img/golf_club.png"],
     "description": "This is the reward from the Vault Crafters Golf Course Build stream!",
     "vodUrl": "https://www.twitch.tv/videos/2809573998?t=16657s",
     "code": "GOLFENJOYERS",

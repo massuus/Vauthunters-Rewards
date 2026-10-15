@@ -11,6 +11,8 @@ import {
 import { setLoadingState, showFeedback } from '../features/ui-feedback.js';
 import {
   isCodesQuery,
+  isPrivacyQuery,
+  renderPrivacyPage,
   isAllQuery,
   isServersQuery,
   isLeaderboardQuery,
@@ -75,6 +77,21 @@ async function resolveServerFromSearchValue(value, cachedOnly) {
 export async function handleSpecialPageSearch(username, { cachedServersOnly = false } = {}) {
   teardownLeaderboardPage();
   teardownLivePage();
+
+  if (isPrivacyQuery(username)) {
+    recentContainer?.classList.add('hidden');
+    if (recentContainer) recentContainer.innerHTML = '';
+    renderPrivacyPage(
+      resultContainer,
+      setFavicon,
+      setMetaDescription,
+      closeOpenModal,
+      updateQueryString,
+      DEFAULT_FAVICON
+    );
+    scrollToResults();
+    return true;
+  }
 
   if (isStreamerStatsQuery(username)) {
     recentContainer?.classList.add('hidden');
