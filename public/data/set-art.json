@@ -576,16 +576,16 @@
     "image": "/img/bat_chestplate_transmog.png",
     "alt": "Bat Chestplate icon",
     "obtainable": true,
-    "descriptionObtained": "You obtained this chestplate as a Soul Stolen reward or purchased it from the companion shop for 8,500 gems during Halloween 2026.",
-    "descriptionLocked": "Obtain this chestplate as a Soul Stolen reward or purchase it from the companion shop for 8,500 gems during Halloween 2026."
+    "descriptionObtained": "You obtained this chestplate as a Soul Stolen reward or purchased it from the companion shop during Halloween 2026 (5,000 gems until 30 October; 8,500 gems from 31 October).",
+    "descriptionLocked": "Obtain this chestplate as a Soul Stolen reward or purchase it from the companion shop during Halloween 2026 (5,000 gems until 30 October; 8,500 gems from 31 October)."
   },
   "bat_axe_transmog": {
     "label": "Bat Axe",
     "image": "/img/bat_axe_transmog.png",
     "alt": "Bat Axe icon",
     "obtainable": true,
-    "descriptionObtained": "You obtained this axe as a Soul Champion arena reward or purchased it from the companion shop for 25,000 gems during Halloween 2026.",
-    "descriptionLocked": "Obtain this axe as a Soul Champion arena reward or purchase it from the companion shop for 25,000 gems during Halloween 2026."
+    "descriptionObtained": "You obtained this axe as a Soul Champion arena reward or purchased it from the companion shop during Halloween 2026 (5,000 gems until 30 October; 25,000 gems from 31 October).",
+    "descriptionLocked": "Obtain this axe as a Soul Champion arena reward or purchase it from the companion shop during Halloween 2026 (5,000 gems until 30 October; 25,000 gems from 31 October)."
   },
   "golden_club": {
     "label": "Golden Club",
