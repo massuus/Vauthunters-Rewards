@@ -80,7 +80,7 @@ function renderCards(container, payload, escapeHtml) {
         streamer.companionExpMultiplier > 0
           ? `<span class="live-card__boost">Companion EXP multiplier: ${escapeHtml(streamer.companionExpMultiplier.toLocaleString())}×</span>`
           : '';
-      return `<article class="live-card${streamer.live ? ' is-live' : ''}${streamer.inVault ? ' is-vault' : ''}">${avatar(streamer, escapeHtml)}<span class="live-card__body"><span class="live-card__name">${escapeHtml(streamer.displayName)}${streamer.live ? '<span class="live-card__badge">LIVE</span>' : ''}</span>${multiplier}<strong class="live-card__activity">${escapeHtml(state.label)}</strong><span class="live-card__detail" data-vault-start="${escapeHtml(streamer.vaultStartedAt || '')}">${escapeHtml(state.detail)}</span></span><span class="live-card__actions"><a href="https://www.twitch.tv/${login}">Watch</a><a href="?leaderboard&amp;metric=seasonLevel&amp;streamer=${login}">Leaderboard</a></span></article>`;
+      return `<article class="live-card${streamer.live ? ' is-live' : ''}${streamer.inVault ? ' is-vault' : ''}">${avatar(streamer, escapeHtml)}<span class="live-card__body"><span class="live-card__name">${escapeHtml(streamer.displayName)}${streamer.live ? '<span class="live-card__badge">LIVE</span>' : ''}</span>${multiplier}<strong class="live-card__activity">${escapeHtml(state.label)}</strong><span class="live-card__detail" data-vault-start="${escapeHtml(streamer.vaultStartedAt || '')}">${escapeHtml(state.detail)}</span></span><span class="live-card__actions"><a href="twitch://stream/${login}">Watch in app</a><a href="https://www.twitch.tv/${login}" target="_blank" rel="noopener">Watch in browser</a><a href="?leaderboard&amp;metric=seasonLevel&amp;streamer=${login}">Leaderboard</a></span></article>`;
     })
     .join('');
 }
@@ -106,7 +106,7 @@ function renderCommunityCards(container, payload, escapeHtml) {
       const rewards = streamer.hasLinkedMinecraftAccount
         ? `<a href="?twitch:${login}">Rewards</a>`
         : '';
-      return `<article class="community-card">${preview}<span class="community-card__body"><span class="community-card__name">${escapeHtml(streamer.displayName)}<span class="live-card__badge">LIVE</span></span><span class="community-card__title">${escapeHtml(streamer.title || 'Vault Hunters')}</span><span class="community-card__detail">${escapeHtml(details.join(' · '))}</span><span class="community-card__actions"><a href="https://www.twitch.tv/${login}">Watch</a>${rewards}</span></span></article>`;
+      return `<article class="community-card">${preview}<span class="community-card__body"><span class="community-card__name">${escapeHtml(streamer.displayName)}<span class="live-card__badge">LIVE</span></span><span class="community-card__title">${escapeHtml(streamer.title || 'Vault Hunters')}</span><span class="community-card__detail">${escapeHtml(details.join(' · '))}</span><span class="community-card__actions"><a href="twitch://stream/${login}">Watch in app</a><a href="https://www.twitch.tv/${login}" target="_blank" rel="noopener">Watch in browser</a>${rewards}</span></span></article>`;
     })
     .join('');
 }
