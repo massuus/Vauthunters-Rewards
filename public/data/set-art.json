@@ -42,7 +42,8 @@
     "obtainable": true,
     "profileOnly": true,
     "descriptionObtained": "You may be on an diffrent advanture now, but you will always be a Dylan in our hearts, you crazy Aussie 💚💚🕷️💚💚",
-    "descriptionLocked": "You may be on an diffrent advanture now, but you will always be a Dylan in our hearts, you crazy Aussie 💚💚🕷️💚💚"
+    "descriptionLocked": "You may be on an diffrent advanture now, but you will always be a Dylan in our hearts, you crazy Aussie 💚💚🕷️💚💚",
+    "category": "Special gifts"
   },
   "duckfromhell_tribute_2": {
     "label": "duck denied",
@@ -51,7 +52,8 @@
     "obtainable": true,
     "profileOnly": true,
     "descriptionObtained": "Please reach out if you're struggling. Please reach out. Get help. Talk to family, a friend, anyone that you feel comfortable talking to. Please Dylans. Mental health is so important. Visit https://findahelpline.com/ for support.",
-    "descriptionLocked": "Please reach out if you're struggling. Please reach out. Get help. Talk to family, a friend, anyone that you feel comfortable talking to. Please Dylans. Mental health is so important. Visit https://findahelpline.com/ for support."
+    "descriptionLocked": "Please reach out if you're struggling. Please reach out. Get help. Talk to family, a friend, anyone that you feel comfortable talking to. Please Dylans. Mental health is so important. Visit https://findahelpline.com/ for support.",
+    "category": "Special gifts"
   },
   "kingodogo_tribute": {
     "label": "Gone but not forgotten",
@@ -60,7 +62,8 @@
     "obtainable": true,
     "profileOnly": true,
     "descriptionObtained": "Gone but not forgotten. You will always be a dylan in our hearts.",
-    "descriptionLocked": "Gone but not forgotten. You will always be a dylan in our hearts."
+    "descriptionLocked": "Gone but not forgotten. You will always be a dylan in our hearts.",
+    "category": "Special gifts"
   },
   "companion_leader_s1": {
     "label": "Party Leader Set",
