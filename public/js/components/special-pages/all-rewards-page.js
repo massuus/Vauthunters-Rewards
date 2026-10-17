@@ -1,3 +1,4 @@
+import { compareRewardCategories } from '../../features/reward-categories.js';
 import { buildCodesLinkedHtml } from '../../features/reward-utils.js';
 
 const ALL_QUERY_KEYWORDS = ['all', 'rewards'];
@@ -68,6 +69,31 @@ function mergeApiSets(localSets, apiSets) {
   });
 
   return merged;
+}
+
+export function groupRewards(entries) {
+  const groups = new Map();
+  for (const entry of entries) {
+    const category = entry[1]?.category || 'Other rewards';
+    if (!groups.has(category)) groups.set(category, []);
+    groups.get(category).push(entry);
+  }
+  return [...groups.entries()].sort(([a], [b]) => compareRewardCategories(a, b));
+}
+
+function renderRewardGroups(entries, unavailable, proxiedImageUrl, escapeHtml, formatLabel) {
+  return groupRewards(entries)
+    .map(
+      ([category, rewards]) => `
+    <section class="reward-category">
+      <h4 class="reward-category__title">${escapeHtml(category)} <span>(${rewards.length})</span></h4>
+      <div class="rewards-grid${unavailable ? ' rewards-grid--unavailable' : ''}">
+        ${rewards.map(([key, data]) => renderRewardCard(key, data, proxiedImageUrl, escapeHtml, formatLabel)).join('')}
+      </div>
+    </section>
+  `
+    )
+    .join('');
 }
 
 function renderRewardCard(setKey, setData, proxiedImageUrl, escapeHtml, formatLabel) {
@@ -150,21 +176,16 @@ export async function renderAllRewardsPage(
       }
     });
 
-    const obtainableCards = obtainableRewards.length
-      ? obtainableRewards
-          .map(([key, data]) =>
-            renderRewardCard(key, data, proxiedImageUrl, escapeHtml, formatLabel)
-          )
-          .join('')
-      : '<p class="all-rewards-page__empty">No obtainable rewards available.</p>';
-
-    const unobtainableCards = unobtainableRewards.length
-      ? unobtainableRewards
-          .map(([key, data]) =>
-            renderRewardCard(key, data, proxiedImageUrl, escapeHtml, formatLabel)
-          )
-          .join('')
-      : '';
+    const obtainableCards =
+      renderRewardGroups(obtainableRewards, false, proxiedImageUrl, escapeHtml, formatLabel) ||
+      '<p class="all-rewards-page__empty">No obtainable rewards available.</p>';
+    const unobtainableCards = renderRewardGroups(
+      unobtainableRewards,
+      true,
+      proxiedImageUrl,
+      escapeHtml,
+      formatLabel
+    );
 
     const unobtainableSection = unobtainableRewards.length
       ? `
@@ -174,9 +195,7 @@ export async function renderAllRewardsPage(
           <p class="rewards-section__description">These rewards were available during past seasons or events and can no longer be unlocked.</p>
           <p class="rewards-section__count">${unobtainableRewards.length} reward${unobtainableRewards.length !== 1 ? 's' : ''}</p>
         </header>
-        <div class="rewards-grid rewards-grid--unavailable">
-          ${unobtainableCards}
-        </div>
+        ${unobtainableCards}
       </section>
     `
       : '';
@@ -185,7 +204,7 @@ export async function renderAllRewardsPage(
       <section class="all-rewards-page" aria-live="polite">
         <header class="all-rewards-page__intro">
           <h2 class="all-rewards-page__title">All Vault Hunters Rewards</h2>
-          <p class="all-rewards-page__lead">Browse every reward in Vault Hunters.</p>
+          <p class="all-rewards-page__lead">Browse every reward in Vault Hunters, grouped by season, event, or how you unlock it.</p>
           <p class="all-rewards-page__subtext">Total rewards: ${entries.length} (${obtainableRewards.length} obtainable, ${unobtainableRewards.length} unobtainable)</p>
         </header>
 
@@ -195,9 +214,7 @@ export async function renderAllRewardsPage(
             <p class="rewards-section__description">These rewards can still be unlocked through gameplay or events.</p>
             <p class="rewards-section__count">${obtainableRewards.length} reward${obtainableRewards.length !== 1 ? 's' : ''}</p>
           </header>
-          <div class="rewards-grid">
-            ${obtainableCards}
-          </div>
+          ${obtainableCards}
         </section>
 
         ${unobtainableSection}

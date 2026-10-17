@@ -24,6 +24,7 @@ import {
 import {
   bindServerLinkHandlers,
   bindShareButton,
+  bindRewardSort,
   bindSetCardHandlers,
   bindCtaButtonHandlers,
   bindDisclosureToggle,
@@ -209,6 +210,7 @@ export async function renderProfile(data, { signal } = {}) {
   }
 
   bindShareButton();
+  bindRewardSort();
   bindLeaderboardLevelHandlers();
   bindSetCardHandlers();
   bindCtaButtonHandlers();

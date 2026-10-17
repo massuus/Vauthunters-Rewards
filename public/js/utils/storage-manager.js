@@ -78,3 +78,21 @@ export function setSeenSets(username, seenSets) {
     // ignore storage errors (quota, privacy mode, etc.)
   }
 }
+
+const REWARD_ORDER_KEY = 'vh.rewardOrder';
+let rewardOrder = 'unlocked';
+
+export function getRewardOrder() {
+  try {
+    const saved = localStorage.getItem(REWARD_ORDER_KEY);
+    if (saved === 'category' || saved === 'unlocked') rewardOrder = saved;
+  } catch {}
+  return rewardOrder;
+}
+
+export function saveRewardOrder(value) {
+  rewardOrder = value === 'category' ? 'category' : 'unlocked';
+  try {
+    localStorage.setItem(REWARD_ORDER_KEY, rewardOrder);
+  } catch {}
+}

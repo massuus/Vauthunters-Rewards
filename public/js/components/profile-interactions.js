@@ -1,3 +1,6 @@
+import { getRewardOrder, saveRewardOrder } from '../utils/storage-manager.js';
+import { compareRewardCategories } from '../features/reward-categories.js';
+import { getSetArtStore } from './set-art-manager.js';
 import { resultContainer, usernameInput, form } from '../utils/dom-utils.js';
 import { copyShareLink } from '../utils/clipboard-utils.js';
 import { updateShareFeedback } from '../features/ui-feedback.js';
@@ -172,5 +175,45 @@ export function bindDisclosureToggle(toggleId, panelId) {
     }
 
     setChevronForState(nextExpanded);
+  });
+}
+
+export function bindRewardSort() {
+  const select = resultContainer.querySelector('[data-reward-sort]');
+  const grids = [
+    ...resultContainer.querySelectorAll('#profile-unlocked-rewards, [data-sortable-rewards]'),
+  ];
+  if (!select || !grids.length) return;
+  // Preserve the API's original unlock order and the cards' existing handlers.
+  const originals = grids.map((grid) => ({ grid, cards: [...grid.children] }));
+  const art = getSetArtStore();
+  const applyOrder = () => {
+    for (const { grid, cards } of originals) {
+      if (select.value !== 'category') {
+        grid.replaceChildren(...cards);
+        continue;
+      }
+      const groups = new Map();
+      for (const card of cards) {
+        const category = art[card.dataset.setKey]?.category || 'Other rewards';
+        if (!groups.has(category)) groups.set(category, []);
+        groups.get(category).push(card);
+      }
+      const fragment = document.createDocumentFragment();
+      const categories = [...groups.keys()].sort(compareRewardCategories);
+      for (const category of categories) {
+        const heading = document.createElement('h4');
+        heading.className = 'profile-reward-category';
+        heading.textContent = `${category} (${groups.get(category).length})`;
+        fragment.append(heading, ...groups.get(category));
+      }
+      grid.replaceChildren(fragment);
+    }
+  };
+  select.value = getRewardOrder();
+  applyOrder();
+  select.addEventListener('change', () => {
+    saveRewardOrder(select.value);
+    applyOrder();
   });
 }

@@ -70,11 +70,15 @@ export function renderSetsSection(sets, setsHelpTemplate, newSetKeys = new Set()
 
   return `
     <section>
-      <div class="section-title-container">
+      <div class="section-title-container profile-rewards-heading">
         <h3 class='section-title'>Vault Sets</h3>
+        <select class="profile-reward-sort" data-reward-sort aria-label="Reward order">
+          <option value="unlocked">Unlock order</option>
+          <option value="category">Category</option>
+        </select>
       </div>
       ${setsHelpTemplate}
-      ${hasSets ? `<div class='sets-grid'>${setsContent}</div>` : `<p class='muted'>No sets recorded yet.</p>`}
+      ${hasSets ? `<div class='sets-grid' id='profile-unlocked-rewards'>${setsContent}</div>` : `<p class='muted'>No sets recorded yet.</p>`}
       <div class='rewards-cta-container' style="display: none;">
         <p class='rewards-cta'>
           <button class="rewards-cta__link" data-search="all" type="button">
@@ -136,7 +140,7 @@ export function renderMissingRewardsSection(ownedSets, setArtStore) {
       </button>
       <div id="missing-obtainable-panel" class="missing-rewards__panel" hidden>
         <p class="missing-rewards__description">These rewards can still be unlocked through gameplay or events.</p>
-        <div class="sets-grid sets-grid--missing">
+        <div class="sets-grid sets-grid--missing" data-sortable-rewards>
           ${obtainableContent}
         </div>
       </div>
@@ -153,7 +157,7 @@ export function renderMissingRewardsSection(ownedSets, setArtStore) {
       </button>
       <div id="missing-legacy-panel" class="missing-rewards__panel" hidden>
         <p class="missing-rewards__description missing-rewards__description--legacy">These rewards were available during past events and can no longer be unlocked.</p>
-        <div class="sets-grid sets-grid--missing sets-grid--legacy">
+        <div class="sets-grid sets-grid--missing sets-grid--legacy" data-sortable-rewards>
           ${legacyContent}
         </div>
       </div>
