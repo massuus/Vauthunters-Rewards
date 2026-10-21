@@ -34,18 +34,14 @@ export async function loadSetArt() {
     return setArtLoadPromise;
   }
 
-  setArtLoadPromise = fetch('/data/set-art.json')
-    .then((response) => {
+  setArtLoadPromise = Promise.all([fetch('/data/set-art.json'), fetchApiSets()])
+    .then(async ([response, apiSets]) => {
       if (!response.ok) {
         throw new Error(`Failed to load set art: ${response.status}`);
       }
 
-      return response.json();
-    })
-    .then(async (data) => {
-      const base = data || {};
-      const apiSets = await fetchApiSets();
-      setArtStore = mergeApiSets(base, apiSets);
+      const data = await response.json();
+      setArtStore = mergeApiSets(data || {}, apiSets);
       return setArtStore;
     })
     .catch((error) => {

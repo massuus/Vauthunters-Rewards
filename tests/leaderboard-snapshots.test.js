@@ -131,8 +131,8 @@ test('cold profile lookup keeps all companion ranks without per-object cache sub
     assert.equal(profile.companionStats.length, logins.length);
     assert.ok(profile.companionStats.every((row) => row.seasonLevelRank && row.vaultsJoinedRank));
     assert.equal(cacheCalls, 0);
-    assert.ok(reads <= 35, `Expected at most 35 R2 reads, got ${reads}`);
-    assert.equal(peakReads, 4, 'Read two streamer boards concurrently without unbounded fan-out');
+    assert.equal(reads, 2, 'Only the manifest and one profile shard are read');
+    assert.equal(peakReads, 1, 'A single-identity lookup needs no board fan-out');
     assert.deepEqual(
       profile.companionStats.map((row) => row.streamer),
       snapshot.manifest.streamers.map((row) => row.login)
@@ -348,6 +348,15 @@ test(
       assert.equal((await publishSnapshots(env)).changed, false);
       assert.equal(fullExports, 1, 'idle tick must not scan player tables');
       assert.equal(revisionReads, 2);
+      const oldManifest = JSON.parse(oldPointer);
+      delete oldManifest.profileVersion;
+      await env.LEADERBOARD_SNAPSHOTS.put(SNAPSHOT_MANIFEST_KEY, JSON.stringify(oldManifest));
+      assert.equal(
+        (await publishSnapshots(env)).changed,
+        true,
+        'an unchanged database must still upgrade snapshots without the profile fast path'
+      );
+      const upgradedPointer = env.LEADERBOARD_SNAPSHOTS.entries.get(SNAPSHOT_MANIFEST_KEY).body;
       database.exec(
         "UPDATE leaderboard_players SET source = 'import'; UPDATE companion_leaderboard_players SET alias = alias"
       );
@@ -361,7 +370,10 @@ test(
       );
       env.LEADERBOARD_SNAPSHOTS.failKey = '/names.json';
       await assert.rejects(publishSnapshots(env), /Simulated R2 failure/);
-      assert.equal(env.LEADERBOARD_SNAPSHOTS.entries.get(SNAPSHOT_MANIFEST_KEY).body, oldPointer);
+      assert.equal(
+        env.LEADERBOARD_SNAPSHOTS.entries.get(SNAPSHOT_MANIFEST_KEY).body,
+        upgradedPointer
+      );
       env.LEADERBOARD_SNAPSHOTS.failKey = null;
       database.exec("DELETE FROM leaderboard_players WHERE player_uuid = 'uuid500'");
       assert.equal((await publishSnapshots(env)).changed, true);
@@ -413,4 +425,62 @@ test('conditional publication cannot replace a newer manifest; cleanup retains a
     'active data never expires'
   );
   assert.equal(bucket.entries.size, first.objects.length + 1, 'orphaned objects are removed');
+});
+
+test('profile shards match legacy board lookups for identities, ranks, and missing players', async () => {
+  const rows = Array.from({ length: 30 }, (_, i) => ({
+    ...companion(i),
+    streamer_login: i % 2 ? 'iskall85' : 'other',
+    minecraft_uuid: `uuid${i}`,
+  }));
+  const snapshot = buildSnapshot(
+    [
+      { player_uuid: 'uuid5', player_name: 'mc5', sets_unlocked: 12 },
+      { player_uuid: 'unrelated', player_name: 'player5', sets_unlocked: 9 },
+    ],
+    rows,
+    1
+  );
+  const fast = await seedBucket(snapshot);
+  const legacy = await seedBucket({
+    ...snapshot,
+    manifest: { ...snapshot.manifest, profileVersion: undefined },
+  });
+  for (const identifiers of [
+    { minecraftUUID: 'uuid5', minecraftName: 'MC5', twitchName: 'player5' },
+    { minecraftName: 'MC5' },
+    { twitchName: 'PLAYER5' },
+    { minecraftName: 'skin5' },
+    { minecraftName: 'Same name' },
+    { minecraftUUID: 'uuid2', minecraftName: 'mc2', twitchName: 'player5' },
+    { minecraftName: '__proto__' },
+    { minecraftName: 'missing' },
+    {},
+  ]) {
+    assert.deepEqual(
+      await getSnapshotProfileData(
+        { LEADERBOARD_SNAPSHOTS: fast },
+        identifiers,
+        'https://example.test'
+      ),
+      await getSnapshotProfileData(
+        { LEADERBOARD_SNAPSHOTS: legacy },
+        identifiers,
+        'https://example.test'
+      ),
+      JSON.stringify(identifiers)
+    );
+  }
+  let reads = 0;
+  const get = fast.get.bind(fast);
+  fast.get = (key) => {
+    reads++;
+    return get(key);
+  };
+  await getSnapshotProfileData(
+    { LEADERBOARD_SNAPSHOTS: fast },
+    { minecraftUUID: 'uuid5', minecraftName: 'mc5', twitchName: 'player5' },
+    'https://example.test'
+  );
+  assert.ok(reads <= 4, `Three identifiers require at most four R2 reads, got ${reads}`);
 });

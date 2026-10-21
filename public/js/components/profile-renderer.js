@@ -1,6 +1,5 @@
 // Profile rendering and display functions
 
-import { logger } from '../core/logger.js';
 import { loadTemplate, renderTemplate } from '../loaders/template-loader.js';
 import {
   resultContainer,
@@ -34,7 +33,22 @@ import { clearLeaderboardCache } from '../features/leaderboard.js';
 import { syncActiveNavigation } from './navigation.js';
 import { showSupportPopupForProfile } from './support-popup.js';
 
-let setsHelpTemplate = '';
+let profileResourcesPromise = null;
+
+// Start the same resources used by rendering while the player API is in flight.
+// Share in-flight work so a quick API response cannot trigger duplicate requests.
+export function prepareProfileResources() {
+  if (!profileResourcesPromise) {
+    profileResourcesPromise = Promise.all([
+      loadSetArt(),
+      loadTemplate('sets-help'),
+      loadTemplate('player-card'),
+    ]).finally(() => {
+      profileResourcesPromise = null;
+    });
+  }
+  return profileResourcesPromise;
+}
 
 const ISKALL85_TIER_CONFIG = {
   iron: { rank: 1, color: '#a7a7a7', badge: '/img/badge/iron.webp' },
@@ -98,20 +112,13 @@ export function renderAlternateNames(data) {
  * Render a player profile with their sets, tiers, and rewards
  */
 export async function renderProfile(data, { signal } = {}) {
-  // Import renderRecentSection here to avoid circular dependency
-  const { renderRecentSection } = await import('./recent-section.js');
-
-  await loadSetArt();
+  const [[, setsHelpTemplate, playerCard], { renderRecentSection }] = await Promise.all([
+    prepareProfileResources(),
+    // Keep the dynamic import to avoid the recent-section circular dependency.
+    import('./recent-section.js'),
+  ]);
+  if (signal?.aborted) return;
   closeSetDetailModal();
-
-  if (!setsHelpTemplate) {
-    try {
-      setsHelpTemplate = await loadTemplate('sets-help');
-    } catch (err) {
-      logger.error('Error loading sets-help template', { error: err.message, stack: err.stack });
-      setsHelpTemplate = '';
-    }
-  }
 
   const setArtStore = getSetArtStore();
   const originalSets = Array.isArray(data.sets) ? data.sets : [];
@@ -160,7 +167,6 @@ export async function renderProfile(data, { signal } = {}) {
     leaderboardBadge = `<button class="player-server-link player-level-link" type="button" data-leaderboard-player="${safeName}" title="Open the leaderboard around ${safeName}">Leaderboard #${escapeHtml(String(leaderboardPlace.rank))}</button>`;
   }
 
-  const playerCard = await loadTemplate('player-card');
   if (signal?.aborted) return;
   resultContainer.innerHTML =
     renderTemplate(playerCard, {

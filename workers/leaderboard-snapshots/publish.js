@@ -3,6 +3,8 @@ import {
   SNAPSHOT_DATA_PREFIX,
   SNAPSHOT_CHUNK_SIZE,
   snapshotBoardKey,
+  profileShard,
+  PROFILE_SHARD_COUNT,
 } from '../../functions/utils/leaderboard-snapshots.js';
 import { buildStreamerStats } from '../../functions/utils/streamer-stats.js';
 
@@ -156,17 +158,50 @@ export function buildSnapshot(unlockRows, companionRows, revision, now = new Dat
     searchKey: `${prefix}search.json`,
     statsKey: `${prefix}streamer-stats.json`,
     statsVersion: 2,
+    profileVersion: 1,
   };
   const objects = [{ key: manifest.searchKey, data: buildSearchIndex(unlockRows, companionRows) }];
   objects.push({
     key: manifest.statsKey,
     data: buildStreamerStats(companionRows, manifest.generatedAt),
   });
+  const profileShards = Array.from({ length: PROFILE_SHARD_COUNT }, () => Object.create(null));
   for (const [key, players] of boards) {
     manifest.boards[key] = { total: players.length };
     const names = Object.create(null);
     const profileNames = Object.create(null);
     players.forEach((player, index) => {
+      // Assemble profile lookups once at publication, instead of scanning every
+      // streamer's indices and chunks on each uncached player search.
+      const profileIdentifiers =
+        key === 'setsUnlocked'
+          ? [player.playerUUID, player.playerNickname]
+          : [player.twitchName, player.minecraftUUID, player.minecraftName];
+      const profilePlayer =
+        key === 'setsUnlocked'
+          ? {
+              rank: player.rank,
+              playerUUID: player.playerUUID,
+              playerNickname: player.playerNickname,
+              setsUnlocked: player.setsUnlocked,
+            }
+          : {
+              twitchName: player.twitchName,
+              alias: player.alias,
+              seasonLevel: player.seasonLevel,
+              vaultsJoined: player.vaultsJoined,
+              rank: player.rank,
+              updatedAt: player.updatedAt,
+            };
+      for (const value of profileIdentifiers) {
+        const name = String(value || '')
+          .trim()
+          .toLowerCase();
+        if (!name) continue;
+        const shard = profileShards[profileShard(name)];
+        if (!Object.hasOwn(shard, name)) shard[name] = Object.create(null);
+        if (!Object.hasOwn(shard[name], key)) shard[name][key] = profilePlayer;
+      }
       const identifiers =
         key === 'setsUnlocked'
           ? [player.playerUUID, player.playerNickname]
@@ -193,6 +228,9 @@ export function buildSnapshot(unlockRows, companionRows, revision, now = new Dat
       });
     }
   }
+  profileShards.forEach((data, shard) => {
+    objects.push({ key: `${prefix}profiles/${shard}.json`, data });
+  });
   return { manifest, objects };
 }
 
@@ -207,6 +245,7 @@ export async function publishSnapshots(env) {
     previous.format === 3 &&
     previous.statsKey &&
     previous.statsVersion === 2 &&
+    previous.profileVersion === 1 &&
     previous.revision === current.revision
   ) {
     return { changed: false, revision: current.revision };

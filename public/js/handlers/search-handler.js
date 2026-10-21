@@ -15,7 +15,7 @@ import {
   showFeedback,
   clearResult,
 } from '../features/ui-feedback.js';
-import { renderProfile } from '../components/profile-renderer.js';
+import { prepareProfileResources, renderProfile } from '../components/profile-renderer.js';
 import { handleSpecialPageSearch } from './search-special-pages.js';
 import { maybeShowSpiderSurprise } from '../features/seasonal-themes.js';
 import { renderRecentSection } from '../components/recent-section.js';
@@ -86,6 +86,9 @@ async function submitSearch() {
   setLoadingState(true);
 
   try {
+    // Overlap artwork and templates with the profile API instead of starting
+    // their requests only after the player data arrives.
+    void prepareProfileResources().catch(() => {});
     // Reserve space to reduce CLS during loading
     resultContainer.innerHTML = await loadTemplate('loading-skeleton');
     if (controller.signal.aborted) return;

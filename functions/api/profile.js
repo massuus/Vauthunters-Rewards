@@ -72,7 +72,26 @@ function getDefaultCache() {
   }
 }
 
-export async function onRequest({ request, env, waitUntil }) {
+export async function onRequest(context) {
+  const started = performance.now();
+  const timings = [];
+  const measure = async (name, work) => {
+    const start = performance.now();
+    try {
+      return await work();
+    } finally {
+      timings.push(`${name};dur=${(performance.now() - start).toFixed(1)}`);
+    }
+  };
+  const response = await handleRequest(context, measure);
+  timings.push(`total;dur=${(performance.now() - started).toFixed(1)}`);
+  // Add timings after caching so a cache hit never reports an earlier request's work.
+  const result = new Response(response.body, response);
+  result.headers.set('server-timing', timings.join(', '));
+  return result;
+}
+
+async function handleRequest({ request, env, waitUntil }, measure) {
   // Apply rate limiting
   const rateLimitKey = getRateLimitKey(request);
   if (!apiRateLimiter.allow(rateLimitKey)) {
@@ -106,7 +125,7 @@ export async function onRequest({ request, env, waitUntil }) {
     cacheUrl.searchParams.set('twitchUsername', normalizedTwitchUsername);
   const cacheRequest = new Request(cacheUrl, { method: 'GET' });
   if (useProfileCache && cache) {
-    const cached = await cache.match(cacheRequest);
+    const cached = await measure('cache', () => cache.match(cacheRequest));
     if (cached) return cached;
   }
 
@@ -144,16 +163,20 @@ export async function onRequest({ request, env, waitUntil }) {
   try {
     const rewardsHeaders = getRewardsAuthHeaders(env);
     let linkedRewards = normalizedTwitchUsername
-      ? await fetchRewardsByTwitch(normalizedTwitchUsername, rewardsHeaders)
+      ? await measure('twitch_rewards', () =>
+          fetchRewardsByTwitch(normalizedTwitchUsername, rewardsHeaders)
+        )
       : null;
     let profile = null;
     if (!normalizedTwitchUsername) {
-      profile = await fetchProfile(normalizedUsername);
+      profile = await measure('identity', () => fetchProfile(normalizedUsername));
       // A Minecraft account always takes priority. Only interpret a missing
       // name as Twitch when the rewards service supplies a linked Minecraft ID.
       if (!profile) {
         try {
-          const twitchRewards = await fetchRewardsByTwitch(normalizedUsername, rewardsHeaders);
+          const twitchRewards = await measure('twitch_rewards', () =>
+            fetchRewardsByTwitch(normalizedUsername, rewardsHeaders)
+          );
           if (twitchRewards.minecraftId) {
             linkedRewards = twitchRewards;
             normalizedTwitchUsername = normalizedUsername;
@@ -169,11 +192,11 @@ export async function onRequest({ request, env, waitUntil }) {
     }
     if (linkedRewards && !linkedRewards.minecraftId) {
       const [iskall85Tier, snapshotProfile] = await Promise.all([
-        fetchIskall85Tiers('', '', normalizedTwitchUsername),
+        measure('iskall_tiers', () => fetchIskall85Tiers('', '', normalizedTwitchUsername)),
         env.LEADERBOARD_SNAPSHOTS
-          ? getSnapshotProfileData(env, { twitchName: normalizedTwitchUsername }, url.origin).catch(
-              () => ({ companionStats: [] })
-            )
+          ? measure('snapshots', () =>
+              getSnapshotProfileData(env, { twitchName: normalizedTwitchUsername }, url.origin)
+            ).catch(() => ({ companionStats: [] }))
           : getOptionalCompanionStats(env, { twitchName: normalizedTwitchUsername }).then(
               (companionStats) => ({ companionStats })
             ),
@@ -199,7 +222,8 @@ export async function onRequest({ request, env, waitUntil }) {
       if (useProfileCache && cache) await cacheProfileResponse(cache, cacheRequest, response);
       return response;
     }
-    if (linkedRewards) profile = await fetchProfile(linkedRewards.minecraftId);
+    if (linkedRewards)
+      profile = await measure('identity', () => fetchProfile(linkedRewards.minecraftId));
 
     if (!profile) {
       return json(
@@ -221,14 +245,16 @@ export async function onRequest({ request, env, waitUntil }) {
 
     const usesSnapshots = Boolean(env.LEADERBOARD_SNAPSHOTS);
     const snapshotProfilePromise = usesSnapshots
-      ? getSnapshotProfileData(
-          env,
-          {
-            minecraftUUID: formattedId,
-            minecraftName: name,
-            twitchName: normalizedTwitchUsername,
-          },
-          url.origin
+      ? measure('snapshots', () =>
+          getSnapshotProfileData(
+            env,
+            {
+              minecraftUUID: formattedId,
+              minecraftName: name,
+              twitchName: normalizedTwitchUsername,
+            },
+            url.origin
+          )
         ).catch((error) => {
           console.error('Snapshot profile data unavailable', {
             message: error instanceof Error ? error.message : String(error),
@@ -240,9 +266,11 @@ export async function onRequest({ request, env, waitUntil }) {
     const [rewardsData, tier, iskall85Tier, snapshotProfile] = await Promise.all([
       linkedRewards
         ? normalizeRewardsPayload(linkedRewards)
-        : fetchRewards(formattedId, rewardsHeaders),
-      fetchTiers(formattedId),
-      fetchIskall85Tiers(name, normalizedUsername, normalizedTwitchUsername),
+        : measure('rewards', () => fetchRewards(formattedId, rewardsHeaders)),
+      measure('vh_tiers', () => fetchTiers(formattedId)),
+      measure('iskall_tiers', () =>
+        fetchIskall85Tiers(name, normalizedUsername, normalizedTwitchUsername)
+      ),
       snapshotProfilePromise,
     ]);
 

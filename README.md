@@ -139,6 +139,13 @@ the same snapshot. Their public read paths do not query D1 when the R2 binding i
 Profile refreshes may still perform small indexed, idempotent writes when newly fetched
 upstream data differs from the stored leaderboard record.
 
+Profile searches use precomputed, sharded snapshot data to avoid scanning every streamer's
+boards on each cold lookup. Deploy the snapshot publisher and allow one successful publication
+before deploying Pages to enable this fast path. Existing snapshots remain readable during
+rollout. The publisher rebuilds older snapshots even when the database revision has not changed.
+Profile responses include a `Server-Timing` header with identity, rewards, tier, snapshot, and
+total durations; cached responses report only work performed by the current request.
+
 A scheduled publisher runs every 15 minutes and delegates the rebuild to one SQLite-backed
 Durable Object. This coordinates rebuilds and avoids the Workers Free cron CPU limit.
 Migration `0006_leaderboard_snapshot_revision.sql` maintains a one-row revision counter via

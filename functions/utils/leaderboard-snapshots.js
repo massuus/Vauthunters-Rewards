@@ -4,6 +4,77 @@ export const SNAPSHOT_MANIFEST_KEY = 'leaderboards/v1/current.json';
 export const SNAPSHOT_DATA_PREFIX = 'leaderboards/v1/data/';
 export const SNAPSHOT_CHUNK_SIZE = 250;
 const MAX_OBJECT_BYTES = 8 * 1024 * 1024;
+export const PROFILE_SHARD_COUNT = 64;
+
+export function profileShard(identifier) {
+  let hash = 2166136261;
+  for (const char of String(identifier).trim().toLowerCase()) {
+    hash = Math.imul(hash ^ char.charCodeAt(0), 16777619);
+  }
+  return (hash >>> 0) % PROFILE_SHARD_COUNT;
+}
+
+async function readProfileShards(env, manifest, identifiers, origin) {
+  const keys = identifiers
+    .map((value) =>
+      String(value || '')
+        .trim()
+        .toLowerCase()
+    )
+    .filter(Boolean);
+  const shards = new Map(
+    await Promise.all(
+      [...new Set(keys.map(profileShard))].map(async (shard) => [
+        shard,
+        await readObject(env, `${manifest.prefix}profiles/${shard}.json`, origin, true, false),
+      ])
+    )
+  );
+  const find = (board, candidates = keys) => {
+    for (const key of candidates) {
+      const data = shards.get(profileShard(key));
+      if (Object.hasOwn(data, key) && Object.hasOwn(data[key], board)) return data[key][board];
+    }
+    return null;
+  };
+  // Twitch-only profiles must not acquire an unrelated Minecraft placement.
+  const minecraftKeys = identifiers
+    .slice(0, 2)
+    .map((value) =>
+      String(value || '')
+        .trim()
+        .toLowerCase()
+    )
+    .filter(Boolean);
+  const leaderboardPlace = find('setsUnlocked', minecraftKeys);
+  const companionKeys = [identifiers[2], ...identifiers.slice(0, 2)]
+    .map((value) =>
+      String(value || '')
+        .trim()
+        .toLowerCase()
+    )
+    .filter(Boolean);
+  const companionStats = (manifest.streamers || [])
+    .map(({ login }) => {
+      const season = find(snapshotBoardKey('seasonLevel', login), companionKeys);
+      const vaults = find(snapshotBoardKey('vaultsJoined', login), companionKeys);
+      const player = season || vaults;
+      return player
+        ? {
+            streamer: login,
+            twitchName: player.twitchName || null,
+            alias: player.alias || null,
+            seasonLevel: player.seasonLevel || 0,
+            seasonLevelRank: season?.rank || null,
+            vaultsJoined: player.vaultsJoined || 0,
+            vaultsJoinedRank: vaults?.rank || null,
+            updatedAt: player.updatedAt || null,
+          }
+        : null;
+    })
+    .filter(Boolean);
+  return { leaderboardPlace, companionStats };
+}
 
 export function snapshotBoardKey(metric, streamer = '') {
   return metric === 'setsUnlocked' ? metric : `${metric}/${streamer}`;
@@ -180,6 +251,9 @@ export async function getSnapshotProfileData(
   // the invocation's subrequest budget on a cold cache. Read R2 directly here;
   // the profile endpoint already caches the assembled result.
   const manifest = await readManifest(env, origin, false);
+  if (manifest.profileVersion === 1) {
+    return readProfileShards(env, manifest, [minecraftUUID, minecraftName, twitchName], origin);
+  }
   const leaderboardPlace = await findSnapshotPlayer(
     env,
     manifest,
