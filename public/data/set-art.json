@@ -492,28 +492,14 @@
     "descriptionLocked": "No longer obtainable. This weapon was unlockable using a code that Iskall85 unlocked during the Vault Rush event.",
     "category": "Vault Rush"
   },
-  "flat_terra_shield": {
-    "label": "Flat Terra Shield",
-    "image": "/img/Flat_Terra_Shield.gif",
-    "alt": "Flat Terra Shield icon",
-    "obtainable": true,
-    "descriptionObtained": "You obtained this reward by reaching level 5 in the Season 3 battle pass.",
-    "descriptionLocked": "Obtain this reward by reaching level 5 in the Season 3 battle pass.",
-    "category": "Season 3 pass"
-  },
-  "terrabinder": {
-    "label": "Terrabinder",
-    "image": "/img/Terrabinder.gif",
-    "alt": "Terrabinder icon",
-    "obtainable": true,
-    "descriptionObtained": "You obtained this reward by reaching level 5 in the Season 3 battle pass.",
-    "descriptionLocked": "Obtain this reward by reaching level 5 in the Season 3 battle pass.",
-    "category": "Season 3 pass"
-  },
-  "terraforce_wand": {
-    "label": "Terraforce Wand",
-    "image": "/img/Terraforce_Wand.gif",
-    "alt": "Terraforce Wand icon",
+  "terra_offhands": {
+    "label": "Terra Offhands",
+    "images": [
+      "/img/Terraforce_Wand.gif",
+      "/img/Flat_Terra_Shield.gif",
+      "/img/Terrabinder.gif"
+    ],
+    "alt": "Terra wand, shield, and focus",
     "obtainable": true,
     "descriptionObtained": "You obtained this reward by reaching level 5 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this reward by reaching level 5 in the Season 3 battle pass.",
