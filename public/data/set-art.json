@@ -532,19 +532,10 @@
     "descriptionLocked": "Obtain this companion by reaching level 20 in the Season 3 battle pass.",
     "category": "Season 3 pass"
   },
-  "terraxe": {
-    "label": "Terraxe",
-    "image": "/img/Terraxe.gif",
-    "alt": "Terraxe icon",
-    "obtainable": true,
-    "descriptionObtained": "You obtained this reward by reaching level 30 in the Season 3 battle pass.",
-    "descriptionLocked": "Obtain this reward by reaching level 30 in the Season 3 battle pass.",
-    "category": "Season 3 pass"
-  },
-  "terras_wrath": {
-    "label": "Terra's Wrath",
-    "image": "/img/Terras_Wrath.gif",
-    "alt": "Terra's Wrath icon",
+  "terra_weapons": {
+    "label": "Terra Weapons",
+    "images": ["/img/Terraxe.gif", "/img/Terras_Wrath.gif"],
+    "alt": "Terraxe and Terra's Wrath",
     "obtainable": true,
     "descriptionObtained": "You obtained this reward by reaching level 30 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this reward by reaching level 30 in the Season 3 battle pass.",
