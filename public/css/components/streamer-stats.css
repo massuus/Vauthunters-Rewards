@@ -265,6 +265,71 @@
   margin-top: 2rem;
   font-size: 0.78rem;
 }
+.streamer-stats__scatter {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+.streamer-stats__scatter text {
+  fill: var(--text-secondary);
+  font-size: 14px;
+}
+.streamer-stats__grid {
+  stroke: #ffffff20;
+  fill: none;
+}
+.streamer-stats__axis {
+  stroke: var(--text-secondary);
+  fill: none;
+}
+.streamer-stats__scatter circle {
+  fill: var(--accent);
+  fill-opacity: 0.45;
+  stroke: none;
+}
+.streamer-stats__scatter circle:hover {
+  fill-opacity: 1;
+  stroke: var(--text-primary);
+  stroke-width: 1.5px;
+}
+.streamer-stats__charts {
+  display: grid;
+  gap: 1rem;
+}
+.streamer-stats__chart h4 {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.streamer-stats__chart h4 span {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+.streamer-stats__plot-scroll {
+  overflow-x: auto;
+}
+.streamer-stats__plot-scroll:focus-visible {
+  outline: 2px solid var(--accent);
+}
+.streamer-stats__scatter {
+  min-width: 520px;
+}
+.streamer-stats__scatter .streamer-stats__axis-label {
+  fill: var(--text-primary);
+  font-weight: 600;
+}
+.streamer-stats__chart .streamer-stats__chart-key {
+  display: block;
+  font-size: 0.8rem;
+}
+.streamer-stats__chart-key span {
+  color: var(--accent);
+}
+.streamer-stats__distribution h4 {
+  margin: 0 0 0.75rem;
+}
 .streamer-stats__empty {
   padding: 2rem;
   text-align: center;

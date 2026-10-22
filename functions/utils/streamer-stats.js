@@ -75,10 +75,21 @@ export function buildStreamerStats(rows, generatedAt) {
         );
         const totalVaults = vaults.reduce((a, b) => a + b, 0);
         const participated = vaults.filter((value) => value > 0).length;
+        const levelVaultPoints = new Map();
+        for (const row of selected) {
+          const level = number(row.season_level);
+          const vaults = number(row.vaults_joined);
+          const key = `${level}:${vaults}`;
+          if (!levelVaultPoints.has(key)) levelVaultPoints.set(key, { level, vaults, count: 0 });
+          levelVaultPoints.get(key).count++;
+        }
         return {
           login,
           rosterCount: roster.size,
           count: selected.length,
+          levelVaultPoints: [...levelVaultPoints.values()].sort(
+            (a, b) => a.vaults - b.vaults || a.level - b.level
+          ),
           updatedAt:
             [...roster.values()].reduce(
               (latest, row) => (row.updated_at > latest ? row.updated_at : latest),

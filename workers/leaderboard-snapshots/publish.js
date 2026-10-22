@@ -157,7 +157,7 @@ export function buildSnapshot(unlockRows, companionRows, revision, now = new Dat
     boards: {},
     searchKey: `${prefix}search.json`,
     statsKey: `${prefix}streamer-stats.json`,
-    statsVersion: 2,
+    statsVersion: 3,
     profileVersion: 1,
   };
   const objects = [{ key: manifest.searchKey, data: buildSearchIndex(unlockRows, companionRows) }];
@@ -244,7 +244,7 @@ export async function publishSnapshots(env) {
     previous?.schema === 1 &&
     previous.format === 3 &&
     previous.statsKey &&
-    previous.statsVersion === 2 &&
+    previous.statsVersion === 3 &&
     previous.profileVersion === 1 &&
     previous.revision === current.revision
   ) {

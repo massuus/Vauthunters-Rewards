@@ -356,6 +356,16 @@ test(
         true,
         'an unchanged database must still upgrade snapshots without the profile fast path'
       );
+      const previousStats = JSON.parse(
+        env.LEADERBOARD_SNAPSHOTS.entries.get(SNAPSHOT_MANIFEST_KEY).body
+      );
+      previousStats.statsVersion = 2;
+      await env.LEADERBOARD_SNAPSHOTS.put(SNAPSHOT_MANIFEST_KEY, JSON.stringify(previousStats));
+      assert.equal(
+        (await publishSnapshots(env)).changed,
+        true,
+        'an unchanged database must regenerate older stats to include level-vault graph data'
+      );
       const upgradedPointer = env.LEADERBOARD_SNAPSHOTS.entries.get(SNAPSHOT_MANIFEST_KEY).body;
       database.exec(
         "UPDATE leaderboard_players SET source = 'import'; UPDATE companion_leaderboard_players SET alias = alias"

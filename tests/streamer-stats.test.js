@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { buildStreamerStats } from '../functions/utils/streamer-stats.js';
 import { buildSnapshot } from '../workers/leaderboard-snapshots/publish.js';
 import { onRequest } from '../functions/api/streamer-stats.js';
+import { renderLevelVaultCharts } from '../public/js/components/special-pages/level-vault-chart.js';
 const row = (streamer, twitch, level, vaults, alias = null) => ({
   streamer_login: streamer,
   twitch_name: twitch,
@@ -20,6 +21,47 @@ const rows = [
   row('hoy_82', 'beta', 50, 0, 'Same alias'),
   row('hoy_82', 'other', 2, 0, 'Same alias'),
 ];
+
+test('level-vault points aggregate matching companions and respect filters', () => {
+  const { filters } = buildStreamerStats(
+    [row('one', 'alpha', 12, 3), row('one', 'beta', 12, 3), row('one', 'gamma', 10, 0)],
+    ''
+  );
+  assert.deepEqual(filters.all.streamers[0].levelVaultPoints, [
+    { level: 10, vaults: 0, count: 1 },
+    { level: 12, vaults: 3, count: 2 },
+  ]);
+  for (const filter of ['joined', 'above10']) {
+    assert.deepEqual(filters[filter].streamers[0].levelVaultPoints, [
+      { level: 12, vaults: 3, count: 2 },
+    ]);
+  }
+  const chart = renderLevelVaultCharts(
+    filters.all.streamers,
+    (s) => s,
+    (s) => s
+  );
+  assert.match(chart, /Level 12, 3 vaults joined: 2 companions/);
+  assert.doesNotMatch(chart, /View graph data/);
+  assert.doesNotMatch(chart, /NaN|Infinity/);
+  const zero = buildStreamerStats([row('one', 'alpha', 0, 0)], '').filters.all;
+  assert.doesNotMatch(
+    renderLevelVaultCharts(
+      zero.streamers,
+      (s) => s,
+      (s) => s
+    ),
+    /NaN|Infinity/
+  );
+  assert.match(
+    renderLevelVaultCharts(
+      [{ count: 1 }],
+      (s) => s,
+      (s) => s
+    ),
+    /next statistics update/
+  );
+});
 
 test('stats calculate means, medians, milestones, participation and distinct-account overlaps', () => {
   const data = buildStreamerStats(rows, '2026-10-15T12:00:00Z');
