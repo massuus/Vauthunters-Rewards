@@ -6,6 +6,7 @@ export const BADGE_CATEGORIES = [
   ['events', 'Special events'],
   ['jackpot', 'Jackpot'],
   ['companion-milestones', 'xK Companions'],
+  ['stream-milestones', 'Stream milestones'],
   ['patreon', 'Patreon'],
   ['streaks', 'Streaks'],
   ['special', 'Special & achievements'],

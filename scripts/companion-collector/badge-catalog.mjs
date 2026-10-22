@@ -42,21 +42,23 @@ export function catalogBadge(badge) {
   const category =
     badge.id === 'vhcompanions:hallo_bomb'
       ? 'special'
-      : /jackpot/i.test(text)
-        ? 'jackpot'
-        : /\b\d+(?:[.,]\d+)?\s*k\s+companions\b/i.test(display.displayName)
-          ? 'companion-milestones'
-          : /halloween|christmas|valentine/i.test(text)
-            ? 'seasonal'
-            : season
-              ? `season-${season[1]}`
-              : /tier_|patreon/i.test(text)
-                ? 'patreon'
-                : /streak/i.test(text)
-                  ? 'streaks'
-                  : /event|hytale|pubg|corrupted|chicken_dinner|100th|treasure.train/i.test(text)
-                    ? 'events'
-                    : 'special';
+      : /\b\d+(?:st|nd|rd|th)\s+stream\b/i.test(`${display.displayName} ${display.description}`)
+        ? 'stream-milestones'
+        : /jackpot/i.test(text)
+          ? 'jackpot'
+          : /\b\d+(?:[.,]\d+)?\s*k\s+companions\b/i.test(display.displayName)
+            ? 'companion-milestones'
+            : /halloween|christmas|valentine/i.test(text)
+              ? 'seasonal'
+              : season
+                ? `season-${season[1]}`
+                : /tier_|patreon/i.test(text)
+                  ? 'patreon'
+                  : /streak/i.test(text)
+                    ? 'streaks'
+                    : /event|hytale|pubg|corrupted|chicken_dinner|treasure.train/i.test(text)
+                      ? 'events'
+                      : 'special';
   return {
     id: badge.id,
     name: display.displayName,

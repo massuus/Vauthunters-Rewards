@@ -1,6 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { filterBadges, isBadgesQuery } from '../public/js/components/special-pages/badges-page.js';
+import {
+  BADGE_CATEGORIES,
+  filterBadges,
+  isBadgesQuery,
+} from '../public/js/components/special-pages/badges-page.js';
 import {
   sanitizeBadgeCatalog,
   catalogBadge,
@@ -21,6 +25,22 @@ const raw = [
 ];
 const catalog = sanitizeBadgeCatalog({ checkedAt: '2026-10-11T12:00:00Z', badges: raw });
 const badges = catalog.badges.map(catalogBadge);
+
+test('ordinal stream milestones have their own browsable category', () => {
+  assert.ok(BADGE_CATEGORIES.some(([id]) => id === 'stream-milestones'));
+  const milestones = [100, 200, 300, 1000].map((number) =>
+    catalogBadge(
+      definition(`stream_${number}`, `${number}th Stream`, `Present for Season 2 stream ${number}`)
+    )
+  );
+  assert.equal(filterBadges(milestones, 'stream-milestones', '').length, 4);
+  assert.equal(filterBadges(milestones, 'stream-milestones', '200th')[0].name, '200th Stream');
+  assert.equal(catalogBadge(definition('event', 'Event', 'A special event')).category, 'events');
+  assert.equal(
+    catalogBadge(definition('streak_100', 'x100 Streak!', 'Present for a x100 streak')).category,
+    'streaks'
+  );
+});
 
 test('new upstream badges are categorized without local definitions or icons', () => {
   assert.equal(badges.at(-1).category, 'season-3');
