@@ -73,6 +73,7 @@ export function renderSetsSection(sets, setsHelpTemplate, newSetKeys = new Set()
       <div class="section-title-container profile-rewards-heading">
         <h3 class='section-title'>Vault Sets</h3>
         <select class="profile-reward-sort" data-reward-sort aria-label="Reward order">
+          <option value="newest">Newest first</option>
           <option value="unlocked">Unlock order</option>
           <option value="category">Category</option>
         </select>

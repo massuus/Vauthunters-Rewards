@@ -45,7 +45,7 @@ export function renderPrivacyPage(
       <ul>
         <li><strong>Recent searches:</strong> up to four recently viewed players, including their names, avatars, and displayed tiers, are remembered in this browser.</li>
         <li><strong>Seen rewards:</strong> reward IDs are saved per searched player so newly seen unlocks can be highlighted on later visits.</li>
-        <li><strong>Preferences:</strong> your theme, effects choice, reward order (Unlock order or Category), and dismissal of the community support message are remembered in this browser. The reward-order preference is stored in localStorage and reused when you refresh or look up another player; it is not sent to the server.</li>
+        <li><strong>Preferences:</strong> your theme, effects choice, reward order (Unlock order, Newest first, or Category), and dismissal of the community support message are remembered in this browser. The reward-order preference is stored in localStorage and reused when you refresh or look up another player; it is not sent to the server.</li>
         <li><strong>Temporary session information:</strong> recent application errors and whether a seasonal animation has appeared are kept in sessionStorage.</li>
         <li><strong>Cached content:</strong> leaderboard results are reused for up to five minutes and the server list for up to twelve hours. The service worker also caches site files, images, reward data, and some public API responses to improve loading and offline access.</li>
       </ul>

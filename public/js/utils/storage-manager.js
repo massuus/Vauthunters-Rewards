@@ -80,18 +80,18 @@ export function setSeenSets(username, seenSets) {
 }
 
 const REWARD_ORDER_KEY = 'vh.rewardOrder';
-let rewardOrder = 'unlocked';
+let rewardOrder = 'newest';
 
 export function getRewardOrder() {
   try {
     const saved = localStorage.getItem(REWARD_ORDER_KEY);
-    if (saved === 'category' || saved === 'unlocked') rewardOrder = saved;
+    if (saved === 'category' || saved === 'unlocked' || saved === 'newest') rewardOrder = saved;
   } catch {}
   return rewardOrder;
 }
 
 export function saveRewardOrder(value) {
-  rewardOrder = value === 'category' ? 'category' : 'unlocked';
+  rewardOrder = ['category', 'newest', 'unlocked'].includes(value) ? value : 'newest';
   try {
     localStorage.setItem(REWARD_ORDER_KEY, rewardOrder);
   } catch {}

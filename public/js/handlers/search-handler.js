@@ -24,7 +24,14 @@ import { teardownLivePage, teardownLeaderboardPage } from '../components/special
 let currentRequestController = null;
 
 function scrollToResults() {
-  resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const header = document.querySelector('.site-header');
+  const headerTop = header ? parseFloat(getComputedStyle(header).top) || 0 : 0;
+  const offset = header ? header.offsetHeight + headerTop + 16 : 16;
+  const target = resultContainer.querySelector('.player-card') || resultContainer;
+  window.scrollTo({
+    top: Math.max(0, window.scrollY + target.getBoundingClientRect().top - offset),
+    behavior: 'smooth',
+  });
 }
 
 /**
@@ -120,6 +127,8 @@ async function submitSearch() {
     if (controller.signal.aborted) return;
     await renderProfile(data, { signal: controller.signal });
     if (controller.signal.aborted) return;
+    // The recent-player section above the profile can change height during rendering.
+    scrollToResults();
     maybeShowSpiderSurprise({ force: username.toLowerCase() === 'damnsecci' });
   } catch (error) {
     if (error?.name === 'AbortError') {

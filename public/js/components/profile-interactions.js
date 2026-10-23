@@ -190,7 +190,7 @@ export function bindRewardSort() {
   const applyOrder = () => {
     for (const { grid, cards } of originals) {
       if (select.value !== 'category') {
-        grid.replaceChildren(...cards);
+        grid.replaceChildren(...(select.value === 'newest' ? [...cards].reverse() : cards));
         continue;
       }
       const groups = new Map();
