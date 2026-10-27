@@ -1,0 +1,105 @@
+.reward-shop {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+}
+
+.reward-shop__badge,
+.reward-shop__discount {
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  padding: 0.15rem 0.4rem;
+  color: var(--accent);
+}
+
+.reward-shop__price s,
+.reward-shop__hint {
+  color: var(--text-secondary);
+}
+
+.reward-shop__hint {
+  display: none;
+  position: absolute;
+  z-index: 5;
+  bottom: calc(100% + 0.3rem);
+  left: 0;
+  width: min(240px, 100%);
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  background: var(--bg, #171a1d);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+}
+
+.reward-shop__info {
+  position: static;
+}
+
+.reward-shop__info summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.reward-shop__info summary::-webkit-details-marker {
+  display: none;
+}
+
+.reward-shop__info[open] .reward-shop__hint,
+.reward-shop__info:hover .reward-shop__hint,
+.reward-shop__info:focus-within .reward-shop__hint {
+  display: block;
+}
+
+.reward-shop__price {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.reward-shop .reward-shop__gem {
+  width: 20px;
+  height: 20px;
+  image-rendering: pixelated;
+  filter: sepia(1) saturate(4) hue-rotate(350deg);
+}
+
+/* Reserve space for artwork so taller shop details cannot push titles over it. */
+.set-card--missing {
+  display: flex;
+  flex-direction: column;
+}
+
+.set-card--missing .set-card__media {
+  position: relative;
+  inset: auto;
+  flex: 0 0 140px;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.set-card--missing .set-card__content {
+  position: relative;
+  inset: auto;
+  flex: 1;
+  width: 100%;
+  overflow: visible;
+  gap: 0;
+}
+
+.set-card--missing .set-card__name {
+  font-size: 1.1rem;
+  line-height: 1.15;
+  min-height: 0;
+}
+
+.set-card--missing .reward-shop {
+  margin-top: 0.3rem;
+}

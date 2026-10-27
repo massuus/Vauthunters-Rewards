@@ -5,7 +5,7 @@
     "alt": "Golden Creeper companion icon",
     "obtainable": false,
     "descriptionObtained": "You unlocked this companion by joining Iskall85's Gemstone event streams and collecting 50 gemstones with your companion.",
-    "descriptionLocked": "No longer obtainable. This companion was unlockable by joining Iskall85's Gemstone event streams and collecting 50 gemstones with your companion.",
+    "descriptionLocked": "This companion was unlockable by joining Iskall85's Gemstone event streams and collecting 50 gemstones with your companion.",
     "category": "Gemstone event"
   },
   "baby_creeper_pog": {
@@ -14,7 +14,7 @@
     "alt": "POG Creeper companion icon",
     "obtainable": false,
     "descriptionObtained": "You unlocked this companion by being present for Iskall85's Gemstone event and placing within the top 123 players.",
-    "descriptionLocked": "No longer obtainable. This companion was unlockable by being present for Iskall85's Gemstone event and placing within the top 123 players.",
+    "descriptionLocked": "This companion was unlockable by being present for Iskall85's Gemstone event and placing within the top 123 players.",
     "category": "Gemstone event"
   },
   "golden_kappa": {
@@ -80,7 +80,7 @@
     "alt": "Royale Crown icon",
     "obtainable": false,
     "descriptionObtained": "You unlocked this crown by being present when Iskall completed the very first Vault Royale.",
-    "descriptionLocked": "No longer obtainable. This crown was unlockable by being present when Iskall completed the very first Vault Royale.",
+    "descriptionLocked": "This crown was unlockable by being present when Iskall completed the very first Vault Royale.",
     "category": "First Vault Royale"
   },
   "i85_spring_set": {
@@ -89,7 +89,7 @@
     "alt": "Spring set icon",
     "obtainable": false,
     "descriptionObtained": "You secured this set by tuning into Iskall85's special Twitch event on 18 June 2025.",
-    "descriptionLocked": "No longer obtainable. This set was unlockable by tuning into Iskall85's special Twitch event on 18 June 2025.",
+    "descriptionLocked": "This set was unlockable by tuning into Iskall85's special Twitch event on 18 June 2025.",
     "category": "Spring event 2025"
   },
   "i85_treasure_train": {
@@ -116,7 +116,7 @@
     "alt": "Falcon Helmet",
     "obtainable": false,
     "descriptionObtained": "You unlocked this armor piece by participating in Iskall85's Horde Rush event.",
-    "descriptionLocked": "No longer obtainable. This armor piece was unlockable by participating in Iskall85's Horde Rush event.",
+    "descriptionLocked": "This armor piece was unlockable by participating in Iskall85's Horde Rush event.",
     "category": "Horde Rush"
   },
   "iskall85_falcon_chestplate": {
@@ -125,7 +125,7 @@
     "alt": "Falcon Chestplate",
     "obtainable": false,
     "descriptionObtained": "You unlocked this armor piece by participating in Iskall85's Horde Rush event.",
-    "descriptionLocked": "No longer obtainable. This armor piece was unlockable by participating in Iskall85's Horde Rush event.",
+    "descriptionLocked": "This armor piece was unlockable by participating in Iskall85's Horde Rush event.",
     "category": "Horde Rush"
   },
   "iskall85_reddragon_axe": {
@@ -134,7 +134,7 @@
     "alt": "Red Dragon Axe icon",
     "obtainable": false,
     "descriptionObtained": "You claimed this weapon by joining Iskall85's Horde Rush community event.",
-    "descriptionLocked": "No longer obtainable. This weapon was unlockable by joining Iskall85's Horde Rush community event.",
+    "descriptionLocked": "This weapon was unlockable by joining Iskall85's Horde Rush community event.",
     "category": "Horde Rush"
   },
   "iskall85_reddragon_sword": {
@@ -143,7 +143,7 @@
     "alt": "Red Dragon Sword icon",
     "obtainable": false,
     "descriptionObtained": "You claimed this weapon by joining Iskall85's Horde Rush community event.",
-    "descriptionLocked": "No longer obtainable. This weapon was unlockable by joining Iskall85's Horde Rush community event.",
+    "descriptionLocked": "This weapon was unlockable by joining Iskall85's Horde Rush community event.",
     "category": "Horde Rush"
   },
   "iskall85_ancient_scroll": {
@@ -152,7 +152,7 @@
     "alt": "Ancient Scroll icon",
     "obtainable": false,
     "descriptionObtained": "You uncovered this scroll as part of Iskall85's Horde Rush event rewards.",
-    "descriptionLocked": "No longer obtainable. This scroll was unlockable by participating in Iskall85's Horde Rush event.",
+    "descriptionLocked": "This scroll was unlockable by participating in Iskall85's Horde Rush event.",
     "category": "Horde Rush"
   },
   "i85_companion_dino": {
@@ -161,7 +161,7 @@
     "alt": "Dino Companion icon",
     "obtainable": false,
     "descriptionObtained": "You earned this companion by participating in Iskall85's Horde Rush event.",
-    "descriptionLocked": "No longer obtainable. This companion was unlockable by participating in Iskall85's Horde Rush event.",
+    "descriptionLocked": "This companion was unlockable by participating in Iskall85's Horde Rush event.",
     "category": "Horde Rush"
   },
   "i85_dylan_penguin": {
@@ -170,7 +170,7 @@
     "alt": "Dylan Penguin icon",
     "obtainable": false,
     "descriptionObtained": "You received this companion by participating in Iskall85's Horde Rush event.",
-    "descriptionLocked": "No longer obtainable. This companion was unlockable by participating in Iskall85's Horde Rush event.",
+    "descriptionLocked": "This companion was unlockable by participating in Iskall85's Horde Rush event.",
     "category": "Horde Rush"
   },
   "i85_mattress": {
@@ -179,7 +179,7 @@
     "alt": "Mattress icon",
     "obtainable": false,
     "descriptionObtained": "You obtained this reward during Iskall85's Horde Rush event.",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable by participating in Iskall85's Horde Rush event.",
+    "descriptionLocked": "This reward was unlockable by participating in Iskall85's Horde Rush event.",
     "category": "Horde Rush"
   },
   "i85_petal_splitter": {
@@ -188,7 +188,7 @@
     "alt": "Petal Splitter icon",
     "obtainable": false,
     "descriptionObtained": "You picked up this dual blade by taking part in Iskall85's Horde Rush event.",
-    "descriptionLocked": "No longer obtainable. This dual blade was unlockable by taking part in Iskall85's Horde Rush event.",
+    "descriptionLocked": "This dual blade was unlockable by taking part in Iskall85's Horde Rush event.",
     "category": "Horde Rush"
   },
   "i85_twin_blade": {
@@ -197,7 +197,7 @@
     "alt": "Twin Blade icon",
     "obtainable": false,
     "descriptionObtained": "You secured this weapon through Iskall85's Horde Rush event.",
-    "descriptionLocked": "No longer obtainable. This weapon was unlockable by participating in Iskall85's Horde Rush event.",
+    "descriptionLocked": "This weapon was unlockable by participating in Iskall85's Horde Rush event.",
     "category": "Horde Rush"
   },
   "halloween_pumpkin": {
@@ -206,7 +206,7 @@
     "alt": "Bumbo Pumpkini icon",
     "obtainable": false,
     "descriptionObtained": "You obtained this companion during the Halloween Twitch event with Iskall85.",
-    "descriptionLocked": "No longer obtainable. This companion was unlockable during Halloween Twitch events with Iskall85.",
+    "descriptionLocked": "This companion was unlockable during Halloween Twitch events with Iskall85.",
     "category": "Halloween 2025"
   },
   "pink_dylan": {
@@ -368,7 +368,7 @@
     "alt": "Green Christmas Hat thumbnail",
     "obtainable": false,
     "descriptionObtained": "You received this festive hat during Iskall85's first holiday stream event.",
-    "descriptionLocked": "No longer obtainable. This festive hat was awarded during Iskall85's holiday stream events.",
+    "descriptionLocked": "This festive hat was awarded during Iskall85's holiday stream events.",
     "category": "Christmas 2025"
   },
   "i85_100stream": {
@@ -377,7 +377,7 @@
     "alt": "100 Streams Blade icon",
     "obtainable": false,
     "descriptionObtained": "You received this reward to celebrate Iskall85's 100th stream since his return.",
-    "descriptionLocked": "No longer obtainable. This reward celebrated Iskall85's special streaming milestones.",
+    "descriptionLocked": "This reward celebrated Iskall85's special streaming milestones.",
     "category": "Streaming milestones 2026"
   },
   "i85_xmas_day3": {
@@ -390,7 +390,7 @@
     "alt": "Santa Dylan companion",
     "obtainable": false,
     "descriptionObtained": "You obtained this reward on the third day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the third day of the Dylan Christmas event.",
+    "descriptionLocked": "This reward was unlockable on the third day of the Dylan Christmas event.",
     "category": "Christmas 2025"
   },
   "xmas_dayfour_chest": {
@@ -399,7 +399,7 @@
     "alt": "Gingerbread Chestplate",
     "obtainable": false,
     "descriptionObtained": "You obtained this reward on the fourth day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the fourth day of the Dylan Christmas event.",
+    "descriptionLocked": "This reward was unlockable on the fourth day of the Dylan Christmas event.",
     "category": "Christmas 2025"
   },
   "gingerbread_man": {
@@ -408,7 +408,7 @@
     "alt": "Gingerbread Man",
     "obtainable": false,
     "descriptionObtained": "You obtained this reward on the fifth day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the fifth day of the Dylan Christmas event.",
+    "descriptionLocked": "This reward was unlockable on the fifth day of the Dylan Christmas event.",
     "category": "Christmas 2025"
   },
   "nutcracker_wand": {
@@ -417,7 +417,7 @@
     "alt": "Nutcracker Wand",
     "obtainable": false,
     "descriptionObtained": "You obtained this reward on the 6th day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 6th day of the Dylan Christmas event.",
+    "descriptionLocked": "This reward was unlockable on the 6th day of the Dylan Christmas event.",
     "category": "Christmas 2025"
   },
   "christmas_fireplace": {
@@ -426,7 +426,7 @@
     "alt": "Christmas Fireplace Shield",
     "obtainable": false,
     "descriptionObtained": "You obtained this reward on the 8th day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 8th day of the Dylan Christmas event.",
+    "descriptionLocked": "This reward was unlockable on the 8th day of the Dylan Christmas event.",
     "category": "Christmas 2025"
   },
   "bumbo_frostoni": {
@@ -435,7 +435,7 @@
     "alt": "Bumbo Frostoni",
     "obtainable": false,
     "descriptionObtained": "You obtained this reward on the 9th day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 9th day of the Dylan Christmas event.",
+    "descriptionLocked": "This reward was unlockable on the 9th day of the Dylan Christmas event.",
     "category": "Christmas 2025"
   },
   "snowman_helmet": {
@@ -444,7 +444,7 @@
     "alt": "Snowman Helmet",
     "obtainable": false,
     "descriptionObtained": "You obtained this reward on the 10th day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 10th day of the Dylan Christmas event.",
+    "descriptionLocked": "This reward was unlockable on the 10th day of the Dylan Christmas event.",
     "category": "Christmas 2025"
   },
   "lost_christmas_axe": {
@@ -453,7 +453,7 @@
     "alt": "Christmas Axe",
     "obtainable": false,
     "descriptionObtained": "You obtained this reward on the 11th day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 11th day of the Dylan Christmas event.",
+    "descriptionLocked": "This reward was unlockable on the 11th day of the Dylan Christmas event.",
     "category": "Christmas 2025"
   },
   "blueberry_turtle": {
@@ -462,7 +462,7 @@
     "alt": "Sweet Turtle",
     "obtainable": false,
     "descriptionObtained": "You obtained this reward on the 12th day of the Dylan Christmas event!",
-    "descriptionLocked": "No longer obtainable. This reward was unlockable on the 12th day of the Dylan Christmas event.",
+    "descriptionLocked": "This reward was unlockable on the 12th day of the Dylan Christmas event.",
     "category": "Christmas 2025"
   },
   "valentines_teddy": {
@@ -480,7 +480,7 @@
     "alt": "Muddy Elephant companion icon",
     "obtainable": false,
     "descriptionObtained": "You obtained this companion by using a code that iskall85 unlocked during the vault rush event!",
-    "descriptionLocked": "No longer obtainable. This companion was unlockable using a code that Iskall85 unlocked during the Vault Rush event.",
+    "descriptionLocked": "This companion was unlockable using a code that Iskall85 unlocked during the Vault Rush event.",
     "category": "Vault Rush"
   },
   "buster_sword": {
@@ -489,7 +489,7 @@
     "alt": "Buster Blade icon",
     "obtainable": false,
     "descriptionObtained": "You obtained this weapon by using a code that iskall85 unlocked during the vault rush event!",
-    "descriptionLocked": "No longer obtainable. This weapon was unlockable using a code that Iskall85 unlocked during the Vault Rush event.",
+    "descriptionLocked": "This weapon was unlockable using a code that Iskall85 unlocked during the Vault Rush event.",
     "category": "Vault Rush"
   },
   "terra_offhands": {
@@ -617,8 +617,8 @@
     "image": "/img/halloween_magnet.png",
     "alt": "Halloween Magnet icon",
     "obtainable": true,
-    "descriptionObtained": "You purchased this magnet from the companion shop for 2,500 gems during Halloween 2026.",
-    "descriptionLocked": "Purchase this magnet from the companion shop for 2,500 gems during Halloween 2026.",
+    "descriptionObtained": "You purchased this magnet from the companion shop.",
+    "descriptionLocked": "Purchase this magnet from the companion shop.",
     "category": "Halloween 2026"
   },
   "bat_chestplate_transmog": {
@@ -626,8 +626,8 @@
     "image": "/img/bat_chestplate_transmog.png",
     "alt": "Bat Chestplate icon",
     "obtainable": true,
-    "descriptionObtained": "You obtained this chestplate as a Soul Stolen reward or purchased it from the companion shop during Halloween 2026 (5,000 gems until 30 October; 8,500 gems from 31 October).",
-    "descriptionLocked": "Obtain this chestplate as a Soul Stolen reward or purchase it from the companion shop during Halloween 2026 (5,000 gems until 30 October; 8,500 gems from 31 October).",
+    "descriptionObtained": "You obtained this chestplate as a Soul Stolen reward or purchased it from the companion shop.",
+    "descriptionLocked": "Obtain this chestplate as a Soul Stolen reward or purchase it from the companion shop.",
     "category": "Halloween 2026"
   },
   "bat_axe_transmog": {
@@ -635,8 +635,8 @@
     "image": "/img/bat_axe_transmog.png",
     "alt": "Bat Axe icon",
     "obtainable": true,
-    "descriptionObtained": "You obtained this axe as a Soul Champion arena reward or purchased it from the companion shop during Halloween 2026 (5,000 gems until 30 October; 25,000 gems from 31 October).",
-    "descriptionLocked": "Obtain this axe as a Soul Champion arena reward or purchase it from the companion shop during Halloween 2026 (5,000 gems until 30 October; 25,000 gems from 31 October).",
+    "descriptionObtained": "You obtained this axe as a Soul Champion arena reward or purchased it from the companion shop during Halloween 2026.",
+    "descriptionLocked": "Obtain this axe as a Soul Champion arena reward or purchase it from the companion shop during Halloween 2026.",
     "category": "Halloween 2026"
   },
   "golden_club": {

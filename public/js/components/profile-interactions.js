@@ -86,7 +86,7 @@ export function bindSetCardHandlers() {
     card.addEventListener('blur', () => setPeekState(false));
 
     card.addEventListener('keydown', (event) => {
-      if (event.target.closest('a')) {
+      if (event.target.closest('a, details')) {
         return;
       }
 
@@ -97,7 +97,7 @@ export function bindSetCardHandlers() {
     });
 
     card.addEventListener('click', (event) => {
-      if (event.target.closest('a')) {
+      if (event.target.closest('a, details')) {
         return;
       }
 

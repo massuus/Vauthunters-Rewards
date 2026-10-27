@@ -82,6 +82,18 @@
   color: inherit;
 }
 
+.footer__column .external-link {
+  display: block;
+}
+
+.footer .external-link::after {
+  display: inline-block;
+  margin-left: 0.28rem;
+  vertical-align: -0.1em;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
 @media (min-width: 768px) {
   .footer__inner {
     grid-template-columns: 1fr;

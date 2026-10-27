@@ -1,3 +1,4 @@
+import { getLockedRewardDescription, renderRewardShop } from '../features/reward-shop.js';
 import { proxiedImageUrl, UNKNOWN_ITEM_IMAGE } from '../utils/dom-utils.js';
 import {
   buildLinkedRewardHtml,
@@ -140,7 +141,7 @@ export function renderMissingRewardsSection(ownedSets, setArtStore) {
         <span>Still Obtainable (${missingObtainable.length})</span>
       </button>
       <div id="missing-obtainable-panel" class="missing-rewards__panel" hidden>
-        <p class="missing-rewards__description">These rewards can still be unlocked through gameplay or events.</p>
+        <p class="missing-rewards__description">These rewards can still be unlocked through gameplay, events, or the companion shop.</p>
         <div class="sets-grid sets-grid--missing" data-sortable-rewards>
           ${obtainableContent}
         </div>
@@ -154,10 +155,10 @@ export function renderMissingRewardsSection(ownedSets, setArtStore) {
     <div class="missing-rewards__legacy">
       <button id="missing-legacy-toggle" class="missing-rewards__toggle missing-rewards__toggle--legacy" type="button" aria-expanded="false">
         <span class="missing-rewards__toggle-icon" aria-hidden="true">▶</span>
-        <span>No Longer Obtainable (${missingLegacy.length})</span>
+        <span>Currently Unavailable (${missingLegacy.length})</span>
       </button>
       <div id="missing-legacy-panel" class="missing-rewards__panel" hidden>
-        <p class="missing-rewards__description missing-rewards__description--legacy">These rewards were available during past events and can no longer be unlocked.</p>
+        <p class="missing-rewards__description missing-rewards__description--legacy">These rewards are not currently available through their original unlock method or the shop.</p>
         <div class="sets-grid sets-grid--missing sets-grid--legacy" data-sortable-rewards>
           ${legacyContent}
         </div>
@@ -177,8 +178,10 @@ export function renderMissingRewardsSection(ownedSets, setArtStore) {
 
 function renderMissingRewardCard(setKey, data, isLegacy = false) {
   const label = data?.label || formatLabel(setKey);
-  const description =
-    data?.descriptionLocked || data?.description || `Unlock this reward by obtaining the ${label}.`;
+  const description = getLockedRewardDescription(
+    data,
+    `Unlock this reward by obtaining the ${label}.`
+  );
   const imageSources =
     Array.isArray(data?.images) && data.images.length
       ? data.images
@@ -205,6 +208,7 @@ function renderMissingRewardCard(setKey, data, isLegacy = false) {
       <div class="set-card__content">
         <span class="set-card__name">${escapeHtml(label)}</span>
         <p class="set-card__description">${buildLinkedRewardHtml(description)}</p>
+        ${renderRewardShop(data)}
       </div>
     </article>
   `;
@@ -248,6 +252,7 @@ function renderSetCard(setKey, setArtStore, isNew = false) {
       <div class="set-card__content">
         <span class="set-card__name">${escapeHtml(label)}</span>
         <p class="set-card__description">${buildLinkedRewardHtml(description)}</p>
+        ${renderRewardShop(asset, true)}
       </div>
       ${newBadge}
     </article>

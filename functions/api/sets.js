@@ -2,7 +2,8 @@ import { fetchJson } from '../utils/fetch-utils.js';
 import { REWARDS_API_TIMEOUT, getRewardsAuthHeaders } from '../utils/config.js';
 
 const REWARDS_SETS_URL = 'https://rewards.vaulthunters.gg/rewards/sets/all';
-const SETS_CACHE_TTL_SECONDS = 3600;
+const SHOP_SETS_URL = 'https://ebs.vaulthunters.gg/battlepass/reward-sets';
+const SETS_CACHE_TTL_SECONDS = 300;
 
 function getDefaultCache() {
   try {
@@ -21,14 +22,16 @@ export async function onRequest({ request, env }) {
   }
 
   try {
-    const headers = getRewardsAuthHeaders(env);
-
-    const result = await fetchJson(
-      REWARDS_SETS_URL,
-      'Rewards Sets API',
-      REWARDS_API_TIMEOUT,
-      headers
-    );
+    let result = await fetchJson(SHOP_SETS_URL, 'Reward Shop API', REWARDS_API_TIMEOUT);
+    const shopLoaded = !result.error && Array.isArray(result.data) && result.data.length > 0;
+    if (!shopLoaded) {
+      result = await fetchJson(
+        REWARDS_SETS_URL,
+        'Rewards Sets API',
+        REWARDS_API_TIMEOUT,
+        getRewardsAuthHeaders(env)
+      );
+    }
 
     if (result.error || !result.data) {
       const err = new Error(result.message || 'Rewards Sets API failed');
@@ -44,11 +47,21 @@ export async function onRequest({ request, env }) {
         displayName: item?.displayName,
         description: item?.description,
         unavailable: item?.unavailable,
+        category: item?.category,
+        ...(shopLoaded
+          ? {
+              cost: item?.cost,
+              price: item?.price,
+              discount: item?.discount,
+              featured: item?.featured,
+            }
+          : {}),
       }))
       .filter((item) => typeof item.id === 'string' && item.id.length > 0);
 
+    const ttl = shopLoaded ? SETS_CACHE_TTL_SECONDS : 60;
     const response = json(minimal, 200, {
-      'cache-control': `public, max-age=${SETS_CACHE_TTL_SECONDS}, s-maxage=${SETS_CACHE_TTL_SECONDS}`,
+      'cache-control': `public, max-age=${ttl}, s-maxage=${ttl}`,
     });
     if (cache) await cache.put(cacheRequest, response.clone());
     return response;

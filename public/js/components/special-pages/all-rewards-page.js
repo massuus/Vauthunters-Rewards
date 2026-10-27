@@ -1,3 +1,8 @@
+import {
+  mergeApiSets,
+  getLockedRewardDescription,
+  renderRewardShop,
+} from '../../features/reward-shop.js';
 import { compareRewardCategories } from '../../features/reward-categories.js';
 import { buildCodesLinkedHtml } from '../../features/reward-utils.js';
 
@@ -49,28 +54,6 @@ async function fetchApiSets() {
   }
 }
 
-function mergeApiSets(localSets, apiSets) {
-  const merged = { ...(localSets || {}) };
-  if (!Array.isArray(apiSets)) {
-    return merged;
-  }
-
-  apiSets.forEach((item) => {
-    const id = item?.id;
-    if (!id || merged[id]) {
-      return;
-    }
-
-    merged[id] = {
-      label: item?.displayName,
-      description: item?.description || undefined,
-      obtainable: typeof item?.unavailable === 'boolean' ? !item.unavailable : undefined,
-    };
-  });
-
-  return merged;
-}
-
 export function groupRewards(entries) {
   const groups = new Map();
   for (const entry of entries) {
@@ -98,7 +81,7 @@ function renderRewardGroups(entries, unavailable, proxiedImageUrl, escapeHtml, f
 
 function renderRewardCard(setKey, setData, proxiedImageUrl, escapeHtml, formatLabel) {
   const label = setData?.label || formatLabel(setKey);
-  const description = setData?.descriptionLocked || setData?.description || 'Unlockable reward';
+  const description = getLockedRewardDescription(setData);
 
   // Support both single image and multiple images
   let imageSources = [];
@@ -134,6 +117,7 @@ function renderRewardCard(setKey, setData, proxiedImageUrl, escapeHtml, formatLa
         <h3>${safeName}</h3>
       </div>
       <p class="reward-card__description">${safeDescription}</p>
+      ${renderRewardShop(setData)}
     </article>
   `;
 }
@@ -191,8 +175,8 @@ export async function renderAllRewardsPage(
       ? `
       <section class="rewards-section rewards-section--unavailable">
         <header class="rewards-section__header">
-          <h3 class="rewards-section__title">No Longer Obtainable</h3>
-          <p class="rewards-section__description">These rewards were available during past seasons or events and can no longer be unlocked.</p>
+          <h3 class="rewards-section__title">Currently Unavailable</h3>
+          <p class="rewards-section__description">These rewards are not currently available through their original unlock method or the shop.</p>
           <p class="rewards-section__count">${unobtainableRewards.length} reward${unobtainableRewards.length !== 1 ? 's' : ''}</p>
         </header>
         ${unobtainableCards}
@@ -211,7 +195,7 @@ export async function renderAllRewardsPage(
         <section class="rewards-section rewards-section--obtainable">
           <header class="rewards-section__header">
             <h3 class="rewards-section__title">Currently Obtainable Rewards</h3>
-            <p class="rewards-section__description">These rewards can still be unlocked through gameplay or events.</p>
+            <p class="rewards-section__description">These rewards can still be unlocked through gameplay, events, or the companion shop.</p>
             <p class="rewards-section__count">${obtainableRewards.length} reward${obtainableRewards.length !== 1 ? 's' : ''}</p>
           </header>
           ${obtainableCards}

@@ -1,3 +1,8 @@
+import {
+  mergeApiSets,
+  getLockedRewardDescription,
+  renderRewardShop,
+} from '../features/reward-shop.js';
 // Set art loading and modal management
 
 import { logger } from '../core/logger.js';
@@ -70,31 +75,6 @@ async function fetchApiSets() {
   }
 }
 
-function mergeApiSets(localSets, apiSets) {
-  const merged = { ...(localSets || {}) };
-  if (!Array.isArray(apiSets)) {
-    return merged;
-  }
-
-  apiSets.forEach((item) => {
-    const id = item?.id;
-    if (!id || merged[id]) {
-      return;
-    }
-
-    const displayName = item?.displayName || formatLabel(id);
-    const unavailable = item?.unavailable;
-
-    merged[id] = {
-      label: displayName,
-      description: item?.description || undefined,
-      obtainable: typeof unavailable === 'boolean' ? !unavailable : undefined,
-    };
-  });
-
-  return merged;
-}
-
 /**
  * Ensure the set detail modal is loaded and ready
  */
@@ -138,7 +118,7 @@ export async function openSetDetailModal(setKey, isOwned = true) {
     ? asset.descriptionObtained ||
       asset.description ||
       `You obtained this by unlocking the ${label}.`
-    : asset.descriptionLocked || asset.description || `Unlock the ${label}.`;
+    : getLockedRewardDescription(asset, `Unlock the ${label}.`);
 
   // Support both single image and multiple images
   let imageSources = [];
@@ -181,7 +161,8 @@ export async function openSetDetailModal(setKey, isOwned = true) {
   });
 
   modal.title.textContent = label;
-  modal.description.innerHTML = buildCodesLinkedHtml(description);
+  modal.description.innerHTML =
+    buildCodesLinkedHtml(description) + renderRewardShop(asset, isOwned);
 
   modal.overlay.classList.remove('hidden');
 

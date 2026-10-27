@@ -1324,7 +1324,8 @@ body {
   gap: 0.28rem;
 }
 
-.external-link::after {
+.external-link::after,
+.footer__link-tail::after {
   content: '';
   width: 0.75rem;
   height: 0.75rem;
