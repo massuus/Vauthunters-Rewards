@@ -1,6 +1,6 @@
 // UUID list extracted from IskalliaDevs in the_vault 21.6.1-remastered.6956.
 // Match verified Minecraft UUIDs only; names are documentation, not identity checks.
-import developers from '../data/developers.json' with { type: 'json' };
+import developers from '../data/developers.json';
 
 export const DEVELOPERS = Object.freeze(developers);
 

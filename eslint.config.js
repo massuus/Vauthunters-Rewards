@@ -59,13 +59,6 @@ export default [
     },
   },
   {
-    files: ['functions/utils/developers.js'],
-    languageOptions: {
-      // JSON import attributes use the standardized ES2025 syntax.
-      ecmaVersion: 2025,
-    },
-  },
-  {
     files: ['public/sw.js'],
     languageOptions: {
       globals: {

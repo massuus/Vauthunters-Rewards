@@ -19,7 +19,7 @@
     "db:migrate:remote": "npx --yes wrangler@4.83.0 d1 migrations apply vauthunters_rewards --remote",
     "snapshots:deploy": "npx --yes wrangler@4.131.0 deploy --config workers/leaderboard-snapshots/wrangler.jsonc",
     "snapshots:dev": "npx --yes wrangler@4.131.0 dev --config workers/leaderboard-snapshots/wrangler.jsonc --test-scheduled",
-    "test": "node --test tests/*.test.js",
+    "test": "node --import ./tests/register-json-loader.mjs --test tests/*.test.js",
     "lint": "eslint . --ext .js,.mjs",
     "lint:fix": "eslint . --ext .js,.mjs --fix",
     "format": "prettier --write .",
