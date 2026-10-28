@@ -103,3 +103,43 @@
 .set-card--missing .reward-shop {
   margin-top: 0.3rem;
 }
+
+.player-dev-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid #ffc96a;
+  border-radius: 0.55rem;
+  background: linear-gradient(135deg, #ffe6a3 0%, #ffc35b 48%, #ec9229 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 0 14px rgba(255, 176, 53, 0.22);
+  color: #33200c;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+  vertical-align: middle;
+  transition: box-shadow 0.2s ease;
+}
+
+.player-dev-badge:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 0 20px rgba(255, 176, 53, 0.4);
+}
+
+.player-dev-badge__icon {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: -0.1em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-dev-badge {
+    transition: none;
+  }
+}

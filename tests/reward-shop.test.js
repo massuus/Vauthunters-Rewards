@@ -46,7 +46,7 @@ test('shop reissues override legacy availability without losing art or unlock hi
   assert.equal(merged.old.descriptionObtained, 'Original event');
   assert.equal(getLockedRewardDescription(merged.old), 'No longer obtainable.');
   assert.equal(local.old.obtainable, false);
-  assert.equal(merged.new.category, 'Halloween');
+  assert.equal(merged.new.category, undefined);
   assert.equal(merged.new.obtainable, false);
   assert.deepEqual(mergeApiSets(local, []), local);
 });

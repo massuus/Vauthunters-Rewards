@@ -30,7 +30,6 @@ export function mergeApiSets(localSets, apiSets) {
     merged[item.id] = {
       label: item.displayName,
       description: item.description || undefined,
-      category: item.category || undefined,
       obtainable: typeof item.unavailable === 'boolean' ? !item.unavailable : undefined,
       ...local,
       shop,

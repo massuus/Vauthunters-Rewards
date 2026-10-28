@@ -1,4 +1,5 @@
-﻿import { fetchJson } from '../utils/fetch-utils.js';
+import { isDeveloper, grantDeveloperRewards } from '../utils/developers.js';
+import { fetchJson } from '../utils/fetch-utils.js';
 import { apiRateLimiter, getRateLimitKey, rateLimitResponse } from '../utils/rate-limiter.js';
 import {
   buildLeaderboardRecord,
@@ -263,10 +264,26 @@ async function handleRequest({ request, env, waitUntil }, measure) {
         })
       : null;
 
+    const developer = isDeveloper(formattedId);
     const [rewardsData, tier, iskall85Tier, snapshotProfile] = await Promise.all([
-      linkedRewards
-        ? normalizeRewardsPayload(linkedRewards)
-        : measure('rewards', () => fetchRewards(formattedId, rewardsHeaders)),
+      developer
+        ? measure('developer_rewards', async () => {
+            const result = await fetchJson(
+              'https://ebs.vaulthunters.gg/battlepass/reward-sets',
+              'Developer reward catalog',
+              REWARDS_API_TIMEOUT
+            );
+            if (result.error || !Array.isArray(result.data) || !result.data.length) {
+              throw new Error('Failed to load developer reward catalog. Please try again.');
+            }
+            return grantDeveloperRewards(
+              linkedRewards ? normalizeRewardsPayload(linkedRewards) : { sets: [], rewards: {} },
+              result.data
+            );
+          })
+        : linkedRewards
+          ? normalizeRewardsPayload(linkedRewards)
+          : measure('rewards', () => fetchRewards(formattedId, rewardsHeaders)),
       measure('vh_tiers', () => fetchTiers(formattedId)),
       measure('iskall_tiers', () =>
         fetchIskall85Tiers(name, normalizedUsername, normalizedTwitchUsername)
@@ -324,13 +341,14 @@ async function handleRequest({ request, env, waitUntil }, measure) {
       {
         id: rawId,
         minecraftLinked: true,
+        isDeveloper: developer,
         name,
         head,
         rewards,
         sets: unlockedSets,
         tier,
         iskall85Tier,
-        leaderboardPlace,
+        leaderboardPlace: developer ? null : leaderboardPlace,
         twitchUsername: normalizedTwitchUsername || undefined,
         companionStats,
       },

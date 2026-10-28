@@ -1,3 +1,4 @@
+import { DEVELOPERS, isDeveloper } from './developers.js';
 import { fetchJson, fetchWithRetry } from './fetch-utils.js';
 import { ensureCompanionLeaderboardSchema } from './companion-leaderboard.js';
 import {
@@ -12,6 +13,17 @@ import {
   TIER_URL,
   getRewardsAuthHeaders,
 } from './config.js';
+
+// Keep existing developer rows out of every unlock count and rank as well as pages.
+const developerUuidLiterals = Object.values(DEVELOPERS)
+  .flatMap((uuid) => [uuid, uuid.replaceAll('-', '')])
+  .map((uuid) => {
+    if (!/^[a-f0-9-]+$/.test(uuid)) throw new Error('Invalid developer UUID');
+    return `'${uuid}'`;
+  })
+  .join(', ');
+const eligibleUnlockPlayer = (alias = '') =>
+  `${alias}player_uuid COLLATE NOCASE NOT IN (${developerUuidLiterals})`;
 
 const DEFAULT_PAGE_LIMIT = 10;
 const MAX_PAGE_LIMIT = 50;
@@ -158,7 +170,7 @@ export function buildLeaderboardRecord({
   source = 'unknown',
 }) {
   const normalizedUuid = normalizeUuid(playerUUID);
-  if (!normalizedUuid) {
+  if (!normalizedUuid || isDeveloper(normalizedUuid)) {
     return null;
   }
 
@@ -182,7 +194,7 @@ export function buildLeaderboardRecord({
 
 export async function upsertLeaderboardRecord(env, record) {
   const db = getLeaderboardDb(env);
-  if (!db || !record) {
+  if (!db || !record || isDeveloper(record.playerUUID)) {
     return { updated: false, skipped: true };
   }
 
@@ -253,7 +265,7 @@ export async function getLeaderboardPlacement(env, { playerUUID, playerNickname 
         WITH target AS (
           SELECT player_uuid, player_name, sets_unlocked
           FROM leaderboard_players
-          WHERE sets_unlocked > 0
+          WHERE sets_unlocked > 0 AND ${eligibleUnlockPlayer()}
             AND (player_uuid = ?1 OR LOWER(player_name) = LOWER(?2))
           LIMIT 1
         )
@@ -264,7 +276,7 @@ export async function getLeaderboardPlacement(env, { playerUUID, playerNickname 
           1 + (
             SELECT COUNT(1)
             FROM leaderboard_players AS higher
-            WHERE higher.sets_unlocked > target.sets_unlocked
+            WHERE ${eligibleUnlockPlayer('higher.')} AND higher.sets_unlocked > target.sets_unlocked
           ) AS rank
         FROM target
       `
@@ -385,7 +397,9 @@ export async function searchKnownPlayers(env, query) {
 export async function getLeaderboardTotal(env) {
   await ensureLeaderboardSchema(env);
   return getLeaderboardDb(env)
-    .prepare('SELECT COUNT(1) AS total FROM leaderboard_players WHERE sets_unlocked > 0')
+    .prepare(
+      `SELECT COUNT(1) AS total FROM leaderboard_players WHERE sets_unlocked > 0 AND ${eligibleUnlockPlayer()}`
+    )
     .first();
 }
 
@@ -422,10 +436,10 @@ export async function getLeaderboardPage(
             1 + (
               SELECT COUNT(1)
               FROM leaderboard_players AS higher
-              WHERE higher.sets_unlocked > target.sets_unlocked
+              WHERE ${eligibleUnlockPlayer('higher.')} AND higher.sets_unlocked > target.sets_unlocked
             ) AS rank
           FROM leaderboard_players AS target
-          WHERE target.sets_unlocked > 0
+          WHERE target.sets_unlocked > 0 AND ${eligibleUnlockPlayer('target.')}
             AND (target.player_uuid = ?1 OR LOWER(target.player_name) = LOWER(?2))
           LIMIT 1
         `
@@ -450,7 +464,7 @@ export async function getLeaderboardPage(
         `
           WITH page AS MATERIALIZED (
             SELECT * FROM leaderboard_players
-            WHERE sets_unlocked > 0
+            WHERE sets_unlocked > 0 AND ${eligibleUnlockPlayer()}
             ORDER BY sets_unlocked DESC, updated_at DESC,
               player_name COLLATE NOCASE ASC, player_uuid ASC
             LIMIT ?1 OFFSET ?2
@@ -459,7 +473,7 @@ export async function getLeaderboardPage(
             CASE WHEN player.sets_unlocked = (SELECT MAX(sets_unlocked) FROM page)
               THEN 1 + (
                 SELECT COUNT(1) FROM leaderboard_players AS higher
-                WHERE higher.sets_unlocked > (SELECT MAX(sets_unlocked) FROM page)
+                WHERE ${eligibleUnlockPlayer('higher.')} AND higher.sets_unlocked > (SELECT MAX(sets_unlocked) FROM page)
               )
               ELSE ?2 + RANK() OVER (ORDER BY player.sets_unlocked DESC)
             END AS rank

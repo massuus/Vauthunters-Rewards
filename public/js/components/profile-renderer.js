@@ -174,7 +174,11 @@ export async function renderProfile(data, { signal } = {}) {
       name: data.name,
       shareUrl: shareUrl,
       nameStyle: nameStyle,
-      tierBadge: tierBadge,
+      tierBadge:
+        tierBadge +
+        (data.isDeveloper === true
+          ? '<span class="player-dev-badge" title="Vault Hunters developer — all catalog rewards unlocked"><span class="player-dev-badge__icon" aria-hidden="true">&lt;/&gt;</span>Dev</span>'
+          : ''),
       serverLink: serverLink,
       levelBadge: leaderboardBadge,
       alternateNames: renderAlternateNames(data),
