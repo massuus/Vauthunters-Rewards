@@ -25,6 +25,7 @@
   grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--reward-card-width)), 1fr));
   gap: 0.65rem;
   align-items: start;
+  row-gap: 1.5rem;
 }
 
 :is([data-reward-card-size='compact'], [data-reward-card-size='small']) .set-card {
@@ -100,5 +101,56 @@
 :is([data-reward-card-size='compact'], [data-reward-card-size='small'])
   .set-card.set-card--expanded
   .set-card__media-img.is-active {
-  transform: none;
+  transform: translateY(-12px) scale(1.08);
+}
+
+/* Retain the raised artwork on all small cards, including touch and expanded states. */
+:is([data-reward-card-size='compact'], [data-reward-card-size='small'])
+  .set-card.set-card
+  .set-card__media-img.is-active {
+  transform: translateY(-12px) scale(1.08);
+}
+
+@media (max-width: 640px) {
+  [data-reward-card-size='compact'] {
+    --reward-card-height: 135px;
+    --reward-art-height: 85px;
+    --reward-title-size: 0.8rem;
+  }
+
+  [data-reward-card-size='small'] {
+    --reward-card-height: 115px;
+    --reward-art-height: 65px;
+    --reward-title-size: 0.68rem;
+  }
+
+  [data-reward-card-size='compact'] .sets-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  [data-reward-card-size='small'] .sets-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: 0.4rem;
+  }
+
+  :is([data-reward-card-size='compact'], [data-reward-card-size='small']) .set-card {
+    min-width: 0;
+  }
+
+  [data-reward-card-size='small'] .set-card__content {
+    padding: 0.35rem;
+  }
+
+  [data-reward-card-size='small'] .reward-shop {
+    font-size: 0.6rem;
+    overflow-wrap: anywhere;
+  }
+
+  [data-reward-card-size='small'] .reward-shop__info {
+    min-width: 0;
+  }
+
+  [data-reward-card-size='small'] .set-card__media {
+    bottom: 42px;
+  }
 }
