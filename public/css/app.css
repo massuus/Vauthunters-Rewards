@@ -42,7 +42,11 @@ body {
   padding: 0 1rem 3.5rem;
 }
 
-.pixelated-image {
+.pixelated-image,
+img[src$='/spring-helmet.png'],
+img[src$='/spring-chestplate.png'],
+img[src$='/spring-leggings.png'],
+img[src$='/spring-boots.png'] {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
@@ -889,6 +893,7 @@ body {
 }
 
 .missing-rewards__obtainable,
+.missing-rewards__upcoming,
 .missing-rewards__legacy {
   margin-bottom: 1.5rem;
 }

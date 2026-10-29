@@ -107,10 +107,13 @@ export function renderMissingRewardsSection(ownedSets, setArtStore) {
 
   const missingObtainable = [];
   const missingLegacy = [];
+  const missingUpcoming = [];
 
   allRewards.forEach(([key, data]) => {
     if (!ownedSetKeys.has(key)) {
-      if (data.obtainable === false) {
+      if (data.upcoming === true) {
+        missingUpcoming.push([key, data]);
+      } else if (data.obtainable === false) {
         missingLegacy.push([key, data]);
       } else {
         missingObtainable.push([key, data]);
@@ -121,7 +124,7 @@ export function renderMissingRewardsSection(ownedSets, setArtStore) {
   const hasMissingObtainable = missingObtainable.length > 0;
   const hasMissingLegacy = missingLegacy.length > 0;
 
-  if (!hasMissingObtainable && !hasMissingLegacy) {
+  if (!hasMissingObtainable && !hasMissingLegacy && !missingUpcoming.length) {
     return '';
   }
 
@@ -150,6 +153,22 @@ export function renderMissingRewardsSection(ownedSets, setArtStore) {
   `
     : '';
 
+  const upcomingSection = missingUpcoming.length
+    ? `
+    <div class="missing-rewards__upcoming">
+      <button id="missing-upcoming-toggle" class="missing-rewards__toggle" type="button" aria-expanded="false" aria-controls="missing-upcoming-panel">
+        <span class="missing-rewards__toggle-icon" aria-hidden="true">▶</span>
+        <span>Coming Soon (${missingUpcoming.length})</span>
+      </button>
+      <div id="missing-upcoming-panel" class="missing-rewards__panel" hidden>
+        <p class="missing-rewards__description">These rewards will become obtainable in the future, but cannot be unlocked yet.</p>
+        <div class="sets-grid sets-grid--missing" data-sortable-rewards>
+          ${missingUpcoming.map(([key, data]) => renderMissingRewardCard(key, data)).join('')}
+        </div>
+      </div>
+    </div>`
+    : '';
+
   const legacySection = hasMissingLegacy
     ? `
     <div class="missing-rewards__legacy">
@@ -171,6 +190,7 @@ export function renderMissingRewardsSection(ownedSets, setArtStore) {
     <section class="missing-rewards-section">
       <h3 class="section-title">Missing Rewards</h3>
       ${obtainableSection}
+      ${upcomingSection}
       ${legacySection}
     </section>
   `;

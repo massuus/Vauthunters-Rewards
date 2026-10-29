@@ -33,7 +33,7 @@ export function mergeApiSets(localSets, apiSets) {
       obtainable: typeof item.unavailable === 'boolean' ? !item.unavailable : undefined,
       ...local,
       shop,
-      ...(shop?.available ? { obtainable: true } : {}),
+      ...(shop?.available ? { obtainable: true, upcoming: false } : {}),
     };
   }
   return merged;

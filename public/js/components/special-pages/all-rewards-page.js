@@ -151,9 +151,12 @@ export async function renderAllRewardsPage(
     // Split rewards into obtainable and unobtainable
     const obtainableRewards = [];
     const unobtainableRewards = [];
+    const upcomingRewards = [];
 
     entries.forEach(([key, data]) => {
-      if (data.obtainable === false) {
+      if (data.upcoming === true) {
+        upcomingRewards.push([key, data]);
+      } else if (data.obtainable === false) {
         unobtainableRewards.push([key, data]);
       } else {
         obtainableRewards.push([key, data]);
@@ -170,6 +173,18 @@ export async function renderAllRewardsPage(
       escapeHtml,
       formatLabel
     );
+
+    const upcomingSection = upcomingRewards.length
+      ? `
+      <section class="rewards-section">
+        <header class="rewards-section__header">
+          <h3 class="rewards-section__title">Coming Soon</h3>
+          <p class="rewards-section__description">These rewards will become obtainable in the future, but cannot be unlocked yet.</p>
+          <p class="rewards-section__count">${upcomingRewards.length} rewards</p>
+        </header>
+        ${renderRewardGroups(upcomingRewards, false, proxiedImageUrl, escapeHtml, formatLabel)}
+      </section>`
+      : '';
 
     const unobtainableSection = unobtainableRewards.length
       ? `
@@ -189,7 +204,7 @@ export async function renderAllRewardsPage(
         <header class="all-rewards-page__intro">
           <h2 class="all-rewards-page__title">All Vault Hunters Rewards</h2>
           <p class="all-rewards-page__lead">Browse every reward in Vault Hunters, grouped by season, event, or how you unlock it.</p>
-          <p class="all-rewards-page__subtext">Total rewards: ${entries.length} (${obtainableRewards.length} obtainable, ${unobtainableRewards.length} unobtainable)</p>
+          <p class="all-rewards-page__subtext">Total rewards: ${entries.length} (${obtainableRewards.length} obtainable, ${unobtainableRewards.length} unavailable, ${upcomingRewards.length} coming soon)</p>
         </header>
 
         <section class="rewards-section rewards-section--obtainable">
@@ -201,6 +216,7 @@ export async function renderAllRewardsPage(
           ${obtainableCards}
         </section>
 
+        ${upcomingSection}
         ${unobtainableSection}
       </section>
     `;

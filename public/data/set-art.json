@@ -85,7 +85,18 @@
   },
   "i85_spring_set": {
     "label": "Spring Set",
-    "image": "https://wiki.vaulthunters.gg/images/f/f2/Spring_focus.png",
+    "images": [
+      "/img/spring-helmet.png",
+      "/img/spring-chestplate.png",
+      "/img/spring-leggings.png",
+      "/img/spring-boots.png",
+      "/img/spring-axe.png",
+      "/img/spring-sword.png",
+      "/img/spring-wand.png",
+      "/img/spring-shield.png",
+      "/img/spring-magnet.png",
+      "https://wiki.vaulthunters.gg/images/f/f2/Spring_focus.png"
+    ],
     "alt": "Spring set icon",
     "obtainable": false,
     "descriptionObtained": "You secured this set by tuning into Iskall85's special Twitch event on 18 June 2025.",
@@ -201,12 +212,15 @@
     "category": "Horde Rush"
   },
   "halloween_pumpkin": {
-    "label": "Bumbo Pumpkini",
-    "image": "https://wiki.vaulthunters.gg/images/d/d4/Invicon_BumboPumpkini.gif",
-    "alt": "Bumbo Pumpkini icon",
+    "label": "Halloween 2025 Set",
+    "images": [
+      "https://wiki.vaulthunters.gg/images/d/d4/Invicon_BumboPumpkini.gif",
+      "/img/halloween_sword2025.png"
+    ],
+    "alt": "Halloween 2025 Set icon",
     "obtainable": false,
-    "descriptionObtained": "You obtained this companion during the Halloween Twitch event with Iskall85.",
-    "descriptionLocked": "This companion was unlockable during Halloween Twitch events with Iskall85.",
+    "descriptionObtained": "You obtained this during the Halloween Twitch event with Iskall85.",
+    "descriptionLocked": "This was unlockable during Halloween Twitch events with Iskall85.",
     "category": "Halloween 2025"
   },
   "pink_dylan": {
@@ -554,7 +568,8 @@
     "label": "Girl Boss",
     "image": "/img/girl_boss.gif",
     "alt": "Girl Boss icon",
-    "obtainable": true,
+    "obtainable": false,
+    "upcoming": true,
     "descriptionObtained": "You obtained this reward by reaching level 50 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this reward by reaching level 50 in the Season 3 battle pass.",
     "category": "Season 3 pass"
@@ -563,7 +578,8 @@
     "label": "Mini Goblin",
     "image": "/img/Mini_Goblin.gif",
     "alt": "Mini Goblin companion icon",
-    "obtainable": true,
+    "obtainable": false,
+    "upcoming": true,
     "descriptionObtained": "You obtained this companion by reaching level 60 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this companion by reaching level 60 in the Season 3 battle pass.",
     "category": "Season 3 pass"
@@ -572,7 +588,8 @@
     "label": "Hellboy Head",
     "image": "/img/hellboy_head.gif",
     "alt": "Hellboy Head icon",
-    "obtainable": true,
+    "obtainable": false,
+    "upcoming": true,
     "descriptionObtained": "You obtained this reward by reaching level 70 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this reward by reaching level 70 in the Season 3 battle pass.",
     "category": "Season 3 pass"
@@ -581,7 +598,8 @@
     "label": "Golden Mini Dweller",
     "image": "/img/Golden_Mini_Dweller.gif",
     "alt": "Golden Mini Dweller companion icon",
-    "obtainable": true,
+    "obtainable": false,
+    "upcoming": true,
     "descriptionObtained": "You obtained this companion by reaching level 80 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this companion by reaching level 80 in the Season 3 battle pass.",
     "category": "Season 3 pass"

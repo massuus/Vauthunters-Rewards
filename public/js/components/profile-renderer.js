@@ -251,6 +251,7 @@ export async function renderProfile(
   bindDisclosureToggle('extra-toggle', 'extra-panel');
   bindDisclosureToggle('unlocks-toggle', 'unlocks-panel');
   bindDisclosureToggle('missing-obtainable-toggle', 'missing-obtainable-panel');
+  bindDisclosureToggle('missing-upcoming-toggle', 'missing-upcoming-panel');
   bindDisclosureToggle('missing-legacy-toggle', 'missing-legacy-panel');
 
   if (!data.isDeveloper) setSeenSets(usernameKey, new Set(sets));
