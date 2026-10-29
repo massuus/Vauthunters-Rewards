@@ -1,0 +1,104 @@
+/* Regular retains the existing responsive layout. Smaller sizes apply to owned
+   and missing rewards, including cards regrouped by category. */
+.profile-reward-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+[data-reward-card-size='compact'] {
+  --reward-card-width: 150px;
+  --reward-card-height: 175px;
+  --reward-art-height: 110px;
+  --reward-title-size: 1.05rem;
+}
+
+[data-reward-card-size='small'] {
+  --reward-card-width: 120px;
+  --reward-card-height: 145px;
+  --reward-art-height: 85px;
+  --reward-title-size: 0.9rem;
+}
+
+:is([data-reward-card-size='compact'], [data-reward-card-size='small']) .sets-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--reward-card-width)), 1fr));
+  gap: 0.65rem;
+  align-items: start;
+}
+
+:is([data-reward-card-size='compact'], [data-reward-card-size='small']) .set-card {
+  min-height: var(--reward-card-height);
+  height: auto;
+  border-radius: 14px;
+}
+
+:is([data-reward-card-size='compact'], [data-reward-card-size='small']) .set-card__content {
+  padding: 0.5rem;
+  border-radius: 0 0 14px 14px;
+}
+
+:is([data-reward-card-size='compact'], [data-reward-card-size='small']) .set-card__name {
+  font-size: var(--reward-title-size);
+  line-height: 1.15;
+}
+
+:is([data-reward-card-size='compact'], [data-reward-card-size='small'])
+  .set-card--missing
+  .set-card__media {
+  flex-basis: var(--reward-art-height);
+}
+
+:is([data-reward-card-size='compact'], [data-reward-card-size='small']) .set-card__description {
+  font-size: 0.8rem;
+}
+
+:is([data-reward-card-size='compact'], [data-reward-card-size='small']) .reward-shop {
+  gap: 0.25rem;
+  font-size: 0.7rem;
+}
+
+:is([data-reward-card-size='compact'], [data-reward-card-size='small']) .reward-shop__badge,
+:is([data-reward-card-size='compact'], [data-reward-card-size='small']) .reward-shop__discount {
+  padding: 0.15rem 0.25rem;
+}
+
+:is([data-reward-card-size='compact'], [data-reward-card-size='small'])
+  .set-card.set-card--expanded {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: var(--reward-card-height);
+  max-height: none;
+}
+
+:is([data-reward-card-size='compact'], [data-reward-card-size='small'])
+  .set-card.set-card--expanded
+  .set-card__media {
+  position: relative;
+  inset: auto;
+  flex: 0 0 var(--reward-art-height);
+  width: 100%;
+}
+
+:is([data-reward-card-size='compact'], [data-reward-card-size='small'])
+  .set-card.set-card--expanded
+  .set-card__content {
+  position: relative;
+  inset: auto;
+  overflow: visible;
+}
+
+:is([data-reward-card-size='compact'], [data-reward-card-size='small'])
+  .set-card.set-card--expanded
+  .set-card__description {
+  max-height: none;
+  opacity: 1;
+  transform: none;
+}
+
+:is([data-reward-card-size='compact'], [data-reward-card-size='small'])
+  .set-card.set-card--expanded
+  .set-card__media-img.is-active {
+  transform: none;
+}

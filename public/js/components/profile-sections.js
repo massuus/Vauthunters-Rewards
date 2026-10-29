@@ -72,12 +72,19 @@ export function renderSetsSection(sets, setsHelpTemplate, newSetKeys = new Set()
   return `
     <section>
       <div class="section-title-container profile-rewards-heading">
-        <h3 class='section-title'>Vault Sets</h3>
+        <h3 class='section-title'>Vault Sets (${sets.length})</h3>
+        <div class="profile-reward-controls">
+        <select class="profile-reward-sort" data-card-size-control aria-label="Reward card size">
+          <option value="regular">Regular cards</option>
+          <option value="compact">Compact cards</option>
+          <option value="small">Small cards</option>
+        </select>
         <select class="profile-reward-sort" data-reward-sort aria-label="Reward order">
           <option value="newest">Newest first</option>
           <option value="unlocked">Unlock order</option>
           <option value="category">Category</option>
         </select>
+        </div>
       </div>
       ${setsHelpTemplate}
       ${hasSets ? `<div class='sets-grid' id='profile-unlocked-rewards'>${setsContent}</div>` : `<p class='muted'>No sets recorded yet.</p>`}

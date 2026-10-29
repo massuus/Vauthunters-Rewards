@@ -4,6 +4,7 @@ import {
   renderDeveloperBadge,
 } from '../features/developer-rewards.js';
 // Profile rendering and display functions
+import { bindRewardCardSize } from '../features/reward-card-size.js';
 
 import { loadTemplate, renderTemplate } from '../loaders/template-loader.js';
 import {
@@ -238,6 +239,7 @@ export async function renderProfile(
 
   bindShareButton();
   bindRewardSort();
+  bindRewardCardSize(resultContainer);
   bindLeaderboardLevelHandlers();
   bindSetCardHandlers();
   bindCtaButtonHandlers();
