@@ -265,31 +265,33 @@ async function handleRequest({ request, env, waitUntil }, measure) {
       : null;
 
     const developer = isDeveloper(formattedId);
-    const [rewardsData, tier, iskall85Tier, snapshotProfile] = await Promise.all([
-      developer
-        ? measure('developer_rewards', async () => {
-            const result = await fetchJson(
-              'https://ebs.vaulthunters.gg/battlepass/reward-sets',
-              'Developer reward catalog',
-              REWARDS_API_TIMEOUT
-            );
-            if (result.error || !Array.isArray(result.data) || !result.data.length) {
-              throw new Error('Failed to load developer reward catalog. Please try again.');
-            }
-            return grantDeveloperRewards(
-              linkedRewards ? normalizeRewardsPayload(linkedRewards) : { sets: [], rewards: {} },
-              result.data
-            );
-          })
-        : linkedRewards
-          ? normalizeRewardsPayload(linkedRewards)
-          : measure('rewards', () => fetchRewards(formattedId, rewardsHeaders)),
+    const developerCatalogPromise = developer
+      ? measure('developer_rewards', async () => {
+          const result = await fetchJson(
+            'https://ebs.vaulthunters.gg/battlepass/reward-sets',
+            'Developer reward catalog',
+            REWARDS_API_TIMEOUT
+          );
+          if (result.error || !Array.isArray(result.data) || !result.data.length) {
+            throw new Error('Failed to load developer reward catalog. Please try again.');
+          }
+          return result.data;
+        })
+      : null;
+    const [apiRewards, tier, iskall85Tier, snapshotProfile, developerCatalog] = await Promise.all([
+      linkedRewards
+        ? normalizeRewardsPayload(linkedRewards)
+        : measure('rewards', () => fetchRewards(formattedId, rewardsHeaders)),
       measure('vh_tiers', () => fetchTiers(formattedId)),
       measure('iskall_tiers', () =>
         fetchIskall85Tiers(name, normalizedUsername, normalizedTwitchUsername)
       ),
       snapshotProfilePromise,
+      developerCatalogPromise,
     ]);
+    const rewardsData = developer
+      ? grantDeveloperRewards(apiRewards, developerCatalog)
+      : apiRewards;
 
     const profileOverride = getProfileOverride(name) || requestedProfileOverride;
     const allSetKeys = profileOverride ? await fetchAllSetKeys(request) : [];
@@ -306,7 +308,7 @@ async function handleRequest({ request, env, waitUntil }, measure) {
       waitUntil,
       playerUUID: formattedId,
       playerNickname: name,
-      sets: unlockedSets,
+      sets: developer ? apiRewards.sets : unlockedSets,
       tier,
       iskall85Tier,
     });
@@ -342,13 +344,14 @@ async function handleRequest({ request, env, waitUntil }, measure) {
         id: rawId,
         minecraftLinked: true,
         isDeveloper: developer,
+        apiRewards: developer ? apiRewards : undefined,
         name,
         head,
         rewards,
         sets: unlockedSets,
         tier,
         iskall85Tier,
-        leaderboardPlace: developer ? null : leaderboardPlace,
+        leaderboardPlace,
         twitchUsername: normalizedTwitchUsername || undefined,
         companionStats,
       },

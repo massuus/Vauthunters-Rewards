@@ -1,3 +1,8 @@
+import {
+  getDefaultDeveloperOverride,
+  getDeveloperRewardView,
+  renderDeveloperBadge,
+} from '../features/developer-rewards.js';
 // Profile rendering and display functions
 
 import { loadTemplate, renderTemplate } from '../loaders/template-loader.js';
@@ -111,7 +116,10 @@ export function renderAlternateNames(data) {
 /**
  * Render a player profile with their sets, tiers, and rewards
  */
-export async function renderProfile(data, { signal } = {}) {
+export async function renderProfile(
+  data,
+  { signal, developerOverride = getDefaultDeveloperOverride(data), restoreDevFocus = false } = {}
+) {
   const [[, setsHelpTemplate, playerCard], { renderRecentSection }] = await Promise.all([
     prepareProfileResources(),
     // Keep the dynamic import to avoid the recent-section circular dependency.
@@ -121,11 +129,13 @@ export async function renderProfile(data, { signal } = {}) {
   closeSetDetailModal();
 
   const setArtStore = getSetArtStore();
-  const originalSets = Array.isArray(data.sets) ? data.sets : [];
+  const rewardView = getDeveloperRewardView(data, developerOverride);
+  const originalSets = Array.isArray(rewardView.sets) ? rewardView.sets : [];
   const sets = augmentSets(originalSets);
   const tiers = Array.isArray(data.tier) ? data.tier : [];
   const iskall85Tiers = Array.isArray(data.iskall85Tier) ? data.iskall85Tier : [];
-  const rewards = data.rewards && typeof data.rewards === 'object' ? data.rewards : {};
+  const rewards =
+    rewardView.rewards && typeof rewardView.rewards === 'object' ? rewardView.rewards : {};
   const leaderboardPlace = data?.leaderboardPlace || null;
   const isUnlinked = data.minecraftLinked === false;
   const searchName = isUnlinked ? `twitch:${data.twitchUsername}` : data.name;
@@ -135,9 +145,10 @@ export async function renderProfile(data, { signal } = {}) {
   const previouslySeen = getSeenSets(usernameKey);
 
   const isReturningPlayer = previouslySeen.size > 0;
-  const newSetKeys = isReturningPlayer
-    ? new Set(sets.filter((s) => !previouslySeen.has(s)))
-    : new Set();
+  const newSetKeys =
+    isReturningPlayer && !data.isDeveloper
+      ? new Set(sets.filter((s) => !previouslySeen.has(s)))
+      : new Set();
 
   const setsSection = renderSetsSection(sets, setsHelpTemplate, newSetKeys);
   const missingRewardsSection = renderMissingRewardsSection(sets, setArtStore);
@@ -174,11 +185,7 @@ export async function renderProfile(data, { signal } = {}) {
       name: data.name,
       shareUrl: shareUrl,
       nameStyle: nameStyle,
-      tierBadge:
-        tierBadge +
-        (data.isDeveloper === true
-          ? '<span class="player-dev-badge" title="Vault Hunters developer — all catalog rewards unlocked"><span class="player-dev-badge__icon" aria-hidden="true">&lt;/&gt;</span>Dev</span>'
-          : ''),
+      tierBadge: tierBadge + renderDeveloperBadge(data, developerOverride),
       serverLink: serverLink,
       levelBadge: leaderboardBadge,
       alternateNames: renderAlternateNames(data),
@@ -192,6 +199,16 @@ export async function renderProfile(data, { signal } = {}) {
     missingRewardsSection +
     tiersSection +
     extraSection;
+
+  const devToggle = resultContainer.querySelector('[data-dev-toggle]');
+  devToggle?.addEventListener('click', () => {
+    void renderProfile(data, {
+      signal,
+      developerOverride: !developerOverride,
+      restoreDevFocus: true,
+    });
+  });
+  if (restoreDevFocus) devToggle?.focus();
 
   resultContainer.classList.remove('hidden');
   showSupportPopupForProfile(data);
@@ -236,7 +253,7 @@ export async function renderProfile(data, { signal } = {}) {
   bindDisclosureToggle('missing-obtainable-toggle', 'missing-obtainable-panel');
   bindDisclosureToggle('missing-legacy-toggle', 'missing-legacy-panel');
 
-  setSeenSets(usernameKey, new Set(sets));
+  if (!data.isDeveloper) setSeenSets(usernameKey, new Set(sets));
 
   // Profile lookups may update leaderboard rows server-side; clear stale local leaderboard pages.
   clearLeaderboardCache();

@@ -1,4 +1,3 @@
-import { isDeveloper } from '../../functions/utils/developers.js';
 import {
   SNAPSHOT_MANIFEST_KEY,
   SNAPSHOT_DATA_PREFIX,
@@ -84,7 +83,7 @@ export function buildSnapshot(unlockRows, companionRows, revision, now = new Dat
   const prefix = `${SNAPSHOT_DATA_PREFIX}${now.toISOString().replaceAll(':', '-')}-${crypto.randomUUID()}/`;
   const boards = new Map();
   const unlocks = unlockRows
-    .filter((row) => row.sets_unlocked > 0 && !isDeveloper(row.player_uuid))
+    .filter((row) => row.sets_unlocked > 0)
     .map((row) => ({
       playerUUID: row.player_uuid,
       playerNickname: row.player_name,
@@ -160,7 +159,7 @@ export function buildSnapshot(unlockRows, companionRows, revision, now = new Dat
     statsKey: `${prefix}streamer-stats.json`,
     statsVersion: 3,
     profileVersion: 1,
-    unlockEligibilityVersion: 1,
+    unlockEligibilityVersion: 2,
   };
   const objects = [{ key: manifest.searchKey, data: buildSearchIndex(unlockRows, companionRows) }];
   objects.push({
@@ -248,7 +247,7 @@ export async function publishSnapshots(env) {
     previous.statsKey &&
     previous.statsVersion === 3 &&
     previous.profileVersion === 1 &&
-    previous.unlockEligibilityVersion === 1 &&
+    previous.unlockEligibilityVersion === 2 &&
     previous.revision === current.revision
   ) {
     return { changed: false, revision: current.revision };

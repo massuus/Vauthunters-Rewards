@@ -11,6 +11,8 @@ import {
 import { setLoadingState, showFeedback } from '../features/ui-feedback.js';
 import {
   isCodesQuery,
+  isDevelopersQuery,
+  renderDevelopersPage,
   isPrivacyQuery,
   renderPrivacyPage,
   isAllQuery,
@@ -77,6 +79,32 @@ async function resolveServerFromSearchValue(value, cachedOnly) {
 export async function handleSpecialPageSearch(username, { cachedServersOnly = false } = {}) {
   teardownLeaderboardPage();
   teardownLivePage();
+
+  if (isDevelopersQuery(username)) {
+    recentContainer?.classList.add('hidden');
+    if (recentContainer) recentContainer.innerHTML = '';
+    setLoadingState(true);
+    try {
+      await renderDevelopersPage(
+        resultContainer,
+        setFavicon,
+        setMetaDescription,
+        closeOpenModal,
+        updateQueryString,
+        proxiedImageUrl,
+        escapeHtml,
+        DEFAULT_FAVICON,
+        usernameInput,
+        form
+      );
+      scrollToResults();
+    } catch {
+      showFeedback('Unable to load developers right now. Please try again.', 'error');
+    } finally {
+      setLoadingState(false);
+    }
+    return true;
+  }
 
   if (isPrivacyQuery(username)) {
     recentContainer?.classList.add('hidden');

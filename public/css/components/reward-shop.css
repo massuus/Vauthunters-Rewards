@@ -143,3 +143,18 @@
     transition: none;
   }
 }
+
+.player-dev-badge {
+  cursor: pointer;
+  appearance: none;
+}
+
+.player-dev-badge:focus-visible {
+  outline: 2px solid #ffe6a3;
+  outline-offset: 3px;
+}
+
+.player-dev-badge[aria-pressed='false'] {
+  background: #332817;
+  color: #ffe6a3;
+}

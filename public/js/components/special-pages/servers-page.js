@@ -77,12 +77,14 @@ function groupServersByRegion(servers) {
   return Array.from(groups.entries());
 }
 
-function renderServerPlayerButton(player, proxiedImageUrl, escapeHtml) {
+export function renderServerPlayerButton(player, proxiedImageUrl, escapeHtml) {
   const ign = String(player?.ign || '').trim();
   if (!ign) return '';
 
   const safeIgn = escapeHtml(ign);
-  const avatarUrl = proxiedImageUrl(`https://mc-heads.net/avatar/${encodeURIComponent(ign)}/64`);
+  const avatarUrl = proxiedImageUrl(
+    `https://mc-heads.net/avatar/${encodeURIComponent(player?.uuid || ign)}/64`
+  );
 
   return `
     <button class="recent-item server-player" type="button" data-player-name="${safeIgn}">
@@ -92,7 +94,7 @@ function renderServerPlayerButton(player, proxiedImageUrl, escapeHtml) {
   `;
 }
 
-function bindOfficialServersHandlers(resultContainer, usernameInput, form) {
+export function bindOfficialServersHandlers(resultContainer, usernameInput, form) {
   resultContainer.querySelectorAll('[data-server-query]').forEach((button) => {
     button.addEventListener('click', () => {
       const serverQuery = button.getAttribute('data-server-query') || '';

@@ -1,4 +1,5 @@
 // Special pages barrel exports
+export { isDevelopersQuery, renderDevelopersPage } from './special-pages/developers-page.js';
 export { isPrivacyQuery, renderPrivacyPage } from './special-pages/privacy-page.js';
 
 export {
