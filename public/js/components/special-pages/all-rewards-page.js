@@ -178,7 +178,7 @@ export async function renderAllRewardsPage(
       ? `
       <section class="rewards-section">
         <header class="rewards-section__header">
-          <h3 class="rewards-section__title">Coming Soon</h3>
+          <h3 class="rewards-section__title">Coming Soon™</h3>
           <p class="rewards-section__description">These rewards will become obtainable in the future, but cannot be unlocked yet.</p>
           <p class="rewards-section__count">${upcomingRewards.length} rewards</p>
         </header>

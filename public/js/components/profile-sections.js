@@ -158,7 +158,7 @@ export function renderMissingRewardsSection(ownedSets, setArtStore) {
     <div class="missing-rewards__upcoming">
       <button id="missing-upcoming-toggle" class="missing-rewards__toggle" type="button" aria-expanded="false" aria-controls="missing-upcoming-panel">
         <span class="missing-rewards__toggle-icon" aria-hidden="true">▶</span>
-        <span>Coming Soon (${missingUpcoming.length})</span>
+        <span>Coming Soon™ (${missingUpcoming.length})</span>
       </button>
       <div id="missing-upcoming-panel" class="missing-rewards__panel" hidden>
         <p class="missing-rewards__description">These rewards will become obtainable in the future, but cannot be unlocked yet.</p>

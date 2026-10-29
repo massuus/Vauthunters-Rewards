@@ -19,7 +19,7 @@ test('future Season 3 rewards have their own missing section and exclude owned r
     assert.equal(item.upcoming, true);
   }
   const html = renderMissingRewardsSection(['girl_boss'], rewards);
-  assert.match(html, /Coming Soon \(3\)/);
+  assert.match(html, /Coming Soon™ \(3\)/);
   assert.match(html, /id="missing-upcoming-panel"/);
   assert.doesNotMatch(html, /Still Obtainable|Currently Unavailable|data-set-key="girl_boss"/);
   assert.equal(renderMissingRewardsSection(upcoming, rewards), '');
