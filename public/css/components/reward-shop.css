@@ -138,6 +138,16 @@
   letter-spacing: -0.1em;
 }
 
+.player-card .player-dev-badge img.player-dev-badge__image {
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 0;
+  background: none;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .player-dev-badge {
     transition: none;

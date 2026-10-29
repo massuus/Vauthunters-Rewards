@@ -5,6 +5,21 @@ import {
   renderDeveloperBadge,
 } from '../public/js/features/developer-rewards.js';
 
+test('Douwsky has the Janitor badge and keeps the reward toggle in both modes', () => {
+  for (const id of ['7f618dfe4ca14d9a87130958b7fc3cf9', '7F618DFE-4CA1-4D9A-8713-0958B7FC3CF9']) {
+    for (const showOverride of [true, false]) {
+      const html = renderDeveloperBadge(
+        { id, name: 'RenamedPlayer', isDeveloper: true },
+        showOverride
+      );
+      assert.match(html, /Janitor<\/button>/);
+      assert.match(html, /src="\/img\/badge\/Janitor.png"/);
+      assert.match(html, /data-dev-toggle/);
+      assert.doesNotMatch(html, /&lt;\/&gt;/);
+    }
+  }
+});
+
 test('developer toggle switches sets and item rewards without changing profile data', () => {
   const profile = {
     isDeveloper: true,
