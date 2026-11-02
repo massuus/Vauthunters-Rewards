@@ -4,6 +4,13 @@ A lightweight web app to look up a Minecraft player and display their Vault Hunt
 
 Live site: https://vh-rewards.massuus.com/
 
+## API documentation
+
+- `/swagger/` — self-hosted Swagger UI with GET request execution for the app API.
+- `/openapi.json` — OpenAPI 3.0 spec for the app's public lookup endpoints.
+
+These files are included in production builds. The app spec does not cover authentication, administration, collector ingestion, or mining workflows.
+
 ## Features
 
 - **Username Search**: Resolves Mojang UUIDs and fetches Vault Hunters rewards and Patreon tiers.

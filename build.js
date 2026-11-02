@@ -86,7 +86,14 @@ async function copyPublicAssets() {
   await processCss();
 
   // Files to copy (non-JS and non-CSS files)
-  const filesToCopy = ['_headers', '_redirects', '_routes.json', 'manifest.json', '404.html'];
+  const filesToCopy = [
+    '_headers',
+    '_redirects',
+    '_routes.json',
+    'manifest.json',
+    '404.html',
+    'openapi.json',
+  ];
 
   // Copy files
   for (const file of filesToCopy) {
@@ -116,6 +123,20 @@ async function copyPublicAssets() {
       }
     }
   }
+
+  // Serve Swagger UI locally under the existing same-origin content policy.
+  const swaggerDir = path.join(distDir, 'swagger');
+  await fs.mkdir(swaggerDir, { recursive: true });
+  for (const file of ['swagger-ui-bundle.js', 'swagger-ui.css', 'LICENSE', 'NOTICE']) {
+    await fs.copyFile(
+      path.join(__dirname, 'node_modules', 'swagger-ui-dist', file),
+      path.join(swaggerDir, file)
+    );
+  }
+  await fs.copyFile(
+    path.join(publicDir, 'pages', 'swagger.html'),
+    path.join(swaggerDir, 'index.html')
+  );
 
   // Copy functions directory to root (not inside dist)
   const functionsDir = path.join(__dirname, 'functions');
