@@ -322,6 +322,46 @@
     "descriptionLocked": "Get this by reaching level 25 in the second season.",
     "category": "Season 2 pass"
   },
+  "vhportal": {
+    "label": "VH Portal",
+    "image": "/img/vhportal.gif",
+    "alt": "VH Portal icon",
+    "obtainable": false,
+    "upcoming": true,
+    "descriptionObtained": "You obtained this reward by reaching level 30 in Season 2.",
+    "descriptionLocked": "Reach level 30 in Season 2 to earn this reward. Coming soon; not yet unlockable.",
+    "category": "Season 2 pass"
+  },
+  "tommy": {
+    "label": "Tommy",
+    "image": "/img/tommy.gif",
+    "alt": "Tommy icon",
+    "obtainable": false,
+    "upcoming": true,
+    "descriptionObtained": "You obtained this reward by reaching Eternal level 50.",
+    "descriptionLocked": "Reach Eternal level 50 to earn this reward. Coming soon; not yet unlockable.",
+    "category": "Eternal progression"
+  },
+  "greg": {
+    "label": "Greg",
+    "image": "/img/greg.gif",
+    "alt": "Greg icon",
+    "obtainable": false,
+    "upcoming": true,
+    "descriptionObtained": "You obtained this reward by reaching Eternal level 70.",
+    "descriptionLocked": "Reach Eternal level 70 to earn this reward. Coming soon; not yet unlockable.",
+    "category": "Eternal progression"
+  },
+  "skull_weapons": {
+    "label": "Skull Weapons",
+    "images": ["/img/skull sword.gif", "/img/skull axe.gif"],
+    "alt": "Skull Sword and Skull Axe",
+    "obtainable": false,
+    "upcoming": true,
+    "descriptionObtained": "You obtained this set by reaching Eternal level 80.",
+    "descriptionLocked": "Reach Eternal level 80 to earn this set. Coming soon; not yet unlockable.",
+    "category": "Eternal progression"
+  },
   "golden_dylan": {
     "label": "Golden Dylan Companion",
     "image": "/img/Golden_Dylan.png",
