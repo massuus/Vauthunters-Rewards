@@ -98,7 +98,7 @@ export function bindSetCardHandlers() {
     });
 
     card.addEventListener('click', (event) => {
-      if (event.target.closest('a, details, button, reward-model-preview')) {
+      if (event.target.closest('a, details, button')) {
         return;
       }
 
