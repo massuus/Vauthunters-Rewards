@@ -698,7 +698,7 @@
     "category": "Halloween 2026"
   },
   "patreon_dweller_gear": {
-    "label": "Vault Dweller Gear",
+    "label": "Vault Dweller",
     "image": "/img/badge/dweller.webp",
     "alt": "Vault Dweller Patreon badge",
     "obtainable": true,
@@ -707,7 +707,7 @@
     "category": "Patreon rewards"
   },
   "patreon_cheeser_gear": {
-    "label": "Vault Cheeser Gear",
+    "label": "Vault Cheeser",
     "image": "/img/badge/cheeser.webp",
     "alt": "Vault Cheeser Patreon badge",
     "obtainable": true,
@@ -716,7 +716,7 @@
     "category": "Patreon rewards"
   },
   "patreon_goblin_gear": {
-    "label": "Vault Goblin Gear",
+    "label": "Vault Goblin",
     "image": "/img/badge/goblin.webp",
     "alt": "Vault Goblin Patreon badge",
     "obtainable": true,
@@ -725,7 +725,7 @@
     "category": "Patreon rewards"
   },
   "patreon_champion_gear": {
-    "label": "Vault Champion Gear",
+    "label": "Vault Champion",
     "image": "/img/badge/champion.webp",
     "alt": "Vault Champion Patreon badge",
     "obtainable": true,
@@ -734,7 +734,7 @@
     "category": "Patreon rewards"
   },
   "patreon_legend_pet": {
-    "label": "Slimey Pet",
+    "label": "Vault Legend",
     "image": "/img/badge/legend.webp",
     "alt": "Slimey, the Vault Legend Patreon pet",
     "obtainable": true,
