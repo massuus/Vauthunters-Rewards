@@ -6,7 +6,7 @@
     "obtainable": false,
     "descriptionObtained": "You unlocked this companion by joining Iskall85's Gemstone event streams and collecting 50 gemstones with your companion.",
     "descriptionLocked": "This companion was unlockable by joining Iskall85's Gemstone event streams and collecting 50 gemstones with your companion.",
-    "category": "Gemstone event"
+    "category": "Gemstone Event"
   },
   "baby_creeper_pog": {
     "label": "POG Baby Creeper",
@@ -15,7 +15,7 @@
     "obtainable": false,
     "descriptionObtained": "You unlocked this companion by being present for Iskall85's Gemstone event and placing within the top 123 players.",
     "descriptionLocked": "This companion was unlockable by being present for Iskall85's Gemstone event and placing within the top 123 players.",
-    "category": "Gemstone event"
+    "category": "Gemstone Event"
   },
   "golden_kappa": {
     "label": "Golden Kappa Shield",
@@ -24,7 +24,7 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this shield by having an awake companion during a Golden Kappa Hype Train on Twitch.",
     "descriptionLocked": "Obtain this shield by having an awake companion during a Golden Kappa Hype Train on Twitch.",
-    "category": "Twitch Hype Trains"
+    "category": "Twitch Event"
   },
   "dylan_vip": {
     "label": "Dylan Set",
@@ -33,7 +33,8 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this set when Iskall85 personally gifted it to you live on Twitch.",
     "descriptionLocked": "This exclusive set can only be obtained when Iskall85 personally gifts it to you live on Twitch.",
-    "category": "Special gifts"
+    "category": "Special gifts",
+    "categoryOverride": true
   },
   "duckfromhell_tribute_1": {
     "label": "Your awsome bike",
@@ -43,7 +44,8 @@
     "profileOnly": true,
     "descriptionObtained": "You may be on an diffrent advanture now, but you will always be a Dylan in our hearts, you crazy Aussie 💚💚🕷️💚💚",
     "descriptionLocked": "You may be on an diffrent advanture now, but you will always be a Dylan in our hearts, you crazy Aussie 💚💚🕷️💚💚",
-    "category": "Special gifts"
+    "category": "Special gifts",
+    "categoryOverride": true
   },
   "duckfromhell_tribute_2": {
     "label": "duck denied",
@@ -53,7 +55,8 @@
     "profileOnly": true,
     "descriptionObtained": "Please reach out if you're struggling. Please reach out. Get help. Talk to family, a friend, anyone that you feel comfortable talking to. Please Dylans. Mental health is so important. Visit https://findahelpline.com/ for support.",
     "descriptionLocked": "Please reach out if you're struggling. Please reach out. Get help. Talk to family, a friend, anyone that you feel comfortable talking to. Please Dylans. Mental health is so important. Visit https://findahelpline.com/ for support.",
-    "category": "Special gifts"
+    "category": "Special gifts",
+    "categoryOverride": true
   },
   "kingodogo_tribute": {
     "label": "Gone but not forgotten",
@@ -63,7 +66,8 @@
     "profileOnly": true,
     "descriptionObtained": "Gone but not forgotten. You will always be a dylan in our hearts.",
     "descriptionLocked": "Gone but not forgotten. You will always be a dylan in our hearts.",
-    "category": "Special gifts"
+    "category": "Special gifts",
+    "categoryOverride": true
   },
   "companion_leader_s1": {
     "label": "Party Leader Set",
@@ -72,7 +76,7 @@
     "obtainable": true,
     "descriptionObtained": "You earned this set by reaching Eternal level 12.",
     "descriptionLocked": "Earn this set by reaching Eternal level 12.",
-    "category": "Eternal progression"
+    "category": "Battlepass Eternal"
   },
   "i85_royale_crown": {
     "label": "Royale Crown",
@@ -81,7 +85,7 @@
     "obtainable": false,
     "descriptionObtained": "You unlocked this crown by being present when Iskall completed the very first Vault Royale.",
     "descriptionLocked": "This crown was unlockable by being present when Iskall completed the very first Vault Royale.",
-    "category": "First Vault Royale"
+    "category": "Server Event"
   },
   "i85_spring_set": {
     "label": "Spring Set",
@@ -101,7 +105,7 @@
     "obtainable": false,
     "descriptionObtained": "You secured this set by tuning into Iskall85's special Twitch event on 18 June 2025.",
     "descriptionLocked": "This set was unlockable by tuning into Iskall85's special Twitch event on 18 June 2025.",
-    "category": "Spring event 2025"
+    "category": "Server Event"
   },
   "i85_treasure_train": {
     "label": "Treasure Train Focus",
@@ -110,7 +114,7 @@
     "obtainable": true,
     "descriptionObtained": "You picked this up by having an awake companion during a Treasure Hype Train on Twitch.",
     "descriptionLocked": "Pick this up by having an awake companion during a Treasure Hype Train on Twitch.",
-    "category": "Twitch Hype Trains"
+    "category": "Twitch Event"
   },
   "i85_server_bingos": {
     "label": "Iskallia Server Bingo Chestplate",
@@ -119,7 +123,7 @@
     "obtainable": true,
     "descriptionObtained": "You claimed this prize by winning a Bingo Bust event on the official Vault Hunters servers.",
     "descriptionLocked": "Claim this prize by winning a Bingo Bust event on the official Vault Hunters servers.",
-    "category": "Server Bingo"
+    "category": "Server Event"
   },
   "iskall85_falcon_helmet": {
     "label": "Falcon Helmet",
@@ -128,7 +132,7 @@
     "obtainable": false,
     "descriptionObtained": "You unlocked this armor piece by participating in Iskall85's Horde Rush event.",
     "descriptionLocked": "This armor piece was unlockable by participating in Iskall85's Horde Rush event.",
-    "category": "Horde Rush"
+    "category": "Horderush Event"
   },
   "iskall85_falcon_chestplate": {
     "label": "Falcon Chestplate",
@@ -137,7 +141,7 @@
     "obtainable": false,
     "descriptionObtained": "You unlocked this armor piece by participating in Iskall85's Horde Rush event.",
     "descriptionLocked": "This armor piece was unlockable by participating in Iskall85's Horde Rush event.",
-    "category": "Horde Rush"
+    "category": "Horderush Event"
   },
   "iskall85_reddragon_axe": {
     "label": "Reddragon Axe",
@@ -146,7 +150,7 @@
     "obtainable": false,
     "descriptionObtained": "You claimed this weapon by joining Iskall85's Horde Rush community event.",
     "descriptionLocked": "This weapon was unlockable by joining Iskall85's Horde Rush community event.",
-    "category": "Horde Rush"
+    "category": "Horderush Event"
   },
   "iskall85_reddragon_sword": {
     "label": "Reddragon Sword",
@@ -155,7 +159,7 @@
     "obtainable": false,
     "descriptionObtained": "You claimed this weapon by joining Iskall85's Horde Rush community event.",
     "descriptionLocked": "This weapon was unlockable by joining Iskall85's Horde Rush community event.",
-    "category": "Horde Rush"
+    "category": "Horderush Event"
   },
   "iskall85_ancient_scroll": {
     "label": "Ancient Scroll",
@@ -164,7 +168,7 @@
     "obtainable": false,
     "descriptionObtained": "You uncovered this scroll as part of Iskall85's Horde Rush event rewards.",
     "descriptionLocked": "This scroll was unlockable by participating in Iskall85's Horde Rush event.",
-    "category": "Horde Rush"
+    "category": "Horderush Event"
   },
   "i85_companion_dino": {
     "label": "Dino Companion",
@@ -173,7 +177,7 @@
     "obtainable": false,
     "descriptionObtained": "You earned this companion by participating in Iskall85's Horde Rush event.",
     "descriptionLocked": "This companion was unlockable by participating in Iskall85's Horde Rush event.",
-    "category": "Horde Rush"
+    "category": "Horderush Event"
   },
   "i85_dylan_penguin": {
     "label": "Dylan Penguin Companion",
@@ -182,7 +186,7 @@
     "obtainable": false,
     "descriptionObtained": "You received this companion by participating in Iskall85's Horde Rush event.",
     "descriptionLocked": "This companion was unlockable by participating in Iskall85's Horde Rush event.",
-    "category": "Horde Rush"
+    "category": "Horderush Event"
   },
   "i85_mattress": {
     "label": "Mattress Shield",
@@ -191,7 +195,7 @@
     "obtainable": false,
     "descriptionObtained": "You obtained this reward during Iskall85's Horde Rush event.",
     "descriptionLocked": "This reward was unlockable by participating in Iskall85's Horde Rush event.",
-    "category": "Horde Rush"
+    "category": "Horderush Event"
   },
   "i85_petal_splitter": {
     "label": "Petal Splitter Axe",
@@ -200,7 +204,7 @@
     "obtainable": false,
     "descriptionObtained": "You picked up this dual blade by taking part in Iskall85's Horde Rush event.",
     "descriptionLocked": "This dual blade was unlockable by taking part in Iskall85's Horde Rush event.",
-    "category": "Horde Rush"
+    "category": "Horderush Event"
   },
   "i85_twin_blade": {
     "label": "Twin Blade Sword",
@@ -209,7 +213,7 @@
     "obtainable": false,
     "descriptionObtained": "You secured this weapon through Iskall85's Horde Rush event.",
     "descriptionLocked": "This weapon was unlockable by participating in Iskall85's Horde Rush event.",
-    "category": "Horde Rush"
+    "category": "Horderush Event"
   },
   "halloween_pumpkin": {
     "label": "Halloween 2025 Set",
@@ -230,7 +234,7 @@
     "obtainable": false,
     "descriptionObtained": "You got this by reaching level 5 in the second season.",
     "descriptionLocked": "Get this by reaching level 5 in the second season.",
-    "category": "Season 2 pass"
+    "category": "Battlepass Season 2"
   },
   "forsaken_axe": {
     "label": "Forsaken Axe",
@@ -239,7 +243,7 @@
     "obtainable": false,
     "descriptionObtained": "You got this by reaching level 7 in the second season.",
     "descriptionLocked": "Get this by reaching level 7 in the second season.",
-    "category": "Season 2 pass"
+    "category": "Battlepass Season 2"
   },
   "forsaken_sword": {
     "label": "Forsaken Sword",
@@ -248,7 +252,7 @@
     "obtainable": false,
     "descriptionObtained": "You got this by reaching level 7 in the second season.",
     "descriptionLocked": "Get this by reaching level 7 in the second season.",
-    "category": "Season 2 pass"
+    "category": "Battlepass Season 2"
   },
   "bumbo_cactoni": {
     "label": "Bumbo Cactoni",
@@ -257,7 +261,7 @@
     "obtainable": false,
     "descriptionObtained": "You got this by reaching level 10 in the second season.",
     "descriptionLocked": "Get this by reaching level 10 in the second season.",
-    "category": "Season 2 pass"
+    "category": "Battlepass Season 2"
   },
   "nocturn_shield": {
     "label": "Nocturn Shield",
@@ -266,7 +270,7 @@
     "obtainable": false,
     "descriptionObtained": "You got this by reaching level 12 in the season 2 battle pass.",
     "descriptionLocked": "Get this by reaching level 12 in the season 2 battle pass.",
-    "category": "Season 2 pass"
+    "category": "Battlepass Season 2"
   },
   "midnight_thorn": {
     "label": "Midnight Thorn",
@@ -275,7 +279,7 @@
     "obtainable": false,
     "descriptionObtained": "You got this by reaching level 12 in the season 2 battle pass.",
     "descriptionLocked": "Get this by reaching level 12 in the season 2 battle pass.",
-    "category": "Season 2 pass"
+    "category": "Battlepass Season 2"
   },
   "lamenting_mirror": {
     "label": "Lamenting Mirror",
@@ -284,7 +288,7 @@
     "obtainable": false,
     "descriptionObtained": "You got this by reaching level 12 in the season 2 battle pass.",
     "descriptionLocked": "Get this by reaching level 12 in the season 2 battle pass.",
-    "category": "Season 2 pass"
+    "category": "Battlepass Season 2"
   },
   "carrot": {
     "label": "Carrot Companion",
@@ -293,7 +297,7 @@
     "obtainable": false,
     "descriptionObtained": "You got this by reaching level 15 in the second season.",
     "descriptionLocked": "Get this by reaching level 15 in the second season.",
-    "category": "Season 2 pass"
+    "category": "Battlepass Season 2"
   },
   "doomslayer": {
     "label": "Doomslayer",
@@ -302,7 +306,7 @@
     "obtainable": true,
     "descriptionObtained": "You got this by reaching level 20 in the Eternal Battle Pass.",
     "descriptionLocked": "Get this by reaching level 20 in the Eternal Battle Pass.",
-    "category": "Eternal progression"
+    "category": "Battlepass Eternal"
   },
   "arry_axe": {
     "label": "Arry Axe",
@@ -311,7 +315,7 @@
     "obtainable": true,
     "descriptionObtained": "You got this by reaching level 20 in the Eternal Battle Pass.",
     "descriptionLocked": "Get this by reaching level 20 in the Eternal Battle Pass.",
-    "category": "Eternal progression"
+    "category": "Battlepass Eternal"
   },
   "golden_bumbo_cactoni": {
     "label": "Golden Bumbo Cactoni",
@@ -320,7 +324,7 @@
     "obtainable": false,
     "descriptionObtained": "You got this by reaching level 25 in the second season.",
     "descriptionLocked": "Get this by reaching level 25 in the second season.",
-    "category": "Season 2 pass"
+    "category": "Battlepass Season 2"
   },
   "vhportal": {
     "label": "VH Portal",
@@ -330,7 +334,7 @@
     "upcoming": true,
     "descriptionObtained": "You obtained this reward by reaching level 30 in Season 2.",
     "descriptionLocked": "Reach level 30 in Season 2 to earn this reward. Coming soon; not yet unlockable.",
-    "category": "Season 2 pass"
+    "category": "Battlepass Season 2"
   },
   "tommy": {
     "label": "Tommy",
@@ -340,7 +344,7 @@
     "upcoming": true,
     "descriptionObtained": "You obtained this reward by reaching Eternal level 50.",
     "descriptionLocked": "Reach Eternal level 50 to earn this reward. Coming soon; not yet unlockable.",
-    "category": "Eternal progression"
+    "category": "Battlepass Eternal"
   },
   "greg": {
     "label": "Greg",
@@ -350,17 +354,20 @@
     "upcoming": true,
     "descriptionObtained": "You obtained this reward by reaching Eternal level 70.",
     "descriptionLocked": "Reach Eternal level 70 to earn this reward. Coming soon; not yet unlockable.",
-    "category": "Eternal progression"
+    "category": "Battlepass Eternal"
   },
   "skull_weapons": {
     "label": "Skull Weapons",
-    "images": ["/img/skull sword.gif", "/img/skull axe.gif"],
+    "images": [
+      "/img/skull sword.gif",
+      "/img/skull axe.gif"
+    ],
     "alt": "Skull Sword and Skull Axe",
     "obtainable": false,
     "upcoming": true,
     "descriptionObtained": "You obtained this set by reaching Eternal level 80.",
     "descriptionLocked": "Reach Eternal level 80 to earn this set. Coming soon; not yet unlockable.",
-    "category": "Eternal progression"
+    "category": "Battlepass Eternal"
   },
   "golden_dylan": {
     "label": "Golden Dylan Companion",
@@ -369,7 +376,7 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this companion by reaching Eternal level 30.",
     "descriptionLocked": "Obtain this companion by reaching Eternal level 30.",
-    "category": "Eternal progression"
+    "category": "Battlepass Eternal"
   },
   "sculk_set": {
     "label": "Sculk Set",
@@ -378,7 +385,7 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this set by reaching Ethernal level 40.",
     "descriptionLocked": "Obtain this set by reaching Ethernal level 40.",
-    "category": "Eternal progression"
+    "category": "Battlepass Eternal"
   },
   "forsaken_set": {
     "label": "Forsaken Set",
@@ -387,7 +394,7 @@
     "obtainable": true,
     "descriptionObtained": "You got this by reaching level 40 in the Eternal Battle Pass.",
     "descriptionLocked": "Get this by reaching level 40 in the Eternal Battle Pass.",
-    "category": "Eternal progression"
+    "category": "Battlepass Eternal"
   },
   "essence_of_iskallium": {
     "label": "Essence of Iskallium",
@@ -396,7 +403,7 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this reward by reaching Ethernal level 60.",
     "descriptionLocked": "Obtain this reward by reaching Ethernal level 60.",
-    "category": "Eternal progression"
+    "category": "Battlepass Eternal"
   },
   "hypefuse_scepter": {
     "label": "Hypefuse Scepter",
@@ -405,7 +412,7 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this reward by reaching Ethernal level 60.",
     "descriptionLocked": "Obtain this reward by reaching Ethernal level 60.",
-    "category": "Eternal progression"
+    "category": "Battlepass Eternal"
   },
   "never_ever": {
     "label": "NeverEver Shield",
@@ -414,7 +421,7 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this shield by reaching Ethernal level 60.",
     "descriptionLocked": "Obtain this shield by reaching Ethernal level 60.",
-    "category": "Eternal progression"
+    "category": "Battlepass Eternal"
   },
   "green_christmas_hat": {
     "label": "Green Christmas Hat (of Doom)",
@@ -432,7 +439,7 @@
     "obtainable": false,
     "descriptionObtained": "You received this reward to celebrate Iskall85's 100th stream since his return.",
     "descriptionLocked": "This reward celebrated Iskall85's special streaming milestones.",
-    "category": "Streaming milestones 2026"
+    "category": "Twitch Event"
   },
   "i85_xmas_day3": {
     "label": "12 Days of Dylan - Day 3",
@@ -526,7 +533,7 @@
     "obtainable": false,
     "descriptionObtained": "You obtained this companion by using a code that iskall85 unlocked during the Valentine's Day event!",
     "descriptionLocked": "You can obtain this by using the code that iskall85 unlocked during the Valentine's Day event.",
-    "category": "Valentine's Day 2026"
+    "category": "Valentines 2026"
   },
   "muddy_elephant": {
     "label": "Muddy Elephant Companion",
@@ -535,7 +542,7 @@
     "obtainable": false,
     "descriptionObtained": "You obtained this companion by using a code that iskall85 unlocked during the vault rush event!",
     "descriptionLocked": "This companion was unlockable using a code that Iskall85 unlocked during the Vault Rush event.",
-    "category": "Vault Rush"
+    "category": "Server Event"
   },
   "buster_sword": {
     "label": "Buster Blade",
@@ -544,7 +551,7 @@
     "obtainable": false,
     "descriptionObtained": "You obtained this weapon by using a code that iskall85 unlocked during the vault rush event!",
     "descriptionLocked": "This weapon was unlockable using a code that Iskall85 unlocked during the Vault Rush event.",
-    "category": "Vault Rush"
+    "category": "Server Event"
   },
   "terra_offhands": {
     "label": "Terra Offhands",
@@ -557,7 +564,7 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this reward by reaching level 5 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this reward by reaching level 5 in the Season 3 battle pass.",
-    "category": "Season 3 pass"
+    "category": "Battlepass Season 3"
   },
   "mini_dweller": {
     "label": "Mini Dweller",
@@ -566,7 +573,7 @@
     "obtainable": true,
     "descriptionObtained": "You got this by reaching level 10 in Companion season 3.",
     "descriptionLocked": "Get this by reaching level 10 in Companion season 3.",
-    "category": "Season 3 pass"
+    "category": "Battlepass Season 3"
   },
   "striker": {
     "label": "Strike Helmet & Chestplate",
@@ -575,7 +582,7 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this armor by reaching level 15 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this armor by reaching level 15 in the Season 3 battle pass.",
-    "category": "Season 3 pass"
+    "category": "Battlepass Season 3"
   },
   "mini_butcher": {
     "label": "Mini Butcher",
@@ -584,16 +591,19 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this companion by reaching level 20 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this companion by reaching level 20 in the Season 3 battle pass.",
-    "category": "Season 3 pass"
+    "category": "Battlepass Season 3"
   },
   "terra_weapons": {
     "label": "Terra Weapons",
-    "images": ["/img/Terraxe.gif", "/img/Terras_Wrath.gif"],
+    "images": [
+      "/img/Terraxe.gif",
+      "/img/Terras_Wrath.gif"
+    ],
     "alt": "Terraxe and Terra's Wrath",
     "obtainable": true,
     "descriptionObtained": "You obtained this reward by reaching level 30 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this reward by reaching level 30 in the Season 3 battle pass.",
-    "category": "Season 3 pass"
+    "category": "Battlepass Season 3"
   },
   "mini_elite_witherskelly": {
     "label": "Mini Elite Witherskelly",
@@ -602,7 +612,7 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this companion by reaching level 40 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this companion by reaching level 40 in the Season 3 battle pass.",
-    "category": "Season 3 pass"
+    "category": "Battlepass Season 3"
   },
   "girl_boss": {
     "label": "Girl Boss",
@@ -612,7 +622,7 @@
     "upcoming": true,
     "descriptionObtained": "You obtained this reward by reaching level 50 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this reward by reaching level 50 in the Season 3 battle pass.",
-    "category": "Season 3 pass"
+    "category": "Battlepass Season 3"
   },
   "mini_goblin": {
     "label": "Mini Goblin",
@@ -622,7 +632,7 @@
     "upcoming": true,
     "descriptionObtained": "You obtained this companion by reaching level 60 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this companion by reaching level 60 in the Season 3 battle pass.",
-    "category": "Season 3 pass"
+    "category": "Battlepass Season 3"
   },
   "hellboy_head": {
     "label": "Hellboy Head",
@@ -632,7 +642,7 @@
     "upcoming": true,
     "descriptionObtained": "You obtained this reward by reaching level 70 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this reward by reaching level 70 in the Season 3 battle pass.",
-    "category": "Season 3 pass"
+    "category": "Battlepass Season 3"
   },
   "golden_mini_dweller": {
     "label": "Golden Mini Dweller",
@@ -642,7 +652,7 @@
     "upcoming": true,
     "descriptionObtained": "You obtained this companion by reaching level 80 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this companion by reaching level 80 in the Season 3 battle pass.",
-    "category": "Season 3 pass"
+    "category": "Battlepass Season 3"
   },
   "retirement": {
     "label": "Retirement Armor Set",
@@ -651,7 +661,7 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this set by reaching level 85 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this set by reaching level 85 in the Season 3 battle pass.",
-    "category": "Season 3 pass"
+    "category": "Battlepass Season 3"
   },
   "terra_armor": {
     "label": "Terra Armor",
@@ -660,7 +670,7 @@
     "obtainable": true,
     "descriptionObtained": "You obtained this reward by reaching level 90 in the Season 3 battle pass.",
     "descriptionLocked": "Obtain this reward by reaching level 90 in the Season 3 battle pass.",
-    "category": "Season 3 pass"
+    "category": "Battlepass Season 3"
   },
   "s3_hytale_wand": {
     "label": "Hytale Wand",
@@ -668,7 +678,8 @@
     "alt": "Hytale Wand icon",
     "obtainable": false,
     "descriptionObtained": "This does not exsit and is just Josh math.",
-    "descriptionLocked": "This does not exsit and is just Josh math."
+    "descriptionLocked": "This does not exsit and is just Josh math.",
+    "category": "Battlepass Season 3"
   },
   "halloween_magnet": {
     "label": "Halloween Magnet",
@@ -749,6 +760,6 @@
     "obtainable": false,
     "descriptionObtained": "You obtained this golf club by using a code that iskall85 shared during the first Golf Course building stream!",
     "descriptionLocked": "You can obtain this by using a code that iskall85 shared during the first Golf Course building stream!",
-    "category": "Golf Course event"
+    "category": "Server Event"
   }
 }

@@ -32,22 +32,30 @@ test('shop reissues override legacy availability without losing art or unlock hi
   const local = {
     old: {
       image: '/old.png',
+      category: 'Old local category',
       obtainable: false,
       descriptionLocked: 'No longer obtainable.',
       descriptionObtained: 'Original event',
     },
   };
   const merged = mergeApiSets(local, [
-    sale,
+    { ...sale, category: 'Halloween 2026' },
     { id: 'new', category: 'Halloween', unavailable: true },
   ]);
   assert.equal(merged.old.obtainable, true);
   assert.equal(merged.old.image, '/old.png');
+  assert.equal(merged.old.category, 'Halloween 2026');
   assert.equal(merged.old.descriptionObtained, 'Original event');
   assert.equal(getLockedRewardDescription(merged.old), 'No longer obtainable.');
   assert.equal(local.old.obtainable, false);
-  assert.equal(merged.new.category, undefined);
+  assert.equal(merged.new.category, 'Halloween');
   assert.equal(merged.new.obtainable, false);
+  assert.equal(
+    mergeApiSets({ dylan: { category: 'Special gifts', categoryOverride: true } }, [
+      { id: 'dylan', category: 'Unobtainable' },
+    ]).dylan.category,
+    'Special gifts'
+  );
   assert.deepEqual(mergeApiSets(local, []), local);
 });
 

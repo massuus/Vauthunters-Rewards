@@ -32,6 +32,9 @@ export function mergeApiSets(localSets, apiSets) {
       description: item.description || undefined,
       obtainable: typeof item.unavailable === 'boolean' ? !item.unavailable : undefined,
       ...local,
+      ...(local?.categoryOverride !== true && typeof item.category === 'string' && item.category
+        ? { category: item.category }
+        : {}),
       shop,
       ...(shop?.available ? { obtainable: true, upcoming: false } : {}),
     };

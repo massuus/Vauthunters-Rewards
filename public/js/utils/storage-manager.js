@@ -80,7 +80,7 @@ export function setSeenSets(username, seenSets) {
 }
 
 const REWARD_ORDER_KEY = 'vh.rewardOrder';
-let rewardOrder = 'newest';
+let rewardOrder = 'category';
 
 export function getRewardOrder() {
   try {
@@ -92,7 +92,9 @@ export function getRewardOrder() {
 }
 
 export function saveRewardOrder(value) {
-  rewardOrder = ['category', 'individual', 'newest', 'unlocked'].includes(value) ? value : 'newest';
+  rewardOrder = ['category', 'individual', 'newest', 'unlocked'].includes(value)
+    ? value
+    : 'category';
   try {
     localStorage.setItem(REWARD_ORDER_KEY, rewardOrder);
   } catch {}
