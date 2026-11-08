@@ -17,7 +17,7 @@ import { escapeHtml, augmentSets } from '../features/reward-utils.js';
 import { loadSetArt, getSetArtStore, closeSetDetailModal } from './set-art-manager.js';
 import { getShareUrl } from '../features/url-state.js';
 import { getSeenSets, setSeenSets, addRecentUser } from '../utils/storage-manager.js';
-import { getBestPatreonTier } from '../utils/tier-utils.js';
+import { getBestPatreonTier, getPatreonRewardSets } from '../utils/tier-utils.js';
 import { fetchOfficialServers, findServerByPlayerName } from '../features/official-servers.js';
 import {
   renderSetsSection,
@@ -131,9 +131,9 @@ export async function renderProfile(
 
   const setArtStore = getSetArtStore();
   const rewardView = getDeveloperRewardView(data, developerOverride);
-  const originalSets = Array.isArray(rewardView.sets) ? rewardView.sets : [];
-  const sets = augmentSets(originalSets);
   const tiers = Array.isArray(data.tier) ? data.tier : [];
+  const originalSets = Array.isArray(rewardView.sets) ? rewardView.sets : [];
+  const sets = augmentSets([...originalSets, ...getPatreonRewardSets(tiers)]);
   const iskall85Tiers = Array.isArray(data.iskall85Tier) ? data.iskall85Tier : [];
   const rewards =
     rewardView.rewards && typeof rewardView.rewards === 'object' ? rewardView.rewards : {};

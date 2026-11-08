@@ -7,6 +7,7 @@ import {
   formatLabel,
 } from '../features/reward-utils.js';
 import { getSetArtStore } from './set-art-manager.js';
+import { renderRewardModelPreview } from '../features/reward-model-preview.js';
 
 export function renderCompanionStatsSection(companionStats, playerName = '') {
   const stats = Array.isArray(companionStats) ? companionStats : [];
@@ -83,6 +84,7 @@ export function renderSetsSection(sets, setsHelpTemplate, newSetKeys = new Set()
           <option value="newest">Newest first</option>
           <option value="unlocked">Unlock order</option>
           <option value="category">Category</option>
+          <option value="type">Reward type</option>
         </select>
         </div>
       </div>
@@ -214,23 +216,22 @@ function renderMissingRewardCard(setKey, data, isLegacy = false) {
       ? data.images
       : [data?.image || UNKNOWN_ITEM_IMAGE];
   const altText = data?.alt || label;
-  const imageMarkup = imageSources
-    .map((imageSource, index) => {
-      const isFallbackImage = imageSource === UNKNOWN_ITEM_IMAGE;
-      const proxied = proxiedImageUrl(imageSource);
-      const fallbackClass = isFallbackImage ? ' pixelated-image' : '';
-      const activeClass = index === 0 ? ' is-active' : '';
-      const imgAlt = imageSources.length > 1 ? `${altText} view ${index + 1}` : altText;
-      return `<img class="set-card__media-img${activeClass}${fallbackClass}" src="${proxied}" alt="${escapeHtml(imgAlt)}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
-    })
-    .join('');
+  const imageParts = imageSources.map((imageSource, index) => {
+    const isFallbackImage = imageSource === UNKNOWN_ITEM_IMAGE;
+    const proxied = proxiedImageUrl(imageSource);
+    const fallbackClass = isFallbackImage ? ' pixelated-image' : '';
+    const activeClass = index === 0 ? ' is-active' : '';
+    const imgAlt = imageSources.length > 1 ? `${altText} view ${index + 1}` : altText;
+    return `<img class="set-card__media-img${activeClass}${fallbackClass}" src="${proxied}" alt="${escapeHtml(imgAlt)}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
+  });
+  const imageMarkup = imageParts.join('');
 
   const legacyClass = isLegacy ? ' set-card--legacy' : '';
 
   return `
     <article class="set-card set-card--missing${legacyClass}" tabindex="0" data-set-key="${setKey}">
       <div class="set-card__media">
-        ${imageMarkup}
+        ${renderRewardModelPreview(setKey, imageMarkup, imageParts)}
       </div>
       <div class="set-card__content">
         <span class="set-card__name">${escapeHtml(label)}</span>
@@ -255,16 +256,15 @@ function renderSetCard(setKey, setArtStore, isNew = false) {
       ? asset.images
       : [asset?.image || UNKNOWN_ITEM_IMAGE];
   const altText = asset?.alt || label;
-  const imageMarkup = imageSources
-    .map((imageSource, index) => {
-      const isFallbackImage = imageSource === UNKNOWN_ITEM_IMAGE;
-      const proxied = proxiedImageUrl(imageSource);
-      const fallbackClass = isFallbackImage ? ' pixelated-image' : '';
-      const activeClass = index === 0 ? ' is-active' : '';
-      const imgAlt = imageSources.length > 1 ? `${altText} view ${index + 1}` : altText;
-      return `<img class="set-card__media-img${activeClass}${fallbackClass}" src="${proxied}" alt="${escapeHtml(imgAlt)}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
-    })
-    .join('');
+  const imageParts = imageSources.map((imageSource, index) => {
+    const isFallbackImage = imageSource === UNKNOWN_ITEM_IMAGE;
+    const proxied = proxiedImageUrl(imageSource);
+    const fallbackClass = isFallbackImage ? ' pixelated-image' : '';
+    const activeClass = index === 0 ? ' is-active' : '';
+    const imgAlt = imageSources.length > 1 ? `${altText} view ${index + 1}` : altText;
+    return `<img class="set-card__media-img${activeClass}${fallbackClass}" src="${proxied}" alt="${escapeHtml(imgAlt)}" loading="lazy" decoding="async" fetchpriority="low" width="56" height="56" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
+  });
+  const imageMarkup = imageParts.join('');
 
   const newBadge = isNew
     ? `<span class=\"set-card__badge\" aria-label=\"New unlock\">New</span>`
@@ -274,7 +274,7 @@ function renderSetCard(setKey, setArtStore, isNew = false) {
   return `
     <article class="set-card${extraClass}" tabindex="0" data-set-key="${setKey}">
       <div class="set-card__media">
-        ${imageMarkup}
+        ${renderRewardModelPreview(setKey, imageMarkup, imageParts)}
       </div>
       <div class="set-card__content">
         <span class="set-card__name">${escapeHtml(label)}</span>
@@ -305,14 +305,16 @@ export function renderTiersSection(tiers, iskall85Tiers = [], iskall85TierConfig
         tiers,
         'Vault Hunters Patreon',
         vaultHuntersTierConfig,
-        vaultHuntersPatreonUrl
+        vaultHuntersPatreonUrl,
+        '?patreons'
       )}
       ${renderTierGroup(
         'Iskall85 Patreon Tiers',
         iskall85Tiers,
         'Iskall85 Patreon',
         iskall85TierConfig,
-        iskall85PatreonUrl
+        iskall85PatreonUrl,
+        '?iskall85-patreons'
       )}
     </section>
   `;
@@ -363,9 +365,11 @@ export function renderTributeSection(tribute) {
   `;
 }
 
-function renderTierGroup(title, tiers, patreonLabel, tierConfig, patreonUrl) {
+function renderTierGroup(title, tiers, patreonLabel, tierConfig, patreonUrl, cardUrl = '') {
   const hasTiers = Array.isArray(tiers) && tiers.length > 0;
-  const items = hasTiers ? tiers.map((tier) => renderTierCard(tier, tierConfig)).join('') : '';
+  const items = hasTiers
+    ? tiers.map((tier) => renderTierCard(tier, tierConfig, cardUrl)).join('')
+    : '';
 
   return `
     <div class="tiers-group">
@@ -379,17 +383,23 @@ function renderTierGroup(title, tiers, patreonLabel, tierConfig, patreonUrl) {
   `;
 }
 
-function renderTierCard(tier, tierConfig) {
+function renderTierCard(tier, tierConfig, cardUrl = '') {
   const label =
     tier && typeof tier === 'object' ? tier.name || formatLabel(tier.id) : formatLabel(tier);
   const tierKey = label.toLowerCase();
   const config = tierConfig?.[tierKey];
+  const content = config
+    ? `<img class="tier-badge pixelated-image" src="${config.badge}" alt="${label} badge" width="24" height="24" onerror="this.onerror=null;this.src='${UNKNOWN_ITEM_IMAGE}'"><span class="tiers-list__label">${label}</span>`
+    : `<img class="tier-badge pixelated-image" src="${UNKNOWN_ITEM_IMAGE}" alt="${label} badge" width="24" height="24"><span class="tiers-list__label">${label}</span>`;
+  const linkedContent = cardUrl
+    ? `<a class="tiers-list__link" href="${cardUrl}" aria-label="View all Vault Hunters Patreons">${content}</a>`
+    : content;
 
   if (config) {
-    return `<li class="tiers-list__item" style="--tier-accent: ${config.color}"><img class="tier-badge pixelated-image" src="${config.badge}" alt="${label} badge" width="24" height="24" onerror="this.onerror=null;this.src='${UNKNOWN_ITEM_IMAGE}'"><span class="tiers-list__label">${label}</span></li>`;
+    return `<li class="tiers-list__item" style="--tier-accent: ${config.color}">${linkedContent}</li>`;
   }
 
-  return `<li class="tiers-list__item"><img class="tier-badge pixelated-image" src="${UNKNOWN_ITEM_IMAGE}" alt="${label} badge" width="24" height="24"><span class="tiers-list__label">${label}</span></li>`;
+  return `<li class="tiers-list__item">${linkedContent}</li>`;
 }
 
 export function renderExtraSection(rewards) {

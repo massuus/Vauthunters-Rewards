@@ -1,0 +1,97 @@
+reward-model-preview {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 72px;
+  isolation: isolate;
+  pointer-events: auto;
+}
+
+.reward-model-output-canvas {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+reward-model-preview.model-ready > :not(.reward-model-output-canvas) {
+  visibility: hidden;
+}
+
+reward-model-preview[data-companion] {
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+reward-model-preview:focus-visible {
+  outline: 2px solid #b9ed7c;
+  outline-offset: -3px;
+}
+
+.reward-card__header > reward-model-preview {
+  flex: 0 0 110px;
+  width: 110px;
+  height: 110px;
+}
+
+.reward-card__header reward-model-preview .reward-card__images {
+  flex-wrap: nowrap;
+}
+
+.reward-card__header reward-model-preview .reward-card__images img {
+  width: 48px;
+  height: 72px;
+}
+
+.set-card__media > reward-model-preview {
+  position: absolute;
+  inset: 0;
+}
+
+.reward-model-mixed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 110px;
+  gap: 0.5rem;
+}
+
+.reward-model-mixed > reward-model-preview {
+  flex: 1;
+  min-width: 0;
+  width: 50%;
+}
+
+.reward-model-mixed > .reward-model-artwork {
+  position: relative;
+  flex: 0 0 35%;
+  width: 35%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.reward-model-artwork > .set-card__media-img,
+.reward-model-artwork > .reward-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.set-card__media > .reward-model-mixed {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+}
+
+.set-card__media .reward-model-mixed > .set-card__media-img {
+  position: relative;
+  inset: auto;
+  width: 45%;
+  height: 100%;
+  opacity: 1;
+  transform: none;
+}

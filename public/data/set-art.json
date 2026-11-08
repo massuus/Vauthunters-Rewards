@@ -697,6 +697,51 @@
     "descriptionLocked": "Obtain this axe as a Soul Champion arena reward or purchase it from the companion shop during Halloween 2026.",
     "category": "Halloween 2026"
   },
+  "patreon_dweller_gear": {
+    "label": "Vault Dweller Gear",
+    "image": "/img/badge/dweller.webp",
+    "alt": "Vault Dweller Patreon badge",
+    "obtainable": true,
+    "descriptionObtained": "Your Vault Dweller Patreon tier unlocks the Dweller Sword, Dweller Axe, and Dread Steps boots.",
+    "descriptionLocked": "Support Vault Hunters at the Vault Dweller Patreon tier or higher to unlock the Dweller Sword, Dweller Axe, and Dread Steps boots.",
+    "category": "Patreon rewards"
+  },
+  "patreon_cheeser_gear": {
+    "label": "Vault Cheeser Gear",
+    "image": "/img/badge/cheeser.webp",
+    "alt": "Vault Cheeser Patreon badge",
+    "obtainable": true,
+    "descriptionObtained": "Your Vault Cheeser Patreon tier unlocks Plunder n Cheese and the four-piece Dark Cheese Warrior armor set.",
+    "descriptionLocked": "Support Vault Hunters at the Vault Cheeser Patreon tier or higher to unlock Plunder n Cheese and the four-piece Dark Cheese Warrior armor set.",
+    "category": "Patreon rewards"
+  },
+  "patreon_goblin_gear": {
+    "label": "Vault Goblin Gear",
+    "image": "/img/badge/goblin.webp",
+    "alt": "Vault Goblin Patreon badge",
+    "obtainable": true,
+    "descriptionObtained": "Your Vault Goblin Patreon tier unlocks Hoarder's Harness and the four-piece Goblin armor set.",
+    "descriptionLocked": "Support Vault Hunters at the Vault Goblin Patreon tier or higher to unlock Hoarder's Harness and the four-piece Goblin armor set.",
+    "category": "Patreon rewards"
+  },
+  "patreon_champion_gear": {
+    "label": "Vault Champion Gear",
+    "image": "/img/badge/champion.webp",
+    "alt": "Vault Champion Patreon badge",
+    "obtainable": true,
+    "descriptionObtained": "Your Vault Champion Patreon tier unlocks the Godaxe, Triumphant Crown, and the four-piece Champion armor set.",
+    "descriptionLocked": "Support Vault Hunters at the Vault Champion Patreon tier to unlock the Godaxe, Triumphant Crown, and the four-piece Champion armor set.",
+    "category": "Patreon rewards"
+  },
+  "patreon_legend_pet": {
+    "label": "Slimey Pet",
+    "image": "/img/badge/legend.webp",
+    "alt": "Slimey, the Vault Legend Patreon pet",
+    "obtainable": true,
+    "descriptionObtained": "Your Vault Legend Patreon tier unlocks the Slimey pet.",
+    "descriptionLocked": "Support Vault Hunters at the Vault Legend Patreon tier to unlock the Slimey pet.",
+    "category": "Patreon rewards"
+  },
   "golden_club": {
     "label": "Golden Club",
     "image": "/img/golf_club.png",

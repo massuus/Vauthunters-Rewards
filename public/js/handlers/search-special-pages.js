@@ -13,6 +13,10 @@ import {
   isCodesQuery,
   isDevelopersQuery,
   renderDevelopersPage,
+  isPatreonsQuery,
+  renderPatreonsPage,
+  isIskall85PatreonsQuery,
+  renderIskall85PatreonsPage,
   isPrivacyQuery,
   renderPrivacyPage,
   isAllQuery,
@@ -100,6 +104,58 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
       scrollToResults();
     } catch {
       showFeedback('Unable to load developers right now. Please try again.', 'error');
+    } finally {
+      setLoadingState(false);
+    }
+    return true;
+  }
+
+  if (isPatreonsQuery(username)) {
+    recentContainer?.classList.add('hidden');
+    if (recentContainer) recentContainer.innerHTML = '';
+    setLoadingState(true);
+    try {
+      await renderPatreonsPage(
+        resultContainer,
+        setFavicon,
+        setMetaDescription,
+        closeOpenModal,
+        updateQueryString,
+        proxiedImageUrl,
+        escapeHtml,
+        DEFAULT_FAVICON,
+        usernameInput,
+        form
+      );
+      scrollToResults();
+    } catch {
+      showFeedback('Unable to load Patreons right now. Please try again.', 'error');
+    } finally {
+      setLoadingState(false);
+    }
+    return true;
+  }
+
+  if (isIskall85PatreonsQuery(username)) {
+    recentContainer?.classList.add('hidden');
+    if (recentContainer) recentContainer.innerHTML = '';
+    setLoadingState(true);
+    try {
+      await renderIskall85PatreonsPage(
+        resultContainer,
+        setFavicon,
+        setMetaDescription,
+        closeOpenModal,
+        updateQueryString,
+        proxiedImageUrl,
+        escapeHtml,
+        DEFAULT_FAVICON,
+        usernameInput,
+        form
+      );
+      scrollToResults();
+    } catch {
+      showFeedback('Unable to load Iskall85 Patreons right now. Please try again.', 'error');
     } finally {
       setLoadingState(false);
     }

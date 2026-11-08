@@ -1,0 +1,33 @@
+{
+  "baby_creeper_gold": ["baby_creeper", "baby_creeper", "gold_baby_creeper"],
+  "baby_creeper_pog": ["baby_creeper_pog", "baby_creeper", "pog_baby_creeper"],
+  "i85_companion_dino": ["dino", "dino", "skallibomba"],
+  "i85_dylan_penguin": ["dylan_penguin", "dylan_penguin", "dylan_penguin"],
+  "pink_dylan": ["dylan", "dylan", "companion/dylan_pink"],
+  "golden_dylan": ["dylan", "dylan", "companion/dylan_gold"],
+  "bumbo_cactoni": ["bumbo_cactoni", "bumbo_cactoni", "companion/bumbo_cactoni"],
+  "golden_bumbo_cactoni": ["bumbo_cactoni", "bumbo_cactoni", "companion/bumbo_cactoni_golden"],
+  "carrot": ["carrot", "carrot", "companion/carrot"],
+  "tommy": ["villager", "villager", "companion/tommy"],
+  "greg": ["greg", "greg", "companion/greg"],
+  "i85_xmas_day3": ["companion/dylan_santa", "dylan", "companion/dylan_santa"],
+  "gingerbread_man": ["companion/gingerbread_man", "gingerbread_man", "companion/gingerbread_man"],
+  "bumbo_frostoni": ["companion/bumbo_frostoni", "bumbo_frostoni", "companion/bumbo_frostoni"],
+  "blueberry_turtle": [
+    "companion/blueberry_turtle",
+    "blueberry_turtle",
+    "companion/blueberry_turtle"
+  ],
+  "valentines_teddy": ["companion/teddy", "teddy", "companion/teddy"],
+  "muddy_elephant": ["companion/muddy_elephant", "elephant", "companion/muddy_elephant"],
+  "mini_dweller": ["companion/mini_dweller", "mini_dweller", "companion/mini_dweller"],
+  "mini_butcher": ["companion/mini_butcher", "mini_butcher", "companion/mini_butcher"],
+  "mini_elite_witherskelly": [
+    "companion/mini_elite_witherskelly",
+    "mini_elite_witherskelly",
+    "companion/mini_elite_witherskelly"
+  ],
+  "mini_goblin": ["companion/mini_goblin", "mini_goblin", "companion/mini_goblin"],
+  "halloween_pumpkin": ["bumbo_pumpkini", "bumbo_pumpkini", "companion/bumbo_pumpkini"],
+  "patreon_legend_pet": ["companion/slimey", "slimey", "companion/slimey"]
+}

@@ -1,5 +1,10 @@
 // Special pages barrel exports
 export { isDevelopersQuery, renderDevelopersPage } from './special-pages/developers-page.js';
+export { isPatreonsQuery, renderPatreonsPage } from './special-pages/patreons-page.js';
+export {
+  isIskall85PatreonsQuery,
+  renderIskall85PatreonsPage,
+} from './special-pages/iskall85-patreons-page.js';
 export { isPrivacyQuery, renderPrivacyPage } from './special-pages/privacy-page.js';
 
 export {

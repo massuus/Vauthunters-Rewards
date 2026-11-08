@@ -1,4 +1,5 @@
 import { getRewardOrder, saveRewardOrder } from '../utils/storage-manager.js';
+import { compareRewardTypes, rewardType } from '../features/reward-types.js';
 import { compareRewardCategories } from '../features/reward-categories.js';
 import { getSetArtStore } from './set-art-manager.js';
 import { resultContainer, usernameInput, form } from '../utils/dom-utils.js';
@@ -86,7 +87,7 @@ export function bindSetCardHandlers() {
     card.addEventListener('blur', () => setPeekState(false));
 
     card.addEventListener('keydown', (event) => {
-      if (event.target.closest('a, details')) {
+      if (event.target.closest('a, details, button, reward-model-preview')) {
         return;
       }
 
@@ -97,7 +98,7 @@ export function bindSetCardHandlers() {
     });
 
     card.addEventListener('click', (event) => {
-      if (event.target.closest('a, details')) {
+      if (event.target.closest('a, details, button, reward-model-preview')) {
         return;
       }
 
@@ -113,7 +114,7 @@ export function bindSetCardHandlers() {
     });
 
     const mediaImages = card.querySelectorAll('.set-card__media-img');
-    if (mediaImages.length > 1) {
+    if (mediaImages.length > 1 && !card.querySelector('.reward-model-mixed')) {
       let currentIndex = 0;
       const timerId = window.setInterval(() => {
         mediaImages[currentIndex].classList.remove('is-active');
@@ -189,23 +190,29 @@ export function bindRewardSort() {
   const art = getSetArtStore();
   const applyOrder = () => {
     for (const { grid, cards } of originals) {
-      if (select.value !== 'category') {
+      if (select.value !== 'type' && select.value !== 'category') {
         grid.replaceChildren(...(select.value === 'newest' ? [...cards].reverse() : cards));
         continue;
       }
       const groups = new Map();
       for (const card of cards) {
-        const category = art[card.dataset.setKey]?.category || 'Other rewards';
-        if (!groups.has(category)) groups.set(category, []);
-        groups.get(category).push(card);
+        const data = art[card.dataset.setKey] || {};
+        const group =
+          select.value === 'type'
+            ? rewardType(card.dataset.setKey, data)
+            : data.category ||
+              (card.dataset.setKey.startsWith('patreon_') ? 'Patreon rewards' : 'Other rewards');
+        if (!groups.has(group)) groups.set(group, []);
+        groups.get(group).push(card);
       }
       const fragment = document.createDocumentFragment();
-      const categories = [...groups.keys()].sort(compareRewardCategories);
-      for (const category of categories) {
+      const compare = select.value === 'type' ? compareRewardTypes : compareRewardCategories;
+      const groupNames = [...groups.keys()].sort(compare);
+      for (const group of groupNames) {
         const heading = document.createElement('h4');
         heading.className = 'profile-reward-category';
-        heading.textContent = `${category} (${groups.get(category).length})`;
-        fragment.append(heading, ...groups.get(category));
+        heading.textContent = `${group} (${groups.get(group).length})`;
+        fragment.append(heading, ...groups.get(group));
       }
       grid.replaceChildren(fragment);
     }

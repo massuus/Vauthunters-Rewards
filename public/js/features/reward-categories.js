@@ -1,5 +1,6 @@
 const CATEGORY_ORDER = [
   'Special gifts',
+  'Patreon rewards',
   'Eternal progression',
   'Season 3 pass',
   'Halloween 2026',

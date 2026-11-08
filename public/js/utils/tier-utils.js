@@ -8,6 +8,14 @@ const TIER_CONFIG = {
   'vault dweller': { rank: 1, color: '#dc1717', badge: '/img/badge/dweller.webp' },
 };
 
+const PATREON_REWARD_SETS = [
+  'patreon_dweller_gear',
+  'patreon_cheeser_gear',
+  'patreon_goblin_gear',
+  'patreon_champion_gear',
+  'patreon_legend_pet',
+];
+
 /**
  * Get the best (highest rank) Patreon tier from an array of tiers
  * @param {Array} tiers - Array of tier objects or strings
@@ -44,4 +52,10 @@ export function getBestPatreonTier(tiers) {
  */
 export function getTierConfig() {
   return TIER_CONFIG;
+}
+
+export function getPatreonRewardSets(tiers) {
+  const best = getBestPatreonTier(tiers);
+  if (!best) return [];
+  return PATREON_REWARD_SETS.slice(0, Math.min(best.rank, PATREON_REWARD_SETS.length));
 }

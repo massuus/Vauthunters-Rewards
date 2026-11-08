@@ -1,0 +1,92 @@
+{
+  "main": [
+    {
+      "id": "mainlayer-1",
+      "name": "head",
+      "parent": "root",
+      "pivot": [0.0, 0.0, 0.0],
+      "rotation": [0, 0, 0],
+      "cubes": []
+    },
+    {
+      "id": "mainlayer-2",
+      "name": "SantaHat",
+      "parent": "mainlayer-1",
+      "pivot": [0.0, -10.5825, 1.2783],
+      "rotation": [0, 0, 0],
+      "cubes": []
+    },
+    {
+      "id": "mainlayer-3",
+      "name": "cube_r1",
+      "parent": "mainlayer-2",
+      "pivot": [0.0, 34.8132, -3.9954],
+      "rotation": [-0.0873, 0.0, 0.0],
+      "cubes": [
+        {
+          "from": [-5.0, -34.0, -5.0],
+          "size": [10.0, 3.0, 10.0],
+          "inflate": 0.0,
+          "uv": [0, 0],
+          "mirror": false
+        }
+      ]
+    },
+    {
+      "id": "mainlayer-4",
+      "name": "cube_r2",
+      "parent": "mainlayer-2",
+      "pivot": [0.0, 0.594, -5.0169],
+      "rotation": [-0.3054, 0.0, 0.0],
+      "cubes": [
+        {
+          "from": [-4.0, -4.0, 0.0],
+          "size": [8.0, 4.0, 8.0],
+          "inflate": 0.0,
+          "uv": [0, 14],
+          "mirror": false
+        }
+      ]
+    },
+    {
+      "id": "mainlayer-5",
+      "name": "cube_r3",
+      "parent": "mainlayer-2",
+      "pivot": [0.0, 34.8132, -3.9954],
+      "rotation": [-0.0873, 0.0, 0.0],
+      "cubes": [
+        {
+          "from": [-2.0, -39.0, -1.0],
+          "size": [4.0, 3.0, 7.0],
+          "inflate": 0.0,
+          "uv": [0, 27],
+          "mirror": false
+        }
+      ]
+    },
+    {
+      "id": "mainlayer-6",
+      "name": "Bauble",
+      "parent": "mainlayer-2",
+      "pivot": [0.0, -0.7594, 6.3318],
+      "rotation": [0, 0, 0],
+      "cubes": []
+    },
+    {
+      "id": "mainlayer-7",
+      "name": "cube_r4",
+      "parent": "mainlayer-6",
+      "pivot": [0.0, 23.263, -30.6159],
+      "rotation": [-0.6981, 0.0, 0.0],
+      "cubes": [
+        {
+          "from": [-2.5, -40.0, 6.0],
+          "size": [5.0, 5.0, 5.0],
+          "inflate": 0.0,
+          "uv": [23, 27],
+          "mirror": false
+        }
+      ]
+    }
+  ]
+}

@@ -82,9 +82,6 @@ async function copyPublicAssets() {
   // Ensure dist directory exists
   await fs.mkdir(distDir, { recursive: true });
 
-  // Process CSS separately
-  await processCss();
-
   // Files to copy (non-JS and non-CSS files)
   const filesToCopy = [
     '_headers',
@@ -123,6 +120,9 @@ async function copyPublicAssets() {
       }
     }
   }
+
+  // Process after copying so the optimized stylesheet is not overwritten.
+  await processCss();
 
   // Serve Swagger UI locally under the existing same-origin content policy.
   const swaggerDir = path.join(distDir, 'swagger');
@@ -193,19 +193,16 @@ async function build() {
       await fs.rm(distDir, { recursive: true, force: true });
     } catch {}
 
+    // Copy first: source JS must not overwrite esbuild's bundled entry points.
+    await copyPublicAssets();
+
     // Build with esbuild
     if (watch) {
       const ctx = await esbuild.context(config);
       await ctx.watch();
       console.log('Watching for changes...');
-
-      // Copy assets once
-      await copyPublicAssets();
     } else {
       const result = await esbuild.build(config);
-
-      // Copy non-JS assets
-      await copyPublicAssets();
 
       // Update HTML references
       await updateHtmlReferences();

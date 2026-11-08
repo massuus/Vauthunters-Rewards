@@ -9,6 +9,8 @@ const SPECIAL_ROUTES = new Set([
   'badges',
   'stats',
   'privacy',
+  'patreons',
+  'iskall85-patreons',
 ]);
 
 function getActiveRoute() {

@@ -1,0 +1,318 @@
+{
+  "baby_creeper_gold": {
+    "model": "golden-baby-creeper",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "baby_creeper_pog": {
+    "model": "baby-creeper-pog",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "i85_companion_dino": {
+    "model": "i85-companion-dino",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "i85_dylan_penguin": {
+    "model": "i85-dylan-penguin",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "pink_dylan": {
+    "model": "pink-dylan",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "golden_dylan": {
+    "model": "golden-dylan",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "bumbo_cactoni": {
+    "model": "bumbo-cactoni",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "golden_bumbo_cactoni": {
+    "model": "golden-bumbo-cactoni",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "carrot": {
+    "model": "carrot",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "tommy": {
+    "model": "tommy",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "greg": {
+    "model": "greg",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "i85_xmas_day3": {
+    "model": "i85-xmas-day3",
+    "companion": true,
+    "firstImageOnly": true
+  },
+  "gingerbread_man": {
+    "model": "gingerbread-man",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "bumbo_frostoni": {
+    "model": "bumbo-frostoni",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "blueberry_turtle": {
+    "model": "blueberry-turtle",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "valentines_teddy": {
+    "model": "valentines-teddy",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "muddy_elephant": {
+    "model": "muddy-elephant",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "mini_dweller": {
+    "model": "mini-dweller",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "mini_butcher": {
+    "model": "mini-butcher",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "mini_elite_witherskelly": {
+    "model": "mini-elite-witherskelly",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "mini_goblin": {
+    "model": "mini-goblin",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "halloween_pumpkin": {
+    "model": "halloween-pumpkin",
+    "companion": true,
+    "firstImageOnly": false,
+    "additionalModel": "halloween-pumpkin-weapon"
+  },
+  "patreon_legend_pet": {
+    "model": "patreon-legend-pet",
+    "companion": true,
+    "firstImageOnly": false
+  },
+  "golden_kappa": {
+    "model": "golden-kappa",
+    "companion": false
+  },
+  "iskall85_reddragon_axe": {
+    "model": "iskall85-reddragon-axe",
+    "companion": false
+  },
+  "iskall85_reddragon_sword": {
+    "model": "iskall85-reddragon-sword",
+    "companion": false
+  },
+  "i85_mattress": {
+    "model": "i85-mattress",
+    "companion": false
+  },
+  "i85_petal_splitter": {
+    "model": "i85-petal-splitter",
+    "companion": false
+  },
+  "i85_twin_blade": {
+    "model": "i85-twin-blade",
+    "companion": false
+  },
+  "forsaken_axe": {
+    "model": "forsaken-axe",
+    "companion": false
+  },
+  "forsaken_sword": {
+    "model": "forsaken-sword",
+    "companion": false
+  },
+  "midnight_thorn": {
+    "model": "midnight-thorn",
+    "companion": false
+  },
+  "lamenting_mirror": {
+    "model": "lamenting-mirror",
+    "companion": false
+  },
+  "nocturn_shield": {
+    "model": "nocturn-shield",
+    "companion": false
+  },
+  "arry_axe": {
+    "model": "arry-axe",
+    "companion": false
+  },
+  "never_ever": {
+    "model": "never-ever",
+    "companion": false
+  },
+  "i85_100stream": {
+    "model": "i85-100stream",
+    "companion": false
+  },
+  "nutcracker_wand": {
+    "model": "nutcracker-wand",
+    "companion": false
+  },
+  "christmas_fireplace": {
+    "model": "christmas-fireplace",
+    "companion": false
+  },
+  "lost_christmas_axe": {
+    "model": "lost-christmas-axe",
+    "companion": false
+  },
+  "buster_sword": {
+    "model": "buster-sword",
+    "companion": false
+  },
+  "i85_spring_set": {
+    "model": "i85-spring-set",
+    "companion": false
+  },
+  "terra_offhands": {
+    "model": "terra-offhands",
+    "companion": false
+  },
+  "terra_weapons": {
+    "model": "terra-weapons",
+    "companion": false
+  },
+  "golden_club": {
+    "model": "golden-club",
+    "companion": false
+  },
+  "i85_treasure_train": {
+    "model": "i85-treasure-train",
+    "companion": false
+  },
+  "i85_server_bingos": {
+    "model": "i85-server-bingos",
+    "companion": false
+  },
+  "iskall85_falcon_helmet": {
+    "model": "iskall85-falcon-helmet",
+    "companion": false
+  },
+  "iskall85_falcon_chestplate": {
+    "model": "iskall85-falcon-chestplate",
+    "companion": false
+  },
+  "iskall85_ancient_scroll": {
+    "model": "iskall85-ancient-scroll",
+    "companion": false
+  },
+  "doomslayer": {
+    "model": "doomslayer",
+    "companion": false
+  },
+  "sculk_set": {
+    "model": "sculk-set",
+    "companion": false
+  },
+  "essence_of_iskallium": {
+    "model": "essence-of-iskallium",
+    "companion": false
+  },
+  "hypefuse_scepter": {
+    "model": "hypefuse-scepter",
+    "companion": false
+  },
+  "green_christmas_hat": {
+    "model": "green-christmas-hat",
+    "companion": false
+  },
+  "xmas_dayfour_chest": {
+    "model": "xmas-dayfour-chest",
+    "companion": false
+  },
+  "snowman_helmet": {
+    "model": "snowman-helmet",
+    "companion": false
+  },
+  "girl_boss": {
+    "model": "girl-boss",
+    "companion": false
+  },
+  "hellboy_head": {
+    "model": "hellboy-head",
+    "companion": false
+  },
+  "retirement": {
+    "model": "retirement",
+    "companion": false
+  },
+  "terra_armor": {
+    "model": "terra-armor",
+    "companion": false
+  },
+  "striker": {
+    "model": "striker",
+    "companion": false
+  },
+  "forsaken_set": {
+    "model": "forsaken-set",
+    "companion": false
+  },
+  "halloween_magnet": {
+    "model": "halloween-magnet",
+    "companion": false
+  },
+  "bat_chestplate_transmog": {
+    "model": "bat-chestplate-transmog",
+    "companion": false
+  },
+  "bat_axe_transmog": {
+    "model": "bat-axe-transmog",
+    "companion": false
+  },
+  "i85_royale_crown": {
+    "model": "i85-royale-crown",
+    "companion": false
+  },
+  "companion_leader_s1": {
+    "model": "companion-leader-s1",
+    "companion": false
+  },
+  "dylan_vip": {
+    "model": "dylan-vip",
+    "companion": false
+  },
+  "patreon_dweller_gear": {
+    "model": "patreon-dweller-gear",
+    "companion": false
+  },
+  "patreon_cheeser_gear": {
+    "model": "patreon-cheeser-gear",
+    "companion": false
+  },
+  "patreon_goblin_gear": {
+    "model": "patreon-goblin-gear",
+    "companion": false
+  },
+  "patreon_champion_gear": {
+    "model": "patreon-champion-gear",
+    "companion": false
+  }
+}

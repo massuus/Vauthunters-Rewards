@@ -3,8 +3,9 @@ import {
   getLockedRewardDescription,
   renderRewardShop,
 } from '../../features/reward-shop.js';
-import { compareRewardCategories } from '../../features/reward-categories.js';
+import { compareRewardTypes, rewardType } from '../../features/reward-types.js';
 import { buildCodesLinkedHtml } from '../../features/reward-utils.js';
+import { renderRewardModelPreview } from '../../features/reward-model-preview.js';
 
 const ALL_QUERY_KEYWORDS = ['all', 'rewards'];
 const SET_ART_DATA_URL = '/data/set-art.json';
@@ -57,19 +58,19 @@ async function fetchApiSets() {
 export function groupRewards(entries) {
   const groups = new Map();
   for (const entry of entries) {
-    const category = entry[1]?.category || 'Other rewards';
-    if (!groups.has(category)) groups.set(category, []);
-    groups.get(category).push(entry);
+    const type = rewardType(entry[0], entry[1]);
+    if (!groups.has(type)) groups.set(type, []);
+    groups.get(type).push(entry);
   }
-  return [...groups.entries()].sort(([a], [b]) => compareRewardCategories(a, b));
+  return [...groups.entries()].sort(([a], [b]) => compareRewardTypes(a, b));
 }
 
 function renderRewardGroups(entries, unavailable, proxiedImageUrl, escapeHtml, formatLabel) {
   return groupRewards(entries)
     .map(
-      ([category, rewards]) => `
+      ([type, rewards]) => `
     <section class="reward-category">
-      <h4 class="reward-category__title">${escapeHtml(category)} <span>(${rewards.length})</span></h4>
+      <h4 class="reward-category__title">${escapeHtml(type)} <span>(${rewards.length})</span></h4>
       <div class="rewards-grid${unavailable ? ' rewards-grid--unavailable' : ''}">
         ${rewards.map(([key, data]) => renderRewardCard(key, data, proxiedImageUrl, escapeHtml, formatLabel)).join('')}
       </div>
@@ -94,14 +95,13 @@ function renderRewardCard(setKey, setData, proxiedImageUrl, escapeHtml, formatLa
   }
 
   // Generate image HTML for all images
-  const imagesHtml = imageSources
-    .map((imageSource) => {
-      const safeImage = proxiedImageUrl(imageSource);
-      const isFallback = imageSource === '/img/unknown_item.png';
-      const fallbackClass = isFallback ? ' class="pixelated-image"' : '';
-      return `<img${fallbackClass} src="${safeImage}" alt="${escapeHtml(label)} icon" loading="lazy" decoding="async" width="72" height="72">`;
-    })
-    .join('');
+  const imageParts = imageSources.map((imageSource) => {
+    const safeImage = proxiedImageUrl(imageSource);
+    const isFallback = imageSource === '/img/unknown_item.png';
+    const fallbackClass = isFallback ? ' class="pixelated-image"' : '';
+    return `<img${fallbackClass} src="${safeImage}" alt="${escapeHtml(label)} icon" loading="lazy" decoding="async" width="72" height="72">`;
+  });
+  const imagesHtml = imageParts.join('');
 
   // Wrap images in container if there are multiple
   const imagesContainer =
@@ -113,7 +113,7 @@ function renderRewardCard(setKey, setData, proxiedImageUrl, escapeHtml, formatLa
   return `
     <article class="reward-card">
       <div class="reward-card__header">
-        ${imagesContainer}
+        ${renderRewardModelPreview(setKey, imagesContainer, imageParts)}
         <h3>${safeName}</h3>
       </div>
       <p class="reward-card__description">${safeDescription}</p>
@@ -203,7 +203,7 @@ export async function renderAllRewardsPage(
       <section class="all-rewards-page" aria-live="polite">
         <header class="all-rewards-page__intro">
           <h2 class="all-rewards-page__title">All Vault Hunters Rewards</h2>
-          <p class="all-rewards-page__lead">Browse every reward in Vault Hunters, grouped by season, event, or how you unlock it.</p>
+          <p class="all-rewards-page__lead">Browse every reward in Vault Hunters, grouped by reward type.</p>
           <p class="all-rewards-page__subtext">Total rewards: ${entries.length} (${obtainableRewards.length} obtainable, ${unobtainableRewards.length} unavailable, ${upcomingRewards.length} coming soon)</p>
         </header>
 
