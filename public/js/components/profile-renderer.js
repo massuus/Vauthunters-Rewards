@@ -17,13 +17,16 @@ import { escapeHtml, augmentSets } from '../features/reward-utils.js';
 import { loadSetArt, getSetArtStore, closeSetDetailModal } from './set-art-manager.js';
 import { getShareUrl } from '../features/url-state.js';
 import { getSeenSets, setSeenSets, addRecentUser } from '../utils/storage-manager.js';
-import { getBestPatreonTier, getPatreonRewardSets } from '../utils/tier-utils.js';
+import {
+  addPatreonIndividualRewards,
+  getBestPatreonTier,
+  getPatreonRewardSets,
+} from '../utils/tier-utils.js';
 import { fetchOfficialServers, findServerByPlayerName } from '../features/official-servers.js';
 import {
   renderSetsSection,
   renderMissingRewardsSection,
   renderTiersSection,
-  renderExtraSection,
   renderCompanionStatsSection,
 } from './profile-sections.js';
 import {
@@ -135,8 +138,10 @@ export async function renderProfile(
   const originalSets = Array.isArray(rewardView.sets) ? rewardView.sets : [];
   const sets = augmentSets([...originalSets, ...getPatreonRewardSets(tiers)]);
   const iskall85Tiers = Array.isArray(data.iskall85Tier) ? data.iskall85Tier : [];
-  const rewards =
-    rewardView.rewards && typeof rewardView.rewards === 'object' ? rewardView.rewards : {};
+  const rewards = addPatreonIndividualRewards(
+    rewardView.rewards && typeof rewardView.rewards === 'object' ? rewardView.rewards : {},
+    tiers
+  );
   const leaderboardPlace = data?.leaderboardPlace || null;
   const isUnlinked = data.minecraftLinked === false;
   const searchName = isUnlinked ? `twitch:${data.twitchUsername}` : data.name;
@@ -151,10 +156,9 @@ export async function renderProfile(
       ? new Set(sets.filter((s) => !previouslySeen.has(s)))
       : new Set();
 
-  const setsSection = renderSetsSection(sets, setsHelpTemplate, newSetKeys);
+  const setsSection = renderSetsSection(sets, setsHelpTemplate, newSetKeys, rewards);
   const missingRewardsSection = renderMissingRewardsSection(sets, setArtStore);
   const tiersSection = renderTiersSection(tiers, iskall85Tiers, ISKALL85_TIER_CONFIG);
-  const extraSection = renderExtraSection(rewards);
   const companionStatsSection = renderCompanionStatsSection(data?.companionStats, data?.name);
   const shareUrl = getShareUrl(searchName);
 
@@ -198,8 +202,7 @@ export async function renderProfile(
     companionStatsSection +
     setsSection +
     missingRewardsSection +
-    tiersSection +
-    extraSection;
+    tiersSection;
 
   const devToggle = resultContainer.querySelector('[data-dev-toggle]');
   devToggle?.addEventListener('click', () => {
@@ -250,7 +253,6 @@ export async function renderProfile(
     setMetaDescription(`Vault Hunters rewards for ${data.name}: sets, tiers, and more.`);
   }
 
-  bindDisclosureToggle('extra-toggle', 'extra-panel');
   bindDisclosureToggle('unlocks-toggle', 'unlocks-panel');
   bindDisclosureToggle('missing-obtainable-toggle', 'missing-obtainable-panel');
   bindDisclosureToggle('missing-upcoming-toggle', 'missing-upcoming-panel');

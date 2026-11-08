@@ -9,6 +9,33 @@ import {
   companionState,
 } from '../public/js/features/reward-model-animation.js';
 import { renderRewardModelPreview } from '../public/js/features/reward-model-preview.js';
+import individualRewardModels from '../public/js/features/individual-reward-model-catalog.js';
+
+test('every known individual reward points to a valid extracted model or armor piece', async () => {
+  assert.equal(Object.keys(individualRewardModels).length, 119);
+  const bundles = new Map();
+  for (const [path, preview] of Object.entries(individualRewardModels)) {
+    assert.match(path, /^the_vault:/);
+    if (!bundles.has(preview.model)) {
+      bundles.set(
+        preview.model,
+        JSON.parse(
+          await readFile(new URL(`../public/data/models/${preview.model}.json`, import.meta.url))
+        )
+      );
+    }
+    const bundle = bundles.get(preview.model);
+    if (preview.companion) {
+      assert.equal(bundle.kind, 'companion', `${path} uses a companion model`);
+      continue;
+    }
+    const model = bundle.models?.[preview.modelIndex];
+    assert.ok(model, `${path} has model index ${preview.modelIndex}`);
+    if (preview.outfitPiece !== null) {
+      assert.ok(model.outfit?.[preview.outfitPiece], `${path} has its armor slot`);
+    }
+  }
+});
 
 function pngSize(source) {
   const bytes = Buffer.from(source.split(',', 2)[1], 'base64');

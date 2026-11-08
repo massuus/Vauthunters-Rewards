@@ -1,4 +1,5 @@
 import PREVIEWS from './reward-model-catalog.js';
+import INDIVIDUAL_PREVIEWS from './individual-reward-model-catalog.js';
 
 export function renderRewardModelPreview(key, fallback, images = []) {
   const preview = PREVIEWS[key];
@@ -16,6 +17,13 @@ export function renderRewardModelPreview(key, fallback, images = []) {
     return `<div class="reward-model-mixed">${wrap('')}<div class="reward-model-artwork">${fallback}</div></div>`;
   }
   return wrap('');
+}
+
+export function renderIndividualRewardModelPreview(path) {
+  const preview = INDIVIDUAL_PREVIEWS[String(path || '').toLowerCase()];
+  if (!preview) return '';
+  const piece = preview.outfitPiece === null ? '' : ` data-outfit-piece="${preview.outfitPiece}"`;
+  return `<reward-model-preview data-model="${preview.model}" data-model-index="${preview.modelIndex}"${piece}${preview.companion ? ' data-companion' : ''}></reward-model-preview>`;
 }
 
 export function initRewardModelPreviews() {

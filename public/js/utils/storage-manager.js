@@ -85,13 +85,14 @@ let rewardOrder = 'newest';
 export function getRewardOrder() {
   try {
     const saved = localStorage.getItem(REWARD_ORDER_KEY);
-    if (['category', 'type', 'unlocked', 'newest'].includes(saved)) rewardOrder = saved;
+    if (saved === 'type') rewardOrder = 'individual';
+    else if (['category', 'individual', 'unlocked', 'newest'].includes(saved)) rewardOrder = saved;
   } catch {}
   return rewardOrder;
 }
 
 export function saveRewardOrder(value) {
-  rewardOrder = ['category', 'type', 'newest', 'unlocked'].includes(value) ? value : 'newest';
+  rewardOrder = ['category', 'individual', 'newest', 'unlocked'].includes(value) ? value : 'newest';
   try {
     localStorage.setItem(REWARD_ORDER_KEY, rewardOrder);
   } catch {}

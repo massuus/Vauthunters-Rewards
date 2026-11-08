@@ -59,3 +59,55 @@ export function getPatreonRewardSets(tiers) {
   if (!best) return [];
   return PATREON_REWARD_SETS.slice(0, Math.min(best.rank, PATREON_REWARD_SETS.length));
 }
+
+const PATREON_INDIVIDUAL_REWARDS = [
+  {
+    'the_vault:boots': ['the_vault:gear/armor/dread_steps/boots'],
+    'the_vault:sword': ['the_vault:gear/sword/dweller_sword'],
+    'the_vault:axe': ['the_vault:gear/axe/dweller_axe'],
+  },
+  {
+    'the_vault:helmet': ['the_vault:gear/armor/darkcheesewarrior/helmet'],
+    'the_vault:chestplate': ['the_vault:gear/armor/darkcheesewarrior/chestplate'],
+    'the_vault:leggings': ['the_vault:gear/armor/darkcheesewarrior/leggings'],
+    'the_vault:boots': ['the_vault:gear/armor/darkcheesewarrior/boots'],
+    'the_vault:sword': ['the_vault:gear/sword/plunder_n_cheese'],
+  },
+  {
+    'the_vault:helmet': ['the_vault:gear/armor/goblin/helmet'],
+    'the_vault:chestplate': [
+      'the_vault:gear/armor/goblin/chestplate',
+      'the_vault:gear/armor/hoarders_harness/chestplate',
+    ],
+    'the_vault:leggings': ['the_vault:gear/armor/goblin/leggings'],
+    'the_vault:boots': ['the_vault:gear/armor/goblin/boots'],
+  },
+  {
+    'the_vault:helmet': [
+      'the_vault:gear/armor/champion/helmet',
+      'the_vault:gear/armor/triumphant_crown/helmet',
+    ],
+    'the_vault:chestplate': ['the_vault:gear/armor/champion/chestplate'],
+    'the_vault:leggings': ['the_vault:gear/armor/champion/leggings'],
+    'the_vault:boots': ['the_vault:gear/armor/champion/boots'],
+    'the_vault:axe': ['the_vault:gear/axe/godaxe'],
+  },
+  { 'the_vault:companion': ['the_vault:slimey'] },
+];
+
+export function addPatreonIndividualRewards(rewards, tiers) {
+  const merged = Object.fromEntries(
+    Object.entries(rewards || {}).map(([category, items]) => [
+      category,
+      Array.isArray(items) ? [...items] : [],
+    ])
+  );
+  const best = getBestPatreonTier(tiers);
+  if (!best) return merged;
+  for (const tierRewards of PATREON_INDIVIDUAL_REWARDS.slice(0, best.rank)) {
+    for (const [category, items] of Object.entries(tierRewards)) {
+      merged[category] = Array.from(new Set([...(merged[category] || []), ...items]));
+    }
+  }
+  return merged;
+}

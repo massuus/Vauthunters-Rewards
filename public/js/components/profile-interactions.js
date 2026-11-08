@@ -1,5 +1,4 @@
 import { getRewardOrder, saveRewardOrder } from '../utils/storage-manager.js';
-import { compareRewardTypes, rewardType } from '../features/reward-types.js';
 import { compareRewardCategories } from '../features/reward-categories.js';
 import { getSetArtStore } from './set-art-manager.js';
 import { resultContainer, usernameInput, form } from '../utils/dom-utils.js';
@@ -181,16 +180,30 @@ export function bindDisclosureToggle(toggleId, panelId) {
 
 export function bindRewardSort() {
   const select = resultContainer.querySelector('[data-reward-sort]');
+  const individualGrid = resultContainer.querySelector('[data-individual-rewards]');
+  const rewardsTitle = resultContainer.querySelector('[data-rewards-title]');
+  const unlockedGrid = resultContainer.querySelector('#profile-unlocked-rewards');
   const grids = [
     ...resultContainer.querySelectorAll('#profile-unlocked-rewards, [data-sortable-rewards]'),
   ];
   if (!select || !grids.length) return;
   // Preserve the API's original unlock order and the cards' existing handlers.
   const originals = grids.map((grid) => ({ grid, cards: [...grid.children] }));
+  const unlockedCount = originals.find(({ grid }) => grid === unlockedGrid)?.cards.length || 0;
   const art = getSetArtStore();
   const applyOrder = () => {
+    const showIndividuals = select.value === 'individual';
+    individualGrid?.classList.toggle('hidden', !showIndividuals);
+    unlockedGrid?.classList.toggle('hidden', showIndividuals);
+    if (rewardsTitle) {
+      rewardsTitle.textContent = showIndividuals
+        ? `Individual Rewards (${individualGrid?.dataset.rewardCount || 0})`
+        : `Vault Sets (${unlockedCount})`;
+    }
+    if (showIndividuals) return;
+
     for (const { grid, cards } of originals) {
-      if (select.value !== 'type' && select.value !== 'category') {
+      if (select.value !== 'category') {
         grid.replaceChildren(...(select.value === 'newest' ? [...cards].reverse() : cards));
         continue;
       }
@@ -198,16 +211,13 @@ export function bindRewardSort() {
       for (const card of cards) {
         const data = art[card.dataset.setKey] || {};
         const group =
-          select.value === 'type'
-            ? rewardType(card.dataset.setKey, data)
-            : data.category ||
-              (card.dataset.setKey.startsWith('patreon_') ? 'Patreon rewards' : 'Other rewards');
+          data.category ||
+          (card.dataset.setKey.startsWith('patreon_') ? 'Patreon rewards' : 'Other rewards');
         if (!groups.has(group)) groups.set(group, []);
         groups.get(group).push(card);
       }
       const fragment = document.createDocumentFragment();
-      const compare = select.value === 'type' ? compareRewardTypes : compareRewardCategories;
-      const groupNames = [...groups.keys()].sort(compare);
+      const groupNames = [...groups.keys()].sort(compareRewardCategories);
       for (const group of groupNames) {
         const heading = document.createElement('h4');
         heading.className = 'profile-reward-category';

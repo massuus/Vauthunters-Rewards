@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareRewardTypes, rewardType } from '../public/js/features/reward-types.js';
-import { getPatreonRewardSets } from '../public/js/utils/tier-utils.js';
+import {
+  addPatreonIndividualRewards,
+  getPatreonRewardSets,
+} from '../public/js/utils/tier-utils.js';
 import { groupRewards } from '../public/js/components/special-pages/all-rewards-page.js';
 
 test('rewards are grouped by equipment type instead of unlock category', () => {
@@ -58,4 +61,21 @@ test('Patreon gear sets unlock cumulatively through the highest player tier', ()
     'patreon_legend_pet',
   ]);
   assert.deepEqual(getPatreonRewardSets([]), []);
+});
+
+test('Patreon tiers add their cumulative individual rewards under API categories', () => {
+  const champion = addPatreonIndividualRewards({ 'the_vault:companion': ['the_vault:dino'] }, [
+    'Vault Champion',
+  ]);
+  assert.ok(champion['the_vault:boots'].includes('the_vault:gear/armor/dread_steps/boots'));
+  assert.ok(champion['the_vault:sword'].includes('the_vault:gear/sword/plunder_n_cheese'));
+  assert.ok(
+    champion['the_vault:chestplate'].includes('the_vault:gear/armor/hoarders_harness/chestplate')
+  );
+  assert.ok(champion['the_vault:helmet'].includes('the_vault:gear/armor/triumphant_crown/helmet'));
+  assert.ok(champion['the_vault:axe'].includes('the_vault:gear/axe/godaxe'));
+  assert.deepEqual(champion['the_vault:companion'], ['the_vault:dino']);
+
+  const legend = addPatreonIndividualRewards({}, ['Vault Legend']);
+  assert.ok(legend['the_vault:companion'].includes('the_vault:slimey'));
 });

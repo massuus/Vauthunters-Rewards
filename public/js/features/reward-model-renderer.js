@@ -450,6 +450,19 @@ export async function mountRewardModel(host, signal) {
   const response = await fetch(`/data/models/${host.dataset.model}.json`, { signal });
   if (!response.ok) throw new Error('Model unavailable');
   const data = await response.json();
+  if (data.kind === 'items' && host.dataset.modelIndex !== undefined) {
+    const modelIndex = Number.parseInt(host.dataset.modelIndex, 10);
+    const selected = data.models?.[Number.isFinite(modelIndex) ? modelIndex : 0];
+    if (!selected) throw new Error('Individual model unavailable');
+    if (selected.outfit && host.dataset.outfitPiece !== undefined) {
+      const pieceIndex = Number.parseInt(host.dataset.outfitPiece, 10);
+      const piece = selected.outfit[Number.isFinite(pieceIndex) ? pieceIndex : 0];
+      if (!piece) throw new Error('Armor piece unavailable');
+      data.models = [{ outfit: [piece] }];
+    } else {
+      data.models = [selected];
+    }
+  }
   const model = await (data.kind === 'companion' ? buildCompanion(data) : buildItems(data));
   if (!host.isConnected || signal?.aborted) {
     disposeModel(model.root);

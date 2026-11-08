@@ -7,7 +7,10 @@ import {
   formatLabel,
 } from '../features/reward-utils.js';
 import { getSetArtStore } from './set-art-manager.js';
-import { renderRewardModelPreview } from '../features/reward-model-preview.js';
+import {
+  renderIndividualRewardModelPreview,
+  renderRewardModelPreview,
+} from '../features/reward-model-preview.js';
 
 export function renderCompanionStatsSection(companionStats, playerName = '') {
   const stats = Array.isArray(companionStats) ? companionStats : [];
@@ -63,8 +66,59 @@ export function renderCompanionStatsSection(companionStats, playerName = '') {
   `;
 }
 
-export function renderSetsSection(sets, setsHelpTemplate, newSetKeys = new Set()) {
+function individualRewardDetails(rawItem) {
+  const raw = String(rawItem || '').trim();
+  const normalizedPath = raw
+    .replace(/^\/?img\//i, '')
+    .replace(/\.(webp|png|jpg|jpeg|gif)$/i, '')
+    .replace(/\s+/g, '_')
+    .toLowerCase();
+  const segments = normalizedPath.split(/[\\/:]/).filter(Boolean);
+  const lastSegment = segments.at(-1) || normalizedPath;
+  let name = deriveRewardName(lastSegment);
+  if (['boots', 'helmet', 'leggings', 'chestplate'].includes(lastSegment)) {
+    const armorIndex = segments.indexOf('armor');
+    if (armorIndex >= 0 && segments[armorIndex + 1]) {
+      name = `${deriveRewardName(segments[armorIndex + 1])} ${deriveRewardName(lastSegment)}`;
+    }
+  }
+  return { name, path: normalizedPath || raw };
+}
+
+function renderIndividualRewards(rewards) {
+  return Object.entries(rewards || {})
+    .map(([category, items]) => {
+      const entries = Array.isArray(items) ? items : [];
+      if (!entries.length) return '';
+      const categoryKey = String(category)
+        .split(':')
+        .pop()
+        .replace(/[_\\/]+/g, ' ');
+      const cards = entries
+        .map((item) => {
+          const { name, path } = individualRewardDetails(item);
+          const modelPreview = renderIndividualRewardModelPreview(path);
+          return `
+            <article class="set-card set-card--individual" tabindex="0" data-set-key="${escapeHtml(path)}">
+              ${modelPreview ? `<div class="set-card__media">${modelPreview}</div>` : ''}
+              <div class="set-card__content">
+                <span class="set-card__name">${escapeHtml(name)}</span>
+                <p class="set-card__description"><code>${escapeHtml(path)}</code></p>
+              </div>
+            </article>`;
+        })
+        .join('');
+      return `<h4 class="profile-reward-category">${escapeHtml(formatLabel(categoryKey))} (${entries.length})</h4>${cards}`;
+    })
+    .join('');
+}
+
+export function renderSetsSection(sets, setsHelpTemplate, newSetKeys = new Set(), rewards = {}) {
   const hasSets = sets.length > 0;
+  const individualRewardCount = Object.values(rewards || {}).reduce(
+    (total, items) => total + (Array.isArray(items) ? items.length : 0),
+    0
+  );
   const setArtStore = getSetArtStore();
   const setsContent = hasSets
     ? sets.map((setKey) => renderSetCard(setKey, setArtStore, newSetKeys.has(setKey))).join('')
@@ -73,7 +127,7 @@ export function renderSetsSection(sets, setsHelpTemplate, newSetKeys = new Set()
   return `
     <section>
       <div class="section-title-container profile-rewards-heading">
-        <h3 class='section-title'>Vault Sets (${sets.length})</h3>
+        <h3 class='section-title' data-rewards-title>Vault Sets (${sets.length})</h3>
         <div class="profile-reward-controls">
         <select class="profile-reward-sort" data-card-size-control aria-label="Reward card size">
           <option value="regular">Regular cards</option>
@@ -84,12 +138,15 @@ export function renderSetsSection(sets, setsHelpTemplate, newSetKeys = new Set()
           <option value="newest">Newest first</option>
           <option value="unlocked">Unlock order</option>
           <option value="category">Category</option>
-          <option value="type">Reward type</option>
+          <option value="individual">Individual rewards</option>
         </select>
         </div>
       </div>
       ${setsHelpTemplate}
       ${hasSets ? `<div class='sets-grid' id='profile-unlocked-rewards'>${setsContent}</div>` : `<p class='muted'>No sets recorded yet.</p>`}
+      <div class="sets-grid hidden" data-individual-rewards data-reward-count="${individualRewardCount}">
+        ${individualRewardCount ? renderIndividualRewards(rewards) : '<p class="muted">No individual rewards recorded.</p>'}
+      </div>
       <div class='rewards-cta-container' style="display: none;">
         <p class='rewards-cta'>
           <button class="rewards-cta__link" data-search="all" type="button">
@@ -400,78 +457,4 @@ function renderTierCard(tier, tierConfig, cardUrl = '') {
   }
 
   return `<li class="tiers-list__item">${linkedContent}</li>`;
-}
-
-export function renderExtraSection(rewards) {
-  const hasRewards = Object.keys(rewards).length > 0;
-  const panelContent = hasRewards
-    ? renderRewardsList(rewards)
-    : '<p class="muted">No individual rewards recorded.</p>';
-
-  return `
-    <section>
-      <button id="extra-toggle" class="extra-toggle" type="button" aria-expanded="false">Extra Info</button>
-      <div id="extra-panel" class="rewards-panel hidden">${panelContent}</div>
-    </section>
-  `;
-}
-
-function renderRewardsList(rewards) {
-  return Object.entries(rewards)
-    .map(([group, items]) => {
-      const normalizedItems = Array.isArray(items) ? items : [];
-      const groupLabelRaw = String(group);
-      const groupLabelKey = groupLabelRaw.includes(':')
-        ? groupLabelRaw.split(':').pop()
-        : groupLabelRaw;
-      const groupLabelClean = groupLabelKey.replace(/[_\\/]+/g, ' ');
-      const groupHeading = formatLabel(groupLabelClean);
-
-      const rows = normalizedItems
-        .map((item) => {
-          const raw = String(item).trim();
-          const withoutPrefix = raw.replace(/^\/?img\//i, '');
-          const withoutExt = withoutPrefix.replace(/\.(webp|png|jpg|jpeg|gif)$/i, '');
-          const normalizedPath = withoutExt.replace(/\s+/g, '_').toLowerCase();
-          const path = normalizedPath || withoutExt || raw;
-
-          const segments = normalizedPath.split(/[\\/]/);
-          const lastSegment = segments[segments.length - 1] || normalizedPath;
-          const name = deriveRewardName(lastSegment || raw);
-
-          let displayName = name;
-          const pathParts = normalizedPath.split(/[\/\\:]/);
-          if (['boots', 'helmet', 'leggings', 'chestplate'].includes(lastSegment)) {
-            const armorSetIdx = pathParts.indexOf('armor');
-            if (armorSetIdx >= 0 && armorSetIdx + 1 < pathParts.length) {
-              const armorSet = pathParts[armorSetIdx + 1];
-              displayName = deriveRewardName(armorSet);
-            }
-          }
-          if (normalizedPath.startsWith('the_vault:') && !normalizedPath.includes('/')) {
-            const compName = normalizedPath.replace(/^the_vault:/, '');
-            displayName = deriveRewardName(compName);
-          }
-
-          const safeName = displayName ? escapeHtml(displayName) : '';
-          const safePath = path ? escapeHtml(path) : '';
-          return `<tr><td>${safeName}</td><td><code>${safePath}</code></td></tr>`;
-        })
-        .join('');
-
-      return `
-        <div class="reward-group">
-          <h3>${groupHeading}</h3>
-          <table class="rewards-table">
-            <thead>
-              <tr><th>Name</th><th>Path</th></tr>
-            </thead>
-            <tbody>
-              ${rows}
-            </tbody>
-          </table>
-        </div>
-      `;
-    })
-    .join('');
 }
