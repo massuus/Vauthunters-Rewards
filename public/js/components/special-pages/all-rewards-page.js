@@ -3,7 +3,7 @@ import {
   getLockedRewardDescription,
   renderRewardShop,
 } from '../../features/reward-shop.js';
-import { compareRewardTypes, rewardType } from '../../features/reward-types.js';
+import { compareRewardCategories } from '../../features/reward-categories.js';
 import { buildCodesLinkedHtml } from '../../features/reward-utils.js';
 import { renderRewardModelPreview } from '../../features/reward-model-preview.js';
 
@@ -58,19 +58,19 @@ async function fetchApiSets() {
 export function groupRewards(entries) {
   const groups = new Map();
   for (const entry of entries) {
-    const type = rewardType(entry[0], entry[1]);
-    if (!groups.has(type)) groups.set(type, []);
-    groups.get(type).push(entry);
+    const category = String(entry[1]?.category || '').trim() || 'Other rewards';
+    if (!groups.has(category)) groups.set(category, []);
+    groups.get(category).push(entry);
   }
-  return [...groups.entries()].sort(([a], [b]) => compareRewardTypes(a, b));
+  return [...groups.entries()].sort(([a], [b]) => compareRewardCategories(a, b));
 }
 
 function renderRewardGroups(entries, unavailable, proxiedImageUrl, escapeHtml, formatLabel) {
   return groupRewards(entries)
     .map(
-      ([type, rewards]) => `
+      ([category, rewards]) => `
     <section class="reward-category">
-      <h4 class="reward-category__title">${escapeHtml(type)} <span>(${rewards.length})</span></h4>
+      <h4 class="reward-category__title">${escapeHtml(category)} <span>(${rewards.length})</span></h4>
       <div class="rewards-grid${unavailable ? ' rewards-grid--unavailable' : ''}">
         ${rewards.map(([key, data]) => renderRewardCard(key, data, proxiedImageUrl, escapeHtml, formatLabel)).join('')}
       </div>
@@ -204,7 +204,7 @@ export async function renderAllRewardsPage(
       <section class="all-rewards-page" aria-live="polite">
         <header class="all-rewards-page__intro">
           <h2 class="all-rewards-page__title">All Vault Hunters Rewards</h2>
-          <p class="all-rewards-page__lead">Browse every reward in Vault Hunters, grouped by reward type.</p>
+          <p class="all-rewards-page__lead">Browse every reward in Vault Hunters, grouped by category.</p>
           <p class="all-rewards-page__subtext">Total rewards: ${entries.length} (${obtainableRewards.length} obtainable, ${unobtainableRewards.length} unavailable, ${upcomingRewards.length} coming soon)</p>
         </header>
 
