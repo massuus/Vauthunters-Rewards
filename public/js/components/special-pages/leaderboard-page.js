@@ -1,11 +1,8 @@
+import { apiRequest, normalizeStreamer } from '../../features/companion-admin.js';
 import { clearLeaderboardCache, fetchLeaderboardPage } from '../../features/leaderboard.js';
-import { mountCollectorHealth } from '../companion-health.js';
 
 const LEADERBOARD_QUERY_KEYWORDS = ['leaderboard', 'leader board', 'lb'];
 const PAGE_SIZE = 10;
-const IMPORT_BATCH_SIZE = 100;
-const IDENTITY_BATCH_SIZE = 5;
-const SOCKET_PAGE_SIZE = 20;
 const METRICS = {
   setsUnlocked: {
     label: 'Unlocked sets',
@@ -26,19 +23,12 @@ const METRICS = {
 
 let activeSessionId = 0;
 let activeObserver = null;
-let disposeCollectorHealth;
+let disposeAdminPanel;
 
 function normalizeQuery(value) {
   return String(value || '')
     .trim()
     .toLowerCase();
-}
-
-function normalizeStreamer(value, fallback = 'iskall85') {
-  const streamer = String(value || fallback)
-    .trim()
-    .toLowerCase();
-  return /^[a-z0-9_]{1,25}$/.test(streamer) ? streamer : fallback;
 }
 
 function normalizeMetric(value) {
@@ -73,8 +63,8 @@ function disconnectObserver() {
 }
 
 export function teardownLeaderboardPage() {
-  disposeCollectorHealth?.();
-  disposeCollectorHealth = null;
+  disposeAdminPanel?.();
+  disposeAdminPanel = null;
   activeSessionId += 1;
   disconnectObserver();
 }
@@ -356,6 +346,7 @@ async function loadPage(state, direction, { throwOnError = false } = {}) {
 }
 
 function setupInfiniteScroll(state) {
+  if (state.sessionId !== activeSessionId) return;
   disconnectObserver();
   if (!state.canLoadDown || !('IntersectionObserver' in window)) return;
   activeObserver = new IntersectionObserver(
@@ -373,270 +364,6 @@ async function selectMetric(state, metric) {
   updateHeading(state);
   updateUrl(state);
   await loadPage(state, 'down');
-}
-
-async function apiRequest(url, options = {}) {
-  const response = await fetch(url, { credentials: 'same-origin', ...options });
-  let body = {};
-  try {
-    body = await response.json();
-  } catch {}
-  if (!response.ok) throw new Error(body.error || 'The request failed.');
-  return body;
-}
-
-function setAdminFeedback(state, message, type = 'success') {
-  const element = state.root.querySelector('[data-companion-admin-feedback]');
-  if (!element) return;
-  element.hidden = false;
-  element.textContent = message;
-  element.classList.toggle('leaderboard-admin__feedback--error', type === 'error');
-}
-
-function renderAdminPanel(state) {
-  disposeCollectorHealth?.();
-  const slot = state.root.querySelector('[data-leaderboard-admin-slot]');
-  if (!slot) return;
-  if (!state.auth?.authenticated) {
-    state.root.innerHTML = `
-      <section class="leaderboard-admin leaderboard-admin--login">
-        <h3>Administrator sign in</h3>
-        <p>Sign in with the configured administrator Twitch account to view automation health and manage companion data.</p>
-        <a class="leaderboard-admin__login" href="/login?returnTo=/admin">Sign in with Twitch</a>
-      </section>`;
-    return;
-  }
-  if (!state.auth.user?.isAdmin) {
-    state.root.innerHTML = `
-      <section class="leaderboard-admin leaderboard-admin--login">
-        <h3>Administrator access required</h3>
-        <p>You are signed in, but this Twitch account is not configured as a site administrator.</p>
-      </section>`;
-    return;
-  }
-
-  slot.innerHTML = `
-    <section class="leaderboard-admin companion-health" data-collector-health></section>
-    <details class="leaderboard-admin">
-      <summary>Update companion leaderboards</summary>
-      <div class="leaderboard-admin__body">
-        <p class="leaderboard-admin__privacy"><strong>Private by design:</strong> the WSS URL is opened by this browser only. Its tokens are never uploaded or saved.</p>
-        <form class="leaderboard-admin__form" data-companion-wss-form>
-          <label class="leaderboard-admin__field leaderboard-admin__field--wide">
-            <span>Socket.IO WSS URL</span>
-            <textarea name="wssUrl" rows="3" placeholder="wss://ebs.vaulthunters.gg/socket.io/?streamer=iskall85&amp;…" required></textarea>
-          </label>
-          <button class="leaderboard-admin__button" type="submit">Retrieve and update</button>
-        </form>
-        <div class="leaderboard-admin__divider"><span>or add one player</span></div>
-        <form class="leaderboard-admin__form leaderboard-admin__form--manual" data-companion-manual-form>
-          <label class="leaderboard-admin__field"><span>Streamer</span><select name="streamer" data-companion-streamer-select required></select></label>
-          <label class="leaderboard-admin__field"><span>Twitch username <small>(optional)</small></span><input name="twitchName" pattern="[A-Za-z0-9_]{1,25}" placeholder="massuus"></label>
-          <label class="leaderboard-admin__field"><span>Selected skin username</span><input name="playerName" pattern="[A-Za-z0-9_]{1,16}" required placeholder="Skin username"></label>
-          <label class="leaderboard-admin__field"><span>Display alias <small>(optional)</small></span><input name="alias" maxlength="64"></label>
-          <label class="leaderboard-admin__field"><span>Season level</span><input name="seasonLevel" type="number" min="0" max="1000000" value="0" required></label>
-          <label class="leaderboard-admin__field"><span>Vaults joined</span><input name="vaultsJoined" type="number" min="0" max="1000000" value="0" required></label>
-          <button class="leaderboard-admin__button" type="submit">Add or update player</button>
-        </form>
-        <p class="leaderboard-admin__feedback" data-companion-admin-feedback hidden></p>
-      </div>
-    </details>`;
-  updateStreamerMenus(state);
-  disposeCollectorHealth = mountCollectorHealth(slot.querySelector('[data-collector-health]'), {
-    apiRequest,
-    escapeHtml: state.escapeHtml,
-    isActive: () => state.sessionId === activeSessionId,
-  });
-}
-
-function cleanWssUrl(value) {
-  return String(value || '')
-    .trim()
-    .replace(/^wss\\:\/\//i, 'wss://')
-    .replace(/\\_/g, '_')
-    .replace(/&amp;/gi, '&')
-    .replace(/&#x26;/gi, '&');
-}
-
-function readStreamerFromWss(value) {
-  let url;
-  try {
-    url = new URL(cleanWssUrl(value));
-  } catch {
-    throw new Error('Enter a valid WSS URL.');
-  }
-  if (url.protocol !== 'wss:' || url.hostname !== 'ebs.vaulthunters.gg') {
-    throw new Error('The URL must use wss://ebs.vaulthunters.gg.');
-  }
-  const streamer = normalizeStreamer(url.searchParams.get('streamer'), '');
-  if (!streamer) throw new Error('The WSS URL does not contain a valid streamer.');
-  return { url: url.toString(), streamer };
-}
-
-function retrieveCompanions(wssValue, onProgress) {
-  const { url, streamer } = readStreamerFromWss(wssValue);
-  return new Promise((resolve, reject) => {
-    const socket = new WebSocket(url);
-    const players = [];
-    let page = 1;
-    let totalPages = null;
-    let ackId = 1;
-    let finished = false;
-    let idleTimer;
-
-    const fail = (message) => {
-      if (finished) return;
-      finished = true;
-      clearTimeout(idleTimer);
-      try {
-        socket.close();
-      } catch {}
-      reject(new Error(message));
-    };
-    const resetIdleTimer = () => {
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => fail('The companion socket stopped responding.'), 20_000);
-    };
-    const requestPage = () => {
-      resetIdleTimer();
-      onProgress(`Retrieving page ${page}${totalPages ? ` of ${totalPages}` : ''}…`);
-      socket.send(
-        `42/extension,${ackId}["requestDraftCompanionSearch","",${page},${SOCKET_PAGE_SIZE}]`
-      );
-    };
-
-    socket.addEventListener('open', resetIdleTimer);
-    socket.addEventListener('error', () =>
-      fail('The WSS connection failed. Check that its tokens are current.')
-    );
-    socket.addEventListener('close', () => {
-      if (!finished) fail('The WSS connection closed before every page was received.');
-    });
-    socket.addEventListener('message', (event) => {
-      const message = String(event.data || '');
-      resetIdleTimer();
-      if (message.startsWith('0')) {
-        socket.send('40/extension,');
-        return;
-      }
-      if (message.startsWith('2')) {
-        socket.send(`3${message.slice(1)}`);
-        return;
-      }
-      if (message.startsWith('40/extension')) {
-        requestPage();
-        return;
-      }
-
-      const match = message.match(/^43\/extension,\d+(\[.*\])$/s);
-      if (!match) return;
-      let acknowledgement;
-      try {
-        acknowledgement = JSON.parse(match[1]);
-      } catch {
-        fail('The companion socket returned unreadable data.');
-        return;
-      }
-
-      const payload = acknowledgement?.[0] || {};
-      const pagePlayers = Array.isArray(payload.data) ? payload.data : [];
-      players.push(...pagePlayers);
-      totalPages = Math.max(1, Number(payload.pagination?.totalPages || page));
-      if (page >= totalPages) {
-        const uniquePlayers = [
-          ...new Map(
-            players
-              .filter((player) => player?.name && player?.skin)
-              .map((player) => [String(player.name).toLowerCase(), player])
-          ).values(),
-        ];
-        if (!uniquePlayers.length) {
-          fail(
-            'The socket returned no companion players. Paste the WSS URL directly and make sure its tokens are still current.'
-          );
-          return;
-        }
-        finished = true;
-        clearTimeout(idleTimer);
-        socket.close(1000, 'complete');
-        resolve({ streamer, players: uniquePlayers, received: players.length });
-        return;
-      }
-      page += 1;
-      ackId += 1;
-      requestPage();
-    });
-  });
-}
-
-async function uploadPlayers(state, streamer, players, onProgress) {
-  if (!players.length) throw new Error('The socket returned no companion players to update.');
-  let updated = 0;
-  let skipped = 0;
-  const batches = Math.ceil(players.length / IMPORT_BATCH_SIZE);
-  for (let index = 0; index < players.length; index += IMPORT_BATCH_SIZE) {
-    const batchNumber = Math.floor(index / IMPORT_BATCH_SIZE) + 1;
-    onProgress(`Saving batch ${batchNumber} of ${batches}…`);
-    const result = await apiRequest('/api/admin/companion-leaderboard', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-csrf-token': state.auth.user.csrfToken,
-      },
-      body: JSON.stringify({
-        streamer,
-        players: players.slice(index, index + IMPORT_BATCH_SIZE),
-        source: 'wss-browser-import',
-      }),
-    });
-    updated += Number(result.updated || 0);
-    skipped += Number(result.skipped || 0);
-  }
-  return { updated, skipped };
-}
-
-async function resolvePlayerIdentities(state, players, onProgress) {
-  const twitchNames = [
-    ...new Set(
-      players
-        .map((player) =>
-          String(player?.name ?? player?.twitchName ?? '')
-            .trim()
-            .toLowerCase()
-        )
-        .filter((name) => /^[a-z0-9_]{1,25}$/.test(name))
-    ),
-  ];
-  const totals = { resolved: 0, existing: 0, missing: 0, failed: 0, skipped: 0 };
-  const batches = Math.ceil(twitchNames.length / IDENTITY_BATCH_SIZE);
-
-  for (let index = 0; index < twitchNames.length; index += IDENTITY_BATCH_SIZE) {
-    const batchNumber = Math.floor(index / IDENTITY_BATCH_SIZE) + 1;
-    onProgress(`Resolving Minecraft names ${batchNumber} of ${batches}…`);
-    const result = await apiRequest('/api/admin/companion-identities', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-csrf-token': state.auth.user.csrfToken,
-      },
-      body: JSON.stringify({ twitchNames: twitchNames.slice(index, index + IDENTITY_BATCH_SIZE) }),
-    });
-    Object.keys(totals).forEach((key) => {
-      totals[key] += Number(result[key] || 0);
-    });
-  }
-
-  return totals;
-}
-
-function describeIdentityUpdate(stats) {
-  if (!stats) return '';
-  const linked = stats.resolved + stats.existing;
-  const parts = [`Linked ${linked} Minecraft ${linked === 1 ? 'identity' : 'identities'}`];
-  if (stats.resolved) parts.push(`${stats.resolved} newly resolved`);
-  if (stats.missing) parts.push(`${stats.missing} not linked to Minecraft`);
-  if (stats.failed) parts.push(`${stats.failed} could not be checked`);
-  return `${parts.join('; ')}.`;
 }
 
 async function refreshCurrentCompanionBoard(state, streamer) {
@@ -688,104 +415,12 @@ function bindPage(state) {
         streamerSelect.disabled = false;
       });
   });
-
-  state.root.addEventListener('submit', async (event) => {
-    const submittedForm = event.target;
-    if (!submittedForm.matches('[data-companion-wss-form], [data-companion-manual-form]')) return;
-    event.preventDefault();
-    const submit = submittedForm.querySelector('button[type="submit"]');
-    if (submit) submit.disabled = true;
-
-    try {
-      if (submittedForm.matches('[data-companion-wss-form]')) {
-        const wssUrl = new FormData(submittedForm).get('wssUrl');
-        const result = await retrieveCompanions(wssUrl, (message) =>
-          setAdminFeedback(state, message)
-        );
-        setAdminFeedback(state, `Retrieved ${result.players.length} players. Starting upload…`);
-        const stats = await uploadPlayers(state, result.streamer, result.players, (message) =>
-          setAdminFeedback(state, message)
-        );
-        let identityStats;
-        try {
-          identityStats = await resolvePlayerIdentities(state, result.players, (message) =>
-            setAdminFeedback(state, message)
-          );
-        } catch (error) {
-          await refreshCurrentCompanionBoard(state, result.streamer);
-          throw new Error(
-            `The player stats were saved, but Minecraft name resolution stopped. ${
-              error instanceof Error ? error.message : 'Please run the update again.'
-            }`
-          );
-        }
-        await refreshCurrentCompanionBoard(state, result.streamer);
-        setAdminFeedback(
-          state,
-          `Updated ${stats.updated} players for ${result.streamer}.${
-            stats.skipped ? ` Skipped ${stats.skipped} invalid rows.` : ''
-          } ${describeIdentityUpdate(identityStats)}`
-        );
-        return;
-      }
-
-      const data = new FormData(submittedForm);
-      const streamer = normalizeStreamer(data.get('streamer'), '');
-      const player = {
-        twitchName: data.get('twitchName'),
-        playerName: data.get('playerName'),
-        alias: data.get('alias'),
-        seasonLevel: Number(data.get('seasonLevel')),
-        vaultsJoined: Number(data.get('vaultsJoined')),
-      };
-      await apiRequest('/api/admin/companion-leaderboard', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'x-csrf-token': state.auth.user.csrfToken,
-        },
-        body: JSON.stringify({ streamer, players: [player], source: 'manual-admin' }),
-      });
-      const twitchName = String(player.twitchName || '').trim();
-      let identityStats = null;
-      if (twitchName) {
-        try {
-          identityStats = await resolvePlayerIdentities(state, [{ twitchName }], (message) =>
-            setAdminFeedback(state, message)
-          );
-        } catch (error) {
-          await refreshCurrentCompanionBoard(state, streamer);
-          throw new Error(
-            `${player.playerName} was saved, but the Minecraft name could not be resolved. ${
-              error instanceof Error ? error.message : 'Please try again.'
-            }`
-          );
-        }
-      }
-      await refreshCurrentCompanionBoard(state, streamer);
-      setAdminFeedback(
-        state,
-        `${player.playerName} was added or updated.${
-          identityStats ? ` ${describeIdentityUpdate(identityStats)}` : ''
-        }`
-      );
-    } catch (error) {
-      setAdminFeedback(
-        state,
-        error instanceof Error ? error.message : 'The update failed.',
-        'error'
-      );
-    } finally {
-      if (submit) submit.disabled = false;
-    }
-  });
 }
 
 export async function renderLeaderboardPage(
   resultContainer,
   setFavicon,
   setMetaDescription,
-  closeSetDetailModal,
   updateQueryString,
   proxiedImageUrl,
   escapeHtml,
@@ -836,7 +471,6 @@ export async function renderLeaderboardPage(
       ? 'Administrator dashboard for Vault Hunters Rewards automation.'
       : 'Compare Vault Hunters unlocked sets, companion season levels, and vaults joined.'
   );
-  closeSetDetailModal();
 
   const root = resultContainer.querySelector('.leaderboard-page');
   const state = {
@@ -881,7 +515,18 @@ export async function renderLeaderboardPage(
         state.auth = null;
       }
       if (sessionId !== activeSessionId) return;
-      renderAdminPanel(state);
+      const { mountLeaderboardAdmin } = await import('../leaderboard-admin.js');
+      if (sessionId !== activeSessionId) return;
+      disposeAdminPanel = mountLeaderboardAdmin({
+        root: state.root,
+        auth: state.auth,
+        escapeHtml: state.escapeHtml,
+        isActive: () => sessionId === activeSessionId,
+        updateStreamerMenus: () => updateStreamerMenus(state),
+        onSaved: (streamer) => {
+          if (sessionId === activeSessionId) return refreshCurrentCompanionBoard(state, streamer);
+        },
+      });
       if (!state.auth?.authenticated || !state.auth.user?.isAdmin) return;
       state.root.querySelectorAll('[data-admin-content]').forEach((element) => {
         element.hidden = false;

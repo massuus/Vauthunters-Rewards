@@ -126,13 +126,14 @@ export async function renderAllRewardsPage(
   resultContainer,
   setFavicon,
   setMetaDescription,
-  closeSetDetailModal,
   updateQueryString,
   proxiedImageUrl,
   escapeHtml,
   formatLabel,
-  DEFAULT_FAVICON
+  DEFAULT_FAVICON,
+  { signal } = {}
 ) {
+  if (signal?.aborted) return;
   resultContainer.classList.remove('hidden');
   resultContainer.innerHTML = `
     <section class="all-rewards-page">
@@ -142,10 +143,10 @@ export async function renderAllRewardsPage(
   setFavicon(DEFAULT_FAVICON);
   document.title = 'All Vault Hunters Rewards';
   setMetaDescription('Browse all possible unlockable rewards in Vault Hunters.');
-  closeSetDetailModal();
 
   try {
     const setArtData = await fetchSetArtData();
+    if (signal?.aborted) return;
     const entries = Object.entries(setArtData).filter(([, data]) => !data?.profileOnly);
 
     // Split rewards into obtainable and unobtainable
@@ -223,6 +224,7 @@ export async function renderAllRewardsPage(
 
     updateQueryString(ALL_QUERY_KEYWORDS[0]);
   } catch (error) {
+    if (signal?.aborted) return;
     resultContainer.innerHTML = `
       <section class="all-rewards-page">
         <p class="all-rewards-page__error">We couldn't load the rewards data right now. Please refresh and try again.</p>

@@ -1,5 +1,5 @@
 import { requireAuth } from '../../../utils/auth.js';
-import { listAdminSubmissions } from '../../../utils/mining-db.js';
+import { listAdminSubmissions } from '../../../services/mining/repository.js';
 import { handleApiError, methodNotAllowed, noStoreJson } from '../../../utils/http.js';
 
 export async function onRequest(context) {

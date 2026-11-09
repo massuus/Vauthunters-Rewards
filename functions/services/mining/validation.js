@@ -1,4 +1,4 @@
-import { ApiError } from './http.js';
+import { ApiError } from '../../utils/http.js';
 
 export const MINING_ANSWERS = Object.freeze(['surface', 'mineshaft', 'cave']);
 

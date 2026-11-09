@@ -2,9 +2,6 @@
 
 import { syncActiveNavigation } from '../components/navigation.js';
 
-let lastFocusedElement = null;
-let modalKeydownHandler = null;
-
 /**
  * Get the username or query from the query string
  */
@@ -86,42 +83,4 @@ export function updateQueryString(username) {
   }
   window.history.replaceState({}, '', `${path}?${encodeURIComponent(username)}`);
   syncActiveNavigation();
-}
-
-/**
- * Store the last focused element for modal focus management
- */
-export function setLastFocusedElement(element) {
-  lastFocusedElement = element;
-}
-
-/**
- * Get the last focused element
- */
-export function getLastFocusedElement() {
-  return lastFocusedElement;
-}
-
-/**
- * Set the modal keydown handler for focus management
- */
-export function setModalKeydownHandler(handler) {
-  modalKeydownHandler = handler;
-}
-
-/**
- * Get the modal keydown handler
- */
-export function getModalKeydownHandler() {
-  return modalKeydownHandler;
-}
-
-/**
- * Close the set detail modal if open
- */
-export function closeSetDetailModal() {
-  const modal = document.querySelector('dialog[open]');
-  if (modal) {
-    modal.close();
-  }
 }

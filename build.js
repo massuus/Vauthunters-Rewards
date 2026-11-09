@@ -5,6 +5,8 @@ import * as esbuild from 'esbuild';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { prepareBuildOutput } from './scripts/build-output.js';
+import { collectPrecacheAssets } from './scripts/precache-assets.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,13 +16,7 @@ const watch = process.argv.includes('--watch');
 const buildRev = process.env.BUILD_REV || (isDev ? 'dev' : String(Date.now()));
 
 const config = {
-  entryPoints: [
-    'public/js/core/app.js',
-    'public/sw.js',
-    'public/js/utils/config.js',
-    'public/js/loaders/image-loader.js',
-    'public/js/features/pwa-install.js',
-  ],
+  entryPoints: ['public/js/core/app.js'],
   bundle: true,
   format: 'esm',
   target: ['es2020', 'chrome90', 'firefox88', 'safari14'],
@@ -41,6 +37,42 @@ const config = {
     '.js': 'js',
   },
   logLevel: 'info',
+  plugins: [
+    {
+      name: 'service-worker-precache',
+      setup(build) {
+        // The worker is compiled after the app so it can embed the app's chunks.
+        // Keep changes to its source in the watch graph too.
+        build.onLoad({ filter: /[\\/]core[\\/]app\.js$/ }, async (args) => ({
+          contents: await fs.readFile(args.path, 'utf8'),
+          loader: 'js',
+          resolveDir: path.dirname(args.path),
+          watchFiles: [path.join(__dirname, 'public', 'sw.js')],
+        }));
+        build.onEnd(async (result) => {
+          if (result.errors.length) return;
+          const assets = await collectPrecacheAssets(
+            result.metafile,
+            path.join(__dirname, 'dist'),
+            path.join(__dirname, 'public')
+          );
+          const worker = await esbuild.build({
+            entryPoints: ['public/sw.js'],
+            bundle: true,
+            outfile: 'dist/sw.js',
+            format: 'esm',
+            target: config.target,
+            minify: config.minify,
+            sourcemap: config.sourcemap,
+            metafile: true,
+            define: { ...config.define, __PRECACHE_ASSETS__: JSON.stringify(assets) },
+          });
+          Object.assign(result.metafile.inputs, worker.metafile.inputs);
+          Object.assign(result.metafile.outputs, worker.metafile.outputs);
+        });
+      },
+    },
+  ],
 };
 
 async function processCss() {
@@ -96,14 +128,8 @@ async function copyPublicAssets() {
   for (const file of filesToCopy) {
     const src = path.join(publicDir, file);
     const dest = path.join(distDir, file);
-    try {
-      await fs.copyFile(src, dest);
-      console.log(`Copied: ${file}`);
-    } catch (err) {
-      if (err.code !== 'ENOENT') {
-        console.error(`Error copying ${file}:`, err);
-      }
-    }
+    await fs.copyFile(src, dest);
+    console.log(`Copied: ${file}`);
   }
 
   // Copy directories
@@ -111,14 +137,8 @@ async function copyPublicAssets() {
   for (const dir of dirsToCopy) {
     const src = path.join(publicDir, dir);
     const dest = path.join(distDir, dir);
-    try {
-      await fs.cp(src, dest, { recursive: true });
-      console.log(`Copied directory: ${dir}`);
-    } catch (err) {
-      if (err.code !== 'ENOENT') {
-        console.error(`Error copying ${dir}:`, err);
-      }
-    }
+    await fs.cp(src, dest, { recursive: true });
+    console.log(`Copied directory: ${dir}`);
   }
 
   // Process after copying so the optimized stylesheet is not overwritten.
@@ -138,34 +158,16 @@ async function copyPublicAssets() {
     path.join(swaggerDir, 'index.html')
   );
 
-  // Copy functions directory to root (not inside dist)
-  const functionsDir = path.join(__dirname, 'functions');
-  // Functions are already in the right place, just ensure they exist
-  try {
-    await fs.access(functionsDir);
-    console.log('Functions directory verified');
-  } catch {
-    console.error('Warning: functions directory not found');
-  }
+  // Functions remain beside dist; a missing backend is a build error.
+  await fs.access(path.join(__dirname, 'functions'));
+  await copyAdminPage();
 }
 
-async function updateHtmlReferences() {
-  if (isDev) return; // Skip in dev mode
-
-  const htmlPath = path.join(__dirname, 'dist', 'pages', 'index.html');
-  let html = await fs.readFile(htmlPath, 'utf-8');
-
-  // Update script reference to point to the correct bundled location
-  html = html.replace(
-    /<script src="app\.js" type="module"><\/script>/,
-    '<script src="../js/core/app.js" type="module"></script>'
-  );
-
-  await fs.writeFile(htmlPath, html);
-  const adminDir = path.join(__dirname, 'dist', 'admin');
+async function copyAdminPage() {
+  const distDir = path.join(__dirname, 'dist');
+  const adminDir = path.join(distDir, 'admin');
   await fs.mkdir(adminDir, { recursive: true });
-  await fs.writeFile(path.join(adminDir, 'index.html'), html);
-  console.log('Updated HTML references');
+  await fs.copyFile(path.join(distDir, 'pages', 'index.html'), path.join(adminDir, 'index.html'));
 }
 
 async function generateMetaReport(result) {
@@ -189,9 +191,7 @@ async function build() {
 
     // Clean dist directory
     const distDir = path.join(__dirname, 'dist');
-    try {
-      await fs.rm(distDir, { recursive: true, force: true });
-    } catch {}
+    await prepareBuildOutput(distDir, { keepChunks: process.argv.includes('--keep-chunks') });
 
     // Copy first: source JS must not overwrite esbuild's bundled entry points.
     await copyPublicAssets();
@@ -203,9 +203,6 @@ async function build() {
       console.log('Watching for changes...');
     } else {
       const result = await esbuild.build(config);
-
-      // Update HTML references
-      await updateHtmlReferences();
 
       // Generate meta report
       await generateMetaReport(result);

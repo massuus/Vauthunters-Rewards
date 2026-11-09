@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import globals from 'globals';
 
 const baseRules = {
+  'no-empty': ['error', { allowEmptyCatch: true }],
   'no-console': ['warn', { allow: ['warn', 'error'] }],
   'no-unused-vars': ['warn', { argsIgnorePattern: '^_', ignoreRestSiblings: true }],
   'no-var': 'error',
@@ -19,6 +20,7 @@ export default [
     ignores: [
       'node_modules/**',
       'dist/**',
+      'dist-test/**',
       'build/**',
       'coverage/**',
       '.wrangler/**',
@@ -43,7 +45,10 @@ export default [
         ...globals.es2022,
       },
     },
-    rules: baseRules,
+    rules: {
+      ...js.configs.recommended.rules,
+      ...baseRules,
+    },
   },
   {
     files: ['functions/**/*.js', 'workers/**/*.js', 'build.js'],
@@ -59,11 +64,19 @@ export default [
     },
   },
   {
+    files: ['scripts/**/*.{js,mjs}', 'tests/**/*.{js,mjs}'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
     files: ['public/sw.js'],
     languageOptions: {
       globals: {
         ...globals.serviceworker,
         ...globals.es2022,
+        __BUILD_REV__: 'readonly',
+        __PRECACHE_ASSETS__: 'readonly',
       },
     },
     rules: {

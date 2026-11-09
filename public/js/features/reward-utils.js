@@ -85,22 +85,6 @@ export function buildLinkedRewardHtml(text) {
 }
 
 /**
- * Convert text to snake_case for reward paths
- */
-export function toSnake(text) {
-  return text.toLowerCase().replace(/\s+/g, '_');
-}
-
-/**
- * Derive the path to a reward image from its name
- */
-export function deriveRewardPath(name, suffix = '') {
-  const snakeName = toSnake(name);
-  const suffixStr = suffix ? `_${suffix}` : '';
-  return `/img/${snakeName}${suffixStr}.webp`;
-}
-
-/**
  * Derive the reward name from a snake_case path
  */
 export function deriveRewardName(snakeName) {

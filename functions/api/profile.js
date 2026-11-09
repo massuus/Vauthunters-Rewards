@@ -1,3 +1,13 @@
+import { json } from '../utils/http.js';
+import {
+  fetchRewards,
+  fetchRewardsByTwitch,
+  normalizeRewardsPayload,
+} from '../services/rewards.js';
+import {
+  fetchVaultHuntersTiers as fetchTiers,
+  fetchIskall85TierList,
+} from '../services/patreon-tiers.js';
 import { isDeveloper, grantDeveloperRewards } from '../utils/developers.js';
 import { fetchJson } from '../utils/fetch-utils.js';
 import { apiRateLimiter, getRateLimitKey, rateLimitResponse } from '../utils/rate-limiter.js';
@@ -13,23 +23,17 @@ import {
 import { getSnapshotProfileData } from '../utils/leaderboard-snapshots.js';
 import {
   PLAYERDB_PROFILE_URL,
-  REWARDS_URL,
-  REWARDS_TWITCH_URL,
-  TIER_URL,
-  TIER_LIST_URL,
   UUID_HEX_LENGTH,
   REQUEST_HEADERS,
   PROFILE_API_TIMEOUT,
   REWARDS_API_TIMEOUT,
-  TIER_API_TIMEOUT,
-  ISKALL_TIER_API_TIMEOUT,
   getRewardsAuthHeaders,
 } from '../utils/config.js';
 
 const USERNAME_REGEX = /^[A-Za-z0-9_]{3,16}$/;
 const TWITCH_USERNAME_REGEX = /^[A-Za-z0-9_]{1,25}$/;
 const ISKALL_TIER_ORDER = ['Iron', 'Gold', 'Diamond', 'Iskallium Diamond', 'Emerald'];
-const ISKALL_TIER_LIST_CACHE_TTL_MS = 60 * 60 * 1000;
+const SET_ART_CACHE_TTL_MS = 60 * 60 * 1000;
 const PROFILE_OVERRIDES = {
   duckfromhell: {
     rewardKeys: ['duckfromhell_tribute_1', 'duckfromhell_tribute_2'],
@@ -39,10 +43,6 @@ const PROFILE_OVERRIDES = {
     rewardKeys: ['kingodogo_tribute'],
     priorityKeys: ['kingodogo_tribute', 'dylan_vip'],
   },
-};
-const SET_ALIASES = {
-  i85_server_bingo: 'i85_server_bingos',
-  i85_servers_bingo: 'i85_server_bingos',
 };
 const PROFILE_BROWSER_CACHE_TTL_SECONDS = 30;
 const PROFILE_EDGE_CACHE_TTL_SECONDS = 120;
@@ -54,11 +54,6 @@ let setArtKeyCache = {
   inFlight: null,
 };
 
-let iskallTierListCache = {
-  data: null,
-  expiresAt: 0,
-  inFlight: null,
-};
 let d1ReadsUnavailableUntil = 0;
 
 function badRequest(message) {
@@ -406,10 +401,12 @@ async function fetchProfile(username) {
 
   // Treat 400 and 404 as "player not found"
   if (response.status === 404 || response.status === 400) {
+    await response.body?.cancel();
     return null;
   }
 
   if (!response.ok) {
+    await response.body?.cancel();
     const err = new Error(`Profile API error: ${response.status}`);
     err.status = 502;
     throw err;
@@ -485,7 +482,7 @@ async function fetchAllSetKeys(request) {
   const data = await setArtKeyCache.inFlight;
   setArtKeyCache = {
     data,
-    expiresAt: Date.now() + ISKALL_TIER_LIST_CACHE_TTL_MS,
+    expiresAt: Date.now() + SET_ART_CACHE_TTL_MS,
     inFlight: null,
   };
   return data;
@@ -512,144 +509,12 @@ export function prioritizeSets(sets, priorityKeys) {
   return [...orderedPriority, ...remaining];
 }
 
-async function fetchRewards(formattedId, headers) {
-  const result = await fetchJson(
-    `${REWARDS_URL}${encodeURIComponent(formattedId)}`,
-    'Rewards API',
-    REWARDS_API_TIMEOUT,
-    headers
-  );
-
-  if (result.notFound) {
-    return { rewards: {}, sets: [] };
-  }
-
-  if (result.error || !result.data) {
-    const err = new Error(result.message || 'Rewards API failed');
-    err.status = 502;
-    err.details = { timeout: result.isTimeout, status: result.status };
-    throw err;
-  }
-
-  return normalizeRewardsPayload(result.data);
-}
-
-async function fetchRewardsByTwitch(twitchUsername, headers) {
-  const result = await fetchJson(
-    `${REWARDS_TWITCH_URL}${encodeURIComponent(twitchUsername)}`,
-    'Twitch rewards API',
-    REWARDS_API_TIMEOUT,
-    headers
-  );
-
-  if (result.error) {
-    const error = new Error(result.message || 'Twitch rewards API failed');
-    error.status = 502;
-    throw error;
-  }
-  if (result.notFound || !result.data || typeof result.data !== 'object') {
-    const error = new Error('Twitch account not found.');
-    error.status = 404;
-    throw error;
-  }
-
-  return result.data;
-}
-
-function normalizeRewardsPayload(data) {
-  const rewards = Array.isArray(data.rewards) ? {} : data.rewards || {};
-  const sets = normalizeSets(Array.isArray(data.sets) ? data.sets : data.sets || []);
-
-  return { rewards, sets };
-}
-
-function normalizeSetKey(setName) {
-  const key = String(setName || '')
-    .trim()
-    .toLowerCase();
-
-  return SET_ALIASES[key] || key;
-}
-
-function normalizeSets(sets) {
-  if (!Array.isArray(sets)) {
-    return [];
-  }
-
-  return Array.from(new Set(sets.map(normalizeSetKey).filter(Boolean)));
-}
-
-async function fetchTiers(formattedId) {
-  const result = await fetchJson(
-    `${TIER_URL}${encodeURIComponent(formattedId)}`,
-    'Tier API',
-    TIER_API_TIMEOUT
-  );
-
-  if (result.notFound) {
-    return [];
-  }
-
-  if (result.error || !result.data) {
-    const err = new Error(result.message || 'Tier API failed');
-    err.status = 502;
-    err.details = { timeout: result.isTimeout, status: result.status };
-    throw err;
-  }
-
-  return Array.isArray(result.data.tier) ? result.data.tier : [];
-}
-
 async function fetchIskall85Tiers(...candidateUsernames) {
   const tierList = await fetchIskall85TierList();
   const userEntry = findTierListEntry(tierList, candidateUsernames);
   const highestTier = typeof userEntry?.iskall85 === 'string' ? userEntry.iskall85.trim() : '';
 
   return expandTierProgression(highestTier);
-}
-
-async function fetchIskall85TierList() {
-  const now = Date.now();
-
-  if (iskallTierListCache.data && now < iskallTierListCache.expiresAt) {
-    return iskallTierListCache.data;
-  }
-
-  if (iskallTierListCache.inFlight) {
-    return iskallTierListCache.inFlight;
-  }
-
-  iskallTierListCache.inFlight = loadIskall85TierList();
-
-  try {
-    const data = await iskallTierListCache.inFlight;
-    iskallTierListCache = {
-      data,
-      expiresAt: Date.now() + ISKALL_TIER_LIST_CACHE_TTL_MS,
-      inFlight: null,
-    };
-    return data;
-  } catch (error) {
-    iskallTierListCache.inFlight = null;
-    throw error;
-  }
-}
-
-async function loadIskall85TierList() {
-  const result = await fetchJson(TIER_LIST_URL, 'Iskall85 Tier API', ISKALL_TIER_API_TIMEOUT);
-
-  if (result.notFound) {
-    return {};
-  }
-
-  if (result.error || !result.data || typeof result.data !== 'object') {
-    const err = new Error(result.message || 'Iskall85 Tier API failed');
-    err.status = 502;
-    err.details = { timeout: result.isTimeout, status: result.status };
-    throw err;
-  }
-
-  return result.data;
 }
 
 function findTierListEntry(data, candidateUsernames) {
@@ -765,14 +630,4 @@ async function getOptionalCompanionStats(env, params) {
     markD1ReadUnavailable(error, 'Companion profile stats unavailable');
     return [];
   }
-}
-
-function json(body, status = 200, headers = {}) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      'content-type': 'application/json; charset=utf-8',
-      ...headers,
-    },
-  });
 }

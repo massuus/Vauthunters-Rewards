@@ -1,4 +1,4 @@
-import { renderServerPlayerButton, bindOfficialServersHandlers } from './servers-page.js';
+import { renderPlayerButton, bindPlayerButtons } from '../player-roster.js';
 
 export function isDevelopersQuery(value) {
   return ['dev', 'devs'].includes(
@@ -12,30 +12,32 @@ export async function renderDevelopersPage(
   resultContainer,
   setFavicon,
   setMetaDescription,
-  closeSetDetailModal,
   updateQueryString,
   proxiedImageUrl,
   escapeHtml,
   DEFAULT_FAVICON,
   usernameInput,
-  form
+  form,
+  { signal } = {}
 ) {
+  if (signal?.aborted) return;
   resultContainer.classList.remove('hidden');
   resultContainer.innerHTML =
     '<section class="official-servers-page"><p>Loading developers...</p></section>';
   setFavicon(DEFAULT_FAVICON);
   document.title = 'Vault Hunters Developers';
   setMetaDescription('Browse the Vault Hunters developer roster and open their reward profiles.');
-  closeSetDetailModal();
   updateQueryString('devs');
 
   try {
-    const response = await fetch('/api/developers');
+    const response = await fetch('/api/developers', { signal });
+    if (signal?.aborted) return;
     if (!response.ok) throw new Error('Failed to load developers');
     const developers = await response.json();
+    if (signal?.aborted) return;
     if (!Array.isArray(developers)) throw new Error('Invalid developer roster');
     const players = developers
-      .map((player) => renderServerPlayerButton(player, proxiedImageUrl, escapeHtml))
+      .map((player) => renderPlayerButton(player, proxiedImageUrl, escapeHtml))
       .join('');
     resultContainer.innerHTML = `
       <section class="official-servers-page" aria-live="polite">
@@ -46,8 +48,9 @@ export async function renderDevelopersPage(
         </header>
         <div class="recent-grid official-servers-page__players">${players}</div>
       </section>`;
-    bindOfficialServersHandlers(resultContainer, usernameInput, form);
+    bindPlayerButtons(resultContainer, usernameInput, form);
   } catch (error) {
+    if (signal?.aborted) return;
     resultContainer.innerHTML =
       '<section class="official-servers-page"><p class="official-servers-page__error">We couldn\'t load the developers right now. Please try again.</p></section>';
     throw error;

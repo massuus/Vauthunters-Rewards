@@ -1,16 +1,12 @@
+import { fetchRewards, normalizeSetKey } from '../services/rewards.js';
+import { fetchVaultHuntersTiers, fetchIskall85TierList } from '../services/patreon-tiers.js';
 import { isDeveloper } from './developers.js';
-import { fetchJson, fetchWithRetry } from './fetch-utils.js';
+import { fetchWithRetry } from './fetch-utils.js';
 import { ensureCompanionLeaderboardSchema } from './companion-leaderboard.js';
 import {
   ARMORY_API_TIMEOUT,
   ARMORY_PLAYER_SEARCH_URL,
-  ISKALL_TIER_API_TIMEOUT,
-  REWARDS_API_TIMEOUT,
-  REWARDS_URL,
   REQUEST_HEADERS,
-  TIER_API_TIMEOUT,
-  TIER_LIST_URL,
-  TIER_URL,
   getRewardsAuthHeaders,
 } from './config.js';
 
@@ -22,7 +18,6 @@ const DEFAULT_SYNC_CONCURRENCY = 6;
 const MIN_SYNC_CONCURRENCY = 1;
 const MAX_SYNC_CONCURRENCY = 20;
 const MAX_OFFSET = 1_000_000;
-const ISKALL_TIER_LIST_CACHE_TTL_MS = 60 * 60 * 1000;
 
 const VAULT_HUNTERS_TIER_RANK = {
   'vault dweller': 1,
@@ -40,17 +35,6 @@ const ISKALL85_TIER_RANK = {
   emerald: 5,
 };
 
-const SET_ALIASES = {
-  i85_server_bingo: 'i85_server_bingos',
-  i85_servers_bingo: 'i85_server_bingos',
-};
-
-let iskallTierListCache = {
-  data: null,
-  expiresAt: 0,
-  inFlight: null,
-};
-
 function clampInt(value, fallback, min, max) {
   const parsed = Number.parseInt(value, 10);
   if (!Number.isFinite(parsed)) {
@@ -66,14 +50,6 @@ function uniqueSetCount(sets) {
   }
 
   return new Set(sets.map(normalizeSetKey).filter(Boolean)).size;
-}
-
-function normalizeSetKey(setName) {
-  const key = String(setName || '')
-    .trim()
-    .toLowerCase();
-
-  return SET_ALIASES[key] || key;
 }
 
 function normalizeUuid(value) {
@@ -519,6 +495,7 @@ async function fetchArmoryPlayers({ limit, offset }) {
   );
 
   if (!response.ok) {
+    await response.body?.cancel();
     const error = new Error(`Armory player search failed with status ${response.status}.`);
     error.status = response.status;
     throw error;
@@ -542,91 +519,8 @@ async function fetchArmoryPlayers({ limit, offset }) {
 }
 
 async function fetchRewardsSets(formattedId, headers) {
-  const result = await fetchJson(
-    `${REWARDS_URL}${encodeURIComponent(formattedId)}`,
-    'Rewards API',
-    REWARDS_API_TIMEOUT,
-    headers
-  );
-
-  if (result.notFound) {
-    return [];
-  }
-
-  if (result.error || !result.data) {
-    const err = new Error(result.message || 'Rewards API failed');
-    err.status = 502;
-    err.details = { timeout: result.isTimeout, status: result.status };
-    throw err;
-  }
-
-  const sets = Array.isArray(result.data?.sets) ? result.data.sets : [];
-  return sets.map(normalizeSetKey).filter(Boolean);
-}
-
-async function fetchVaultHuntersTiers(formattedId) {
-  const result = await fetchJson(
-    `${TIER_URL}${encodeURIComponent(formattedId)}`,
-    'Tier API',
-    TIER_API_TIMEOUT
-  );
-
-  if (result.notFound) {
-    return [];
-  }
-
-  if (result.error || !result.data) {
-    const err = new Error(result.message || 'Tier API failed');
-    err.status = 502;
-    err.details = { timeout: result.isTimeout, status: result.status };
-    throw err;
-  }
-
-  return Array.isArray(result.data?.tier) ? result.data.tier : [];
-}
-
-async function loadIskall85TierList() {
-  const result = await fetchJson(TIER_LIST_URL, 'Iskall85 Tier API', ISKALL_TIER_API_TIMEOUT);
-
-  if (result.notFound) {
-    return {};
-  }
-
-  if (result.error || !result.data || typeof result.data !== 'object') {
-    const err = new Error(result.message || 'Iskall85 Tier API failed');
-    err.status = 502;
-    err.details = { timeout: result.isTimeout, status: result.status };
-    throw err;
-  }
-
-  return result.data;
-}
-
-async function fetchIskall85TierList() {
-  const now = Date.now();
-
-  if (iskallTierListCache.data && now < iskallTierListCache.expiresAt) {
-    return iskallTierListCache.data;
-  }
-
-  if (iskallTierListCache.inFlight) {
-    return iskallTierListCache.inFlight;
-  }
-
-  iskallTierListCache.inFlight = loadIskall85TierList();
-
-  try {
-    const data = await iskallTierListCache.inFlight;
-    iskallTierListCache = {
-      data,
-      expiresAt: Date.now() + ISKALL_TIER_LIST_CACHE_TTL_MS,
-      inFlight: null,
-    };
-    return data;
-  } catch (error) {
-    iskallTierListCache.inFlight = null;
-    throw error;
-  }
+  const payload = await fetchRewards(formattedId, headers);
+  return payload.sets;
 }
 
 function findIskall85TierForNickname(tierList, playerNickname) {

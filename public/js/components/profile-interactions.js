@@ -1,12 +1,17 @@
 import { getRewardOrder, saveRewardOrder } from '../utils/storage-manager.js';
 import { compareRewardCategories } from '../features/reward-categories.js';
-import { getSetArtStore } from './set-art-manager.js';
+import { getSetArtStore } from '../features/set-art.js';
 import { resultContainer, usernameInput, form } from '../utils/dom-utils.js';
 import { copyShareLink } from '../utils/clipboard-utils.js';
 import { updateShareFeedback } from '../features/ui-feedback.js';
 import { syncActiveNavigation } from './navigation.js';
 
 let setCardCycleTimers = [];
+
+export function teardownSetCardHandlers() {
+  setCardCycleTimers.forEach((timerId) => window.clearInterval(timerId));
+  setCardCycleTimers = [];
+}
 
 export function bindServerLinkHandlers(root = resultContainer) {
   root.querySelectorAll('[data-server-query]').forEach((button) => {
@@ -67,8 +72,7 @@ export function bindSetCardHandlers() {
 
   resultContainer.classList.toggle('touch-input', isTouchDevice);
 
-  setCardCycleTimers.forEach((timerId) => window.clearInterval(timerId));
-  setCardCycleTimers = [];
+  teardownSetCardHandlers();
 
   if (!cards.length) {
     return;

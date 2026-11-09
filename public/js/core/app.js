@@ -8,7 +8,6 @@ import { usernameInput } from '../utils/dom-utils.js';
 import { initializeSearch } from '../handlers/search-handler.js';
 import { renderRecentSection } from '../components/recent-section.js';
 import { getUsernameFromQuery } from '../features/url-state.js';
-import { initLazyImages } from '../loaders/image-loader.js';
 import { initPWAInstall } from '../features/pwa-install.js';
 import { initSupportPopup } from '../components/support-popup.js';
 import { initPressFeedback } from '../features/press-feedback.js';
@@ -32,13 +31,7 @@ async function initializeApp() {
 
   // Preload commonly used templates
   try {
-    const templates = [
-      'player-card',
-      'sets-help',
-      'recent-section',
-      'loading-skeleton',
-      'set-modal',
-    ];
+    const templates = ['player-card', 'sets-help', 'recent-section', 'loading-skeleton'];
     await preloadTemplates(templates);
   } catch (error) {
     logger.error('Error preloading templates', { error: error.message, stack: error.stack });
@@ -46,9 +39,6 @@ async function initializeApp() {
 
   // Mark the current page and enable the responsive navigation menu
   initNavigation();
-
-  // Initialize lazy image loading
-  initLazyImages();
 
   // Initialize PWA install prompt
   initPWAInstall();
@@ -66,10 +56,10 @@ async function initializeApp() {
     // Dispatch form submit to trigger search
     const form = document.getElementById('search-form');
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+  } else {
+    // A profile render owns its recents; special pages may intentionally hide them.
+    await renderRecentSection();
   }
-
-  // Render recents on first load
-  await renderRecentSection();
 }
 
 // Register Service Worker for offline caching (images cache-first)

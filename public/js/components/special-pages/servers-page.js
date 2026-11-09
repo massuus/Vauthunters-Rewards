@@ -1,3 +1,4 @@
+import { renderPlayerButton, bindPlayerButtons } from '../player-roster.js';
 import {
   fetchOfficialServers,
   getVisibleServers,
@@ -77,23 +78,6 @@ function groupServersByRegion(servers) {
   return Array.from(groups.entries());
 }
 
-export function renderServerPlayerButton(player, proxiedImageUrl, escapeHtml) {
-  const ign = String(player?.ign || '').trim();
-  if (!ign) return '';
-
-  const safeIgn = escapeHtml(ign);
-  const avatarUrl = proxiedImageUrl(
-    `https://mc-heads.net/avatar/${encodeURIComponent(player?.uuid || ign)}/64`
-  );
-
-  return `
-    <button class="recent-item server-player" type="button" data-player-name="${safeIgn}">
-      <img src="${avatarUrl}" alt="${safeIgn}'s head" width="28" height="28">
-      <span>${safeIgn}</span>
-    </button>
-  `;
-}
-
 export function bindOfficialServersHandlers(resultContainer, usernameInput, form) {
   resultContainer.querySelectorAll('[data-server-query]').forEach((button) => {
     button.addEventListener('click', () => {
@@ -104,14 +88,7 @@ export function bindOfficialServersHandlers(resultContainer, usernameInput, form
     });
   });
 
-  resultContainer.querySelectorAll('[data-player-name]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const name = button.getAttribute('data-player-name') || '';
-      if (!name) return;
-      usernameInput.value = name;
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    });
-  });
+  bindPlayerButtons(resultContainer, usernameInput, form);
 
   const backButton = resultContainer.querySelector('[data-open-servers]');
   if (backButton) {
@@ -126,13 +103,14 @@ export async function renderOfficialServersPage(
   resultContainer,
   setFavicon,
   setMetaDescription,
-  closeSetDetailModal,
   updateQueryString,
   escapeHtml,
   DEFAULT_FAVICON,
   usernameInput,
-  form
+  form,
+  { signal } = {}
 ) {
+  if (signal?.aborted) return;
   resultContainer.classList.remove('hidden');
   resultContainer.innerHTML = `
     <section class="official-servers-page">
@@ -143,10 +121,10 @@ export async function renderOfficialServersPage(
   setFavicon(DEFAULT_FAVICON);
   document.title = 'Official Vault Hunters Servers';
   setMetaDescription('Browse all official Vault Hunters servers and view who is currently listed.');
-  closeSetDetailModal();
 
   try {
     const servers = getVisibleServers(await fetchOfficialServers());
+    if (signal?.aborted) return;
     const serversWithPlayers = servers.filter(
       (server) => Array.isArray(server?.players) && server.players.length > 0
     );
@@ -185,6 +163,7 @@ export async function renderOfficialServersPage(
     bindOfficialServersHandlers(resultContainer, usernameInput, form);
     updateQueryString(SERVERS_QUERY_KEYWORDS[0]);
   } catch (error) {
+    if (signal?.aborted) return;
     resultContainer.innerHTML = `
       <section class="official-servers-page">
         <p class="official-servers-page__error">We couldn't load official servers right now. Please refresh and try again.</p>
@@ -200,14 +179,15 @@ export async function renderOfficialServerDetailPage(
   resultContainer,
   setFavicon,
   setMetaDescription,
-  closeSetDetailModal,
   updateQueryString,
   proxiedImageUrl,
   escapeHtml,
   DEFAULT_FAVICON,
   usernameInput,
-  form
+  form,
+  { signal } = {}
 ) {
+  if (signal?.aborted) return;
   resultContainer.classList.remove('hidden');
   resultContainer.innerHTML = `
     <section class="official-servers-page">
@@ -216,10 +196,10 @@ export async function renderOfficialServerDetailPage(
   `;
 
   setFavicon(DEFAULT_FAVICON);
-  closeSetDetailModal();
 
   try {
     const servers = getVisibleServers(await fetchOfficialServers());
+    if (signal?.aborted) return;
     const server = getServerById(serverTarget, servers);
 
     if (!server) {
@@ -247,7 +227,7 @@ export async function renderOfficialServerDetailPage(
         })
       : [];
     const playerButtons = players
-      .map((player) => renderServerPlayerButton(player, proxiedImageUrl, escapeHtml))
+      .map((player) => renderPlayerButton(player, proxiedImageUrl, escapeHtml))
       .join('');
     const serverName = escapeHtml(server.name);
     const serverRegion = escapeHtml(server.region || 'Unknown Region');
@@ -278,6 +258,7 @@ export async function renderOfficialServerDetailPage(
     const serverQueryName = String(server.name || server._id || '').trim();
     updateQueryString(`server=${encodeURIComponent(serverQueryName)}`);
   } catch (error) {
+    if (signal?.aborted) return;
     resultContainer.innerHTML = `
       <section class="official-servers-page">
         <p class="official-servers-page__error">We couldn't load that server right now. Please refresh and try again.</p>

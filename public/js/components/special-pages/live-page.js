@@ -8,6 +8,7 @@ const PHRASES = [
 ];
 let officialRefreshTimer;
 let communityRefreshTimer;
+let activeSession = 0;
 
 function watchLink(login) {
   const mobile =
@@ -158,12 +159,12 @@ export async function renderLivePage(
   container,
   setFavicon,
   setMetaDescription,
-  closeOpenModal,
   updateQueryString,
   escapeHtml,
   defaultFavicon
 ) {
-  closeOpenModal();
+  teardownLivePage();
+  const session = activeSession;
   updateQueryString('live');
   container.classList.remove('hidden');
   document.title = 'Vault Hunters Live';
@@ -180,6 +181,7 @@ export async function renderLivePage(
     loadOfficial(grid, status, escapeHtml),
     loadCommunity(communityGrid, communityStatus, escapeHtml),
   ]);
+  if (session !== activeSession) return;
   clearInterval(officialRefreshTimer);
   clearInterval(communityRefreshTimer);
   officialRefreshTimer = setInterval(() => loadOfficial(grid, status, escapeHtml), 60000);
@@ -190,6 +192,7 @@ export async function renderLivePage(
 }
 
 export function teardownLivePage() {
+  activeSession += 1;
   clearInterval(officialRefreshTimer);
   clearInterval(communityRefreshTimer);
   officialRefreshTimer = undefined;

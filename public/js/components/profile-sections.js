@@ -6,7 +6,7 @@ import {
   deriveRewardName,
   formatLabel,
 } from '../features/reward-utils.js';
-import { getSetArtStore } from './set-art-manager.js';
+import { getSetArtStore } from '../features/set-art.js';
 import {
   renderIndividualRewardModelPreview,
   renderRewardModelPreview,
@@ -323,9 +323,7 @@ function renderSetCard(setKey, setArtStore, isNew = false) {
   });
   const imageMarkup = imageParts.join('');
 
-  const newBadge = isNew
-    ? `<span class=\"set-card__badge\" aria-label=\"New unlock\">New</span>`
-    : '';
+  const newBadge = isNew ? `<span class="set-card__badge" aria-label="New unlock">New</span>` : '';
   const extraClass = isNew ? ' set-card--new' : '';
 
   return `
@@ -373,51 +371,6 @@ export function renderTiersSection(tiers, iskall85Tiers = [], iskall85TierConfig
         iskall85PatreonUrl,
         '?iskall85-patreons'
       )}
-    </section>
-  `;
-}
-
-export function renderTributeSection(tribute) {
-  if (!tribute) {
-    return '';
-  }
-
-  const title = tribute.title || 'In Loving Memory';
-  const images = Array.isArray(tribute.images) ? tribute.images.filter(Boolean) : [];
-  const imageMarkup = (images.length ? images : [tribute.image].filter(Boolean))
-    .map((imageSource, index) => {
-      const isFallbackImage = imageSource === UNKNOWN_ITEM_IMAGE;
-      const proxied = proxiedImageUrl(imageSource);
-      const fallbackClass = isFallbackImage ? ' pixelated-image' : '';
-      const activeClass = index === 0 ? ' is-active' : '';
-      const altText = tribute.alt || title;
-      const imgAlt = images.length > 1 ? `${altText} view ${index + 1}` : altText;
-      return `<img class="tribute-card__image${activeClass}${fallbackClass}" src="${proxied}" alt="${escapeHtml(imgAlt)}" loading="lazy" decoding="async" fetchpriority="low" width="72" height="72" referrerpolicy="no-referrer" onerror="this.onerror=null;this.referrerPolicy='no-referrer';this.src='${imageSource}'">`;
-    })
-    .join('');
-
-  const message = tribute.message
-    ? `<p class="tribute-card__message">${escapeHtml(tribute.message)}</p>`
-    : '';
-  const supportUrl = tribute.supportUrl || '';
-  const supportLabel = supportUrl ? escapeHtml(supportUrl.replace(/^https?:\/\//i, '')) : '';
-  const supportMessage = tribute.supportMessage
-    ? `${escapeHtml(tribute.supportMessage)}${supportUrl ? ` <a class="inline-link" href="${escapeHtml(supportUrl)}" target="_blank" rel="noopener">${supportLabel}</a>` : ''}`
-    : '';
-  const support = supportMessage ? `<p class="tribute-card__support">${supportMessage}</p>` : '';
-
-  return `
-    <section class="tribute-section">
-      <h3 class="section-title">${escapeHtml(title)}</h3>
-      <article class="tribute-card">
-        <div class="tribute-card__media">
-          ${imageMarkup}
-        </div>
-        <div class="tribute-card__content">
-          ${message}
-          ${support}
-        </div>
-      </article>
     </section>
   `;
 }

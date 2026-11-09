@@ -10,11 +10,9 @@ export function renderPrivacyPage(
   container,
   setFavicon,
   setMetaDescription,
-  closeOpenModal,
   updateQueryString,
   defaultFavicon
 ) {
-  closeOpenModal();
   updateQueryString('privacy');
   setFavicon(defaultFavicon);
   document.title = 'Privacy & cookies · Vault Hunters Rewards';

@@ -8,7 +8,10 @@ import {
   setMetaDescription,
   proxiedImageUrl,
 } from '../utils/dom-utils.js';
-import { setLoadingState, showFeedback } from '../features/ui-feedback.js';
+import {
+  setLoadingState as updateLoadingState,
+  showFeedback as displayFeedback,
+} from '../features/ui-feedback.js';
 import {
   isCodesQuery,
   isDevelopersQuery,
@@ -51,12 +54,7 @@ import {
   findServerByQuery,
 } from '../features/official-servers.js';
 
-function closeOpenModal() {
-  const modal = document.querySelector('dialog[open]');
-  if (modal) modal.close();
-}
-
-function updateQueryString(qs) {
+function writeQueryString(qs) {
   if (!qs) {
     window.history.replaceState({}, '', window.location.pathname);
   } else {
@@ -65,7 +63,7 @@ function updateQueryString(qs) {
   syncActiveNavigation();
 }
 
-function scrollToResults() {
+function scrollResultsIntoView() {
   resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -80,7 +78,23 @@ async function resolveServerFromSearchValue(value, cachedOnly) {
   }
 }
 
-export async function handleSpecialPageSearch(username, { cachedServersOnly = false } = {}) {
+export async function handleSpecialPageSearch(
+  username,
+  { cachedServersOnly = false, signal } = {}
+) {
+  if (signal?.aborted) return true;
+  const setLoadingState = (value) => {
+    if (!signal?.aborted) updateLoadingState(value);
+  };
+  const showFeedback = (...args) => {
+    if (!signal?.aborted) displayFeedback(...args);
+  };
+  const updateQueryString = (value) => {
+    if (!signal?.aborted) writeQueryString(value);
+  };
+  const scrollToResults = () => {
+    if (!signal?.aborted) scrollResultsIntoView();
+  };
   teardownLeaderboardPage();
   teardownLivePage();
 
@@ -93,13 +107,13 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
         resultContainer,
         setFavicon,
         setMetaDescription,
-        closeOpenModal,
         updateQueryString,
         proxiedImageUrl,
         escapeHtml,
         DEFAULT_FAVICON,
         usernameInput,
-        form
+        form,
+        { signal }
       );
       scrollToResults();
     } catch {
@@ -119,13 +133,13 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
         resultContainer,
         setFavicon,
         setMetaDescription,
-        closeOpenModal,
         updateQueryString,
         proxiedImageUrl,
         escapeHtml,
         DEFAULT_FAVICON,
         usernameInput,
-        form
+        form,
+        { signal }
       );
       scrollToResults();
     } catch {
@@ -145,13 +159,13 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
         resultContainer,
         setFavicon,
         setMetaDescription,
-        closeOpenModal,
         updateQueryString,
         proxiedImageUrl,
         escapeHtml,
         DEFAULT_FAVICON,
         usernameInput,
-        form
+        form,
+        { signal }
       );
       scrollToResults();
     } catch {
@@ -169,7 +183,6 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
       resultContainer,
       setFavicon,
       setMetaDescription,
-      closeOpenModal,
       updateQueryString,
       DEFAULT_FAVICON
     );
@@ -186,10 +199,10 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
         resultContainer,
         setFavicon,
         setMetaDescription,
-        closeOpenModal,
         updateQueryString,
         escapeHtml,
-        DEFAULT_FAVICON
+        DEFAULT_FAVICON,
+        { signal }
       );
     } finally {
       setLoadingState(false);
@@ -206,14 +219,15 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
         resultContainer,
         setFavicon,
         setMetaDescription,
-        closeOpenModal,
         updateQueryString,
         escapeHtml,
-        DEFAULT_FAVICON
+        DEFAULT_FAVICON,
+        { signal }
       );
-      resultContainer
-        .querySelector('.badges-page')
-        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (!signal?.aborted)
+        resultContainer
+          .querySelector('.badges-page')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } finally {
       setLoadingState(false);
     }
@@ -229,7 +243,6 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
         resultContainer,
         setFavicon,
         setMetaDescription,
-        closeOpenModal,
         updateQueryString,
         escapeHtml,
         DEFAULT_FAVICON
@@ -249,11 +262,11 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
         resultContainer,
         setFavicon,
         setMetaDescription,
-        closeOpenModal,
         updateQueryString,
         proxiedImageUrl,
         escapeHtml,
-        DEFAULT_FAVICON
+        DEFAULT_FAVICON,
+        { signal }
       );
       scrollToResults();
     } catch {
@@ -274,12 +287,12 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
         resultContainer,
         setFavicon,
         setMetaDescription,
-        closeOpenModal,
         updateQueryString,
         proxiedImageUrl,
         escapeHtml,
         formatLabel,
-        DEFAULT_FAVICON
+        DEFAULT_FAVICON,
+        { signal }
       );
       scrollToResults();
     } catch {
@@ -297,12 +310,12 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
         resultContainer,
         setFavicon,
         setMetaDescription,
-        closeOpenModal,
         updateQueryString,
         escapeHtml,
         DEFAULT_FAVICON,
         usernameInput,
-        form
+        form,
+        { signal }
       );
       scrollToResults();
     } catch {
@@ -328,7 +341,6 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
         resultContainer,
         setFavicon,
         setMetaDescription,
-        closeOpenModal,
         updateQueryString,
         proxiedImageUrl,
         escapeHtml,
@@ -358,7 +370,6 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
         resultContainer,
         setFavicon,
         setMetaDescription,
-        closeOpenModal,
         updateQueryString,
         proxiedImageUrl,
         escapeHtml,
@@ -385,7 +396,6 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
         resultContainer,
         setFavicon,
         setMetaDescription,
-        closeOpenModal,
         updateQueryString,
         DEFAULT_FAVICON
       );
@@ -407,13 +417,13 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
         resultContainer,
         setFavicon,
         setMetaDescription,
-        closeOpenModal,
         updateQueryString,
         proxiedImageUrl,
         escapeHtml,
         DEFAULT_FAVICON,
         usernameInput,
-        form
+        form,
+        { signal }
       );
       scrollToResults();
     } catch {
@@ -428,6 +438,7 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
   }
 
   const matchedServer = await resolveServerFromSearchValue(username, cachedServersOnly);
+  if (signal?.aborted) return true;
   if (matchedServer?._id) {
     setLoadingState(true);
     try {
@@ -436,13 +447,13 @@ export async function handleSpecialPageSearch(username, { cachedServersOnly = fa
         resultContainer,
         setFavicon,
         setMetaDescription,
-        closeOpenModal,
         updateQueryString,
         proxiedImageUrl,
         escapeHtml,
         DEFAULT_FAVICON,
         usernameInput,
-        form
+        form,
+        { signal }
       );
       scrollToResults();
     } catch {

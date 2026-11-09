@@ -7,7 +7,7 @@ import {
   parseCookies,
   serializeCookie,
 } from './http.js';
-import { createId, requireMiningDb } from './mining-db.js';
+import { requireAppDb } from './database.js';
 
 export const SESSION_COOKIE = 'vhr_session';
 export const OAUTH_STATE_COOKIE = 'vhr_oauth_state';
@@ -51,7 +51,7 @@ export function isAdminUser(env, twitchUserId) {
 }
 
 export async function createOauthFlow(env, returnPath) {
-  const db = requireMiningDb(env);
+  const db = requireAppDb(env);
   const state = randomToken(32);
   const stateHash = await sha256(state);
   const now = new Date();
@@ -70,7 +70,7 @@ export async function createOauthFlow(env, returnPath) {
 }
 
 export async function consumeOauthFlow(env, state) {
-  const db = requireMiningDb(env);
+  const db = requireAppDb(env);
   const stateHash = await sha256(state);
   const flow = await db
     .prepare('SELECT return_path, expires_at FROM oauth_flows WHERE state_hash = ?')
@@ -192,7 +192,7 @@ export async function createAuthSession(env, identity, tokens) {
   if (!isAdminUser(env, identity?.twitchUserId)) {
     throw new ApiError(403, 'Twitch sign-in is only available to the site administrator.');
   }
-  const db = requireMiningDb(env);
+  const db = requireAppDb(env);
   const config = requireTwitchConfig(env);
   const sessionToken = randomToken(32);
   const sessionHash = await sha256(sessionToken);
@@ -275,7 +275,7 @@ async function refreshTwitchSession(env, row) {
 }
 
 async function revalidateSession(env, row) {
-  const db = requireMiningDb(env);
+  const db = requireAppDb(env);
   const config = requireTwitchConfig(env);
   let accessToken = await decryptSecret(row.access_token_ciphertext, config.encryptionKey);
   let validation;
@@ -349,7 +349,7 @@ function mapAuthUser(env, row) {
 }
 
 export async function getAuthSession(request, env) {
-  const db = requireMiningDb(env);
+  const db = requireAppDb(env);
   const token = parseCookies(request)[SESSION_COOKIE];
   if (!token) return null;
   const sessionHash = await sha256(token);
@@ -409,7 +409,7 @@ export async function requireAuth(context, { admin = false, csrf = false } = {})
 }
 
 export async function deleteAuthSession(request, env) {
-  const db = requireMiningDb(env);
+  const db = requireAppDb(env);
   const token = parseCookies(request)[SESSION_COOKIE];
   if (!token) return;
   await db
@@ -427,23 +427,4 @@ export function buildTwitchAuthorizationUrl(request, env, state) {
   url.searchParams.set('scope', 'openid');
   url.searchParams.set('state', state);
   return url.toString();
-}
-
-export async function writeSystemAudit(env, entityType, entityId, action, details = null) {
-  const db = requireMiningDb(env);
-  await db
-    .prepare(
-      `INSERT INTO mining_audit_log (
-        id, entity_type, entity_id, action, actor_type, actor_id, details_json, created_at
-      ) VALUES (?, ?, ?, ?, 'system', NULL, ?, ?)`
-    )
-    .bind(
-      createId(),
-      entityType,
-      entityId,
-      action,
-      details ? JSON.stringify(details) : null,
-      new Date().toISOString()
-    )
-    .run();
 }

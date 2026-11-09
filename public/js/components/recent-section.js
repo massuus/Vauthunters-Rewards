@@ -15,6 +15,11 @@ import { getBestPatreonTier } from '../utils/tier-utils.js';
 import { fetchLeaderboardPage } from '../features/leaderboard.js';
 
 const HOME_LEADERBOARD_LIMIT = 5;
+let renderGeneration = 0;
+
+export function cancelRecentSectionRender() {
+  renderGeneration += 1;
+}
 
 function renderHomeTierBadge(label, modifier) {
   const safeLabel = String(label || '').trim();
@@ -29,13 +34,18 @@ function renderHomeTierBadge(label, modifier) {
 /**
  * Render the recent users section
  */
-export async function renderRecentSection() {
+export async function renderRecentSection({ signal } = {}) {
   if (!recentContainer) return;
+  const generation = ++renderGeneration;
+  const query = usernameInput.value.trim();
+  const isCurrent = () =>
+    !signal?.aborted && generation === renderGeneration && query === usernameInput.value.trim();
   const items = getRecentUsers();
 
   const shouldShowHomeBlocks =
     !usernameInput.value.trim() && resultContainer.classList.contains('hidden');
   const leaderboardSection = shouldShowHomeBlocks ? await renderHomeLeaderboardSection() : '';
+  if (!isCurrent()) return;
 
   if (!items.length && !leaderboardSection) {
     recentContainer.classList.add('hidden');
@@ -52,6 +62,7 @@ export async function renderRecentSection() {
     })
     .join('');
   const template = await loadTemplate('recent-section');
+  if (!isCurrent()) return;
   recentContainer.innerHTML = renderTemplate(template, {
     buttons,
     leaderboardSection,

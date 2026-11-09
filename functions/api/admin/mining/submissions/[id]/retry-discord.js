@@ -1,6 +1,9 @@
 import { requireAuth } from '../../../../../utils/auth.js';
-import { sendSubmissionToDiscord } from '../../../../../utils/discord.js';
-import { getMiningSubmission, setDiscordDelivery } from '../../../../../utils/mining-db.js';
+import { sendSubmissionToDiscord } from '../../../../../services/mining/discord.js';
+import {
+  getMiningSubmission,
+  setDiscordDelivery,
+} from '../../../../../services/mining/repository.js';
 import {
   ApiError,
   handleApiError,

@@ -149,12 +149,13 @@ export async function renderCodesPage(
   resultContainer,
   setFavicon,
   setMetaDescription,
-  closeSetDetailModal,
   updateQueryString,
   proxiedImageUrl,
   escapeHtml,
-  DEFAULT_FAVICON
+  DEFAULT_FAVICON,
+  { signal } = {}
 ) {
+  if (signal?.aborted) return;
   resultContainer.classList.remove('hidden');
   resultContainer.innerHTML = `
     <section class="codes-page">
@@ -166,10 +167,10 @@ export async function renderCodesPage(
   setMetaDescription(
     'Here is a comprehensive list on how to unlock all possible Vault Hunters code rewards.'
   );
-  closeSetDetailModal();
 
   try {
     const codes = await fetchCodesData();
+    if (signal?.aborted) return;
 
     // Separate active and expired codes
     const activeCodes = [];
@@ -236,6 +237,7 @@ export async function renderCodesPage(
     bindExpiredCodesToggle(resultContainer);
     updateQueryString(CODES_QUERY_KEYWORDS[0]);
   } catch (error) {
+    if (signal?.aborted) return;
     resultContainer.innerHTML = `
       <section class="codes-page">
         <p class="codes-page__error">We couldn't load the reward codes right now. Please refresh and try again.</p>

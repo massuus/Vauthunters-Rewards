@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { normalizeClue, validateMiningSubmission } from '../functions/utils/mining-validation.js';
+import {
+  normalizeClue,
+  validateMiningSubmission,
+} from '../functions/services/mining/validation.js';
 
 test('normalizes harmless clue formatting differences', () => {
   assert.equal(normalizeClue('  Under  the  STONE!  '), 'under the stone');

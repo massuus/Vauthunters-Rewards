@@ -6,6 +6,7 @@ const MAX_OFFSET = 1_000_000;
 
 const inMemoryPageCache = new Map();
 const inFlightPageRequests = new Map();
+let cacheGeneration = 0;
 
 function clampInt(value, fallback, min, max) {
   const parsed = Number.parseInt(value, 10);
@@ -221,6 +222,7 @@ export async function fetchLeaderboardPage({
     }
   }
 
+  const generation = cacheGeneration;
   const requestPromise = (async () => {
     const url = new URL('/api/leaderboard', window.location.origin);
     url.searchParams.set('offset', String(safeOffset));
@@ -249,7 +251,11 @@ export async function fetchLeaderboardPage({
     const payload = await response.json();
     const normalized = normalizePayload(payload, safeOffset, safeLimit);
 
-    if (!forceRefresh) {
+    if (
+      !forceRefresh &&
+      generation === cacheGeneration &&
+      inFlightPageRequests.get(pageKey) === requestPromise
+    ) {
       writePageCache(pageKey, normalized);
     }
 
@@ -263,13 +269,14 @@ export async function fetchLeaderboardPage({
   try {
     return await requestPromise;
   } finally {
-    if (!forceRefresh) {
+    if (!forceRefresh && inFlightPageRequests.get(pageKey) === requestPromise) {
       inFlightPageRequests.delete(pageKey);
     }
   }
 }
 
 export function clearLeaderboardCache() {
+  cacheGeneration += 1;
   inMemoryPageCache.clear();
   inFlightPageRequests.clear();
   clearStoredLeaderboardPages();

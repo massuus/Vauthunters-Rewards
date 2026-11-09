@@ -3,8 +3,8 @@ import {
   ephemeralDiscordResponse,
   getDiscordModerator,
   verifyDiscordRequest,
-} from '../../utils/discord.js';
-import { moderateMiningSubmission } from '../../utils/mining-db.js';
+} from '../../services/mining/discord.js';
+import { moderateMiningSubmission } from '../../services/mining/repository.js';
 import { ApiError, json, methodNotAllowed } from '../../utils/http.js';
 
 export async function onRequest({ request, env }) {

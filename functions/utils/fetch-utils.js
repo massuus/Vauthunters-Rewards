@@ -25,9 +25,42 @@ export async function fetchWithTimeout(url, options = {}, timeoutMs = TIMEOUT_MS
       ...options,
       signal: controller.signal,
     });
-    return response;
-  } finally {
+    if (!response.body) {
+      clearTimeout(timeoutId);
+      return response;
+    }
+
+    // Keep the same abort deadline while the caller consumes the response.
+    // Returning at headers alone leaves a stalled JSON body without a timeout.
+    const reader = response.body.getReader();
+    const body = new ReadableStream({
+      async pull(stream) {
+        try {
+          const chunk = await reader.read();
+          if (chunk.done) {
+            clearTimeout(timeoutId);
+            stream.close();
+          } else {
+            stream.enqueue(chunk.value);
+          }
+        } catch (error) {
+          clearTimeout(timeoutId);
+          stream.error(error);
+        }
+      },
+      async cancel(reason) {
+        clearTimeout(timeoutId);
+        await reader.cancel(reason);
+      },
+    });
+    return new Response(body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+    });
+  } catch (error) {
     clearTimeout(timeoutId);
+    throw error;
   }
 }
 
@@ -101,6 +134,7 @@ export async function fetchWithRetry(
 
       // If we have retries left and it's retryable, continue
       if (attempt < maxRetries && isRetryable(null, response)) {
+        await response.body?.cancel();
         const delay = getRetryDelay(attempt);
         console.log(`Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms for ${url}`);
         await sleep(delay);
@@ -153,10 +187,12 @@ export async function fetchJson(url, context = 'API', timeoutMs = TIMEOUT_MS, he
     );
 
     if (response.status === 404) {
+      await response.body?.cancel();
       return { notFound: true, data: null };
     }
 
     if (!response.ok) {
+      await response.body?.cancel();
       console.error(`${context} error status:`, response.status);
       return { error: true, status: response.status, data: null };
     }

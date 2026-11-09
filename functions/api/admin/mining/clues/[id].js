@@ -1,6 +1,6 @@
 import { requireAuth } from '../../../../utils/auth.js';
-import { archiveAdminClue, updateAdminClue } from '../../../../utils/mining-db.js';
-import { validateMiningSubmission } from '../../../../utils/mining-validation.js';
+import { archiveAdminClue, updateAdminClue } from '../../../../services/mining/repository.js';
+import { validateMiningSubmission } from '../../../../services/mining/validation.js';
 import { handleApiError, methodNotAllowed, noStoreJson, readJson } from '../../../../utils/http.js';
 
 export async function onRequest(context) {

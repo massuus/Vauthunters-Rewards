@@ -12,10 +12,6 @@ export const DEFAULT_FAVICON = 'https://mc-heads.net/avatar/f00538241a8649c4a519
 export const UNKNOWN_ITEM_IMAGE = '/img/unknown_item.png';
 export const defaultTitle = document.title;
 export const metaDescriptionEl = document.querySelector('meta[name="description"]');
-export const defaultDescription = metaDescriptionEl
-  ? metaDescriptionEl.getAttribute('content') || ''
-  : '';
-
 /**
  * Set the meta description tag
  */

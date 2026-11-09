@@ -1134,64 +1134,6 @@ img[src$='/spring-boots.png'] {
   contain-intrinsic-size: 800px 1000px;
 }
 
-.tribute-section {
-  display: grid;
-  gap: 0.85rem;
-}
-
-.tribute-card {
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background:
-    radial-gradient(circle at top left, rgba(76, 255, 124, 0.12), transparent 36%),
-    linear-gradient(180deg, rgba(20, 26, 24, 0.9) 0%, rgba(8, 10, 12, 0.96) 100%);
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.28);
-  padding: 1rem;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 1rem;
-  align-items: center;
-}
-
-.tribute-card__media {
-  display: flex;
-  gap: 0.6rem;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.tribute-card__image {
-  width: 84px;
-  height: 84px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  object-fit: cover;
-  background: rgba(0, 0, 0, 0.24);
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.24);
-}
-
-.tribute-card__content {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.tribute-card__message,
-.tribute-card__support {
-  margin: 0;
-  color: var(--text-secondary);
-  line-height: 1.55;
-}
-
-.tribute-card__message {
-  color: var(--text-primary);
-  font-size: 1.02rem;
-}
-
-.tribute-card__support {
-  padding-top: 0.2rem;
-}
-
 #extra-panel {
   margin-top: 0.75rem;
 }
@@ -1961,92 +1903,6 @@ img[src$='/spring-boots.png'] {
   border: 0;
 }
 
-.set-modal {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  z-index: 1050;
-}
-
-.set-modal__backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-}
-
-.set-modal__content {
-  position: relative;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  box-shadow: var(--shadow);
-  padding: 1.75rem 1.5rem;
-  width: min(420px, 100%);
-  display: grid;
-  gap: 1rem;
-  outline: none;
-}
-
-.set-modal__close {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 1.5rem;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0.25rem;
-  transition: color 0.2s ease;
-}
-
-.set-modal__close:hover,
-.set-modal__close:focus-visible {
-  color: var(--accent);
-  outline: none;
-}
-
-.set-modal__body {
-  display: grid;
-  gap: 1rem;
-  justify-items: start;
-}
-
-.set-modal__images {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.set-modal__image {
-  width: 96px;
-  height: 96px;
-  border-radius: 16px;
-  border: 2px solid var(--accent);
-  background: rgba(0, 0, 0, 0.4);
-  object-fit: contain;
-  object-position: center;
-}
-
-.set-modal__title {
-  margin: 0;
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.6rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.set-modal__description {
-  margin: 0;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-.set-modal__description .inline-link,
 .reward-card__description .inline-link,
 .set-card__description .inline-link {
   color: var(--accent);
@@ -2054,7 +1910,6 @@ img[src$='/spring-boots.png'] {
   text-underline-offset: 2px;
 }
 
-.set-modal__description .inline-link:hover,
 .reward-card__description .inline-link:hover,
 .set-card__description .inline-link:hover {
   text-decoration-thickness: 2px;
@@ -2124,15 +1979,6 @@ img[src$='/spring-boots.png'] {
     width: 100%;
     min-height: 2.9rem;
     border-radius: 14px;
-  }
-
-  .set-modal__content {
-    padding: 1.5rem 1.25rem;
-  }
-
-  .set-modal__body {
-    justify-items: center;
-    text-align: center;
   }
 }
 

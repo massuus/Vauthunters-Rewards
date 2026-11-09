@@ -1,5 +1,5 @@
-import { hexToBytes } from './crypto.js';
-import { answerLabel } from './mining-validation.js';
+import { hexToBytes } from '../../utils/crypto.js';
+import { answerLabel } from './validation.js';
 
 const encoder = new TextEncoder();
 

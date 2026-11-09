@@ -4,6 +4,9 @@ A lightweight web app to look up a Minecraft player and display their Vault Hunt
 
 Live site: https://vh-rewards.massuus.com/
 
+For the code layout, validation commands, and cleanup priorities, see the
+[maintenance guide](docs/maintenance.md).
+
 ## API documentation
 
 - `/swagger/` — self-hosted Swagger UI with GET request execution for the app API.
@@ -14,7 +17,7 @@ These files are included in production builds. The app spec does not cover authe
 ## Features
 
 - **Username Search**: Resolves Mojang UUIDs and fetches Vault Hunters rewards and Patreon tiers.
-- **Set Art & Details**: Set images and descriptions from the wiki when available (`public/set-art.json`); modals support multiple images per set.
+- **Set Art & Details**: Set images and descriptions from the wiki when available (`public/data/set-art.json`); expanded reward cards support multiple images per set.
 - **Extra Info Panel**: Two‑column table (Name, Path) for individual rewards with sensible path mapping (e.g., `the_vault:gear/armor/<set>/<piece>` or `the_vault:gear/<type>/<name>`).
 - **Responsive Design**: Long paths wrap on mobile; panels scroll horizontally as a safety net.
 - **Recent Searches**: Clickable head+name chips for the last 4 players you've looked up, persisted in localStorage.
@@ -22,14 +25,14 @@ These files are included in production builds. The app spec does not cover authe
 - **Reward Codes Page**: Browse all unlockable reward codes with descriptions, VOD links, and reveal buttons (access via search: "codes").
 - **All Rewards Browse**: Browse every unlockable reward in the game with images and descriptions (access via search: "all").
 - **Unlock Leaderboard**: Browse players ranked by total unlocked sets with Vault Hunters + Iskall85 tier columns (access via search: "leaderboard").
-- **Mining Clue Database**: Search approved mining clues and answers, submit new evidence while signed in with Twitch, and moderate submissions from Discord or the site (access via search: "mining").
+- **Mining event archive**: Old mining searches show the event-ended notice; public clue and submission APIs return HTTP 410.
 - **Patreon Tier Badges**: Visual badges for each Patreon tier (Dweller, Cheeser, Goblin, Champion, Legend) with color coding.
 - **Service Worker Caching**: Cache‑first images and short‑TTL caching for `/api/profile`.
 - **New Unlock Detection**: Highlights newly obtained sets with a "New" badge per player.
 - **Rate Limiting**: API endpoints are rate-limited to prevent abuse (60 requests/minute).
 - **Retry Logic**: Failed API requests automatically retry with exponential backoff.
 - **Offline Support**: Custom offline page with graceful degradation.
-- **Lazy Image Loading**: Images load lazily with skeleton loaders for better UX.
+- **Lazy Image Loading**: Reward images use native browser lazy loading; profile requests show a loading skeleton.
 
 ## Prerequisites
 
@@ -44,12 +47,18 @@ npm install
 npm start
 ```
 
-This uses `wrangler pages dev dist` via `npx` (after a production build) and serves:
+This uses `wrangler pages dev dist` via `npx` after an optimized local build and serves:
 
 - Frontend at `http://127.0.0.1:8788/`
 - Functions under `/api/*` and `/img`
 
 Compatibility date is set in `wrangler.toml`.
+
+While the local server is running, use `npm run build:local` to rebuild. Local
+builds preserve older hashed chunks for already open tabs. `build:prod` creates a
+clean deployment output and can remove chunks still referenced by an open tab;
+reload the tab after switching builds. Development and watch builds also preserve
+existing chunks.
 
 ### Local API key setup
 
@@ -211,16 +220,17 @@ Runtime functions intentionally do not execute `CREATE TABLE` or `CREATE INDEX`.
 schema queries each time Cloudflare starts a new isolate and makes applying migrations a
 required deployment step.
 
-### Mining clues setup
+### Administrator login setup
 
-The mining feature uses the existing `LEADERBOARD_DB` D1 binding. Apply the checked-in migrations before starting the feature locally or deploying it:
+The administrator dashboard uses the existing `LEADERBOARD_DB` D1 binding (or
+`MINING_DB` when configured). Apply the checked-in migrations before starting it:
 
 ```bash
 npm run db:migrate:local
 npm run db:migrate:remote
 ```
 
-Copy `.dev.vars.example` to `.dev.vars` for local development. The mining feature needs the following configuration.
+Copy `.dev.vars.example` to `.dev.vars` for local configuration.
 
 #### Twitch login
 
@@ -228,12 +238,12 @@ Copy `.dev.vars.example` to `.dev.vars` for local development. The mining featur
 2. Add `http://127.0.0.1:8788/api/auth/twitch/callback` as a local OAuth redirect URL and `https://your-domain.example/api/auth/twitch/callback` for production.
 3. Set `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`, and `TWITCH_REDIRECT_URI`.
 4. Generate a long random `TWITCH_TOKEN_ENCRYPTION_KEY` (at least 32 characters). It encrypts stored Twitch tokens.
-5. Set `ADMIN_TWITCH_USER_IDS` to the numeric Twitch user IDs that may edit clues directly. Multiple IDs are comma-separated.
+5. Set `ADMIN_TWITCH_USER_IDS` to the numeric Twitch user IDs allowed to sign in to the administrator dashboard. Multiple IDs are comma-separated.
 6. Set `APP_ORIGIN` to the exact public origin, without a trailing slash.
 
-Twitch users who are not in `ADMIN_TWITCH_USER_IDS` may submit suggestions but cannot access the site administration API.
+Only Twitch users in `ADMIN_TWITCH_USER_IDS` can create a login session. Login returns to `/admin`.
 
-#### Discord moderation
+#### Legacy Discord moderation
 
 1. Create a Discord application and bot in the [Discord developer portal](https://discord.com/developers/applications).
 2. Add the bot to the private server with permission to view the review channel, send messages, and embed links.
@@ -241,7 +251,7 @@ Twitch users who are not in `ADMIN_TWITCH_USER_IDS` may submit suggestions but c
 4. Set `DISCORD_APPLICATION_ID`, `DISCORD_PUBLIC_KEY`, `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID`, and `DISCORD_CHANNEL_ID`.
 5. Set `DISCORD_MODERATOR_ROLE_IDS` and/or `DISCORD_MODERATOR_USER_IDS` to comma-separated IDs allowed to use Accept, Decline, and Block.
 
-The bot posts each pending submission with moderation buttons. Discord requests are verified with the application's public key, and the configured guild/channel/moderator allowlists are checked before a decision is applied. A Gateway connection is not required.
+The retained Discord integration can moderate existing submissions and retry delivery from the admin API; public submissions are closed. Discord requests are verified with the application's public key, and the configured guild/channel/moderator allowlists are checked before a decision is applied. A Gateway connection is not required.
 
 Keep `TWITCH_CLIENT_SECRET`, `TWITCH_TOKEN_ENCRYPTION_KEY`, and `DISCORD_BOT_TOKEN` in Cloudflare Pages secrets. The IDs, public key, redirect URI, origin, admin list, and rate-limit settings can be regular environment variables. For example:
 
@@ -251,7 +261,7 @@ npx wrangler pages secret put TWITCH_TOKEN_ENCRYPTION_KEY --project-name vauthun
 npx wrangler pages secret put DISCORD_BOT_TOKEN --project-name vauthunters-rewards
 ```
 
-Optional abuse limits are `MINING_SUBMISSION_COOLDOWN_SECONDS`, `MINING_DAILY_SUBMISSION_LIMIT`, and `MINING_PENDING_SUBMISSION_LIMIT`.
+The retired public submission limits are no longer used.
 
 ## Build for Production
 
@@ -289,7 +299,7 @@ npm run build:dev
 3. The result shows the player head, unlocked sets (with art), Patreon tiers, and an Extra Info panel for reward items.
 4. Recent Searches appear under the search bar; click any chip to search again.
 5. Search for `leaderboard` to open the unlock leaderboard with infinite scrolling (10 players per page).
-6. Search for `mining`, `mining clues`, `clues`, or `mine` to open the mining clue database.
+6. Old mining searches (`mining`, `mining clues`, `clues`, or `mine`) show the event-ended notice.
 
 ## API
 
@@ -377,28 +387,17 @@ curl -X POST https://your-site.example/api/leaderboard-refresh \
 
 Run this multiple times (e.g. offsets `0`, `200`, `400`) to seed ~500 players.
 
-### Mining clues API
+### Authentication and retired mining API
 
-Public routes:
-
-- `GET /api/mining/clues?q=&answer=&limit=&offset=` lists approved clues.
-- `GET /api/auth/me` returns the current Twitch session and CSRF token.
-- `GET /api/auth/twitch/login?returnTo=/?mining` starts Twitch login.
-
-Signed-in routes:
-
-- `POST /api/mining/submissions` submits a clue, answer, and optional proof date/time/streamer/VOD or clip URL.
-- `GET /api/mining/submissions/mine` lists the current user's recent submissions.
+- `GET /api/auth/me` returns the current administrator session and CSRF token.
+- `GET /api/auth/twitch/login?returnTo=/admin` starts administrator Twitch login.
 - `POST /api/auth/logout` signs out.
+- All `/api/mining/*` requests return HTTP 410 with `Cache-Control: no-store`.
 
-Admin routes under `/api/admin/mining/*` support direct clue creation, editing, archival, failed Discord delivery retries, and unblocking users. Mutating authenticated requests require the CSRF token returned by `/api/auth/me` in the `x-csrf-token` header.
-
-Submission behavior:
-
-- An exact clue-and-answer duplicate is rejected immediately.
-- A clue with a different answer is sent for review as an answer change and updates the existing clue when accepted.
-- Similar wording is flagged as a possible duplicate for the moderator.
-- Proof fields are optional, but date, time, time zone, and streamer must be supplied together when proof is included.
+The retained admin routes under `/api/admin/mining/*` support legacy clue editing,
+submission review, Discord delivery retries, and unblocking. Mutating requests
+require the CSRF token from `/api/auth/me` in the `x-csrf-token` header.
+The database history and migrations remain intact.
 
 ### Mock mode (local testing)
 
@@ -417,41 +416,27 @@ You can bypass upstream calls during development:
 
 ## Frontend structure
 
-- `public/pages/index.html` – application shell and search form
-- `public/app.js` – Main application initialization and exports for modular functions
-- `public/dom-utils.js` – DOM element caching, utility functions, and image proxying
-- `public/search-handler.js` – Search form submission, API calls, and special page routing (codes, all rewards)
-- `public/profile-renderer.js` – Rendering of player profile, sets, tiers, and rewards; disclosure toggles
-- `public/recent-section.js` – Recent users list rendering and event handling
-- `public/set-art-manager.js` – Set art loading, modal management, and modal focus handling
-- `public/reward-utils.js` – Reward processing, formatting, HTML escaping, and path derivation
-- `public/storage-manager.js` – localStorage management for recent users and per-player seen sets
-- `public/url-state.js` – URL query string parsing, sharing, and modal focus state
-- `public/ui-feedback.js` – Loading states, feedback messages, and result clearing
-- `public/special-pages.js` – Codes page and all rewards page rendering and event binding
-- `public/template-loader.js` – Template loading with caching and rendering with data interpolation
-- `public/clipboard-utils.js` – Copy-to-clipboard functionality for share links and codes
-- `public/main.css` – Root stylesheet importing modular CSS (variables, base, utilities, components)
-- `public/set-art.json` – set metadata (labels, images, descriptions); supports both single and multiple images per set
-- `public/codes.json` – Reward codes data (name, description, vodUrl, code, expires, images)
-- `public/sw.js` – Service Worker with cache‑first images and short‑TTL API caching
-- `public/templates/` – HTML template fragments:
-  - `player-card.html` – Player head, name, and share button
-  - `recent-section.html` – Recent searches container
-  - `sets-section.html` – Vault sets grid and CTA buttons
-  - `set-card.html` – Individual set card with optional "New" badge
-  - `set-modal.html` – Set detail modal with images and description
-  - `tiers-section.html` – Patreon tiers list with badges
-  - `extra-section.html` – Extra info toggle and panel
-  - `sets-help.html` – Help text toggle about seeing all unlocks
-  - `reward-group.html` – Table structure for reward groups
-  - `loading-skeleton.html` – Loading placeholder
+- `public/pages/` - Application shell, Swagger UI, and offline page.
+- `public/js/core/` - Application startup, logging, and error handling.
+- `public/js/handlers/` - Search and special-page routing.
+- `public/js/components/` - Profile rendering and shared UI components.
+- `public/js/components/special-pages/` - Individual page entry points.
+- `public/js/features/` - Browser data access and feature behavior.
+- `public/js/utils/` - DOM, storage, clipboard, and tier helpers.
+- `public/js/loaders/` - Template loading and rendering.
+- `public/css/main.css` - Stylesheet entry point.
+- `public/data/` - Reward codes, set art, and generated model data.
+- `public/templates/` - The four runtime-loaded HTML fragments: player card,
+  recent searches, sets help, and loading skeleton.
+- `public/sw.js` - Service worker for assets and API caching.
+
+See [the maintenance guide](docs/maintenance.md) for ownership and cleanup decisions.
 
 ## Functions
 
 - `functions/api/profile.js` – Aggregates PlayerDB (UUID), Vault Hunters rewards, and Patreon tiers. Supports `mock=1` for local dev.
 - `functions/api/auth/` – Twitch login, callback, session lookup, and logout routes.
-- `functions/api/mining/` – Public clue lookup and authenticated submission routes.
+- `functions/api/mining/` – Retirement response for all old public mining routes.
 - `functions/api/admin/mining/` – Twitch-admin clue, submission, and blocked-user management routes.
 - `functions/api/discord/interactions.js` – Verified Discord button interaction handler.
 - `functions/utils/` – Shared authentication, Discord, D1, validation, cryptography, and HTTP helpers.
@@ -484,20 +469,15 @@ Search for **"leaderboard"** to view ranked players by unlocked set count:
 - Uses API + browser caching to reduce repeated requests
 - Clicking a row searches that player profile immediately
 
-### Mining Clues
+### Mining event ended
 
-Search for **"mining"** to open the community mining clue database:
-
-- Search and filter approved answers by Surface, Mineshaft, or Cave
-- Sign in with Twitch to submit a clue and optional VOD or clip proof details
-- Track whether your submissions are pending, accepted, declined, or blocked
-- Admins can add, edit, or archive clues immediately after Twitch login
-- Admins can retry failed Discord notifications and unblock submitters
+Search for **"mining"** to see the event-ended notice. Public clue searches and
+submissions are closed. Legacy admin and Discord APIs remain for existing records.
 
 ## Verification
 
 ```bash
-npm test
+npm run test:all
 npm run lint
 npm run build:prod
 ```
@@ -510,11 +490,11 @@ npx wrangler pages functions build
 
 ## Customization tips
 
-- **Set Metadata**: Add or adjust set data in `public/set-art.json`, including labels, single/multiple images, descriptions, and alt text.
-- **Codes Data**: Manage reward codes in `public/codes.json` with VOD links, expiry dates, and multi-image support.
-- **Path Derivation**: Customize reward path rules in `public/reward-utils.js` (`deriveRewardPath` and `deriveRewardName` functions).
-- **Styling**: Update `public/main.css` (and its imported modules) for responsive grids, modal appearance, and special pages layout.
-- **Templates**: Modify template fragments in `public/templates/` for structural changes to cards, modals, and sections.
+- **Set Metadata**: Add or adjust set data in `public/data/set-art.json`, including labels, single/multiple images, descriptions, and alt text.
+- **Codes Data**: Manage reward codes in `public/data/codes.json` with VOD links, expiry dates, and multi-image support.
+- **Reward Labels**: Customize display labels in `public/js/features/reward-utils.js` and set metadata in `public/data/set-art.json`.
+- **Styling**: Update `public/css/main.css` (and its imported modules) for responsive grids, expanded reward cards, and special pages layout.
+- **Templates**: Modify template fragments in `public/templates/` for structural changes to profile cards and loading states.
 
 ## Troubleshooting
 

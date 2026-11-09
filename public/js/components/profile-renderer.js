@@ -14,7 +14,7 @@ import {
   setFavicon,
 } from '../utils/dom-utils.js';
 import { escapeHtml, augmentSets } from '../features/reward-utils.js';
-import { loadSetArt, getSetArtStore, closeSetDetailModal } from './set-art-manager.js';
+import { loadSetArt, getSetArtStore } from '../features/set-art.js';
 import { getShareUrl } from '../features/url-state.js';
 import { getSeenSets, setSeenSets, addRecentUser } from '../utils/storage-manager.js';
 import {
@@ -40,6 +40,7 @@ import {
 } from './profile-interactions.js';
 import { clearLeaderboardCache } from '../features/leaderboard.js';
 import { syncActiveNavigation } from './navigation.js';
+import { renderRecentSection } from './recent-section.js';
 import { showSupportPopupForProfile } from './support-popup.js';
 
 let profileResourcesPromise = null;
@@ -124,13 +125,8 @@ export async function renderProfile(
   data,
   { signal, developerOverride = getDefaultDeveloperOverride(data), restoreDevFocus = false } = {}
 ) {
-  const [[, setsHelpTemplate, playerCard], { renderRecentSection }] = await Promise.all([
-    prepareProfileResources(),
-    // Keep the dynamic import to avoid the recent-section circular dependency.
-    import('./recent-section.js'),
-  ]);
+  const [, setsHelpTemplate, playerCard] = await prepareProfileResources();
   if (signal?.aborted) return;
-  closeSetDetailModal();
 
   const setArtStore = getSetArtStore();
   const rewardView = getDeveloperRewardView(data, developerOverride);
@@ -264,5 +260,5 @@ export async function renderProfile(
   clearLeaderboardCache();
 
   addRecentUser({ name: searchName, head: data.head, tier: tiers });
-  await renderRecentSection();
+  await renderRecentSection({ signal });
 }

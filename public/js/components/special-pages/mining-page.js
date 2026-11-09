@@ -12,11 +12,9 @@ export async function renderMiningPage(
   container,
   setFavicon,
   setMetaDescription,
-  closeOpenModal,
   updateQueryString,
   defaultFavicon
 ) {
-  closeOpenModal();
   updateQueryString('mining');
   setFavicon(defaultFavicon);
   document.title = 'Mining event ended ? Vault Hunters Rewards';

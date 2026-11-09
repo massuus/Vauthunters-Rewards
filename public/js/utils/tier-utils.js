@@ -46,14 +46,6 @@ export function getBestPatreonTier(tiers) {
   return bestTier;
 }
 
-/**
- * Get tier configuration
- * @returns {Object} Tier configuration object
- */
-export function getTierConfig() {
-  return TIER_CONFIG;
-}
-
 export function getPatreonRewardSets(tiers) {
   const best = getBestPatreonTier(tiers);
   if (!best) return [];

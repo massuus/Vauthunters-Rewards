@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createAuthSession, getAuthSession, sanitizeReturnPath } from '../functions/utils/auth.js';
 import { onRequest as miningClosed } from '../functions/api/mining/_middleware.js';
+import { onRequest as miningRouteClosed } from '../functions/api/mining/[[path]].js';
 
 test('only configured admin Twitch IDs can create sessions, before any database or token writes', async () => {
   for (const env of [{}, { ADMIN_TWITCH_USER_IDS: '123' }]) {
@@ -66,6 +67,7 @@ test('OAuth returns only to admin, including old mining return links', () => {
 });
 
 test('all retired mining API paths stop at 410 without querying data or sending Discord messages', async () => {
+  assert.equal(miningRouteClosed, miningClosed);
   for (const method of ['GET', 'POST', 'PATCH', 'DELETE']) {
     const response = miningClosed({
       request: new Request('https://example.test/api/mining/submissions', { method }),

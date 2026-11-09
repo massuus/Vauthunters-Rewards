@@ -43,12 +43,12 @@ export async function renderStreamerStatsPage(
   container,
   setFavicon,
   setMetaDescription,
-  closeOpenModal,
   updateQueryString,
   escapeHtml,
-  defaultFavicon
+  defaultFavicon,
+  { signal } = {}
 ) {
-  closeOpenModal();
+  if (signal?.aborted) return;
   document.title = 'Streamer Stats · Vault Hunters Rewards';
   setMetaDescription(
     'Compare Vault Hunters companion levels, vault participation, milestones, and community overlap.'
@@ -65,9 +65,11 @@ export async function renderStreamerStatsPage(
   container.innerHTML = `<section class="streamer-stats"><header class="streamer-stats__intro"><span class="streamer-stats__eyebrow">The companion community</span><h2>Streamer Stats</h2><p>A different view of the vault. Compare companions across streamers, celebrate their strongest players, and see where communities meet.</p></header><p role="status">Gathering companion statistics…</p></section>`;
   const root = container.firstElementChild;
   try {
-    const response = await fetch('/api/streamer-stats');
+    const response = await fetch('/api/streamer-stats', { signal });
+    if (signal?.aborted) return;
     if (!response.ok) throw new Error('Stats unavailable');
     const data = await response.json();
+    if (signal?.aborted) return;
     if (!root.isConnected) return;
     if (!data.filters?.all || !data.filters?.joined || !data.filters?.above10)
       throw new Error('Invalid stats');
@@ -244,6 +246,7 @@ export async function renderStreamerStatsPage(
     });
     render();
   } catch {
+    if (signal?.aborted) return;
     if (root.isConnected)
       root.insertAdjacentHTML(
         'beforeend',

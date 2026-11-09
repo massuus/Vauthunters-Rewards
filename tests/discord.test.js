@@ -5,7 +5,7 @@ import {
   buildSubmissionMessage,
   getDiscordModerator,
   verifyDiscordRequest,
-} from '../functions/utils/discord.js';
+} from '../functions/services/mining/discord.js';
 
 function toHex(bytes) {
   return Array.from(new Uint8Array(bytes), (value) => value.toString(16).padStart(2, '0')).join('');

@@ -63,7 +63,6 @@ test('developer roster renders server-style player buttons and opens selected pr
       container,
       () => {},
       () => {},
-      () => {},
       (value) => {
         query = value;
       },

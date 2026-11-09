@@ -18,8 +18,9 @@ import {
 import { prepareProfileResources, renderProfile } from '../components/profile-renderer.js';
 import { handleSpecialPageSearch } from './search-special-pages.js';
 import { maybeShowSpiderSurprise } from '../features/seasonal-themes.js';
-import { renderRecentSection } from '../components/recent-section.js';
+import { renderRecentSection, cancelRecentSectionRender } from '../components/recent-section.js';
 import { teardownLivePage, teardownLeaderboardPage } from '../components/special-pages.js';
+import { teardownSetCardHandlers } from '../components/profile-interactions.js';
 
 let currentRequestController = null;
 
@@ -46,8 +47,10 @@ export function initializeSearch() {
     if (window.location.pathname !== '/') return;
     event.preventDefault();
     currentRequestController?.abort();
+    cancelRecentSectionRender();
     teardownLivePage();
     teardownLeaderboardPage();
+    teardownSetCardHandlers();
     usernameInput.value = '';
     clearFeedback();
     clearResult();
@@ -72,6 +75,11 @@ async function submitSearch() {
 
   clearFeedback();
 
+  if (!username) {
+    showFeedback('Please enter a Minecraft username.', 'error');
+    return;
+  }
+
   // Cancel any in-flight request to avoid stale renders
   if (currentRequestController) {
     currentRequestController.abort();
@@ -79,13 +87,16 @@ async function submitSearch() {
   currentRequestController = new AbortController();
   const controller = currentRequestController;
 
-  if (!username) {
-    showFeedback('Please enter a Minecraft username.', 'error');
-    return;
-  }
+  teardownSetCardHandlers();
+  cancelRecentSectionRender();
 
   const playerLookup = /^[A-Za-z0-9_]{3,16}$/.test(username) || /^twitch\s*:/i.test(username);
-  if (await handleSpecialPageSearch(username, { cachedServersOnly: playerLookup })) {
+  if (
+    await handleSpecialPageSearch(username, {
+      cachedServersOnly: playerLookup,
+      signal: controller.signal,
+    })
+  ) {
     return;
   }
   if (controller.signal.aborted) return;
@@ -97,8 +108,9 @@ async function submitSearch() {
     // their requests only after the player data arrives.
     void prepareProfileResources().catch(() => {});
     // Reserve space to reduce CLS during loading
-    resultContainer.innerHTML = await loadTemplate('loading-skeleton');
+    const skeleton = await loadTemplate('loading-skeleton');
     if (controller.signal.aborted) return;
+    resultContainer.innerHTML = skeleton;
     resultContainer.classList.remove('hidden');
     scrollToResults();
     setFavicon(DEFAULT_FAVICON);
@@ -110,7 +122,11 @@ async function submitSearch() {
     if (!response.ok) {
       if (response.status === 404) {
         // An uncached server name may also look like a Minecraft username.
-        if (playerLookup && (await handleSpecialPageSearch(username))) return;
+        if (
+          playerLookup &&
+          (await handleSpecialPageSearch(username, { signal: controller.signal }))
+        )
+          return;
         throw new Error(
           'Player or linked account not found. Double-check the spelling and try again.'
         );
@@ -131,7 +147,7 @@ async function submitSearch() {
     scrollToResults();
     maybeShowSpiderSurprise({ force: username.toLowerCase() === 'damnsecci' });
   } catch (error) {
-    if (error?.name === 'AbortError') {
+    if (controller.signal.aborted || error?.name === 'AbortError') {
       // Ignore aborted requests triggered by a newer search
       return;
     }

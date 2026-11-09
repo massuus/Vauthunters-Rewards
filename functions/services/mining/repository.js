@@ -1,19 +1,9 @@
-import { randomToken } from './crypto.js';
-import { ApiError } from './http.js';
+import { randomToken } from '../../utils/crypto.js';
+import { ApiError } from '../../utils/http.js';
+import { requireAppDb } from '../../utils/database.js';
 
-const DEFAULT_PAGE_SIZE = 100;
-const MAX_PAGE_SIZE = 250;
-
-export function getMiningDb(env) {
-  return env?.MINING_DB || env?.LEADERBOARD_DB || null;
-}
-
-export function requireMiningDb(env) {
-  const db = getMiningDb(env);
-  if (!db) {
-    throw new ApiError(503, 'Mining clues are not configured yet.');
-  }
-  return db;
+function requireMiningDb(env) {
+  return requireAppDb(env, 'Mining clues are not configured yet.');
 }
 
 export function createId() {
@@ -24,10 +14,6 @@ function clampInteger(value, fallback, min, max) {
   const parsed = Number.parseInt(value, 10);
   if (!Number.isFinite(parsed)) return fallback;
   return Math.min(max, Math.max(min, parsed));
-}
-
-function escapeLike(value) {
-  return String(value || '').replace(/[\\%_]/g, '\\$&');
 }
 
 function rowChanges(result) {
@@ -93,215 +79,6 @@ export function mapSubmission(row) {
   };
 }
 
-export async function listMiningClues(env, searchParams) {
-  const db = requireMiningDb(env);
-  const limit = clampInteger(searchParams.get('limit'), DEFAULT_PAGE_SIZE, 1, MAX_PAGE_SIZE);
-  const offset = clampInteger(searchParams.get('offset'), 0, 0, 100_000);
-  const answer = String(searchParams.get('answer') || '')
-    .trim()
-    .toLowerCase();
-  const query = String(searchParams.get('q') || '')
-    .trim()
-    .slice(0, 200);
-
-  const conditions = ['archived_at IS NULL'];
-  const bindings = [];
-  if (['surface', 'mineshaft', 'cave'].includes(answer)) {
-    conditions.push('answer = ?');
-    bindings.push(answer);
-  }
-  if (query) {
-    conditions.push("clue_text LIKE ? ESCAPE '\\' COLLATE NOCASE");
-    bindings.push(`%${escapeLike(query)}%`);
-  }
-
-  const where = conditions.join(' AND ');
-  const [countResult, listResult] = await db.batch([
-    db.prepare(`SELECT COUNT(1) AS total FROM mining_clues WHERE ${where}`).bind(...bindings),
-    db
-      .prepare(
-        `SELECT id, clue_text, answer, version, created_at, updated_at
-         FROM mining_clues
-         WHERE ${where}
-         ORDER BY clue_text COLLATE NOCASE ASC
-         LIMIT ? OFFSET ?`
-      )
-      .bind(...bindings, limit, offset),
-  ]);
-
-  const total = Number(countResult.results?.[0]?.total || 0);
-  return {
-    clues: (listResult.results || []).map(mapClue),
-    total,
-    limit,
-    offset,
-    hasMore: offset + (listResult.results?.length || 0) < total,
-  };
-}
-
-function makeBigrams(value) {
-  const normalized = String(value || '').replace(/\s+/g, ' ');
-  if (normalized.length < 2) return new Set([normalized]);
-  const result = new Set();
-  for (let index = 0; index < normalized.length - 1; index += 1) {
-    result.add(normalized.slice(index, index + 2));
-  }
-  return result;
-}
-
-function diceSimilarity(left, right) {
-  const leftParts = makeBigrams(left);
-  const rightParts = makeBigrams(right);
-  let overlap = 0;
-  leftParts.forEach((part) => {
-    if (rightParts.has(part)) overlap += 1;
-  });
-  return (2 * overlap) / Math.max(1, leftParts.size + rightParts.size);
-}
-
-async function findPossibleDuplicate(db, clueKey) {
-  if (clueKey.length < 12) return null;
-  const result = await db
-    .prepare(
-      `SELECT id, clue_text, clue_key
-       FROM mining_clues
-       WHERE archived_at IS NULL AND clue_key <> ?
-       ORDER BY updated_at DESC
-       LIMIT 200`
-    )
-    .bind(clueKey)
-    .all();
-
-  let best = null;
-  for (const row of result.results || []) {
-    const score = diceSimilarity(clueKey, row.clue_key);
-    if (score >= 0.88 && (!best || score > best.score)) {
-      best = { clueId: row.id, clueText: row.clue_text, score };
-    }
-  }
-  return best;
-}
-
-export async function createMiningSubmission(env, user, payload) {
-  const db = requireMiningDb(env);
-  const now = new Date();
-  const nowIso = now.toISOString();
-  const dayAgoIso = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-  const cooldownSeconds = clampInteger(env?.MINING_SUBMISSION_COOLDOWN_SECONDS, 60, 0, 3600);
-  const dailyLimit = clampInteger(env?.MINING_DAILY_SUBMISSION_LIMIT, 10, 1, 100);
-  const pendingLimit = clampInteger(env?.MINING_PENDING_SUBMISSION_LIMIT, 5, 1, 25);
-
-  const [userRow, pendingCount, dailyCount, latestSubmission, existingClue, pendingMatch] =
-    await db.batch([
-      db
-        .prepare('SELECT blocked_at FROM twitch_users WHERE twitch_user_id = ?')
-        .bind(user.twitchUserId),
-      db
-        .prepare(
-          "SELECT COUNT(1) AS total FROM mining_submissions WHERE submitter_twitch_user_id = ? AND status IN ('pending', 'processing')"
-        )
-        .bind(user.twitchUserId),
-      db
-        .prepare(
-          'SELECT COUNT(1) AS total FROM mining_submissions WHERE submitter_twitch_user_id = ? AND created_at >= ?'
-        )
-        .bind(user.twitchUserId, dayAgoIso),
-      db
-        .prepare(
-          'SELECT created_at FROM mining_submissions WHERE submitter_twitch_user_id = ? ORDER BY created_at DESC LIMIT 1'
-        )
-        .bind(user.twitchUserId),
-      db
-        .prepare(
-          'SELECT id, clue_text, answer, version FROM mining_clues WHERE clue_key = ? AND archived_at IS NULL LIMIT 1'
-        )
-        .bind(payload.clueKey),
-      db
-        .prepare(
-          "SELECT id FROM mining_submissions WHERE clue_key = ? AND status IN ('pending', 'processing') LIMIT 1"
-        )
-        .bind(payload.clueKey),
-    ]);
-
-  if (userRow.results?.[0]?.blocked_at) {
-    throw new ApiError(403, 'This Twitch account is blocked from submitting clues.');
-  }
-  if (Number(pendingCount.results?.[0]?.total || 0) >= pendingLimit) {
-    throw new ApiError(429, 'You already have several clues waiting for review.');
-  }
-  if (Number(dailyCount.results?.[0]?.total || 0) >= dailyLimit) {
-    throw new ApiError(429, 'You have reached today’s clue submission limit.');
-  }
-
-  const latestCreatedAt = latestSubmission.results?.[0]?.created_at;
-  if (latestCreatedAt && cooldownSeconds > 0) {
-    const elapsedSeconds = (now.getTime() - Date.parse(latestCreatedAt)) / 1000;
-    if (Number.isFinite(elapsedSeconds) && elapsedSeconds < cooldownSeconds) {
-      throw new ApiError(
-        429,
-        `Please wait ${Math.ceil(cooldownSeconds - elapsedSeconds)} seconds before submitting again.`
-      );
-    }
-  }
-
-  const current = existingClue.results?.[0] || null;
-  if (current && current.answer === payload.answer) {
-    throw new ApiError(409, 'That clue and answer are already on the site.');
-  }
-  if (pendingMatch.results?.length) {
-    throw new ApiError(409, 'That clue is already waiting for moderator review.');
-  }
-
-  const possibleDuplicate = current ? null : await findPossibleDuplicate(db, payload.clueKey);
-  const id = createId();
-  const type = current ? 'answer_change' : 'new';
-  const proof = payload.proof || {};
-
-  try {
-    await db
-      .prepare(
-        `INSERT INTO mining_submissions (
-          id, submitter_twitch_user_id, clue_text, clue_key, answer, submission_type,
-          target_clue_id, target_clue_version, current_answer, note,
-          proof_streamer_login, proof_date, proof_time, proof_timezone,
-          proof_vod_url, proof_vod_timestamp, proof_clip_url,
-          possible_duplicate_clue_id, possible_duplicate_clue_text,
-          status, discord_delivery_status, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'pending', ?)`
-      )
-      .bind(
-        id,
-        user.twitchUserId,
-        payload.clueText,
-        payload.clueKey,
-        payload.answer,
-        type,
-        current?.id || null,
-        current?.version || null,
-        current?.answer || null,
-        payload.note,
-        proof.streamerLogin || null,
-        proof.date || null,
-        proof.time || null,
-        proof.timezone || null,
-        proof.vodUrl || null,
-        proof.vodTimestamp || null,
-        proof.clipUrl || null,
-        possibleDuplicate?.clueId || null,
-        possibleDuplicate?.clueText || null,
-        nowIso
-      )
-      .run();
-  } catch (error) {
-    if (String(error?.message || '').includes('UNIQUE constraint failed')) {
-      throw new ApiError(409, 'That clue is already waiting for moderator review.');
-    }
-    throw error;
-  }
-
-  return getMiningSubmission(env, id);
-}
-
 export async function getMiningSubmission(env, id) {
   const db = requireMiningDb(env);
   const row = await db
@@ -333,23 +110,6 @@ export async function setDiscordDelivery(env, submissionId, delivery) {
       submissionId
     )
     .run();
-}
-
-export async function listUserSubmissions(env, twitchUserId, limitValue = 10) {
-  const db = requireMiningDb(env);
-  const limit = clampInteger(limitValue, 10, 1, 25);
-  const result = await db
-    .prepare(
-      `SELECT s.*, u.login AS submitter_login, u.display_name AS submitter_display_name
-       FROM mining_submissions s
-       JOIN twitch_users u ON u.twitch_user_id = s.submitter_twitch_user_id
-       WHERE s.submitter_twitch_user_id = ?
-       ORDER BY s.created_at DESC
-       LIMIT ?`
-    )
-    .bind(twitchUserId, limit)
-    .all();
-  return (result.results || []).map(mapSubmission);
 }
 
 export async function listAdminSubmissions(env, { limit = 50 } = {}) {

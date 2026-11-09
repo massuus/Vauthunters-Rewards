@@ -1,6 +1,5 @@
 // Service Worker with caching strategy
-// Cache version and configuration is managed in config.js but duplicated here
-// since service workers can't import ES modules in all browsers yet
+// Cache settings are owned by this service worker.
 
 // This value is injected at build time via esbuild define; falls back to 'dev'
 const CACHE_VERSION = typeof __BUILD_REV__ !== 'undefined' ? __BUILD_REV__ : 'dev';
@@ -20,21 +19,25 @@ const LEADERBOARD_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const DATA_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour (codes/sets data)
 const CACHE_TIMESTAMP_HEADER = 'x-vhr-sw-cached-at';
 
+const BUILD_ASSETS = typeof __PRECACHE_ASSETS__ !== 'undefined' ? __PRECACHE_ASSETS__ : [];
 const STATIC_ASSETS = [
-  '/',
-  '/pages/index.html',
-  '/css/main.css',
-  '/js/core/app.js',
-  '/data/set-art.json',
-  '/data/codes.json',
-  '/pages/offline.html',
+  ...new Set([
+    '/',
+    '/pages/index.html',
+    '/css/main.css',
+    '/js/core/app.js',
+    '/data/set-art.json',
+    '/data/codes.json',
+    '/pages/offline.html',
+    ...BUILD_ASSETS,
+  ]),
 ];
 
 const TEMPLATE_ASSETS = [
   'player-card.html',
   'loading-skeleton.html',
-  'reward-group.html',
   'recent-section.html',
+  'sets-help.html',
 ];
 
 /**
@@ -63,7 +66,7 @@ self.addEventListener('install', (event) => {
           )
         );
       }),
-    ]).then(() => self.skipWaiting())
+    ])
   );
 });
 
@@ -81,7 +84,9 @@ self.addEventListener('activate', (event) => {
       const keys = await caches.keys();
       const validCaches = [STATIC_CACHE, RUNTIME_CACHE, TEMPLATE_CACHE, DATA_CACHE];
       await Promise.all(
-        keys.filter((key) => !validCaches.includes(key)).map((key) => caches.delete(key))
+        keys
+          .filter((key) => key.startsWith('vhr-') && !validCaches.includes(key))
+          .map((key) => caches.delete(key))
       );
 
       await self.clients.claim();
@@ -123,6 +128,28 @@ self.addEventListener('fetch', (event) => {
     url.pathname.startsWith('/api/discord/') ||
     url.pathname.startsWith('/api/mining/submissions')
   ) {
+    return;
+  }
+
+  // Hashed modules are immutable. An open tab must be able to keep using its
+  // cached build even if a deployment has removed that URL from the server.
+  if (
+    request.method === 'GET' &&
+    url.pathname.startsWith('/chunks/') &&
+    url.pathname.endsWith('.js')
+  ) {
+    event.respondWith(
+      (async () => {
+        const cached = await caches.match(request);
+        if (cached?.ok) return cached;
+        const response = await fetch(request);
+        if (response.ok && /javascript/i.test(response.headers.get('content-type') || '')) {
+          const cache = await caches.open(STATIC_CACHE);
+          await cache.put(request, response.clone());
+        }
+        return response;
+      })()
+    );
     return;
   }
 
@@ -244,7 +271,7 @@ self.addEventListener('fetch', (event) => {
         event.respondWith(
           (async () => {
             const cache = await caches.open(DATA_CACHE);
-            const cached = await cache.match(request);
+            const cached = (await cache.match(request)) || (await caches.match(request));
             const now = Date.now();
             let cachedAt = 0;
             if (cached) {

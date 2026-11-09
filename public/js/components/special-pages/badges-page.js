@@ -33,12 +33,12 @@ export async function renderBadgesPage(
   container,
   setFavicon,
   setMetaDescription,
-  closeOpenModal,
   updateQueryString,
   escapeHtml,
-  defaultFavicon
+  defaultFavicon,
+  { signal } = {}
 ) {
-  closeOpenModal();
+  if (signal?.aborted) return;
   updateQueryString('badges');
   container.classList.remove('hidden');
   document.title = 'Companion Badge Catalog · Vault Hunters Rewards';
@@ -48,9 +48,11 @@ export async function renderBadgesPage(
   setFavicon(defaultFavicon);
   container.innerHTML = '<p role="status">Loading companion badges…</p>';
   try {
-    const response = await fetch('/api/badges');
+    const response = await fetch('/api/badges', { signal });
+    if (signal?.aborted) return;
     if (!response.ok) throw new Error('Badge catalog unavailable');
     const { badges } = await response.json();
+    if (signal?.aborted) return;
     if (!Array.isArray(badges)) throw new Error('Invalid badge catalog');
     container.innerHTML = `<section class="badges-page">
       <header class="badges-page__intro"><h2>Companion Badge Catalog</h2>
@@ -86,6 +88,7 @@ export async function renderBadgesPage(
     category.addEventListener('change', render);
     render();
   } catch {
+    if (signal?.aborted) return;
     container.innerHTML =
       '<p role="alert">We couldn’t load the badge catalog. Please refresh and try again.</p>';
   }

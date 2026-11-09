@@ -2,7 +2,8 @@
 
 import { logger } from '../core/logger.js';
 
-const templateCache = {};
+const templateCache = new Map();
+const templateRequests = new Map();
 
 /**
  * Load a template file from the templates directory
@@ -11,29 +12,32 @@ const templateCache = {};
  * @returns {Promise<string>} The template HTML content
  */
 export async function loadTemplate(templateName) {
-  if (templateCache[templateName]) {
-    return templateCache[templateName];
-  }
+  if (templateCache.has(templateName)) return templateCache.get(templateName);
+  if (templateRequests.has(templateName)) return templateRequests.get(templateName);
 
-  try {
-    const response = await fetch(`/templates/${templateName}.html`, {
-      // Use cache strategy: prefer cached over network if available
-      cache: 'default',
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to load template: ${templateName}`);
+  const pending = (async () => {
+    try {
+      const response = await fetch(`/templates/${templateName}.html`, {
+        // Use cache strategy: prefer cached over network if available
+        cache: 'default',
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to load template: ${templateName}`);
+      }
+      const html = await response.text();
+      templateCache.set(templateName, html);
+      return html;
+    } catch (error) {
+      logger.error('Error loading template', {
+        templateName,
+        error: error.message,
+        stack: error.stack,
+      });
+      return '';
     }
-    const html = await response.text();
-    templateCache[templateName] = html;
-    return html;
-  } catch (error) {
-    logger.error('Error loading template', {
-      templateName,
-      error: error.message,
-      stack: error.stack,
-    });
-    return '';
-  }
+  })().finally(() => templateRequests.delete(templateName));
+  templateRequests.set(templateName, pending);
+  return pending;
 }
 
 /**
@@ -43,28 +47,9 @@ export async function loadTemplate(templateName) {
  * @returns {string} Rendered HTML
  */
 export function renderTemplate(template, data = {}) {
-  let result = template;
-
-  // Replace {{key}} with data values
-  Object.keys(data).forEach((key) => {
-    const value = data[key] !== undefined && data[key] !== null ? data[key] : '';
-    // Use a global regex to replace all occurrences
-    const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
-    result = result.replace(regex, value);
-  });
-
-  return result;
-}
-
-/**
- * Load and render a template in one call
- * @param {string} templateName - Name of the template file (without .html extension)
- * @param {Object} data - Data to interpolate into the template
- * @returns {Promise<string>} Rendered HTML
- */
-export async function loadAndRender(templateName, data = {}) {
-  const template = await loadTemplate(templateName);
-  return renderTemplate(template, data);
+  return template.replace(/\{\{([^{}]+)\}\}/g, (placeholder, key) =>
+    Object.prototype.hasOwnProperty.call(data, key) ? String(data[key] ?? '') : placeholder
+  );
 }
 
 /**
@@ -80,24 +65,4 @@ export async function preloadTemplates(templateNames) {
   } catch (error) {
     logger.error('Error preloading templates', { error: error.message });
   }
-}
-
-/**
- * Clear the in-memory template cache if needed
- * Service worker cache is maintained separately
- */
-export function clearTemplateCache() {
-  Object.keys(templateCache).forEach((key) => delete templateCache[key]);
-  logger.debug('Template cache cleared');
-}
-
-/**
- * Get cache statistics for debugging
- * @returns {Object} Cache stats
- */
-export function getTemplateCacheStats() {
-  return {
-    cached: Object.keys(templateCache).length,
-    templates: Object.keys(templateCache),
-  };
 }

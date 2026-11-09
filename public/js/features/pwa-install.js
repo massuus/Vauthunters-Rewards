@@ -114,19 +114,3 @@ async function handleInstallClick() {
   // Hide the button
   hideInstallButton();
 }
-
-/**
- * Check if PWA is installable
- */
-export function isPWAInstallable() {
-  return deferredPrompt !== null;
-}
-
-/**
- * Check if running as PWA
- */
-export function isRunningAsPWA() {
-  return (
-    window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
-  );
-}
