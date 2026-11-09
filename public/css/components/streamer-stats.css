@@ -287,10 +287,22 @@
   fill-opacity: 0.45;
   stroke: none;
 }
-.streamer-stats__scatter circle:hover {
+.streamer-stats__scatter circle {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.streamer-stats__scatter circle:hover,
+.streamer-stats__scatter circle:focus-visible,
+.streamer-stats__scatter circle[aria-pressed='true'] {
   fill-opacity: 1;
   stroke: var(--text-primary);
   stroke-width: 1.5px;
+}
+.streamer-stats__point-details {
+  padding: 0.75rem;
+  border: 1px solid #ffffff26;
+  border-radius: 0.65rem;
+  overflow-wrap: anywhere;
 }
 .streamer-stats__charts {
   display: grid;

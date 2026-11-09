@@ -28,7 +28,7 @@ test('level-vault points aggregate matching companions and respect filters', () 
     ''
   );
   assert.deepEqual(filters.all.streamers[0].levelVaultPoints, [
-    { level: 10, vaults: 0, count: 1 },
+    { level: 10, vaults: 0, count: 1, username: 'gamma' },
     { level: 12, vaults: 3, count: 2 },
   ]);
   for (const filter of ['joined', 'above10']) {
@@ -42,6 +42,10 @@ test('level-vault points aggregate matching companions and respect filters', () 
     (s) => s
   );
   assert.match(chart, /Level 12, 3 vaults joined: 2 companions/);
+  assert.match(chart, /Level 10, 0 vaults joined: 1 companion \(gamma\)/);
+  assert.match(chart, /role="button" tabindex="0"/);
+  assert.match(chart, /data-stats-point-details role="status"/);
+  assert.doesNotMatch(chart, /Hover a dot/);
   assert.doesNotMatch(chart, /View graph data/);
   assert.doesNotMatch(chart, /NaN|Infinity/);
   const zero = buildStreamerStats([row('one', 'alpha', 0, 0)], '').filters.all;

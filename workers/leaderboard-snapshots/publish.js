@@ -157,7 +157,7 @@ export function buildSnapshot(unlockRows, companionRows, revision, now = new Dat
     boards: {},
     searchKey: `${prefix}search.json`,
     statsKey: `${prefix}streamer-stats.json`,
-    statsVersion: 3,
+    statsVersion: 4,
     profileVersion: 1,
     unlockEligibilityVersion: 2,
   };
@@ -245,7 +245,7 @@ export async function publishSnapshots(env) {
     previous?.schema === 1 &&
     previous.format === 3 &&
     previous.statsKey &&
-    previous.statsVersion === 3 &&
+    previous.statsVersion === 4 &&
     previous.profileVersion === 1 &&
     previous.unlockEligibilityVersion === 2 &&
     previous.revision === current.revision

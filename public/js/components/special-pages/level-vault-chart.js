@@ -39,11 +39,32 @@ export function renderLevelVaultCharts(streamers, escapeHtml, streamerName) {
       const dots = [...row.levelVaultPoints]
         .sort((a, b) => b.count - a.count)
         .map((point) => {
-          const label = `Level ${point.level}, ${point.vaults} vaults joined: ${point.count} companion${point.count === 1 ? '' : 's'}`;
-          return `<circle cx="${x(point.level)}" cy="${y(point.vaults)}" r="${Math.min(5.5, 2.5 + Math.log2(point.count + 1) * 0.45)}"><title>${escapeHtml(label)}</title></circle>`;
+          const label = `Level ${point.level}, ${point.vaults} vaults joined: ${point.count} companion${point.count === 1 ? '' : 's'}${point.count === 1 && point.username ? ` (${point.username})` : ''}`;
+          return `<circle cx="${x(point.level)}" cy="${y(point.vaults)}" r="${Math.min(5.5, 2.5 + Math.log2(point.count + 1) * 0.45)}" role="button" tabindex="0" aria-label="${escapeHtml(label)}" aria-pressed="false" data-stats-point="${escapeHtml(label)}"></circle>`;
         })
         .join('');
-      return `<article class="streamer-stats__distribution streamer-stats__chart"><h4>${escapeHtml(streamerName(row.login))}<span>${format(row.count)} companions</span></h4><div class="streamer-stats__plot-scroll" tabindex="0" role="region" aria-label="${escapeHtml(title)}"><svg class="streamer-stats__scatter" viewBox="0 0 760 400" role="img" aria-label="${escapeHtml(title)}"><title>${escapeHtml(title)}</title>${grid}<path class="streamer-stats__axis" d="M76 26V326H726"/>${dots}<text class="streamer-stats__axis-label" x="401" y="388" text-anchor="middle">Companion season level</text><text class="streamer-stats__axis-label" transform="translate(22 176) rotate(-90)" text-anchor="middle">Vaults joined</text></svg></div><p class="streamer-stats__chart-key"><span aria-hidden="true">&#9679;</span> Larger dots = more companions at the same level and vault count. Hover a dot for exact values.</p></article>`;
+      return `<article class="streamer-stats__distribution streamer-stats__chart"><h4>${escapeHtml(streamerName(row.login))}<span>${format(row.count)} companions</span></h4><div class="streamer-stats__plot-scroll" tabindex="0" role="region" aria-label="${escapeHtml(title)}"><svg class="streamer-stats__scatter" viewBox="0 0 760 400" role="group" aria-label="${escapeHtml(title)}"><title>${escapeHtml(title)}</title>${grid}<path class="streamer-stats__axis" d="M76 26V326H726"/>${dots}<text class="streamer-stats__axis-label" x="401" y="388" text-anchor="middle">Companion season level</text><text class="streamer-stats__axis-label" transform="translate(22 176) rotate(-90)" text-anchor="middle">Vaults joined</text></svg></div><p class="streamer-stats__point-details" data-stats-point-details role="status">Select a dot to see its details.</p><p class="streamer-stats__chart-key"><span aria-hidden="true">&#9679;</span> Larger dots = more companions at the same level and vault count. Tap or click a dot for exact values.</p></article>`;
     })
     .join('');
+}
+
+export function bindLevelVaultChartInteractions(root) {
+  const selectPoint = (point) => {
+    const chart = point.closest('.streamer-stats__chart');
+    chart.querySelectorAll('[data-stats-point]').forEach((dot) => {
+      dot.setAttribute('aria-pressed', String(dot === point));
+    });
+    chart.querySelector('[data-stats-point-details]').textContent = point.dataset.statsPoint;
+  };
+  root.addEventListener('click', (event) => {
+    const point = event.target.closest('[data-stats-point]');
+    if (point) selectPoint(point);
+  });
+  root.addEventListener('keydown', (event) => {
+    const point = event.target.closest('[data-stats-point]');
+    if (point && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
+      selectPoint(point);
+    }
+  });
 }

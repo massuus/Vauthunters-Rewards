@@ -81,7 +81,10 @@ export function buildStreamerStats(rows, generatedAt) {
           const vaults = number(row.vaults_joined);
           const key = `${level}:${vaults}`;
           if (!levelVaultPoints.has(key)) levelVaultPoints.set(key, { level, vaults, count: 0 });
-          levelVaultPoints.get(key).count++;
+          const point = levelVaultPoints.get(key);
+          point.count++;
+          if (point.count === 1) point.username = row.twitch_name;
+          else delete point.username;
         }
         return {
           login,

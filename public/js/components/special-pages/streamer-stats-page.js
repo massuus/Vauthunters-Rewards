@@ -1,4 +1,4 @@
-import { renderLevelVaultCharts } from './level-vault-chart.js';
+import { bindLevelVaultChartInteractions, renderLevelVaultCharts } from './level-vault-chart.js';
 
 const NAMES = {
   iskall85: 'Iskall85',
@@ -244,6 +244,7 @@ export async function renderStreamerStatsPage(
       syncUrl();
       render();
     });
+    bindLevelVaultChartInteractions(root);
     render();
   } catch {
     if (signal?.aborted) return;
