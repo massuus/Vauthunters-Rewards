@@ -12,6 +12,8 @@ const source = (
 function fixture({ home = true } = {}) {
   const classes = new Set(['hidden']);
   const context = vm.createContext({
+    showHomeDashboard() {},
+    hideHomeDashboard() {},
     usernameInput: { value: home ? '' : 'Alice' },
     resultContainer: { classList: { contains: () => home } },
     recentContainer: {
@@ -36,16 +38,18 @@ function fixture({ home = true } = {}) {
 
 test('delayed home leaderboard cannot reappear after navigating away', async () => {
   const { context, classes } = fixture();
-  let release;
+  const releases = [];
   context.fetchLeaderboardPage = () =>
     new Promise((resolve) => {
-      release = resolve;
+      releases.push(resolve);
     });
   const pending = context.renderRecentSection();
   context.usernameInput.value = 'leaderboard';
   context.cancelRecentSectionRender();
   context.recentContainer.innerHTML = 'New page state';
-  release({ players: [{ playerNickname: 'Alice' }] });
+  releases.forEach((release) =>
+    release({ players: [{ playerNickname: 'Alice', seasonLevel: 1 }] })
+  );
   await pending;
   assert.equal(context.recentContainer.innerHTML, 'New page state');
   assert.equal(classes.has('hidden'), true);

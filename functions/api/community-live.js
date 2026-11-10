@@ -38,6 +38,23 @@ function safeTwitchImage(value) {
   }
 }
 
+export async function addProfileImages(streamers, headers) {
+  if (!streamers.length) return streamers;
+  const usersUrl = new URL('https://api.twitch.tv/helix/users');
+  for (const streamer of streamers) usersUrl.searchParams.append('login', streamer.login);
+  const payload = await twitchJson(usersUrl, { headers }, 'Twitch profiles unavailable.');
+  const profiles = new Map(
+    (Array.isArray(payload?.data) ? payload.data : []).map((user) => [
+      String(user?.login || '').toLowerCase(),
+      safeTwitchImage(user?.profile_image_url),
+    ])
+  );
+  return streamers.map((streamer) => ({
+    ...streamer,
+    profileImageUrl: profiles.get(streamer.login) || null,
+  }));
+}
+
 export function communityStreamRows(rows) {
   return (Array.isArray(rows) ? rows : [])
     .filter((row) => {
@@ -150,7 +167,7 @@ async function discoverStreams(env, discoveredLogins = []) {
       row,
     ])
   );
-  return communityStreamRows([...uniqueRows.values()]);
+  return addProfileImages(communityStreamRows([...uniqueRows.values()]), headers);
 }
 
 function responseFor(streamers) {
@@ -162,7 +179,7 @@ function responseFor(streamers) {
 export async function onRequest(context) {
   const { request, env } = context;
   if (request.method !== 'GET') return methodNotAllowed('GET');
-  const cacheKey = new Request(new URL('/api/community-live?v=2', request.url));
+  const cacheKey = new Request(new URL('/api/community-live?v=3', request.url));
   try {
     const cached = await caches.default.match(cacheKey);
     if (cached) return cached;

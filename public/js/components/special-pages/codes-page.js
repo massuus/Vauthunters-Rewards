@@ -4,7 +4,7 @@ const UNKNOWN_ITEM_IMAGE = '/img/unknown_item.png';
 
 let codesDataPromise = null;
 
-function isCodeExpired(expiryDateString) {
+export function isCodeExpired(expiryDateString) {
   if (!expiryDateString) return false;
 
   try {

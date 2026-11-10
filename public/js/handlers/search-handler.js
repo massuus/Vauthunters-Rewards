@@ -97,6 +97,7 @@ async function submitSearch() {
       signal: controller.signal,
     })
   ) {
+    await renderRecentSection({ signal: controller.signal });
     return;
   }
   if (controller.signal.aborted) return;

@@ -1,4 +1,4 @@
-const LEADERBOARD_CACHE_KEY_PREFIX = 'vh.leaderboard.page.v4';
+const LEADERBOARD_CACHE_KEY_PREFIX = 'vh.leaderboard.page.v5';
 const LEADERBOARD_CACHE_TTL_MS = 5 * 60 * 1000;
 const DEFAULT_PAGE_LIMIT = 10;
 const MAX_PAGE_LIMIT = 50;
@@ -205,7 +205,9 @@ export async function fetchLeaderboardPage({
   const safeOffset = clampInt(offset, 0, 0, MAX_OFFSET);
   const safeLimit = clampInt(limit, DEFAULT_PAGE_LIMIT, 1, MAX_PAGE_LIMIT);
   const safeTargetPlayer = normalizeText(targetPlayer);
-  const safeMetric = ['setsUnlocked', 'seasonLevel', 'vaultsJoined'].includes(metric)
+  const safeMetric = ['setsUnlocked', 'seasonLevel', 'vaultsJoined', 'combinedLevel'].includes(
+    metric
+  )
     ? metric
     : 'setsUnlocked';
   const safeStreamer = normalizeText(streamer, 'iskall85').toLowerCase();

@@ -14,16 +14,26 @@ function getDefaultCache() {
 }
 
 export async function onRequest({ request, env }) {
+  const url = new URL(request.url);
+  const rewardsOnly = url.searchParams.get('source') === 'rewards';
   const cache = getDefaultCache();
-  const cacheRequest = new Request(new URL(request.url).toString(), { method: 'GET' });
+  const cacheRequest = new Request(url.toString(), { method: 'GET' });
   if (cache) {
     const cached = await cache.match(cacheRequest);
     if (cached) return cached;
   }
 
   try {
-    let result = await fetchJson(SHOP_SETS_URL, 'Reward Shop API', REWARDS_API_TIMEOUT);
-    const shopLoaded = !result.error && Array.isArray(result.data) && result.data.length > 0;
+    let result = rewardsOnly
+      ? await fetchJson(
+          REWARDS_SETS_URL,
+          'Rewards Sets API',
+          REWARDS_API_TIMEOUT,
+          getRewardsAuthHeaders(env)
+        )
+      : await fetchJson(SHOP_SETS_URL, 'Reward Shop API', REWARDS_API_TIMEOUT);
+    const shopLoaded =
+      !rewardsOnly && !result.error && Array.isArray(result.data) && result.data.length > 0;
     if (!shopLoaded) {
       result = await fetchJson(
         REWARDS_SETS_URL,

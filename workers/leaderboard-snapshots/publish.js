@@ -119,6 +119,42 @@ export function buildSnapshot(unlockRows, companionRows, revision, now = new Dat
       updatedAt: row.updated_at || null,
     });
   }
+  const combined = new Map();
+  // Newest row supplies the display identity; all rows contribute to the totals.
+  const identityRows = [...companionRows].sort(
+    (a, b) =>
+      compareText(b.updated_at, a.updated_at) || compareText(a.streamer_login, b.streamer_login)
+  );
+  for (const row of identityRows) {
+    const identity = row.twitch_name.toLowerCase();
+    if (!combined.has(identity))
+      combined.set(identity, {
+        twitchName: row.twitch_name,
+        playerNickname: row.alias || row.twitch_name,
+        alias: row.alias ?? null,
+        skinName: row.player_name,
+        minecraftUUID: row.minecraft_uuid || null,
+        minecraftName: row.minecraft_name || null,
+        updatedAt: row.updated_at || null,
+        seasonLevel: 0,
+        vaultsJoined: 0,
+      });
+    const player = combined.get(identity);
+    player.seasonLevel += Number(row.season_level || 0);
+    player.vaultsJoined += Number(row.vaults_joined || 0);
+  }
+  boards.set(
+    'combinedLevel',
+    rankPlayers(
+      [...combined.values()],
+      'seasonLevel',
+      (a, b) =>
+        b.seasonLevel - a.seasonLevel ||
+        b.vaultsJoined - a.vaultsJoined ||
+        compareText(a.alias ?? a.twitchName, b.alias ?? b.twitchName, true) ||
+        compareText(a.twitchName, b.twitchName)
+    )
+  );
   const streamers = [];
   for (const [streamer, players] of groups) {
     if (!/^[a-z0-9_]{1,25}$/.test(streamer)) throw new Error('Invalid stored streamer login.');
@@ -149,7 +185,7 @@ export function buildSnapshot(unlockRows, companionRows, revision, now = new Dat
   streamers.sort((a, b) => compareText(a.login, b.login, true));
   const manifest = {
     schema: 1,
-    format: 3,
+    format: 4,
     revision,
     generatedAt: now.toISOString(),
     prefix,
@@ -243,7 +279,7 @@ export async function publishSnapshots(env) {
   if (!current) throw new Error('Apply snapshot migration 0006 before publishing.');
   if (
     previous?.schema === 1 &&
-    previous.format === 3 &&
+    previous.format === 4 &&
     previous.statsKey &&
     previous.statsVersion === 4 &&
     previous.profileVersion === 1 &&

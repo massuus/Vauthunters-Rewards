@@ -25,7 +25,7 @@ function getDefaultCache() {
 
 function buildCacheRequest(url, params, metric) {
   const cacheUrl = new URL('/api/leaderboard', url.origin);
-  cacheUrl.searchParams.set('v', '3');
+  cacheUrl.searchParams.set('v', '4');
   cacheUrl.searchParams.set('metric', metric);
   cacheUrl.searchParams.set('limit', params.limit);
   cacheUrl.searchParams.set('offset', params.offset);
@@ -68,7 +68,7 @@ export async function onRequest(context) {
   const requestedMetric = String(url.searchParams.get('metric') || 'setsUnlocked');
 
   try {
-    const isCompanion = requestedMetric === 'seasonLevel' || requestedMetric === 'vaultsJoined';
+    const isCompanion = ['seasonLevel', 'vaultsJoined', 'combinedLevel'].includes(requestedMetric);
     const params = isCompanion
       ? parseCompanionLeaderboardParams(url, { defaultLimit: 10, maxLimit: 50 })
       : standardParams;

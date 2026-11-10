@@ -203,7 +203,10 @@ export async function renderAllRewardsPage(
     resultContainer.innerHTML = `
       <section class="all-rewards-page" aria-live="polite">
         <header class="all-rewards-page__intro">
-          <h2 class="all-rewards-page__title">All Vault Hunters Rewards</h2>
+          <div class="special-page-heading-row">
+            <h2 class="all-rewards-page__title">All Vault Hunters Rewards</h2>
+            <a class="home-button special-page-heading-row__action" href="?codes">Reward Codes</a>
+          </div>
           <p class="all-rewards-page__lead">Browse every reward in Vault Hunters, grouped by category.</p>
           <p class="all-rewards-page__subtext">Total rewards: ${entries.length} (${obtainableRewards.length} obtainable, ${unobtainableRewards.length} unavailable, ${upcomingRewards.length} coming soon)</p>
         </header>

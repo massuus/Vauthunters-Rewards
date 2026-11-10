@@ -63,6 +63,7 @@ test('leaving Live during its initial requests does not restart polling', async 
 test('home navigation and a new search stop reward-card image timers', async () => {
   const timers = new Map();
   let timerId = 0;
+  let recentRenders = 0;
   const listeners = new Map();
   let homeClick;
   const classes = { toggle() {}, add() {}, remove() {} };
@@ -118,7 +119,9 @@ test('home navigation and a new search stop reward-card image timers', async () 
     clearResult() {},
     setLoadingState() {},
     showFeedback() {},
-    renderRecentSection: async () => {},
+    renderRecentSection: async () => {
+      recentRenders += 1;
+    },
     handleSpecialPageSearch: async () => true,
   });
   for (const filename of ['components/profile-interactions.js', 'handlers/search-handler.js']) {
@@ -130,6 +133,7 @@ test('home navigation and a new search stop reward-card image timers', async () 
   assert.equal(timers.size, 1);
   homeClick({ button: 0, preventDefault() {} });
   assert.equal(timers.size, 0);
+  assert.equal(recentRenders, 1);
   context.bindSetCardHandlers();
   assert.equal(timers.size, 1);
   context.usernameInput.value = '';
@@ -137,7 +141,7 @@ test('home navigation and a new search stop reward-card image timers', async () 
   await Promise.resolve();
   assert.equal(timers.size, 1, 'An invalid search leaves the current profile active');
   context.usernameInput.value = 'Bob';
-  listeners.get('submit')({ preventDefault() {} });
-  await Promise.resolve();
+  await context.submitSearch();
   assert.equal(timers.size, 0);
+  assert.equal(recentRenders, 2, 'Recent searches render on special pages too');
 });

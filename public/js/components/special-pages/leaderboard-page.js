@@ -19,6 +19,11 @@ const METRICS = {
     title: 'Vaults Joined Leaderboard',
     description: 'Companions ranked by how many community vaults they joined.',
   },
+  combinedLevel: {
+    label: 'Combined levels',
+    title: 'Combined Companion Levels',
+    description: 'Players ranked by the sum of their companion levels across all streamers.',
+  },
 };
 
 let activeSessionId = 0;
@@ -186,7 +191,7 @@ function updateHeading(state) {
     : config.title;
   state.root.querySelector('[data-leaderboard-description]').textContent = state.adminMode
     ? 'Monitor automation, manage companion data, and review the current leaderboard.'
-    : state.metric === 'setsUnlocked'
+    : ['setsUnlocked', 'combinedLevel'].includes(state.metric)
       ? config.description
       : `${config.description} Showing ${state.streamer}'s community.`;
   state.root.querySelectorAll('[data-leaderboard-metric]').forEach((button) => {
@@ -194,8 +199,10 @@ function updateHeading(state) {
     button.setAttribute('aria-selected', String(selected));
     button.classList.toggle('is-active', selected);
   });
-  state.root.querySelector('[data-leaderboard-streamer-wrap]').hidden =
-    state.metric === 'setsUnlocked';
+  state.root.querySelector('[data-leaderboard-streamer-wrap]').hidden = [
+    'setsUnlocked',
+    'combinedLevel',
+  ].includes(state.metric);
 }
 
 function updateSnapshotTime(state, value) {
@@ -216,7 +223,7 @@ function updateSnapshotTime(state, value) {
 }
 
 function getLeaderboardUpdatedAt(state, payload) {
-  if (state.metric === 'setsUnlocked') return payload.snapshotGeneratedAt;
+  if (['setsUnlocked', 'combinedLevel'].includes(state.metric)) return payload.snapshotGeneratedAt;
   return (
     state.streamers.find(
       (streamer) => String(streamer?.login || '').toLowerCase() === state.streamer
@@ -439,7 +446,10 @@ export async function renderLeaderboardPage(
   resultContainer.innerHTML = `
     <section class="leaderboard-page" aria-live="polite">
       <header class="leaderboard-page__intro">
-        <h2 class="leaderboard-page__title" data-leaderboard-title>${adminMode ? 'Admin dashboard' : 'Leaderboard'}</h2>
+        <div class="special-page-heading-row">
+          <h2 class="leaderboard-page__title" data-leaderboard-title>${adminMode ? 'Admin dashboard' : 'Leaderboard'}</h2>
+          ${adminMode ? '' : '<a class="home-button special-page-heading-row__action" href="?stats">Companion stats</a>'}
+        </div>
         <p class="leaderboard-page__lead" data-leaderboard-description>${adminMode ? 'Monitor automation and manage companion leaderboard data.' : ''}</p>
         <p class="leaderboard-page__updated" data-leaderboard-updated hidden></p>
       </header>

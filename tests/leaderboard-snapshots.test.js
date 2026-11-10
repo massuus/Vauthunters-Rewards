@@ -291,7 +291,7 @@ test(
       assert.equal(published.changed, true);
       assert.equal(
         JSON.parse(env.LEADERBOARD_SNAPSHOTS.entries.get(SNAPSHOT_MANIFEST_KEY).body).format,
-        3
+        4
       );
       assert.equal(fullExports, 1);
       for (const [metric, primary, secondary] of [

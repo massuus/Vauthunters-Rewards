@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   addLinkedMinecraftAccounts,
+  addProfileImages,
   communityStreamRows,
 } from '../functions/api/community-live.js';
 
@@ -28,6 +29,7 @@ test('community discovery accepts Vault Hunters tags and titles while excluding 
   );
   assert.equal(rows[0].previewImageUrl.includes('440x248'), true);
   assert.equal(rows[0].viewerCount, 42);
+  assert.equal(rows[0].language, 'en');
 });
 
 test('community discovery rejects unsafe preview image hosts', () => {
@@ -39,6 +41,21 @@ test('community discovery rejects unsafe preview image hosts', () => {
     },
   ]);
   assert.equal(row.previewImageUrl, null);
+});
+
+test('community streams receive safe Twitch profile pictures', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () =>
+    Response.json({
+      data: [
+        {
+          login: 'community_player',
+          profile_image_url: 'https://static-cdn.jtvnw.net/jtv_user_pictures/avatar.png',
+        },
+      ],
+    })
+  );
+  const rows = await addProfileImages([{ login: 'community_player' }], {});
+  assert.equal(rows[0].profileImageUrl.endsWith('/avatar.png'), true);
 });
 
 test('community discovery accepts a directly checked known channel by its title', () => {

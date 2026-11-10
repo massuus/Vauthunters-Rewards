@@ -1,3 +1,4 @@
+import { getCompanionLeaderboardPage } from './companion-leaderboard.js';
 import { ApiError } from './http.js';
 
 export const SNAPSHOT_MANIFEST_KEY = 'leaderboards/v1/current.json';
@@ -77,7 +78,7 @@ async function readProfileShards(env, manifest, identifiers, origin) {
 }
 
 export function snapshotBoardKey(metric, streamer = '') {
-  return metric === 'setsUnlocked' ? metric : `${metric}/${streamer}`;
+  return ['setsUnlocked', 'combinedLevel'].includes(metric) ? metric : `${metric}/${streamer}`;
 }
 
 // This cache is shared by all page offsets and focus lookups at a data center.
@@ -325,6 +326,10 @@ export async function getSnapshotLeaderboardPage(env, params, metric, origin) {
   const manifest = await readManifest(env, origin);
   const key = snapshotBoardKey(metric, params.streamer);
   const board = manifest.boards[key];
+  // During rollout the previous snapshot has no combined board yet.
+  if (!board && metric === 'combinedLevel') {
+    return getCompanionLeaderboardPage(env, { ...params, metric });
+  }
   const total = board?.total || 0;
   let limit = Math.max(1, Math.min(50, Number(params.limit) || 10));
   let offset = Math.max(0, Math.min(1_000_000, Number(params.offset) || 0));

@@ -17,7 +17,9 @@ import { syncActiveNavigation } from '../components/navigation.js';
 export function setLoadingState(isLoading) {
   const button = form.querySelector('button');
   button.disabled = isLoading;
-  button.textContent = isLoading ? 'Searching...' : 'Search';
+  const label = isLoading ? 'Searching…' : 'Search';
+  button.setAttribute('aria-label', label);
+  button.querySelector('[data-search-button-label]')?.replaceChildren(label);
 }
 
 /**

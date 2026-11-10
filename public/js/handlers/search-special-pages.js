@@ -2,7 +2,6 @@ import {
   form,
   usernameInput,
   resultContainer,
-  recentContainer,
   DEFAULT_FAVICON,
   setFavicon,
   setMetaDescription,
@@ -99,8 +98,6 @@ export async function handleSpecialPageSearch(
   teardownLivePage();
 
   if (isDevelopersQuery(username)) {
-    recentContainer?.classList.add('hidden');
-    if (recentContainer) recentContainer.innerHTML = '';
     setLoadingState(true);
     try {
       await renderDevelopersPage(
@@ -125,8 +122,6 @@ export async function handleSpecialPageSearch(
   }
 
   if (isPatreonsQuery(username)) {
-    recentContainer?.classList.add('hidden');
-    if (recentContainer) recentContainer.innerHTML = '';
     setLoadingState(true);
     try {
       await renderPatreonsPage(
@@ -151,8 +146,6 @@ export async function handleSpecialPageSearch(
   }
 
   if (isIskall85PatreonsQuery(username)) {
-    recentContainer?.classList.add('hidden');
-    if (recentContainer) recentContainer.innerHTML = '';
     setLoadingState(true);
     try {
       await renderIskall85PatreonsPage(
@@ -177,8 +170,6 @@ export async function handleSpecialPageSearch(
   }
 
   if (isPrivacyQuery(username)) {
-    recentContainer?.classList.add('hidden');
-    if (recentContainer) recentContainer.innerHTML = '';
     renderPrivacyPage(
       resultContainer,
       setFavicon,
@@ -191,8 +182,6 @@ export async function handleSpecialPageSearch(
   }
 
   if (isStreamerStatsQuery(username)) {
-    recentContainer?.classList.add('hidden');
-    if (recentContainer) recentContainer.innerHTML = '';
     setLoadingState(true);
     try {
       await renderStreamerStatsPage(
@@ -211,8 +200,6 @@ export async function handleSpecialPageSearch(
   }
 
   if (isBadgesQuery(username)) {
-    recentContainer?.classList.add('hidden');
-    if (recentContainer) recentContainer.innerHTML = '';
     setLoadingState(true);
     try {
       await renderBadgesPage(
@@ -235,8 +222,6 @@ export async function handleSpecialPageSearch(
   }
 
   if (isLiveQuery(username)) {
-    recentContainer?.classList.add('hidden');
-    if (recentContainer) recentContainer.innerHTML = '';
     setLoadingState(true);
     try {
       await renderLivePage(
@@ -331,10 +316,6 @@ export async function handleSpecialPageSearch(
 
   if (isLeaderboardQuery(username)) {
     const targetPlayer = getLeaderboardQueryTarget(username);
-    // The home preview contains the same leading rows as the full unlock
-    // leaderboard. Remove it before rendering the full view to avoid duplicates.
-    recentContainer?.classList.add('hidden');
-    if (recentContainer) recentContainer.innerHTML = '';
     setLoadingState(true);
     try {
       await renderLeaderboardPage(
@@ -362,8 +343,6 @@ export async function handleSpecialPageSearch(
   }
 
   if (isAdminQuery(username)) {
-    recentContainer?.classList.add('hidden');
-    if (recentContainer) recentContainer.innerHTML = '';
     setLoadingState(true);
     try {
       await renderAdminPage(

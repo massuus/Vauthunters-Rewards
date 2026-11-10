@@ -100,3 +100,22 @@ test('sets API forwards only public shop metadata and falls back without claimin
   assert.equal(fallback.status, 200);
   assert.equal((await fallback.json())[0].price, undefined);
 });
+
+test('sets API can request the official rewards feed without calling the shop feed', async (t) => {
+  const calls = [];
+  t.mock.method(globalThis, 'fetch', async (url) => {
+    calls.push(String(url));
+    return Response.json([{ id: 'official', displayName: 'Official reward' }]);
+  });
+  const response = await onRequest({
+    request: new Request('https://example.test/api/sets?source=rewards'),
+    env: { REWARDS_API_KEY: 'test-key' },
+  });
+  assert.equal(response.status, 200);
+  assert.equal((await response.json())[0].id, 'official');
+  assert.equal(calls.length >= 1, true);
+  assert.equal(
+    calls.every((url) => url.includes('rewards.vaulthunters.gg')),
+    true
+  );
+});

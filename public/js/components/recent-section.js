@@ -13,22 +13,14 @@ import { getRecentUsers } from '../utils/storage-manager.js';
 import { escapeHtml } from '../features/reward-utils.js';
 import { getBestPatreonTier } from '../utils/tier-utils.js';
 import { fetchLeaderboardPage } from '../features/leaderboard.js';
+import { showHomeDashboard, hideHomeDashboard } from './home-dashboard.js';
 
 const HOME_LEADERBOARD_LIMIT = 5;
 let renderGeneration = 0;
 
 export function cancelRecentSectionRender() {
   renderGeneration += 1;
-}
-
-function renderHomeTierBadge(label, modifier) {
-  const safeLabel = String(label || '').trim();
-
-  if (!safeLabel) {
-    return `<span class="leaderboard-tier leaderboard-tier--${modifier} leaderboard-tier--empty">None</span>`;
-  }
-
-  return `<span class="leaderboard-tier leaderboard-tier--${modifier}">${escapeHtml(safeLabel)}</span>`;
+  hideHomeDashboard();
 }
 
 /**
@@ -44,6 +36,8 @@ export async function renderRecentSection({ signal } = {}) {
 
   const shouldShowHomeBlocks =
     !usernameInput.value.trim() && resultContainer.classList.contains('hidden');
+  if (shouldShowHomeBlocks) showHomeDashboard();
+  else hideHomeDashboard();
   const leaderboardSection = shouldShowHomeBlocks ? await renderHomeLeaderboardSection() : '';
   if (!isCurrent()) return;
 
@@ -61,7 +55,9 @@ export async function renderRecentSection({ signal } = {}) {
       return `<button class="recent-item" type="button" data-name="${safe}"><img src="${img}" alt="${safe}'s head" width="28" height="28"><span style="${nameStyle}">${safe}</span></button>`;
     })
     .join('');
-  const template = await loadTemplate('recent-section');
+  const template = await loadTemplate(
+    shouldShowHomeBlocks ? 'home-recent-section' : 'recent-section'
+  );
   if (!isCurrent()) return;
   recentContainer.innerHTML = renderTemplate(template, {
     buttons,
@@ -72,49 +68,58 @@ export async function renderRecentSection({ signal } = {}) {
 }
 
 async function renderHomeLeaderboardSection() {
-  try {
-    const payload = await fetchLeaderboardPage({
-      offset: 0,
-      limit: HOME_LEADERBOARD_LIMIT,
-      forceRefresh: false,
-    });
-
-    const players = Array.isArray(payload?.players) ? payload.players : [];
-    if (!players.length) {
-      return '';
-    }
-
-    const playerButtons = players
-      .map((player) => {
-        const playerName = escapeHtml(String(player?.playerNickname || 'Unknown Player'));
-        const playerUuid = String(player?.playerUUID || playerName || 'steve').trim();
-        const avatarUrl = proxiedImageUrl(
-          `https://mc-heads.net/avatar/${encodeURIComponent(playerUuid)}/64`
-        );
-        const rank = Math.max(1, Number(player?.rank || 1));
-        const sets = Math.max(0, Number(player?.setsUnlocked || 0));
-        const rankClass =
-          rank === 1
-            ? ' recent-item__rank--top1'
-            : rank === 2
-              ? ' recent-item__rank--top2'
-              : rank === 3
-                ? ' recent-item__rank--top3'
-                : '';
-        return `<button class="recent-item recent-item--leaderboard" type="button" data-name="${playerName}" title="Open ${playerName}"><span class="recent-item__rank${rankClass}">#${rank}</span><span class="recent-item__identity"><img src="${avatarUrl}" alt="${playerName} avatar" width="36" height="36" loading="lazy" decoding="async"><span class="recent-item__name" data-rank="${rank}">${playerName}</span></span><span class="recent-item__meta"><span class="recent-item__sets">${sets} set${sets === 1 ? '' : 's'}</span><span class="recent-item__tiers">${renderHomeTierBadge(player?.vaultHuntersTier, 'vh')}${renderHomeTierBadge(player?.iskall85Tier, 'iskall')}</span></span></button>`;
-      })
-      .join('');
-
-    return `
-      <h3 class="recent-title recent-title--leaderboard">Top Unlock Leaderboard</h3>
-      <div class="recent-grid">${playerButtons}</div>
-      <div class="recent-grid recent-grid--leaderboard-link">
-        <button class="recent-item" type="button" data-page="leaderboard">View Full Leaderboard</button>
-      </div>
-    `;
-  } catch {
-    return '';
-  }
+  const boards = [
+    {
+      title: 'Most reward sets',
+      metric: 'setsUnlocked',
+      note: 'Top unlock leaderboard',
+      link: '?leaderboard',
+      action: 'Full leaderboard',
+    },
+    {
+      title: 'Highest companion levels',
+      metric: 'seasonLevel',
+      note: "On Iskall85's stream",
+      link: '?leaderboard&metric=seasonLevel&streamer=iskall85',
+      action: 'Explore other streamers',
+    },
+    {
+      title: 'Combined companion levels',
+      metric: 'combinedLevel',
+      note: 'Each player, across all streamers',
+      link: '?leaderboard&metric=combinedLevel',
+      action: 'View all companion stats',
+    },
+  ];
+  const results = await Promise.allSettled(
+    boards.map((board) =>
+      fetchLeaderboardPage({ metric: board.metric, limit: HOME_LEADERBOARD_LIMIT })
+    )
+  );
+  return `<div class="home-rankings">${boards
+    .map((board, index) => {
+      const result = results[index];
+      const players = result.status === 'fulfilled' ? result.value.players : [];
+      const rows = players
+        .map((player) => {
+          const name = escapeHtml(player.playerNickname);
+          const identity = escapeHtml(
+            player.twitchName ? `twitch:${player.twitchName}` : player.playerNickname
+          );
+          const avatar = proxiedImageUrl(
+            `https://mc-heads.net/avatar/${encodeURIComponent(player.minecraftUUID || player.playerUUID || player.skinName || player.playerNickname)}/64`
+          );
+          const score =
+            board.metric === 'setsUnlocked'
+              ? `${player.setsUnlocked} sets`
+              : `${player.seasonLevel.toLocaleString()} levels`;
+          return `<button class="recent-item home-ranking__row" type="button" data-name="${identity}" title="Open ${name}"><span class="home-ranking__rank">#${player.rank}</span><img src="${avatar}" alt="" width="32" height="32" loading="lazy"><span class="home-ranking__player"><span class="home-ranking__name">${name}</span><strong>${score}</strong></span></button>`;
+        })
+        .join('');
+      const actionLink = board.metric === 'combinedLevel' ? '?stats' : board.link;
+      return `<section class="home-ranking"><header><h3>${board.title}</h3><p>${board.note}</p></header><div class="home-ranking__rows">${rows || `<p class="home-empty">${result.status === 'rejected' ? 'Ranking unavailable. Please try again later.' : 'No players ranked yet.'}</p>`}</div><div class="home-ranking__actions"><a class="home-button" href="${actionLink}">${board.action}</a></div></section>`;
+    })
+    .join('')}</div>`;
 }
 
 /**

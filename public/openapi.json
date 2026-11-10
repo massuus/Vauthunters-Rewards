@@ -241,7 +241,7 @@
             "description": "Ranking metric.",
             "schema": {
               "type": "string",
-              "enum": ["setsUnlocked", "seasonLevel", "vaultsJoined"],
+              "enum": ["setsUnlocked", "seasonLevel", "vaultsJoined", "combinedLevel"],
               "default": "setsUnlocked"
             }
           },

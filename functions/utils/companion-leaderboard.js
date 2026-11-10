@@ -16,6 +16,7 @@ const MAX_STAT_VALUE = 1_000_000;
 export const MAX_COMPANION_IDENTITY_LOOKUPS = 5;
 
 const METRICS = {
+  combinedLevel: { column: 'season_level', secondaryColumn: 'vaults_joined' },
   seasonLevel: {
     column: 'season_level',
     secondaryColumn: 'vaults_joined',
@@ -134,6 +135,7 @@ function getWindowOffset(rank, limit) {
 export async function getCompanionLeaderboardPage(env, params, options = {}) {
   const db = requireDb(env);
   await ensureCompanionLeaderboardSchema(env);
+  if (params?.metric === 'combinedLevel') return getCombinedLeaderboardPage(db, params);
 
   const streamer = normalizeStreamer(params?.streamer, 'iskall85');
   if (!streamer) throw new ApiError(400, 'Streamer must be a valid Twitch login.');
@@ -503,5 +505,68 @@ export async function upsertCompanionPlayers(
     received: rawPlayers.length,
     updated: players.length,
     skipped,
+  };
+}
+
+// Group by Twitch identity, never display alias: aliases can differ between streams.
+async function getCombinedLeaderboardPage(db, params) {
+  const limit = clampInt(params.limit, DEFAULT_PAGE_LIMIT, 1, MAX_PAGE_LIMIT);
+  const requestedOffset = clampInt(params.offset, 0, 0, MAX_OFFSET);
+  const target = String(params.targetPlayer || '')
+    .trim()
+    .toLowerCase()
+    .slice(0, 64);
+  const cte = `WITH identities AS (
+    SELECT *, LOWER(twitch_name) AS identity,
+      ROW_NUMBER() OVER (PARTITION BY LOWER(twitch_name) ORDER BY updated_at DESC, streamer_login ASC) AS identity_row
+    FROM companion_leaderboard_players
+  ), totals AS (
+    SELECT identity, SUM(season_level) AS season_level, SUM(vaults_joined) AS vaults_joined
+    FROM identities GROUP BY identity
+  ), ranked AS (
+    SELECT i.twitch_name, i.player_name, i.alias, i.minecraft_uuid, i.minecraft_name,
+      i.updated_at, t.season_level, t.vaults_joined,
+      RANK() OVER (ORDER BY t.season_level DESC) AS rank,
+      ROW_NUMBER() OVER (ORDER BY t.season_level DESC, t.vaults_joined DESC,
+        COALESCE(i.alias, i.twitch_name) COLLATE NOCASE ASC, i.twitch_name ASC) - 1 AS position
+    FROM identities i JOIN totals t ON t.identity = i.identity WHERE i.identity_row = 1
+  )`;
+  const focus = target
+    ? await db
+        .prepare(
+          `${cte} SELECT * FROM ranked
+    WHERE LOWER(twitch_name) = ?1 OR LOWER(player_name) = ?1
+      OR LOWER(COALESCE(minecraft_name, '')) = ?1 OR LOWER(COALESCE(alias, '')) = ?1
+    ORDER BY position LIMIT 1`
+        )
+        .bind(target)
+        .first()
+    : null;
+  const offset = focus
+    ? Math.max(0, focus.position - Math.floor((limit - 1) / 2))
+    : requestedOffset;
+  const [page, count] = await Promise.all([
+    db
+      .prepare(`${cte} SELECT * FROM ranked ORDER BY position LIMIT ?1 OFFSET ?2`)
+      .bind(limit, offset)
+      .all(),
+    db
+      .prepare(
+        'SELECT COUNT(DISTINCT LOWER(twitch_name)) AS total FROM companion_leaderboard_players'
+      )
+      .first(),
+  ]);
+  const players = (page.results || []).map(mapRow);
+  const total = Number(count?.total || 0);
+  return {
+    metric: 'combinedLevel',
+    total,
+    limit,
+    offset,
+    nextOffset: offset + players.length,
+    hasMore: offset + players.length < total,
+    players,
+    focusPlayer: focus ? mapRow(focus) : null,
+    streamers: [],
   };
 }

@@ -173,8 +173,8 @@
 
 .site-nav a:focus-visible,
 .site-nav button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 /* Collapse before the brand and all six links run out of horizontal space. */

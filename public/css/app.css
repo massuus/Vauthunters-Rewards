@@ -126,47 +126,6 @@ img[src$='/spring-boots.png'] {
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-.search__form > button[type='submit'] {
-  flex: 0 0 auto; /* keep natural size, don't shrink */
-  padding: 0.85rem 1.6rem;
-  border-radius: 999px;
-  border: 2px solid color-mix(in srgb, var(--accent) 75%, #ffd764 25%);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--accent) 82%, #ffe08f 18%) 0%,
-    color-mix(in srgb, var(--accent) 92%, #ffb942 8%) 64%,
-    color-mix(in srgb, var(--accent) 78%, #c76b00 22%) 100%
-  );
-  color: #1a1209;
-  font-family: 'Rajdhani', sans-serif;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  box-shadow:
-    0 7px 0 color-mix(in srgb, var(--accent) 58%, #8f4200 42%),
-    0 11px 20px rgba(0, 0, 0, 0.3);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.search__form > button[type='submit']:hover {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--accent) 74%, #ffe8a8 26%) 0%,
-    color-mix(in srgb, var(--accent) 88%, #ffc95d 12%) 64%,
-    color-mix(in srgb, var(--accent) 76%, #b45e00 24%) 100%
-  );
-}
-
-.search__form > button[type='submit']:active {
-  transform: translateY(5px);
-  box-shadow:
-    0 2px 0 color-mix(in srgb, var(--accent) 58%, #8f4200 42%),
-    0 6px 12px rgba(0, 0, 0, 0.22);
-}
-
 .feedback {
   min-height: 1.4rem;
   margin-top: 0.75rem;
@@ -1921,19 +1880,46 @@ img[src$='/spring-boots.png'] {
   }
 
   .search__form {
-    flex-direction: column;
+    flex-direction: row;
     align-items: stretch;
-    gap: 0.8rem;
+    gap: 0;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    background: #151a20;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+    overflow: hidden;
+  }
+
+  .search__form .search__field input[type='text'],
+  .search__form .search__field input[type='text']:focus {
+    border: 0;
+    border-radius: 13px 0 0 13px;
+    box-shadow: none;
   }
 
   .search__form > button[type='submit'] {
-    width: 100%;
-    min-height: 3.25rem;
-    padding: 0.95rem 1.15rem;
-    border-radius: 16px;
-    box-shadow:
-      0 5px 0 color-mix(in srgb, var(--accent) 58%, #8f4200 42%),
-      0 10px 18px rgba(0, 0, 0, 0.24);
+    align-self: stretch;
+    width: 3.5rem;
+    min-width: 3.5rem;
+    min-height: 0;
+    padding: 0;
+    border-width: 0 0 0 1px;
+    border-color: rgba(0, 0, 0, 0.28);
+    border-radius: 0 13px 13px 0;
+    color: #171109;
+    background: var(--accent);
+    box-shadow: none;
+  }
+
+  .search__form > button[type='submit']:hover {
+    color: #171109;
+    background: color-mix(in srgb, var(--accent) 84%, #ffd276 16%);
+  }
+
+  .search__form > button[type='submit']:active,
+  .search__form > button[type='submit'].is-pressed {
+    transform: none;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.24);
   }
 
   .player-card {
