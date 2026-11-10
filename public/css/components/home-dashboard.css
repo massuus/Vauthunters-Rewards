@@ -308,10 +308,18 @@
     grid-template-columns: minmax(240px, 0.95fr) minmax(0, 1fr);
     column-gap: 1rem;
   }
+  .is-home-dashboard .search:has(.home-recents .recent-grid:empty) {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .is-home-dashboard .search__form {
     grid-column: 1;
     grid-row: 1;
     align-self: end;
+  }
+  .is-home-dashboard .search:has(.home-recents .recent-grid:empty) .search__form {
+    grid-column: 1;
+    width: min(100%, 36rem);
+    justify-self: center;
   }
   .is-home-dashboard #recent {
     display: contents;
@@ -332,11 +340,14 @@
   }
   .is-home-dashboard .home-recents .recent-grid {
     flex-wrap: nowrap;
-    overflow-x: auto;
+    overflow: hidden;
     padding-bottom: 0.3rem;
   }
   .is-home-dashboard .home-recents .recent-item {
     flex-shrink: 0;
+  }
+  .is-home-dashboard .home-recents .recent-item[hidden] {
+    display: none;
   }
   .is-home-dashboard .home-recents .recent-item span {
     max-width: 5rem;

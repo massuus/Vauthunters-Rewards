@@ -17,9 +17,12 @@ import { showHomeDashboard, hideHomeDashboard } from './home-dashboard.js';
 
 const HOME_LEADERBOARD_LIMIT = 5;
 let renderGeneration = 0;
+let recentItemsObserver = null;
 
 export function cancelRecentSectionRender() {
   renderGeneration += 1;
+  recentItemsObserver?.disconnect();
+  recentItemsObserver = null;
   hideHomeDashboard();
 }
 
@@ -127,6 +130,32 @@ async function renderHomeLeaderboardSection() {
  */
 function bindRecentHandlers() {
   if (!recentContainer) return;
+  const recentGrid = recentContainer.querySelector('.recent-grid');
+  if (recentGrid) {
+    recentItemsObserver?.disconnect();
+    const fitRecentItems = () => {
+      const items = Array.from(recentGrid.querySelectorAll('button.recent-item[data-name]'));
+      const widths = items.map((item) => {
+        item.hidden = false;
+        return item.getBoundingClientRect().width;
+      });
+      const gap = parseFloat(getComputedStyle(recentGrid).columnGap) || 0;
+      let usedWidth = 0;
+      let hasOverflow = false;
+      items.forEach((item, index) => {
+        const nextWidth = widths[index] + (usedWidth > 0 ? gap : 0);
+        hasOverflow ||= usedWidth + nextWidth > recentGrid.clientWidth;
+        item.hidden = hasOverflow;
+        if (!item.hidden) usedWidth += nextWidth;
+      });
+    };
+    fitRecentItems();
+    if (typeof ResizeObserver !== 'undefined') {
+      recentItemsObserver = new ResizeObserver(fitRecentItems);
+      recentItemsObserver.observe(recentGrid);
+    }
+  }
+
   recentContainer.querySelectorAll('button.recent-item[data-name]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const name = btn.getAttribute('data-name') || '';

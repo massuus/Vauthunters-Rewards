@@ -184,12 +184,16 @@
 
   body:not(.is-home-dashboard) .search #recent .recent-grid {
     flex-wrap: nowrap;
-    overflow-x: auto;
+    overflow: hidden;
     padding-bottom: 0.35rem;
   }
 
   body:not(.is-home-dashboard) .search #recent .recent-item {
     flex-shrink: 0;
+  }
+
+  body:not(.is-home-dashboard) .search #recent .recent-item[hidden] {
+    display: none;
   }
 }
 
@@ -239,15 +243,19 @@
   padding: 0;
 }
 
-.search__submit svg {
+.search__submit .search__icon {
   width: 2rem;
   height: 2rem;
-  fill: currentColor;
-  fill-rule: evenodd;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.search__submit .search__pixel-glint {
-  fill: rgba(255, 255, 255, 0.46);
+.search__submit .search__icon-glint {
+  stroke: rgba(255, 255, 255, 0.75);
+  stroke-width: 1.5;
 }
 
 .search__form > button[type='submit']:hover {

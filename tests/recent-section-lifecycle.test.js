@@ -72,6 +72,47 @@ test('delayed profile recents cannot commit after their navigation is cancelled'
   assert.equal(classes.has('hidden'), true);
 });
 
+test('recent search chips that do not fit are hidden and restored when space returns', () => {
+  const items = [80, 90, 100].map((width) => ({
+    hidden: false,
+    addEventListener() {},
+    getAttribute: () => 'Alice',
+    getBoundingClientRect: () => ({ width }),
+  }));
+  const grid = {
+    clientWidth: 170,
+    querySelectorAll: () => items,
+  };
+  let resize;
+  const context = vm.createContext({
+    recentContainer: {
+      querySelector: () => grid,
+      querySelectorAll: () => items,
+    },
+    getComputedStyle: () => ({ columnGap: '8px' }),
+    ResizeObserver: class {
+      constructor(callback) {
+        resize = callback;
+      }
+
+      observe() {}
+      disconnect() {}
+    },
+  });
+  vm.runInContext(source, context);
+  context.bindRecentHandlers();
+  assert.deepEqual(
+    items.map((item) => item.hidden),
+    [false, true, true]
+  );
+  grid.clientWidth = 300;
+  resize();
+  assert.deepEqual(
+    items.map((item) => item.hidden),
+    [false, false, false]
+  );
+});
+
 test('startup lets a preset route own its recent-section rendering', async () => {
   let recents = 0;
   let submissions = 0;
