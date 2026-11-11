@@ -50,3 +50,21 @@ test('prioritizes kingodogo tribute first', () => {
     ['kingodogo_tribute', 'dylan_vip', 'beta', 'alpha']
   );
 });
+
+test('preserves all custom tribute rewards when catalog lookup fails', () => {
+  const override = getProfileOverride('duckfromhell');
+  const sets = prioritizeSets(
+    mergeUniqueSets(['golden_kappa'], [], ...override.rewardKeys),
+    override.priorityKeys
+  );
+  assert.deepEqual(sets, ['duckfromhell_tribute_1', 'duckfromhell_tribute_2', 'golden_kappa']);
+});
+
+test('merges the full catalog and both custom tribute rewards', () => {
+  const override = getProfileOverride('duckfromhell');
+  const sets = prioritizeSets(
+    mergeUniqueSets(['golden_kappa'], ['golden_kappa', 'new_reward'], ...override.rewardKeys),
+    override.priorityKeys
+  );
+  assert.deepEqual(sets, ['duckfromhell_tribute_1', 'duckfromhell_tribute_2', 'golden_kappa', 'new_reward']);
+});
