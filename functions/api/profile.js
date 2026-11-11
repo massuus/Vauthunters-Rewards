@@ -489,14 +489,13 @@ async function fetchAllSetKeys(request, env) {
     };
     return data;
   } catch (error) {
-    // Never cache or return a partially unlocked tribute profile.
+    // Catalog fetch failures must not make tribute profiles unavailable.
+    // Leave the failed result uncached so the next request can retry.
     setArtKeyCache.inFlight = null;
     console.error('Failed to load set art keys for tribute profile', {
       message: error instanceof Error ? error.message : String(error),
     });
-    const unavailable = new Error('Reward catalog temporarily unavailable. Please try again.');
-    unavailable.status = 503;
-    throw unavailable;
+    return [];
   }
 }
 
