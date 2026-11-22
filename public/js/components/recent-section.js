@@ -24,6 +24,12 @@ export function cancelRecentSectionRender() {
   recentItemsObserver?.disconnect();
   recentItemsObserver = null;
   hideHomeDashboard();
+  // Home rankings must leave with the dashboard layout, before a lookup waits
+  // for its profile response or the compact recent-search template.
+  if (recentContainer?.querySelector?.('.home-rankings')) {
+    recentContainer.innerHTML = '';
+    recentContainer.classList.add('hidden');
+  }
 }
 
 /**
@@ -39,16 +45,8 @@ export async function renderRecentSection({ signal } = {}) {
 
   const shouldShowHomeBlocks =
     !usernameInput.value.trim() && resultContainer.classList.contains('hidden');
-  if (shouldShowHomeBlocks) showHomeDashboard();
-  else hideHomeDashboard();
-  const leaderboardSection = shouldShowHomeBlocks ? await renderHomeLeaderboardSection() : '';
-  if (!isCurrent()) return;
-
-  if (!items.length && !leaderboardSection) {
-    recentContainer.classList.add('hidden');
-    recentContainer.innerHTML = '';
-    return;
-  }
+  if (!shouldShowHomeBlocks) hideHomeDashboard();
+  const leaderboardPromise = shouldShowHomeBlocks ? renderHomeLeaderboardSection() : null;
   const buttons = items
     .map((u) => {
       const img = proxiedImageUrl(u.head || DEFAULT_FAVICON);
@@ -62,12 +60,20 @@ export async function renderRecentSection({ signal } = {}) {
     shouldShowHomeBlocks ? 'home-recent-section' : 'recent-section'
   );
   if (!isCurrent()) return;
-  recentContainer.innerHTML = renderTemplate(template, {
-    buttons,
-    leaderboardSection,
-  });
-  recentContainer.classList.remove('hidden');
-  bindRecentHandlers();
+  const commit = (leaderboardSection = '', enterHome = false) => {
+    recentContainer.innerHTML = renderTemplate(template, { buttons, leaderboardSection });
+    if (items.length || leaderboardSection) recentContainer.classList.remove('hidden');
+    else recentContainer.classList.add('hidden');
+    if (enterHome) showHomeDashboard();
+    bindRecentHandlers();
+  };
+  // Commit the home wrapper and its layout together; rankings can arrive later.
+  commit('', shouldShowHomeBlocks);
+  if (shouldShowHomeBlocks) {
+    const leaderboardSection = await leaderboardPromise;
+    if (!isCurrent()) return;
+    commit(leaderboardSection);
+  }
 }
 
 async function renderHomeLeaderboardSection() {

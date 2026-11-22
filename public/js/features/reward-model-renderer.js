@@ -52,7 +52,9 @@ function schedule() {
 
 function tick(now) {
   frame = null;
-  const visible = [...active].filter((view) => view.visible);
+  const visible = [...active].filter(
+    (view) => view.visible && (view.animating() || view.needsDraw())
+  );
   if (!visible.length) return;
   const dirty = visible.some((view) => view.needsDraw());
   if (!dirty && now - lastRenderedAt < MODEL_FRAME_INTERVAL) {
@@ -69,7 +71,7 @@ function tick(now) {
       view.dispose();
     }
   }
-  if ([...active].some((view) => view.visible && (!view.reduced.matches || view.needsDraw())))
+  if ([...active].some((view) => view.visible && (view.animating() || view.needsDraw())))
     schedule();
 }
 
@@ -512,14 +514,17 @@ export async function mountRewardModel(host, signal) {
   let asleep = false;
   let stateStart = 0;
   let hovered = false;
+  let clicked = false;
+  let lastFrameTime = null;
   let elapsed = 0;
+  let cycleIndex = 0;
   let drawn = false;
   let dirty = true;
   let dimensionsReady = false;
   const controller = new AbortController();
   const card = host.closest('article') || host;
   const label = data.label || 'Terraxe and Terra’s Wrath';
-  host.setAttribute('role', data.kind === 'companion' ? 'button' : 'img');
+  host.setAttribute('role', 'button');
   host.setAttribute('aria-label', label);
   const updateLabel = () => {
     const hint = asleep ? 'Wake companion' : 'Put companion to sleep';
@@ -529,46 +534,64 @@ export async function mountRewardModel(host, signal) {
   };
   const listen = (target, event, handler) =>
     target.addEventListener(event, handler, { signal: controller.signal });
+  const animating = () => !reduced.matches && (hovered || clicked);
+  const setHovered = (value) => {
+    hovered = value;
+    lastFrameTime = null;
+    if (!asleep) stateStart = elapsed;
+    dirty = true;
+    schedule();
+  };
+  host.tabIndex = 0;
+  listen(card, 'pointerenter', (event) => {
+    if (event.pointerType !== 'touch') setHovered(true);
+  });
+  listen(card, 'pointerleave', () => setHovered(false));
+  listen(card, 'pointercancel', () => setHovered(false));
+  listen(host, 'keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      event.stopPropagation();
+      host.click();
+    }
+  });
   if (data.kind === 'companion') {
     host.tabIndex = 0;
     updateLabel();
-    const setHovered = (value) => {
-      hovered = value;
-      if (!asleep) stateStart = elapsed;
-      dirty = true;
-      schedule();
-    };
-    listen(card, 'pointerenter', (event) => {
-      if (event.pointerType !== 'touch') setHovered(true);
-    });
-    listen(card, 'pointerleave', () => setHovered(false));
-    listen(card, 'pointercancel', () => setHovered(false));
     listen(card, 'click', (event) => {
       if (event.target.closest('a, details, button')) return;
+      clicked = true;
+      lastFrameTime = null;
       asleep = !asleep;
       stateStart = elapsed;
       dirty = true;
       updateLabel();
       schedule();
     });
-    listen(host, 'keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        event.stopPropagation();
-        host.click();
-      }
+  } else {
+    host.title = 'Hover to animate · Click to toggle animation';
+    host.setAttribute('aria-pressed', 'false');
+    listen(host, 'click', () => {
+      clicked = !clicked;
+      lastFrameTime = null;
+      host.setAttribute('aria-pressed', String(clicked));
+      dirty = true;
+      schedule();
     });
   }
   const view = {
     visible: false,
     reduced,
+    animating,
     invalidate: () => {
       dirty = true;
     },
     needsDraw: () => !drawn || dirty,
     draw(now, rendererEntry, ratio) {
       if (!dimensionsReady) return false;
-      elapsed = reduced.matches ? 0 : now / 1000;
+      if (animating() && lastFrameTime !== null) elapsed += (now - lastFrameTime) / 1000;
+      lastFrameTime = animating() ? now : null;
+      if (reduced.matches) elapsed = 0;
       if (data.kind === 'companion') {
         const stateElapsed = elapsed - stateStart;
         const { clip, time } = companionAnimation(
@@ -602,7 +625,7 @@ export async function mountRewardModel(host, signal) {
         const cyclesItems = data.cycleItems === true || model.items.length > 3;
         // Give dense reward sets enough time for each model to be inspected.
         // This used to switch every 2.4 seconds.
-        const visibleItem = cyclesItems ? Math.floor(elapsed / 4.8) % model.items.length : -1;
+        const visibleItem = cyclesItems ? cycleIndex % model.items.length : -1;
         model.items.forEach((item, index) => {
           item.visible = !cyclesItems || index === visibleItem;
           // The exported GUI transform faces Minecraft's negative-Z camera.
@@ -625,9 +648,7 @@ export async function mountRewardModel(host, signal) {
         camera.position.set(center.x, center.y + distance * 0.4, center.z - distance);
       } else {
         const cyclesItems = data.cycleItems === true || model.items.length > 3;
-        const visibleItem = cyclesItems
-          ? model.items[Math.floor(elapsed / 4.8) % model.items.length]
-          : null;
+        const visibleItem = cyclesItems ? model.items[cycleIndex % model.items.length] : null;
         // Each cycled model gets its own frame. Hidden siblings must not reserve
         // horizontal space or pull the visible reward away from the card centre.
         const frameSize = visibleItem?.userData.frameSize || size;
@@ -681,6 +702,7 @@ export async function mountRewardModel(host, signal) {
   };
   const visibility = new IntersectionObserver(([entry]) => {
     view.visible = entry.isIntersecting;
+    lastFrameTime = null;
     if (view.visible) dirty = true;
     schedule();
   });
@@ -696,7 +718,20 @@ export async function mountRewardModel(host, signal) {
     schedule();
   });
   active.add(view);
+  // Cycling stays automatic even when the displayed model's motion is paused.
+  const cycleTimer =
+    data.kind === 'items' &&
+    model.items.length > 1 &&
+    (data.cycleItems === true || model.items.length > 3)
+      ? setInterval(() => {
+          if (!view.visible || document.hidden || reduced.matches) return;
+          cycleIndex += 1;
+          dirty = true;
+          schedule();
+        }, 4800)
+      : null;
   view.dispose = () => {
+    clearInterval(cycleTimer);
     controller.abort();
     visibility.disconnect();
     resize.disconnect();

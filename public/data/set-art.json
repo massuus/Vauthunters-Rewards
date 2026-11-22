@@ -761,5 +761,15 @@
     "descriptionObtained": "You obtained this axe as a Soul Champion arena reward or purchased it from the companion shop during Halloween 2026.",
     "descriptionLocked": "Obtain this axe as a Soul Champion arena reward or purchase it from the companion shop during Halloween 2026.",
     "category": "Halloween 2026"
+  },
+    "celebrate_piggy_stash": {
+    "label": "Celebrate Piggy Stash",
+    "image": "/img/piggy1.png",
+    "images": ["/img/piggy1.png", "/img/piggy2.png"],
+    "alt": "Celebrate Piggy Stash reward",
+    "obtainable": true,
+    "descriptionObtained": "You unlocked Celebrate Piggy Stash by redeeming CELEBRATE-PIGGY.",
+    "descriptionLocked": "Redeem CELEBRATE-PIGGY to unlock Celebrate Piggy Stash. Available until 29 November 2026.",
+    "category": "Server Event"
   }
 }

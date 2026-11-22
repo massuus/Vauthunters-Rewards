@@ -1,6 +1,7 @@
 /* CSS Variables and Theme Configuration */
 
 :root {
+  --content-width: 980px;
   /* Colors */
   --bg: #171a1d;
   --panel: rgba(38, 43, 49, 0.84);

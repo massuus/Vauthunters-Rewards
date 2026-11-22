@@ -1,5 +1,5 @@
-const OFFICIAL_SERVERS_CACHE_KEY = 'vh.officialServers.v1';
-const OFFICIAL_SERVERS_CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
+const OFFICIAL_SERVERS_CACHE_KEY = 'vh.officialServers.v2';
+const OFFICIAL_SERVERS_CACHE_TTL_MS = 60 * 1000; // 1 minute for online players
 const OFFICIAL_SERVERS_API_URL = '/api/server';
 const REGION_QUERY_ALIASES = {
   au: 'australia',

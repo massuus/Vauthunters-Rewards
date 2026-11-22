@@ -23,6 +23,7 @@ function fixture({ home = true } = {}) {
         remove: (value) => classes.delete(value),
       },
       querySelectorAll: () => [],
+      querySelector: () => null,
     },
     getRecentUsers: () => (home ? [] : [{ name: 'Alice' }]),
     escapeHtml: (value) => value,
@@ -35,6 +36,37 @@ function fixture({ home = true } = {}) {
   vm.runInContext(source, context);
   return { context, classes };
 }
+
+test('leaving home removes dashboard rankings before the next page loads', () => {
+  const { context, classes } = fixture();
+  classes.delete('hidden');
+  context.recentContainer.innerHTML = '<div class="home-rankings">Home rankings</div>';
+  context.recentContainer.querySelector = (selector) => (selector === '.home-rankings' ? {} : null);
+  context.cancelRecentSectionRender();
+  assert.equal(context.recentContainer.innerHTML, '');
+  assert.equal(classes.has('hidden'), true);
+});
+
+test('home recents and layout appear together before slow rankings finish', async () => {
+  const { context, classes } = fixture();
+  context.getRecentUsers = () => [{ name: 'Alice' }];
+  context.loadTemplate = async (name) => name;
+  context.renderTemplate = (name, data) => `${name}:${data.buttons}:${data.leaderboardSection}`;
+  let shown = false;
+  context.showHomeDashboard = () => {
+    shown = true;
+    assert.match(context.recentContainer.innerHTML, /^home-recent-section:/);
+    assert.match(context.recentContainer.innerHTML, /Alice/);
+  };
+  const releases = [];
+  context.fetchLeaderboardPage = () => new Promise((resolve) => releases.push(resolve));
+  const pending = context.renderRecentSection();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(shown, true);
+  assert.equal(classes.has('hidden'), false);
+  releases.forEach((release) => release({ players: [] }));
+  await pending;
+});
 
 test('delayed home leaderboard cannot reappear after navigating away', async () => {
   const { context, classes } = fixture();

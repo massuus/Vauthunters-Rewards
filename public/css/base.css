@@ -1,5 +1,9 @@
 /* Base styles and resets */
 
+html {
+  scrollbar-gutter: stable;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -51,7 +55,7 @@ body::after {
 }
 
 .page {
-  width: min(980px, 100%);
+  width: min(var(--content-width), 100%);
   position: relative;
   z-index: 1;
 }

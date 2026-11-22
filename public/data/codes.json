@@ -1,5 +1,15 @@
 [
   {
+    "id": "celebrate_piggy_stash",
+    "name": "Celebrate Piggy Stash",
+    "description": "Unlock Celebrate Piggy Stash. Available for seven days, until 29 November 2026.",
+    "vodUrl":"https://www.twitch.tv/videos/2937271381",
+    "code": "CELEBRATE-PIGGY",
+    "images": ["/img/piggy1.png", "/img/piggy2.png"],
+    "expires": "29-11-2026",
+    "updatedAt": "2026-11-22T00:00:00Z"
+  },
+  {
     "id": "iskall100",
     "name": "I85 100steam",
     "description": "This reward was to celebrate the 100th iskall85 stream since his return!",

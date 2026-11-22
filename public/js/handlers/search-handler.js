@@ -89,6 +89,7 @@ async function submitSearch() {
 
   teardownSetCardHandlers();
   cancelRecentSectionRender();
+  void renderRecentSection({ signal: controller.signal }).catch(() => {});
 
   const playerLookup = /^[A-Za-z0-9_]{3,16}$/.test(username) || /^twitch\s*:/i.test(username);
   if (

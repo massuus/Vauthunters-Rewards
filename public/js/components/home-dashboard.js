@@ -5,6 +5,20 @@ import { fetchCodesData, isCodeExpired } from './special-pages/codes-page.js';
 let controller;
 let refreshTimer;
 
+export function renderHomeCodeReward(code) {
+  const images = Array.isArray(code.images) ? code.images : [code.image];
+  const artwork = images
+    .filter(Boolean)
+    .map(
+      (image) =>
+        `<img src="${escapeHtml(proxiedImageUrl(image))}" width="52" height="52" alt="${escapeHtml(code.name || 'Reward')}" loading="lazy">`
+    )
+    .join('');
+  const streamUrl = code.vodUrl || code.streamUrl;
+  const safeStream = /^https?:\/\//i.test(streamUrl || '') ? streamUrl : '';
+  return `<article class="home-code-reward"><div class="home-reward"><div class="home-code-reward__images">${artwork}</div><span><strong>${escapeHtml(code.name || 'Reward code')}</strong>${code.expires ? `<small>Claimable until ${escapeHtml(code.expires)}</small>` : ''}</span></div><div class="home-code-reward__actions">${safeStream ? `<a class="home-button" href="${escapeHtml(safeStream)}" target="_blank" rel="noopener">Go to stream</a>` : ''}<button class="home-button" type="button" data-home-reveal-code="${escapeHtml(code.code)}" aria-expanded="false">Show code</button></div><code class="home-code-reward__code" data-home-code-value hidden aria-live="polite"></code></article>`;
+}
+
 export function hideHomeDashboard() {
   controller?.abort();
   clearInterval(refreshTimer);
@@ -98,7 +112,23 @@ export function showHomeDashboard() {
       if (!active.length) return;
       const section = rewards.querySelector('[data-home-codes]');
       section.hidden = false;
-      section.innerHTML = `<h3>Active reward codes</h3><p>${active.length} code${active.length === 1 ? '' : 's'} available to redeem</p><a class="home-button" href="?codes">View active codes</a>`;
+      section.innerHTML = `<h3>Available to redeem</h3>${active.map(renderHomeCodeReward).join('')}`;
+      section.querySelectorAll('[data-home-reveal-code]').forEach((button) => {
+        button.addEventListener(
+          'click',
+          () => {
+            const readout = button
+              .closest('.home-code-reward')
+              .querySelector('[data-home-code-value]');
+            const show = readout.hidden;
+            readout.textContent = show ? button.getAttribute('data-home-reveal-code') : '';
+            readout.hidden = !show;
+            button.textContent = show ? 'Hide code' : 'Show code';
+            button.setAttribute('aria-expanded', String(show));
+          },
+          { signal }
+        );
+      });
     })
     .catch(() => {});
 }

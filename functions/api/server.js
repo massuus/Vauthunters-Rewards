@@ -28,20 +28,21 @@ export async function onRequest() {
       allowedTiers: Array.isArray(item?.allowedTiers)
         ? item.allowedTiers.map((tier) => String(tier || '')).filter(Boolean)
         : [],
-      players: Array.isArray(item?.players)
-        ? item.players
-            .map((player) => ({
-              ign: String(player?.ign || ''),
-              active: player?.active !== false,
-              hasAccess: player?.hasAccess !== false,
-            }))
-            .filter((player) => player.ign)
-        : [],
+      players:
+        Array.isArray(item?.status?.players) || Array.isArray(item?.players)
+          ? (Array.isArray(item?.status?.players) ? item.status.players : item.players)
+              .map((player) => ({
+                ign: String(player?.ign || player?.name || '').trim(),
+                active: player?.active !== false,
+                hasAccess: player?.hasAccess !== false,
+              }))
+              .filter((player) => player.ign)
+          : [],
       updatedAt: String(item?.updatedAt || ''),
     }));
 
     return json(minimal, 200, {
-      'cache-control': 'public, max-age=600, s-maxage=3600',
+      'cache-control': 'public, max-age=60, s-maxage=60',
     });
   } catch (error) {
     const status = typeof error?.status === 'number' ? error.status : 500;

@@ -99,7 +99,9 @@ test('all card previews share one scissored WebGL renderer and animation clock',
   assert.match(source, /renderer\.setScissor\(/);
   assert.match(source, /transferToImageBitmap/);
   assert.match(source, /getContext\('bitmaprenderer'\)/);
-  assert.match(source, /elapsed = reduced\.matches \? 0 : now \/ 1000/);
+  assert.match(source, /const animating = \(\) => !reduced\.matches && \(hovered \|\| clicked\)/);
+  assert.match(source, /if \(animating\(\) && lastFrameTime !== null\) elapsed \+=/);
+  assert.match(source, /view\.visible && \(view\.animating\(\) \|\| view\.needsDraw\(\)\)/);
   assert.doesNotMatch(source, /rendererPool|renderCursor/);
 });
 

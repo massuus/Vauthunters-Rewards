@@ -125,10 +125,7 @@ export async function renderOfficialServersPage(
   try {
     const servers = getVisibleServers(await fetchOfficialServers());
     if (signal?.aborted) return;
-    const serversWithPlayers = servers.filter(
-      (server) => Array.isArray(server?.players) && server.players.length > 0
-    );
-    const groupedServers = groupServersByRegion(serversWithPlayers);
+    const groupedServers = groupServersByRegion(servers);
 
     const groupedCards = groupedServers.length
       ? groupedServers
@@ -150,12 +147,12 @@ export async function renderOfficialServersPage(
         <header class="official-servers-page__intro">
           <h2 class="official-servers-page__title">Official Servers</h2>
           <p class="official-servers-page__lead">Browse official Vault Hunters servers!</p>
-          <p class="official-servers-page__subtext">${serversWithPlayers.length} active server${serversWithPlayers.length !== 1 ? 's' : ''} across ${groupedServers.length} region${groupedServers.length !== 1 ? 's' : ''}</p>
+          <p class="official-servers-page__subtext">${servers.length} server${servers.length !== 1 ? 's' : ''} across ${groupedServers.length} region${groupedServers.length !== 1 ? 's' : ''}</p>
         </header>
         ${
           groupedCards
             ? `<div class="official-servers-page__groups">${groupedCards}</div>`
-            : '<p class="official-servers-page__empty">No official servers with listed players are available right now.</p>'
+            : '<p class="official-servers-page__empty">No official servers are available right now.</p>'
         }
       </section>
     `;
