@@ -1,4 +1,5 @@
 import { json } from '../utils/http.js';
+import setArtCatalog from '../../public/data/set-art.json';
 import {
   fetchRewards,
   fetchRewardsByTwitch,
@@ -33,7 +34,7 @@ import {
 const USERNAME_REGEX = /^[A-Za-z0-9_]{3,16}$/;
 const TWITCH_USERNAME_REGEX = /^[A-Za-z0-9_]{1,25}$/;
 const ISKALL_TIER_ORDER = ['Iron', 'Gold', 'Diamond', 'Iskallium Diamond', 'Emerald'];
-const SET_ART_CACHE_TTL_MS = 60 * 60 * 1000;
+const ALL_SET_KEYS = Object.freeze(Object.keys(setArtCatalog));
 const PROFILE_OVERRIDES = {
   duckfromhell: {
     rewardKeys: ['duckfromhell_tribute_1', 'duckfromhell_tribute_2'],
@@ -47,12 +48,6 @@ const PROFILE_OVERRIDES = {
 const PROFILE_BROWSER_CACHE_TTL_SECONDS = 30;
 const PROFILE_EDGE_CACHE_TTL_SECONDS = 120;
 const D1_READ_RETRY_DELAY_MS = 5 * 60 * 1000;
-
-let setArtKeyCache = {
-  data: null,
-  expiresAt: 0,
-  inFlight: null,
-};
 
 let d1ReadsUnavailableUntil = 0;
 
@@ -289,7 +284,7 @@ async function handleRequest({ request, env, waitUntil }, measure) {
       : apiRewards;
 
     const profileOverride = getProfileOverride(name) || requestedProfileOverride;
-    const allSetKeys = profileOverride ? await fetchAllSetKeys(request, env) : [];
+    const allSetKeys = profileOverride ? ALL_SET_KEYS : [];
     const { rewards, sets } = rewardsData;
     const unlockedSets = profileOverride
       ? prioritizeSets(
@@ -449,55 +444,6 @@ export function getProfileOverride(username) {
     .trim()
     .toLowerCase();
   return PROFILE_OVERRIDES[key] || null;
-}
-
-async function fetchAllSetKeys(request, env) {
-  const now = Date.now();
-
-  if (setArtKeyCache.data && now < setArtKeyCache.expiresAt) {
-    return setArtKeyCache.data;
-  }
-
-  if (setArtKeyCache.inFlight) {
-    return setArtKeyCache.inFlight;
-  }
-
-  const setArtUrl = new URL('/data/set-art.json', request.url);
-  setArtKeyCache.inFlight = (env?.ASSETS ? env.ASSETS.fetch(new Request(setArtUrl)) : fetch(setArtUrl))
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Set art load failed: ${response.status}`);
-      }
-
-      return response.json();
-    })
-    .then((data) => {
-      if (!data || Array.isArray(data) || typeof data !== 'object') {
-        throw new Error('Set art catalog has an invalid shape');
-      }
-      const keys = Object.keys(data).filter(Boolean);
-      if (!keys.length) throw new Error('Set art catalog is empty');
-      return keys;
-    });
-
-  try {
-    const data = await setArtKeyCache.inFlight;
-    setArtKeyCache = {
-      data,
-      expiresAt: Date.now() + SET_ART_CACHE_TTL_MS,
-      inFlight: null,
-    };
-    return data;
-  } catch (error) {
-    // Never cache or return a partially unlocked tribute profile.
-    setArtKeyCache.inFlight = null;
-    console.error('Failed to load set art keys for tribute profile', {
-      message: error instanceof Error ? error.message : String(error),
-    });
-    const unavailable = new Error('Reward catalog temporarily unavailable. Please try again.');
-    unavailable.status = 503;
-    throw unavailable;
-  }
 }
 
 export function mergeUniqueSets(primarySets, secondarySets, ...extraSets) {

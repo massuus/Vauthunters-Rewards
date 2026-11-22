@@ -1,12 +1,47 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import catalog from '../public/data/set-art.json';
 
 import {
   getProfileOverride,
   isTributeProfile,
   mergeUniqueSets,
   prioritizeSets,
+  onRequest,
 } from '../functions/api/profile.js';
+
+test('tribute profile includes the full bundled catalog without a static asset request', async (t) => {
+  let assetRequests = 0;
+  t.mock.method(globalThis, 'fetch', async (url) => {
+    const value = String(url);
+    if (value.includes('playerdb'))
+      return Response.json({
+        success: true,
+        data: { player: { username: 'KingoDogo', raw_id: 'a37759b7a74143b6b8f1f1e4668072d0' } },
+      });
+    if (value.includes('/users/reward/list')) return Response.json({});
+    if (value.includes('/users/reward?uuid=')) return Response.json({ tier: [] });
+    if (value.includes('/rewards?minecraft=')) return Response.json({ sets: [], rewards: {} });
+    assetRequests += 1;
+    return new Response('Forbidden', { status: 403 });
+  });
+  const response = await onRequest({
+    request: new Request('https://example.test/api/profile?username=KingoDogo'),
+    env: {
+      ASSETS: {
+        fetch() {
+          assetRequests += 1;
+          return new Response('Forbidden', { status: 403 });
+        },
+      },
+    },
+  });
+  assert.equal(response.status, 200);
+  const profile = await response.json();
+  for (const key of Object.keys(catalog)) assert.ok(profile.sets.includes(key), key);
+  assert.equal(profile.sets[0], 'kingodogo_tribute');
+  assert.equal(assetRequests, 0);
+});
 
 test('matches the tribute profile username case-insensitively', () => {
   assert.equal(isTributeProfile('duckfromhell'), true);
@@ -66,5 +101,10 @@ test('merges the full catalog and both custom tribute rewards', () => {
     mergeUniqueSets(['golden_kappa'], ['golden_kappa', 'new_reward'], ...override.rewardKeys),
     override.priorityKeys
   );
-  assert.deepEqual(sets, ['duckfromhell_tribute_1', 'duckfromhell_tribute_2', 'golden_kappa', 'new_reward']);
+  assert.deepEqual(sets, [
+    'duckfromhell_tribute_1',
+    'duckfromhell_tribute_2',
+    'golden_kappa',
+    'new_reward',
+  ]);
 });
