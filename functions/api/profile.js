@@ -289,7 +289,7 @@ async function handleRequest({ request, env, waitUntil }, measure) {
       : apiRewards;
 
     const profileOverride = getProfileOverride(name) || requestedProfileOverride;
-    const allSetKeys = profileOverride ? await fetchAllSetKeys(request) : [];
+    const allSetKeys = profileOverride ? await fetchAllSetKeys(request, env) : [];
     const { rewards, sets } = rewardsData;
     const unlockedSets = profileOverride
       ? prioritizeSets(
@@ -451,7 +451,7 @@ export function getProfileOverride(username) {
   return PROFILE_OVERRIDES[key] || null;
 }
 
-async function fetchAllSetKeys(request) {
+async function fetchAllSetKeys(request, env) {
   const now = Date.now();
 
   if (setArtKeyCache.data && now < setArtKeyCache.expiresAt) {
@@ -463,7 +463,7 @@ async function fetchAllSetKeys(request) {
   }
 
   const setArtUrl = new URL('/data/set-art.json', request.url);
-  setArtKeyCache.inFlight = fetch(setArtUrl)
+  setArtKeyCache.inFlight = (env?.ASSETS ? env.ASSETS.fetch(new Request(setArtUrl)) : fetch(setArtUrl))
     .then((response) => {
       if (!response.ok) {
         throw new Error(`Set art load failed: ${response.status}`);
@@ -471,30 +471,42 @@ async function fetchAllSetKeys(request) {
 
       return response.json();
     })
-    .then((data) => (data && typeof data === 'object' ? Object.keys(data).filter(Boolean) : []))
-    .catch((error) => {
-      console.error('Failed to load set art keys for tribute profile', {
-        message: error instanceof Error ? error.message : String(error),
-      });
-      return [];
+    .then((data) => {
+      if (!data || Array.isArray(data) || typeof data !== 'object') {
+        throw new Error('Set art catalog has an invalid shape');
+      }
+      const keys = Object.keys(data).filter(Boolean);
+      if (!keys.length) throw new Error('Set art catalog is empty');
+      return keys;
     });
 
-  const data = await setArtKeyCache.inFlight;
-  setArtKeyCache = {
-    data,
-    expiresAt: Date.now() + SET_ART_CACHE_TTL_MS,
-    inFlight: null,
-  };
-  return data;
+  try {
+    const data = await setArtKeyCache.inFlight;
+    setArtKeyCache = {
+      data,
+      expiresAt: Date.now() + SET_ART_CACHE_TTL_MS,
+      inFlight: null,
+    };
+    return data;
+  } catch (error) {
+    // Never cache or return a partially unlocked tribute profile.
+    setArtKeyCache.inFlight = null;
+    console.error('Failed to load set art keys for tribute profile', {
+      message: error instanceof Error ? error.message : String(error),
+    });
+    const unavailable = new Error('Reward catalog temporarily unavailable. Please try again.');
+    unavailable.status = 503;
+    throw unavailable;
+  }
 }
 
-export function mergeUniqueSets(primarySets, secondarySets, extraSet) {
+export function mergeUniqueSets(primarySets, secondarySets, ...extraSets) {
   return Array.from(
     new Set(
       [
         ...(Array.isArray(primarySets) ? primarySets : []),
         ...(Array.isArray(secondarySets) ? secondarySets : []),
-        extraSet,
+        ...extraSets,
       ].filter(Boolean)
     )
   );
