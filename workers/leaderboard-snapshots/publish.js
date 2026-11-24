@@ -284,6 +284,7 @@ export async function publishSnapshots(env) {
     previous.statsVersion === 4 &&
     previous.profileVersion === 1 &&
     previous.unlockEligibilityVersion === 2 &&
+    previous.boards?.combinedLevel &&
     previous.revision === current.revision
   ) {
     return { changed: false, revision: current.revision };

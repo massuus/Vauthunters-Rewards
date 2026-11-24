@@ -245,6 +245,23 @@ test('snapshot pages handle chunk boundaries, tied focus, unknown names, and zer
 });
 
 const sqlite = await import('node:sqlite').catch(() => null);
+test('missing combined snapshot never falls back to database scans', async () => {
+  const snapshot = buildSnapshot([], [], 1);
+  delete snapshot.manifest.boards.combinedLevel;
+  const env = {
+    LEADERBOARD_SNAPSHOTS: await seedBucket(snapshot),
+    LEADERBOARD_DB: {
+      prepare() {
+        throw new Error('Unexpected database query');
+      },
+    },
+  };
+  await assert.rejects(
+    getSnapshotLeaderboardPage(env, { limit: 5 }, 'combinedLevel', 'https://example.test'),
+    (error) => error.status === 503 && /being prepared/.test(error.message)
+  );
+});
+
 test(
   'snapshot SQL migrations, global ranking parity, change detection, and failed publication',
   { skip: !sqlite },
@@ -366,6 +383,26 @@ test(
         true,
         'an unchanged database must regenerate older stats to include level-vault graph data'
       );
+      const missingCombined = JSON.parse(
+        env.LEADERBOARD_SNAPSHOTS.entries.get(SNAPSHOT_MANIFEST_KEY).body
+      );
+      delete missingCombined.boards.combinedLevel;
+      await env.LEADERBOARD_SNAPSHOTS.put(SNAPSHOT_MANIFEST_KEY, JSON.stringify(missingCombined));
+      assert.equal(
+        (await publishSnapshots(env)).changed,
+        true,
+        'unchanged database must rebuild a snapshot missing the combined leaderboard'
+      );
+      const combinedPage = await getSnapshotLeaderboardPage(
+        env,
+        { limit: 5 },
+        'combinedLevel',
+        'https://example.test'
+      );
+      assert.equal(combinedPage.players.length, 5);
+      const exportsAfterRepair = fullExports;
+      assert.equal((await publishSnapshots(env)).changed, false);
+      assert.equal(fullExports, exportsAfterRepair, 'repair must not cause repeated full exports');
       const upgradedPointer = env.LEADERBOARD_SNAPSHOTS.entries.get(SNAPSHOT_MANIFEST_KEY).body;
       database.exec(
         "UPDATE leaderboard_players SET source = 'import'; UPDATE companion_leaderboard_players SET alias = alias"

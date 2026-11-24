@@ -1,4 +1,3 @@
-import { getCompanionLeaderboardPage } from './companion-leaderboard.js';
 import { ApiError } from './http.js';
 
 export const SNAPSHOT_MANIFEST_KEY = 'leaderboards/v1/current.json';
@@ -326,9 +325,12 @@ export async function getSnapshotLeaderboardPage(env, params, metric, origin) {
   const manifest = await readManifest(env, origin);
   const key = snapshotBoardKey(metric, params.streamer);
   const board = manifest.boards[key];
-  // During rollout the previous snapshot has no combined board yet.
+  // A stale snapshot must never trigger a full-table aggregation per visitor.
   if (!board && metric === 'combinedLevel') {
-    return getCompanionLeaderboardPage(env, { ...params, metric });
+    throw new ApiError(
+      503,
+      'Combined leaderboard results are being prepared. Please try again shortly.'
+    );
   }
   const total = board?.total || 0;
   let limit = Math.max(1, Math.min(50, Number(params.limit) || 10));

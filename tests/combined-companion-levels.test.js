@@ -66,7 +66,7 @@ test('combined snapshots sum by Twitch account, retain distinct aliases, ties an
 });
 
 test(
-  'D1 combined ranking matches snapshots, supports focus, empty pages and rollout fallback',
+  'D1 combined ranking matches snapshots, supports focus, empty pages and safe rollout failure',
   { skip: !sqlite },
   async () => {
     const database = new sqlite.DatabaseSync(':memory:');
@@ -132,13 +132,15 @@ test(
       assert.equal(empty.players.length, 0);
       const snapshot = buildSnapshot([], rows, 1);
       delete snapshot.manifest.boards.combinedLevel;
-      const fallback = await getSnapshotLeaderboardPage(
-        { ...env, LEADERBOARD_SNAPSHOTS: bucket(snapshot) },
-        { limit: 2 },
-        'combinedLevel',
-        'https://test.example'
+      await assert.rejects(
+        getSnapshotLeaderboardPage(
+          { ...env, LEADERBOARD_SNAPSHOTS: bucket(snapshot) },
+          { limit: 2 },
+          'combinedLevel',
+          'https://test.example'
+        ),
+        (error) => error.status === 503
       );
-      assert.deepEqual(fallback.players, page.players);
     } finally {
       database.close();
     }
