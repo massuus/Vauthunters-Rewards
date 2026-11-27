@@ -8,7 +8,7 @@ import {
 import {
   sanitizeBadgeCatalog,
   catalogBadge,
-} from '../scripts/companion-collector/badge-catalog.mjs';
+} from '../functions/utils/companion-contracts/badge-catalog.mjs';
 import { onRequest } from '../functions/api/badges.js';
 
 const definition = (id, name, description) => ({

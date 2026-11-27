@@ -1,7 +1,4 @@
-import {
-  sanitizeBadgeCatalog,
-  catalogBadge,
-} from '../../scripts/companion-collector/badge-catalog.mjs';
+import { sanitizeBadgeCatalog, catalogBadge } from '../utils/companion-contracts/badge-catalog.mjs';
 import { methodNotAllowed, noStoreJson } from '../utils/http.js';
 
 export async function onRequest({ request, env }) {

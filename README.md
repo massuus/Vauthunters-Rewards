@@ -4,8 +4,12 @@ A lightweight web app to look up a Minecraft player and display their Vault Hunt
 
 Live site: https://vh-rewards.massuus.com/
 
-For the code layout, validation commands, and cleanup priorities, see the
-[maintenance guide](docs/maintenance.md).
+This repository contains the website, its Pages Functions API, database migrations,
+leaderboard snapshot publisher, and the scripts that build its reward models.
+
+The Discord updater and companion collector/automation live separately in the private
+[Vauthunters-Tools](https://github.com/massuus/Vauthunters-Tools) repository. They
+communicate with this site's API over HTTP and are deployed independently.
 
 ## API documentation
 
@@ -477,7 +481,7 @@ submissions are closed. Legacy admin and Discord APIs remain for existing record
 ## Verification
 
 ```bash
-npm run test:all
+npm test
 npm run lint
 npm run build:prod
 ```
