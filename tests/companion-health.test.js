@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { sanitizeHealth } from '../scripts/companion-collector/health-contract.mjs';
+import { sanitizeHealth } from '../functions/utils/companion-contracts/health-contract.mjs';
 import { storeHealth, loadHealth } from '../functions/utils/companion-health.js';
 import { onRequest as readStatus } from '../functions/api/admin/companion-health.js';
 import { onRequest as writeStatus } from '../functions/api/companion-health.js';

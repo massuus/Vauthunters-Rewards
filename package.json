@@ -21,8 +21,6 @@
     "snapshots:deploy": "npx --yes wrangler@4.131.0 deploy --config workers/leaderboard-snapshots/wrangler.jsonc",
     "snapshots:dev": "npx --yes wrangler@4.131.0 dev --config workers/leaderboard-snapshots/wrangler.jsonc --test-scheduled",
     "test": "node --import ./tests/register-json-loader.mjs --test tests/*.test.js",
-    "test:collector": "npm --prefix scripts/companion-collector test",
-    "test:all": "npm test && npm run test:collector",
     "lint": "eslint . --ext .js,.mjs",
     "lint:fix": "eslint . --ext .js,.mjs --fix",
     "format": "prettier --write .",

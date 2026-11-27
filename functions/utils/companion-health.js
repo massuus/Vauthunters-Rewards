@@ -1,4 +1,4 @@
-import { sanitizeHealth } from '../../scripts/companion-collector/health-contract.mjs';
+import { sanitizeHealth } from './companion-contracts/health-contract.mjs';
 import { ApiError } from './http.js';
 
 export async function storeHealth(env, payload, now = Date.now()) {

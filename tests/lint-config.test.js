@@ -7,7 +7,7 @@ test('lint catches undefined names in every runtime while accepting its configur
   for (const [filePath, source] of [
     ['functions/services/lint-probe.js', 'console.error(process.version);'],
     ['public/js/core/lint-probe.js', 'console.error(document.title);'],
-    ['scripts/companion-collector/lint-probe.mjs', 'console.error(process.version);'],
+    ['scripts/reward-models/lint-probe.mjs', 'console.error(process.version);'],
     ['tests/lint-probe.test.js', 'console.error(Buffer.alloc(1));'],
     ['public/sw.js', 'console.error(self.location, __BUILD_REV__);'],
   ]) {
